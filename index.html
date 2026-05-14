@@ -1,45 +1,826 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Samara - Trazabilidad y Mantenimiento</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Samara - Trazabilidad y Mantenimiento</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-<style>
-/* DISEÑO MINIMALISTA SAMARA */
-:root {
-  --bg: #ffffff;
-  --surface: #fafafa;
-  --text-main: #111111;
-  --text-muted: #666666;
-  --border: #eaeaea;
-  --accent: #000000;
-  --accent-hover: #333333;
-  --danger: #d93025;
-  --success: #1e8e3e;
-  --radius: 8px;
-}
+    <style>
+        /* DISEÑO MINIMALISTA SAMARA */
+        :root {
+            --bg: #ffffff;
+            --surface: #fafafa;
+            --text-main: #111111;
+            --text-muted: #666666;
+            --border: #eaeaea;
+            --accent: #000000;
+            --accent-hover: #333333;
+            --danger: #d93025;
+            --success: #1e8e3e;
+            --radius: 8px;
+        }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; }
-body { background: var(--bg); color: var(--text-main); min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+        }
 
-/* UTILIDADES Y BOTONES */
-.btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-.btn:hover { background: var(--border); }
-.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-.btn-primary:hover { background: var(--accent-hover); }
-.btn-danger { color: var(--danger); border-color: var(--border); }
-.btn-danger:hover { background: #fff5f5; border-color: var(--danger); }
-.input-box { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; font-size: 14px; outline: none; background: var(--bg); color: var(--text-main); transition: border 0.2s; }
-.input-box:focus { border-color: var(--accent); }
-.badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; border: 1px solid var(--border); }
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* LOGIN */
-#login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: var(--surface); }
-.login-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 40px; width: 100%; max-width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-.login-logo { font-size: 24px; font-weight: 700; text-align: center; letter-spacing: -0.5px; margin-bottom: 8px; }
-.login-sub { font-size: 13px; color:
+        /* UTILIDADES Y BOTONES */
+        .btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .btn:hover {
+                background: var(--border);
+            }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+            .btn-primary:hover {
+                background: var(--accent-hover);
+            }
+
+        .btn-danger {
+            color: var(--danger);
+            border-color: var(--border);
+        }
+
+            .btn-danger:hover {
+                background: #fff5f5;
+                border-color: var(--danger);
+            }
+
+        .input-box {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 12px;
+            font-size: 14px;
+            outline: none;
+            background: var(--bg);
+            color: var(--text-main);
+            transition: border 0.2s;
+        }
+
+            .input-box:focus {
+                border-color: var(--accent);
+            }
+
+        .badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: 500;
+            border: 1px solid var(--border);
+        }
+
+        /* LOGIN */
+        #login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: var(--surface);
+        }
+
+        .login-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        .login-logo {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .login-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            .form-group label {
+                font-size: 12px;
+                color: var(--text-muted);
+                font-weight: 500;
+            }
+
+        /* APP LAYOUT */
+        #app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+        }
+
+        .logo-app {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .nav-wrap {
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            overflow-x: auto;
+        }
+
+        .nav {
+            display: flex;
+            padding: 0 20px;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            padding: 14px 0;
+            font-size: 13px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+            .nav-btn:hover {
+                color: var(--text-main);
+            }
+
+            .nav-btn.active {
+                color: var(--accent);
+                border-bottom-color: var(--accent);
+                font-weight: 500;
+            }
+
+        .main {
+            padding: 24px 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .panel-hidden {
+            display: none !important;
+        }
+
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* TARJETAS Y TABLAS */
+        .card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 500;
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            font-size: 13px;
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* MODALES */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+            .modal-backdrop.open {
+                display: flex;
+            }
+
+        .modal {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 20px;
+        }
+
+        /* ESCANER QR */
+        #reader {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+            #reader video {
+                object-fit: cover;
+                border-radius: 12px;
+            }
+
+        /* IMPRESIÓN */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                text-align: center;
+                margin-top: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="login-logo">Samara</div>
+            <div class="login-sub">Control y Trazabilidad</div>
+            <div class="form-group"><label>Email</label><input type="email" id="l-email" class="input-box" placeholder="usuario@empresa.com"></div>
+            <div class="form-group"><label>Contraseña</label><input type="password" id="l-pass" class="input-box" placeholder="••••••••"></div>
+            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top: 8px;" onclick="doLogin()">Entrar</button>
+        </div>
+    </div>
+
+    <div id="app">
+        <div class="header">
+            <div class="logo-app">Samara</div>
+            <div class="user-info">
+                <span id="user-display">Usuario</span>
+                <button class="btn" onclick="doLogout()" style="padding: 4px 8px;" title="Cerrar Sesión"><i class="ti ti-logout"></i></button>
+            </div>
+        </div>
+        <div class="nav-wrap">
+            <div class="nav">
+                <button class="nav-btn active" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Resumen</button>
+                <button class="nav-btn" onclick="setTab('equipos')"><i class="ti ti-box"></i> Equipos</button>
+                <button class="nav-btn" id="nav-usuarios" onclick="setTab('usuarios')"><i class="ti ti-users"></i> Usuarios</button>
+                <button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>
+                <button class="nav-btn" onclick="setTab('escaner'); startScanner();"><i class="ti ti-scan"></i> Escanear Código</button>
+            </div>
+        </div>
+
+        <div class="main">
+
+            <div id="tab-dashboard" class="card">
+                <div class="card-header"><div class="card-title">Mantenimientos Recientes</div></div>
+                <div id="hist-list">Cargando trazabilidad...</div>
+            </div>
+
+            <div id="tab-equipos" class="panel-hidden card">
+                <div class="card-header">
+                    <div class="card-title">Inventario Activo</div>
+                    <button class="btn btn-primary" id="btn-add-eq" onclick="openModalEquipo()"><i class="ti ti-plus"></i> Registrar Equipo</button>
+                </div>
+                <div id="eq-list">Cargando...</div>
+            </div>
+
+            <div id="tab-usuarios" class="panel-hidden card">
+                <div class="card-header">
+                    <div class="card-title">Gestión de Personal</div>
+                </div>
+                <div id="user-list">Cargando...</div>
+            </div>
+
+            <div id="tab-downtime" class="panel-hidden">
+                <div class="grid-stats" id="dt-stats"></div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Análisis de Paros y Fallas</div></div>
+                    <div id="dt-list">Cargando...</div>
+                </div>
+            </div>
+
+            <div id="tab-escaner" class="panel-hidden card">
+                <div class="card-header"><div class="card-title">Lector de Trazabilidad QR</div></div>
+                <div style="max-width: 500px; margin: 0 auto; text-align: center;">
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Apunta la cámara al código QR del equipo para registrar una acción.</p>
+                    <div id="reader"></div>
+                    <button class="btn" style="margin-top: 16px;" onclick="stopScanner()">Detener Cámara</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-equipo">
+        <div class="modal">
+            <div class="modal-title"><span id="eq-modal-title">Nuevo Equipo</span> <button class="close-btn" onclick="closeModal('modal-equipo')"><i class="ti ti-x"></i></button></div>
+            <input type="hidden" id="edit-eq-id">
+            <div class="form-group"><label>Código de Activo</label><input type="text" id="eq-cod" class="input-box" placeholder="Ej. LFT-01"></div>
+            <div class="form-group"><label>Nombre del Equipo</label><input type="text" id="eq-nom" class="input-box" placeholder="Torno CNC"></div>
+            <div class="form-group"><label>Área / Zona</label><input type="text" id="eq-area" class="input-box" placeholder="Producción"></div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                <button class="btn" onclick="closeModal('modal-equipo')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-usuario">
+        <div class="modal">
+            <div class="modal-title">Editar Perfil <button class="close-btn" onclick="closeModal('modal-usuario')"><i class="ti ti-x"></i></button></div>
+            <input type="hidden" id="edit-u-id">
+            <div class="form-group"><label>Nombre Completo</label><input type="text" id="u-nom" class="input-box"></div>
+            <div class="form-group">
+                <label>Rol</label>
+                <select id="u-rol" class="input-box">
+                    <option value="tecnico">Técnico</option>
+                    <option value="admin">Administrador</option>
+                    <option value="gerencia">Gerencia</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                <button class="btn" onclick="closeModal('modal-usuario')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveUser()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-qr">
+        <div class="modal" style="text-align: center;">
+            <div class="modal-title" style="justify-content: center;">Etiqueta QR <button class="close-btn" style="position: absolute; right: 24px;" onclick="closeModal('modal-qr')"><i class="ti ti-x"></i></button></div>
+            <div id="print-area" style="padding: 20px; background: #fff; border: 1px dashed #ccc; border-radius: 8px; display: inline-block;">
+                <h3 id="qr-eq-nom" style="margin-bottom: 4px; font-size: 16px;">-</h3>
+                <p id="qr-eq-cod" style="font-family: monospace; color: #666; font-size: 12px; margin-bottom: 16px;">-</p>
+                <div id="qr-code-canvas" style="display: flex; justify-content: center; margin-bottom: 12px;"></div>
+                <p style="font-size: 10px; color: #999;">Propiedad de la Empresa</p>
+            </div>
+            <div style="margin-top: 24px;">
+                <button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir Etiqueta</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-mant">
+        <div class="modal">
+            <div class="modal-title">Registrar Acción <button class="close-btn" onclick="closeModal('modal-mant')"><i class="ti ti-x"></i></button></div>
+            <div style="background: var(--surface); padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border);">
+                <div style="font-size: 12px; color: var(--text-muted);">Equipo Detectado:</div>
+                <strong id="m-eq-nom" style="font-size: 15px;">-</strong> (<span id="m-eq-cod"></span>)
+            </div>
+            <input type="hidden" id="m-eq-id">
+
+            <div class="form-group">
+                <label>Técnico Asignado (Auto)</label>
+                <input type="text" id="m-tec" class="input-box" readonly style="background: var(--surface); color: var(--text-muted);">
+            </div>
+            <div class="form-group">
+                <label>Tipo de Registro</label>
+                <select id="m-tipo" class="input-box">
+                    <option value="Preventivo">Mantenimiento Preventivo</option>
+                    <option value="Correctivo">Reparación Correctiva</option>
+                    <option value="Inspección">Inspección de Rutina</option>
+                    <option value="Falla">Reporte de Falla (Downtime)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Descripción del Trabajo / Falla</label>
+                <textarea id="m-desc" class="input-box" rows="4" placeholder="Detalles de la intervención..."></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                <button class="btn" onclick="closeModal('modal-mant')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarMantenimiento()">Registrar Trazabilidad</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SUPABASE CONFIG ---
+        const SUPA_URL = 'https://knzelkthjzdtlghaizmr.supabase.co';
+        const SUPA_KEY = 'sb_publishable_GG8verAjJsOogBUy1j0wtw_buSA6kwK';
+        const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+        let curUser = null;
+        let curProf = null;
+        let equipos = [];
+        let usuarios = [];
+        let html5QrcodeScanner = null;
+
+        // --- UTILIDADES ---
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+            document.querySelectorAll(`#${id} input:not([readonly]), #${id} textarea`).forEach(i => i.value = "");
+        }
+        function formatDate(iso) { return new Date(iso).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }); }
+
+        // --- AUTHENTICATION ---
+        async function doLogin() {
+            const email = document.getElementById('l-email').value.trim();
+            const pass = document.getElementById('l-pass').value;
+            if (!email || !pass) return alert("Ingresa datos");
+            const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+            if (error) return alert("Error: " + error.message);
+            loadApp(data.user);
+        }
+
+        async function doLogout() {
+            await db.auth.signOut();
+            window.location.reload();
+        }
+
+        db.auth.getSession().then(({ data: { session } }) => {
+            if (session) loadApp(session.user);
+        });
+
+        async function loadApp(user) {
+            curUser = user;
+            const { data } = await db.from('profiles').select('*').eq('id', user.id).single();
+            curProf = data || { nombre: user.email.split('@')[0], rol: 'tecnico' };
+
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('user-display').textContent = `${curProf.nombre} (${curProf.rol})`;
+
+            // PERMISOS BASADOS EN ROL
+            if (curProf.rol !== 'admin') {
+                document.getElementById('nav-usuarios').style.display = 'none';
+                if (document.getElementById('btn-add-eq')) document.getElementById('btn-add-eq').style.display = 'none';
+            }
+            if (curProf.rol === 'tecnico') {
+                document.getElementById('nav-downtime').style.display = 'none';
+            }
+
+            await fetchData();
+        }
+
+        // --- DATA FETCHING ---
+        async function fetchData() {
+            const [eqRes, uRes, mantRes] = await Promise.all([
+                db.from('equipos').select('*').order('id', { ascending: false }),
+                db.from('profiles').select('*'),
+                db.from('mantenimientos').select('*, equipos(nombre, codigo)').order('fecha_registro', { ascending: false }).limit(100)
+            ]);
+
+            equipos = eqRes.data || [];
+            usuarios = uRes.data || [];
+            const mantenimientos = mantRes.data || [];
+
+            renderEquipos();
+            renderUsuarios();
+            renderHistorial(mantenimientos);
+            renderDowntime(mantenimientos);
+        }
+
+        // --- NAVEGACIÓN ---
+        function setTab(tabId) {
+            document.querySelectorAll('.panel-hidden, .card:not(.card-header)').forEach(el => {
+                if (el.id && el.id.startsWith('tab-')) el.classList.add('panel-hidden');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('panel-hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('onclick').includes(tabId));
+            });
+
+            if (tabId !== 'escaner') stopScanner();
+        }
+
+        // --- MÓDULO DE EQUIPOS Y QR ---
+        function renderEquipos() {
+            const html = equipos.length ? `<table>
+        <thead><tr><th>Código</th><th>Equipo</th><th>Área</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>${equipos.map(e => `
+          <tr>
+            <td style="font-family:monospace; color:var(--text-muted)">${e.codigo}</td>
+            <td><strong>${e.nombre}</strong></td>
+            <td>${e.area || '-'}</td>
+            <td><span class="badge" style="border-color:${e.estado === 'Operativo' ? 'var(--success)' : 'var(--danger)'}; color:${e.estado === 'Operativo' ? 'var(--success)' : 'var(--danger)'}">${e.estado}</span></td>
+            <td style="display:flex; gap:6px;">
+              <button class="btn" onclick="verQR('${e.codigo}', '${e.nombre}')" title="Generar QR"><i class="ti ti-qrcode"></i></button>
+              ${curProf.rol === 'admin' ? `
+                <button class="btn" onclick="openModalEquipo(${e.id})" title="Editar"><i class="ti ti-edit"></i></button>
+                <button class="btn btn-danger" onclick="deleteEq(${e.id})" title="Eliminar"><i class="ti ti-trash"></i></button>
+              ` : ''}
+            </td>
+          </tr>
+        `).join('')}</tbody></table>` : '<p style="color:var(--text-muted); font-size: 13px;">No hay equipos registrados.</p>';
+            document.getElementById('eq-list').innerHTML = html;
+        }
+
+        function openModalEquipo(id = null) {
+            if (id) {
+                const e = equipos.find(x => x.id === id);
+                document.getElementById('edit-eq-id').value = e.id;
+                document.getElementById('eq-cod').value = e.codigo;
+                document.getElementById('eq-nom').value = e.nombre;
+                document.getElementById('eq-area').value = e.area;
+                document.getElementById('eq-modal-title').textContent = "Editar Equipo";
+            } else {
+                document.getElementById('edit-eq-id').value = "";
+                document.getElementById('eq-modal-title').textContent = "Nuevo Equipo";
+            }
+            openModal('modal-equipo');
+        }
+
+        async function guardarEquipo() {
+            const id = document.getElementById('edit-eq-id').value;
+            const payload = {
+                codigo: document.getElementById('eq-cod').value.trim(),
+                nombre: document.getElementById('eq-nom').value.trim(),
+                area: document.getElementById('eq-area').value.trim()
+            };
+            if (!payload.codigo || !payload.nombre) return alert("Código y Nombre son obligatorios");
+
+            if (id) {
+                await db.from('equipos').update(payload).eq('id', id);
+            } else {
+                await db.from('equipos').insert(payload);
+            }
+
+            closeModal('modal-equipo');
+            fetchData();
+        }
+
+        async function deleteEq(id) {
+            if (!confirm("¿Estás seguro de eliminar este equipo permanentemente?")) return;
+            await db.from('equipos').delete().eq('id', id);
+            fetchData();
+        }
+
+        function verQR(codigo, nombre) {
+            document.getElementById('qr-eq-nom').textContent = nombre;
+            document.getElementById('qr-eq-cod').textContent = codigo;
+            const container = document.getElementById('qr-code-canvas');
+            container.innerHTML = '';
+            new QRCode(container, {
+                text: codigo, width: 150, height: 150, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+            });
+            openModal('modal-qr');
+        }
+
+        // --- MÓDULO DE USUARIOS ---
+        function renderUsuarios() {
+            if (curProf.rol !== 'admin') return;
+            const html = usuarios.length ? `<table>
+        <thead><tr><th>Nombre</th><th>Rol</th><th>Acciones</th></tr></thead>
+        <tbody>${usuarios.map(u => `
+          <tr>
+            <td><strong>${u.nombre}</strong></td>
+            <td><span class="badge">${u.rol}</span></td>
+            <td style="display:flex; gap:6px;">
+              <button class="btn" onclick="editUser('${u.id}')"><i class="ti ti-edit"></i></button>
+              <button class="btn btn-danger" onclick="deleteUser('${u.id}')"><i class="ti ti-trash"></i></button>
+            </td>
+          </tr>
+        `).join('')}</tbody></table>` : '';
+            document.getElementById('user-list').innerHTML = html;
+        }
+
+        function editUser(id) {
+            const u = usuarios.find(x => x.id === id);
+            document.getElementById('edit-u-id').value = u.id;
+            document.getElementById('u-nom').value = u.nombre;
+            document.getElementById('u-rol').value = u.rol;
+            openModal('modal-usuario');
+        }
+
+        async function saveUser() {
+            const id = document.getElementById('edit-u-id').value;
+            await db.from('profiles').update({
+                nombre: document.getElementById('u-nom').value,
+                rol: document.getElementById('u-rol').value
+            }).eq('id', id);
+            closeModal('modal-usuario');
+            fetchData();
+        }
+
+        async function deleteUser(id) {
+            if (id === curUser.id) return alert("No puedes eliminar tu propio usuario.");
+            if (!confirm("¿Eliminar este perfil del sistema? (El usuario seguirá existiendo en Auth pero no tendrá acceso)")) return;
+            await db.from('profiles').delete().eq('id', id);
+            fetchData();
+        }
+
+        // --- MÓDULO DE ESCÁNER (HTML5-QRCODE) ---
+        function startScanner() {
+            if (html5QrcodeScanner) return;
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
+            html5QrcodeScanner.render(onScanSuccess, () => { }); // Ignorar fallas de cuadro
+        }
+
+        function stopScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().catch(e => console.error(e));
+                html5QrcodeScanner = null;
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            const eq = equipos.find(e => e.codigo === decodedText);
+            if (eq) {
+                stopScanner();
+                document.getElementById('m-eq-id').value = eq.id;
+                document.getElementById('m-eq-nom').textContent = eq.nombre;
+                document.getElementById('m-eq-cod').textContent = eq.codigo;
+                document.getElementById('m-tec').value = curProf.nombre;
+                openModal('modal-mant');
+            } else {
+                alert("Código QR no reconocido: " + decodedText);
+            }
+        }
+
+        async function guardarMantenimiento() {
+            const equipo_id = document.getElementById('m-eq-id').value;
+            const tipo = document.getElementById('m-tipo').value;
+            const descripcion = document.getElementById('m-desc').value.trim();
+
+            if (!descripcion) return alert("Agrega una descripción de la intervención.");
+
+            const { error } = await db.from('mantenimientos').insert({
+                equipo_id, tecnico_id: curUser.id, tecnico_nombre: curProf.nombre, tipo, descripcion
+            });
+
+            if (tipo === 'Falla') {
+                await db.from('equipos').update({ estado: 'Fuera de servicio' }).eq('id', equipo_id);
+            } else if (tipo === 'Correctivo' || tipo === 'Preventivo') {
+                await db.from('equipos').update({ estado: 'Operativo' }).eq('id', equipo_id);
+            }
+
+            if (error) return alert("Error: " + error.message);
+
+            closeModal('modal-mant');
+            setTab('dashboard');
+            fetchData();
+        }
+
+        // --- HISTORIAL Y DASHBOARD ---
+        function renderHistorial(mantenimientos) {
+            const html = mantenimientos.length ? `<table>
+        <thead><tr><th>Fecha</th><th>Equipo</th><th>Acción</th><th>Técnico</th><th>Detalle</th></tr></thead>
+        <tbody>${mantenimientos.slice(0, 15).map(m => `
+          <tr>
+            <td style="color:var(--text-muted); font-size:11px;">${formatDate(m.fecha_registro)}</td>
+            <td><strong>${m.equipos?.nombre || '-'}</strong></td>
+            <td><span class="badge" style="background:${m.tipo === 'Falla' ? 'var(--danger)' : 'transparent'}; color:${m.tipo === 'Falla' ? '#fff' : ''}">${m.tipo}</span></td>
+            <td>${m.tecnico_nombre || '-'}</td>
+            <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.descripcion}</td>
+          </tr>
+        `).join('')}</tbody></table>` : '<p style="color:var(--text-muted); font-size: 13px;">No hay registros recientes.</p>';
+            document.getElementById('hist-list').innerHTML = html;
+        }
+
+        function renderDowntime(mantenimientos) {
+            const fallas = mantenimientos.filter(x => x.tipo === 'Falla');
+            const equiposAfectados = new Set(fallas.map(f => f.equipo_id)).size;
+
+            document.getElementById('dt-stats').innerHTML = `
+        <div class="card" style="margin-bottom:0;">
+          <h4 style="color:var(--text-muted); font-size:12px; font-weight:500; margin-bottom:8px;">Total Eventos de Paro</h4>
+          <div style="font-size:32px; font-weight:700;">${fallas.length}</div>
+        </div>
+        <div class="card" style="margin-bottom:0;">
+          <h4 style="color:var(--text-muted); font-size:12px; font-weight:500; margin-bottom:8px;">Equipos Críticos (con fallas)</h4>
+          <div style="font-size:32px; font-weight:700;">${equiposAfectados}</div>
+        </div>
+      `;
+
+            const html = fallas.length ? `<table>
+        <thead><tr><th>Fecha de Falla</th><th>Equipo</th><th>Técnico Reportó</th><th>Descripción del Problema</th></tr></thead>
+        <tbody>${fallas.map(f => `
+          <tr>
+            <td style="color:var(--text-muted); font-size:11px;">${formatDate(f.fecha_registro)}</td>
+            <td><strong>${f.equipos?.nombre || '-'}</strong> <br><span style="font-size:10px; color:#888;">${f.equipos?.codigo || ''}</span></td>
+            <td>${f.tecnico_nombre}</td>
+            <td>${f.descripcion}</td>
+          </tr>
+        `).join('')}</tbody></table>` : '<p style="color:var(--text-muted); font-size: 13px;">Excelente, no hay fallas registradas.</p>';
+            document.getElementById('dt-list').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
