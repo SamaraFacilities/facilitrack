@@ -1,826 +1,592 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Samara - Trazabilidad y Mantenimiento</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Samara Pro - Trazabilidad y Mantenimiento</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-    <style>
-        /* DISEÑO MINIMALISTA SAMARA */
-        :root {
-            --bg: #ffffff;
-            --surface: #fafafa;
-            --text-main: #111111;
-            --text-muted: #666666;
-            --border: #eaeaea;
-            --accent: #000000;
-            --accent-hover: #333333;
-            --danger: #d93025;
-            --success: #1e8e3e;
-            --radius: 8px;
-        }
+<style>
+/* DISEÑO SAMARA MINIMALISTA */
+:root { --bg: #ffffff; --surface: #fafafa; --text-main: #111111; --text-muted: #666666; --border: #eaeaea; --accent: #000000; --accent-hover: #333333; --danger: #d93025; --danger-bg: #fdf3f2; --success: #1e8e3e; --success-bg: #eaf4ec; --warning: #b87a00; --warning-bg: #fdf8e3; --blue: #1a5fa8; --blue-bg: #e6f0fa; --radius: 8px; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text-main); min-height: 100vh; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-        }
+/* UTILS */
+.btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { background: var(--border); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-danger { color: var(--danger); border-color: var(--border); }
+.btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+.input-box { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; font-size: 13px; outline: none; background: var(--bg); font-family: inherit; }
+.input-box:focus { border-color: var(--accent); }
+.badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; border: 1px solid transparent; }
+.b-red { background: var(--danger-bg); color: var(--danger); border-color: #fad2ce; }
+.b-green { background: var(--success-bg); color: var(--success); border-color: #cce8d1; }
+.b-amber { background: var(--warning-bg); color: var(--warning); border-color: #f7e6a1; }
+.b-gray { background: var(--surface); color: var(--text-muted); border-color: var(--border); }
 
-        body {
-            background: var(--bg);
-            color: var(--text-main);
-            min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
-        }
+/* LAYOUT */
+#login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--surface); padding: 20px; }
+.login-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 40px; width: 100%; max-width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+#app { display: none; }
+.header { border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 50; }
+.nav-wrap { border-bottom: 1px solid var(--border); background: var(--bg); overflow-x: auto; }
+.nav { display: flex; padding: 0 20px; gap: 4px; }
+.nav-btn { padding: 12px 14px; font-size: 13px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+.nav-btn:hover { color: var(--text-main); }
+.nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.main { padding: 20px; max-width: 1200px; margin: 0 auto; }
+.panel-hidden { display: none !important; }
 
-        /* UTILIDADES Y BOTONES */
-        .btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 8px 16px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
+/* COMPONENTES DE DATOS (FaciliTrack UI -> Samara style) */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.kpi-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.kpi-val { font-size: 28px; font-weight: 600; margin: 6px 0; line-height: 1; }
+.kpi-lbl { font-size: 12px; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.kpi-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-            .btn:hover {
-                background: var(--border);
-            }
+.card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.two-col { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
+@media(max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
 
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 500; text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+td { font-size: 13px; padding: 12px 8px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
 
-            .btn-primary:hover {
-                background: var(--accent-hover);
-            }
+/* BARRAS DOWNTIME & HISTORIAL */
+.dt-bar-wrap { background: var(--surface); border-radius: 4px; height: 8px; overflow: hidden; flex: 1; margin: 0 10px; border: 1px solid var(--border); }
+.dt-bar { height: 100%; border-radius: 4px; transition: width 0.4s; }
+.tl-item { display: flex; gap: 12px; padding: 10px 0; }
+.tl-line { display: flex; flex-direction: column; align-items: center; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--accent); background: #fff; margin-top: 4px; }
+.tl-track { width: 1px; flex: 1; background: var(--border); margin-top: 4px; }
 
-        .btn-danger {
-            color: var(--danger);
-            border-color: var(--border);
-        }
+/* CHECKLIST */
+.chk-item { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
+.bool-btns { display: flex; gap: 6px; margin-top: 8px; }
+.bool-btn { padding: 6px 12px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; background: var(--bg); transition: 0.2s; }
+.bool-btn.ok { background: var(--success-bg); border-color: var(--success); color: var(--success); font-weight: 500; }
+.bool-btn.fail { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); font-weight: 500; }
+#firma-c { border: 1px solid var(--border); border-radius: 8px; width: 100%; background: var(--surface); cursor: crosshair; touch-action: none; }
 
-            .btn-danger:hover {
-                background: #fff5f5;
-                border-color: var(--danger);
-            }
-
-        .input-box {
-            width: 100%;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 10px 12px;
-            font-size: 14px;
-            outline: none;
-            background: var(--bg);
-            color: var(--text-main);
-            transition: border 0.2s;
-        }
-
-            .input-box:focus {
-                border-color: var(--accent);
-            }
-
-        .badge {
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-weight: 500;
-            border: 1px solid var(--border);
-        }
-
-        /* LOGIN */
-        #login-screen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            background: var(--surface);
-        }
-
-        .login-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 40px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        }
-
-        .login-logo {
-            font-size: 24px;
-            font-weight: 700;
-            text-align: center;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-
-        .login-sub {
-            font-size: 13px;
-            color: var(--text-muted);
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-            .form-group label {
-                font-size: 12px;
-                color: var(--text-muted);
-                font-weight: 500;
-            }
-
-        /* APP LAYOUT */
-        #app {
-            display: none;
-            min-height: 100vh;
-        }
-
-        .header {
-            border-bottom: 1px solid var(--border);
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(8px);
-            z-index: 50;
-        }
-
-        .logo-app {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 13px;
-        }
-
-        .nav-wrap {
-            border-bottom: 1px solid var(--border);
-            background: var(--bg);
-            overflow-x: auto;
-        }
-
-        .nav {
-            display: flex;
-            padding: 0 20px;
-            gap: 16px;
-        }
-
-        .nav-btn {
-            padding: 14px 0;
-            font-size: 13px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-
-            .nav-btn:hover {
-                color: var(--text-main);
-            }
-
-            .nav-btn.active {
-                color: var(--accent);
-                border-bottom-color: var(--accent);
-                font-weight: 500;
-            }
-
-        .main {
-            padding: 24px 20px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .panel-hidden {
-            display: none !important;
-        }
-
-        .grid-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        /* TARJETAS Y TABLAS */
-        .card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 12px;
-        }
-
-        .card-title {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 500;
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        td {
-            font-size: 13px;
-            padding: 12px 10px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* MODALES */
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-
-            .modal-backdrop.open {
-                display: flex;
-            }
-
-        .modal {
-            background: var(--bg);
-            border-radius: 12px;
-            padding: 24px;
-            width: 100%;
-            max-width: 480px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-size: 20px;
-        }
-
-        /* ESCANER QR */
-        #reader {
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-            #reader video {
-                object-fit: cover;
-                border-radius: 12px;
-            }
-
-        /* IMPRESIÓN */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-
-            #print-area, #print-area * {
-                visibility: visible;
-            }
-
-            #print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                text-align: center;
-                margin-top: 40px;
-            }
-        }
-    </style>
+/* MODALES Y TOAST */
+.modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+.modal-backdrop.open { display: flex; }
+.modal { background: var(--bg); border-radius: 12px; padding: 24px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 999; }
+#toast.show { opacity: 1; }
+#reader { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+@media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; } #print-area { position: absolute; left: 0; top: 0; width: 100%; text-align: center; margin-top: 40px; } }
+</style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-card">
-            <div class="login-logo">Samara</div>
-            <div class="login-sub">Control y Trazabilidad</div>
-            <div class="form-group"><label>Email</label><input type="email" id="l-email" class="input-box" placeholder="usuario@empresa.com"></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" id="l-pass" class="input-box" placeholder="••••••••"></div>
-            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top: 8px;" onclick="doLogin()">Entrar</button>
+<div id="toast">Notificación</div>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div style="font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 6px;">Samara Pro</div>
+    <div style="font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 24px;">Gestión y Trazabilidad</div>
+    <div style="margin-bottom: 12px;"><label style="font-size: 12px; color: var(--text-muted);">Email</label><input type="email" id="l-email" class="input-box"></div>
+    <div style="margin-bottom: 20px;"><label style="font-size: 12px; color: var(--text-muted);">Contraseña</label><input type="password" id="l-pass" class="input-box"></div>
+    <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="doLogin()">Entrar al Sistema</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <div style="font-weight: 700; font-size: 18px;">Samara</div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span id="u-name" style="font-size: 13px; font-weight: 500;"></span>
+      <span id="u-rol" class="badge b-gray"></span>
+      <button class="btn" onclick="doLogout()" style="padding: 6px 10px;"><i class="ti ti-logout"></i></button>
+    </div>
+  </div>
+  <div class="nav-wrap">
+    <div class="nav">
+      <button class="nav-btn active" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>
+      <button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes</button>
+      <button class="nav-btn" id="nav-checklist" onclick="setTab('checklist')"><i class="ti ti-check"></i> Ejecución Checklist</button>
+      <button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-box"></i> Equipos y QR</button>
+      <button class="nav-btn" id="nav-usuarios" onclick="setTab('usuarios')"><i class="ti ti-users"></i> Personal</button>
+      <button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Análisis Downtime</button>
+      <button class="nav-btn" onclick="setTab('escaner'); startScanner();"><i class="ti ti-scan"></i> Escáner Rápido</button>
+    </div>
+  </div>
+
+  <div class="main">
+    
+    <div id="tab-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-lbl"><div class="kpi-dot" style="background:var(--danger)"></div>Urgentes</div><div class="kpi-val" id="k-urg">-</div></div>
+        <div class="kpi-card"><div class="kpi-lbl"><div class="kpi-dot" style="background:var(--warning)"></div>En Progreso</div><div class="kpi-val" id="k-prog">-</div></div>
+        <div class="kpi-card"><div class="kpi-lbl"><div class="kpi-dot" style="background:var(--success)"></div>Completadas (Mes)</div><div class="kpi-val" id="k-comp">-</div></div>
+        <div class="kpi-card"><div class="kpi-lbl"><div class="kpi-dot" style="background:var(--blue)"></div>Equipos Activos</div><div class="kpi-val" id="k-eq">-</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Órdenes Recientes</div> <button class="btn btn-primary" id="btn-dash-ot" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button></div>
+          <div id="dash-ots"></div>
         </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Resumen Técnico</div></div>
+          <div id="dash-res"></div>
+        </div>
+      </div>
     </div>
 
-    <div id="app">
-        <div class="header">
-            <div class="logo-app">Samara</div>
-            <div class="user-info">
-                <span id="user-display">Usuario</span>
-                <button class="btn" onclick="doLogout()" style="padding: 4px 8px;" title="Cerrar Sesión"><i class="ti ti-logout"></i></button>
-            </div>
-        </div>
-        <div class="nav-wrap">
-            <div class="nav">
-                <button class="nav-btn active" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Resumen</button>
-                <button class="nav-btn" onclick="setTab('equipos')"><i class="ti ti-box"></i> Equipos</button>
-                <button class="nav-btn" id="nav-usuarios" onclick="setTab('usuarios')"><i class="ti ti-users"></i> Usuarios</button>
-                <button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>
-                <button class="nav-btn" onclick="setTab('escaner'); startScanner();"><i class="ti ti-scan"></i> Escanear Código</button>
-            </div>
-        </div>
-
-        <div class="main">
-
-            <div id="tab-dashboard" class="card">
-                <div class="card-header"><div class="card-title">Mantenimientos Recientes</div></div>
-                <div id="hist-list">Cargando trazabilidad...</div>
-            </div>
-
-            <div id="tab-equipos" class="panel-hidden card">
-                <div class="card-header">
-                    <div class="card-title">Inventario Activo</div>
-                    <button class="btn btn-primary" id="btn-add-eq" onclick="openModalEquipo()"><i class="ti ti-plus"></i> Registrar Equipo</button>
-                </div>
-                <div id="eq-list">Cargando...</div>
-            </div>
-
-            <div id="tab-usuarios" class="panel-hidden card">
-                <div class="card-header">
-                    <div class="card-title">Gestión de Personal</div>
-                </div>
-                <div id="user-list">Cargando...</div>
-            </div>
-
-            <div id="tab-downtime" class="panel-hidden">
-                <div class="grid-stats" id="dt-stats"></div>
-                <div class="card">
-                    <div class="card-header"><div class="card-title">Análisis de Paros y Fallas</div></div>
-                    <div id="dt-list">Cargando...</div>
-                </div>
-            </div>
-
-            <div id="tab-escaner" class="panel-hidden card">
-                <div class="card-header"><div class="card-title">Lector de Trazabilidad QR</div></div>
-                <div style="max-width: 500px; margin: 0 auto; text-align: center;">
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Apunta la cámara al código QR del equipo para registrar una acción.</p>
-                    <div id="reader"></div>
-                    <button class="btn" style="margin-top: 16px;" onclick="stopScanner()">Detener Cámara</button>
-                </div>
-            </div>
-
-        </div>
+    <div id="tab-ordenes" class="panel-hidden card">
+      <div class="card-header"><div class="card-title">Todas las Órdenes de Trabajo</div>
+        <select id="f-est" class="input-box" style="width: auto; padding: 6px 10px;" onchange="renderOrdenes()">
+          <option value="">Todas</option><option>Urgente</option><option>En progreso</option><option>Pendiente</option><option>Completada</option>
+        </select>
+      </div>
+      <div id="ots-wrap"></div>
     </div>
 
-    <div class="modal-backdrop" id="modal-equipo">
-        <div class="modal">
-            <div class="modal-title"><span id="eq-modal-title">Nuevo Equipo</span> <button class="close-btn" onclick="closeModal('modal-equipo')"><i class="ti ti-x"></i></button></div>
-            <input type="hidden" id="edit-eq-id">
-            <div class="form-group"><label>Código de Activo</label><input type="text" id="eq-cod" class="input-box" placeholder="Ej. LFT-01"></div>
-            <div class="form-group"><label>Nombre del Equipo</label><input type="text" id="eq-nom" class="input-box" placeholder="Torno CNC"></div>
-            <div class="form-group"><label>Área / Zona</label><input type="text" id="eq-area" class="input-box" placeholder="Producción"></div>
-            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
-                <button class="btn" onclick="closeModal('modal-equipo')">Cancelar</button>
-                <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
-            </div>
+    <div id="tab-checklist" class="panel-hidden">
+      <div id="cl-sel" class="kpi-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));"></div>
+      
+      <div id="cl-form" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+          <button class="btn" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Volver</button>
+          <div style="text-align: right;"><div style="font-weight: 600; font-size: 16px;" id="cl-ttl"></div><div style="font-size: 12px; color: var(--text-muted);" id="cl-meta"></div></div>
         </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Inspección de Rutina</div><span id="cl-prog-lbl" style="font-size:12px; font-weight:500;"></span></div>
+            <div style="height:4px; background:var(--surface); border-radius:2px; margin-bottom:16px; overflow:hidden;"><div id="cl-prog" style="height:100%; background:var(--success); width:0%; transition:0.3s;"></div></div>
+            <div id="cl-items"></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="card" style="margin-bottom:0;">
+              <div class="card-header"><div class="card-title"><i class="ti ti-clock"></i> Tiempo Efectivo</div></div>
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="font-size:32px; font-weight:300; font-variant-numeric: tabular-nums;" id="timer-d">00:00:00</div>
+                <div style="display:flex; gap:6px;"><button class="btn btn-primary" id="timer-btn" onclick="toggleTimer()"><i class="ti ti-player-play"></i></button><button class="btn" onclick="resetTimer()"><i class="ti ti-rotate"></i></button></div>
+              </div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <div class="card-header"><div class="card-title">Evidencia y Notas</div></div>
+              <textarea id="obs-txt" class="input-box" rows="3" placeholder="Observaciones del técnico..."></textarea>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <div class="card-header"><div class="card-title">Firma Electrónica</div></div>
+              <canvas id="firma-c" width="300" height="100"></canvas>
+              <div style="display:flex; gap:10px; margin-top:12px;">
+                <button class="btn" style="flex:1;" onclick="clearFirma()">Borrar</button>
+                <button class="btn btn-primary" style="flex:2;" onclick="cerrarOT()"><i class="ti ti-check"></i> Finalizar OT</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="modal-backdrop" id="modal-usuario">
-        <div class="modal">
-            <div class="modal-title">Editar Perfil <button class="close-btn" onclick="closeModal('modal-usuario')"><i class="ti ti-x"></i></button></div>
-            <input type="hidden" id="edit-u-id">
-            <div class="form-group"><label>Nombre Completo</label><input type="text" id="u-nom" class="input-box"></div>
-            <div class="form-group">
-                <label>Rol</label>
-                <select id="u-rol" class="input-box">
-                    <option value="tecnico">Técnico</option>
-                    <option value="admin">Administrador</option>
-                    <option value="gerencia">Gerencia</option>
-                </select>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
-                <button class="btn" onclick="closeModal('modal-usuario')">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveUser()">Guardar Cambios</button>
-            </div>
-        </div>
+    <div id="tab-equipos" class="panel-hidden card">
+      <div class="card-header"><div class="card-title">Inventario Activo</div>
+        <button class="btn btn-primary" id="btn-add-eq" onclick="openModalEq()"><i class="ti ti-plus"></i> Registrar</button>
+      </div>
+      <div id="eq-list"></div>
     </div>
 
-    <div class="modal-backdrop" id="modal-qr">
-        <div class="modal" style="text-align: center;">
-            <div class="modal-title" style="justify-content: center;">Etiqueta QR <button class="close-btn" style="position: absolute; right: 24px;" onclick="closeModal('modal-qr')"><i class="ti ti-x"></i></button></div>
-            <div id="print-area" style="padding: 20px; background: #fff; border: 1px dashed #ccc; border-radius: 8px; display: inline-block;">
-                <h3 id="qr-eq-nom" style="margin-bottom: 4px; font-size: 16px;">-</h3>
-                <p id="qr-eq-cod" style="font-family: monospace; color: #666; font-size: 12px; margin-bottom: 16px;">-</p>
-                <div id="qr-code-canvas" style="display: flex; justify-content: center; margin-bottom: 12px;"></div>
-                <p style="font-size: 10px; color: #999;">Propiedad de la Empresa</p>
-            </div>
-            <div style="margin-top: 24px;">
-                <button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir Etiqueta</button>
-            </div>
-        </div>
+    <div id="tab-usuarios" class="panel-hidden card">
+      <div class="card-header"><div class="card-title">Personal</div></div>
+      <div id="user-list"></div>
     </div>
 
-    <div class="modal-backdrop" id="modal-mant">
-        <div class="modal">
-            <div class="modal-title">Registrar Acción <button class="close-btn" onclick="closeModal('modal-mant')"><i class="ti ti-x"></i></button></div>
-            <div style="background: var(--surface); padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border);">
-                <div style="font-size: 12px; color: var(--text-muted);">Equipo Detectado:</div>
-                <strong id="m-eq-nom" style="font-size: 15px;">-</strong> (<span id="m-eq-cod"></span>)
-            </div>
-            <input type="hidden" id="m-eq-id">
-
-            <div class="form-group">
-                <label>Técnico Asignado (Auto)</label>
-                <input type="text" id="m-tec" class="input-box" readonly style="background: var(--surface); color: var(--text-muted);">
-            </div>
-            <div class="form-group">
-                <label>Tipo de Registro</label>
-                <select id="m-tipo" class="input-box">
-                    <option value="Preventivo">Mantenimiento Preventivo</option>
-                    <option value="Correctivo">Reparación Correctiva</option>
-                    <option value="Inspección">Inspección de Rutina</option>
-                    <option value="Falla">Reporte de Falla (Downtime)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Descripción del Trabajo / Falla</label>
-                <textarea id="m-desc" class="input-box" rows="4" placeholder="Detalles de la intervención..."></textarea>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
-                <button class="btn" onclick="closeModal('modal-mant')">Cancelar</button>
-                <button class="btn btn-primary" onclick="guardarMantenimiento()">Registrar Trazabilidad</button>
-            </div>
+    <div id="tab-downtime" class="panel-hidden">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-lbl"><div class="kpi-dot" style="background:var(--danger)"></div>Horas Paradas (Mes)</div><div class="kpi-val" id="dt-hrs">-</div></div>
+        <div class="kpi-card"><div class="kpi-lbl"><div class="kpi-dot" style="background:var(--warning)"></div>Fallas Totales</div><div class="kpi-val" id="dt-fallas">-</div></div>
+        <div class="kpi-card"><div class="kpi-lbl"><div class="kpi-dot" style="background:var(--success)"></div>Disponibilidad</div><div class="kpi-val" id="dt-disp">-</div></div>
+        <div class="kpi-card"><div class="kpi-lbl"><div class="kpi-dot" style="background:var(--blue)"></div>MTTR Promedio</div><div class="kpi-val" id="dt-mttr">-</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Impacto por Equipo (Top Paros)</div></div>
+          <div id="dt-bars"></div>
         </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Top Fallas Recurrentes</div></div>
+          <div id="dt-top"></div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // --- SUPABASE CONFIG ---
-        const SUPA_URL = 'https://knzelkthjzdtlghaizmr.supabase.co';
-        const SUPA_KEY = 'sb_publishable_GG8verAjJsOogBUy1j0wtw_buSA6kwK';
-        const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+    <div id="tab-escaner" class="panel-hidden card">
+      <div class="card-header"><div class="card-title">Lectura Rápida QR</div></div>
+      <div style="max-width: 400px; margin: 0 auto; text-align: center;">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Apunta al equipo para crear una OT o Reporte.</p>
+        <div id="reader"></div>
+        <button class="btn" style="margin-top: 16px;" onclick="stopScanner()">Cerrar Cámara</button>
+      </div>
+    </div>
 
-        let curUser = null;
-        let curProf = null;
-        let equipos = [];
-        let usuarios = [];
-        let html5QrcodeScanner = null;
+  </div>
+</div>
 
-        // --- UTILIDADES ---
-        function openModal(id) { document.getElementById(id).classList.add('open'); }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
-            document.querySelectorAll(`#${id} input:not([readonly]), #${id} textarea`).forEach(i => i.value = "");
-        }
-        function formatDate(iso) { return new Date(iso).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }); }
+<div class="modal-backdrop" id="modal-ot">
+  <div class="modal">
+    <div class="modal-title">Nueva Orden de Trabajo <button class="close-btn" onclick="closeModal('modal-ot')"><i class="ti ti-x"></i></button></div>
+    <div style="margin-bottom: 12px;"><label style="font-size: 12px; font-weight:500;">Equipo</label><select id="f-equipo" class="input-box"></select></div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+      <div><label style="font-size: 12px; font-weight:500;">Tipo</label><select id="f-tipo" class="input-box"><option>Correctivo</option><option>Preventivo</option><option>Predictivo</option><option>Inspección</option></select></div>
+      <div><label style="font-size: 12px; font-weight:500;">Prioridad</label><select id="f-pri" class="input-box"><option>Baja</option><option>Media</option><option>Alta</option><option>Urgente</option></select></div>
+    </div>
+    <div style="margin-bottom: 12px;"><label style="font-size: 12px; font-weight:500;">Asignar a</label><select id="f-tec" class="input-box"></select></div>
+    <div style="margin-bottom: 20px;"><label style="font-size: 12px; font-weight:500;">Descripción</label><textarea id="f-desc" class="input-box" rows="3"></textarea></div>
+    <div style="text-align: right;"><button class="btn btn-primary" onclick="crearOT()">Guardar Orden</button></div>
+  </div>
+</div>
 
-        // --- AUTHENTICATION ---
-        async function doLogin() {
-            const email = document.getElementById('l-email').value.trim();
-            const pass = document.getElementById('l-pass').value;
-            if (!email || !pass) return alert("Ingresa datos");
-            const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
-            if (error) return alert("Error: " + error.message);
-            loadApp(data.user);
-        }
+<div class="modal-backdrop" id="modal-eq">
+  <div class="modal">
+    <div class="modal-title"><span id="eq-title">Equipo</span> <button class="close-btn" onclick="closeModal('modal-eq')"><i class="ti ti-x"></i></button></div>
+    <input type="hidden" id="e-id">
+    <div style="margin-bottom:12px;"><label style="font-size: 12px; font-weight:500;">Código</label><input type="text" id="e-cod" class="input-box"></div>
+    <div style="margin-bottom:12px;"><label style="font-size: 12px; font-weight:500;">Nombre</label><input type="text" id="e-nom" class="input-box"></div>
+    <div style="margin-bottom:20px;"><label style="font-size: 12px; font-weight:500;">Área / Zona</label><input type="text" id="e-area" class="input-box"></div>
+    <div style="text-align: right;"><button class="btn btn-primary" onclick="saveEq()">Guardar</button></div>
+  </div>
+</div>
 
-        async function doLogout() {
-            await db.auth.signOut();
-            window.location.reload();
-        }
+<div class="modal-backdrop" id="modal-hist">
+  <div class="modal">
+    <div class="modal-title"><span id="h-title">Historial</span> <button class="close-btn" onclick="closeModal('modal-hist')"><i class="ti ti-x"></i></button></div>
+    <div id="h-body"></div>
+  </div>
+</div>
 
-        db.auth.getSession().then(({ data: { session } }) => {
-            if (session) loadApp(session.user);
-        });
+<div class="modal-backdrop" id="modal-qr">
+  <div class="modal" style="text-align: center;">
+    <div class="modal-title" style="justify-content: center;">Etiqueta QR <button class="close-btn" style="position: absolute; right: 24px;" onclick="closeModal('modal-qr')"><i class="ti ti-x"></i></button></div>
+    <div id="print-area" style="padding: 20px; background: #fff; border: 1px dashed #ccc; border-radius: 8px; display: inline-block;">
+      <h3 id="qr-nom" style="margin-bottom: 4px; font-size: 16px;">-</h3>
+      <p id="qr-cod" style="font-family: monospace; color: #666; font-size: 12px; margin-bottom: 16px;">-</p>
+      <div id="qr-canvas" style="display: flex; justify-content: center; margin-bottom: 12px;"></div>
+      <p style="font-size: 10px; color: #999;">Propiedad de la Empresa</p>
+    </div>
+    <div style="margin-top: 24px;"><button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir</button></div>
+  </div>
+</div>
 
-        async function loadApp(user) {
-            curUser = user;
-            const { data } = await db.from('profiles').select('*').eq('id', user.id).single();
-            curProf = data || { nombre: user.email.split('@')[0], rol: 'tecnico' };
+<script>
+// --- CONFIG Y ESTADO ---
+const SUPA_URL = 'https://knzelkthjzdtlghaizmr.supabase.co';
+const SUPA_KEY = 'sb_publishable_GG8verAjJsOogBUy1j0wtw_buSA6kwK';
+const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('user-display').textContent = `${curProf.nombre} (${curProf.rol})`;
+let curUser=null, curProf=null, allOTs=[], allEqs=[], allProfs=[], html5Scanner=null;
+let clOT=null, clR={}, tInt=null, tSec=0, tOn=false, fCtx=null, fDraw=false;
 
-            // PERMISOS BASADOS EN ROL
-            if (curProf.rol !== 'admin') {
-                document.getElementById('nav-usuarios').style.display = 'none';
-                if (document.getElementById('btn-add-eq')) document.getElementById('btn-add-eq').style.display = 'none';
-            }
-            if (curProf.rol === 'tecnico') {
-                document.getElementById('nav-downtime').style.display = 'none';
-            }
+// Diccionario de Checklists (FaciliTrack Engine)
+const CL = {
+  'CNC':{items:[{id:'c1',label:'Nivel lubricante',tipo:'bool'},{id:'c2',label:'Alarmas activas',tipo:'bool'},{id:'c3',label:'Limpieza',tipo:'bool'}]},
+  'COMP':{items:[{id:'c1',label:'Presión aceite',tipo:'bool'},{id:'c2',label:'Fugas',tipo:'bool'},{id:'c3',label:'Filtro aire',tipo:'bool'}]},
+  'SOLD':{items:[{id:'c1',label:'Gas protección',tipo:'bool'},{id:'c2',label:'Antorcha OK',tipo:'bool'}]}
+};
 
-            await fetchData();
-        }
+// --- UTILS ---
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+function openM(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function b(est){ const m={'Urgente':'b-red','En progreso':'b-amber','Completada':'b-green','Operativo':'b-green','Fuera de servicio':'b-red'}; return `<span class="badge ${m[est]||'b-gray'}">${est}</span>`; }
+function fmt(iso){ return iso ? new Date(iso).toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '-'; }
 
-        // --- DATA FETCHING ---
-        async function fetchData() {
-            const [eqRes, uRes, mantRes] = await Promise.all([
-                db.from('equipos').select('*').order('id', { ascending: false }),
-                db.from('profiles').select('*'),
-                db.from('mantenimientos').select('*, equipos(nombre, codigo)').order('fecha_registro', { ascending: false }).limit(100)
-            ]);
+// --- AUTH ---
+async function doLogin(){
+  const {data,error} = await db.auth.signInWithPassword({email:document.getElementById('l-email').value, password:document.getElementById('l-pass').value});
+  if(error) return toast(error.message);
+  initApp(data.user);
+}
+async function doLogout(){ await db.auth.signOut(); window.location.reload(); }
+db.auth.getSession().then(({data:{session}})=>{ if(session) initApp(session.user); });
 
-            equipos = eqRes.data || [];
-            usuarios = uRes.data || [];
-            const mantenimientos = mantRes.data || [];
+async function initApp(user){
+  curUser = user;
+  const {data} = await db.from('profiles').select('*').eq('id', user.id).single();
+  curProf = data || {nombre: user.email, rol:'tecnico'};
+  
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('u-name').textContent = curProf.nombre;
+  document.getElementById('u-rol').textContent = curProf.rol;
 
-            renderEquipos();
-            renderUsuarios();
-            renderHistorial(mantenimientos);
-            renderDowntime(mantenimientos);
-        }
+  // Permisos
+  if(curProf.rol !== 'admin') {
+    document.getElementById('nav-usuarios').style.display = 'none';
+    if(document.getElementById('btn-add-eq')) document.getElementById('btn-add-eq').style.display = 'none';
+  }
+  if(curProf.rol === 'tecnico') {
+    document.getElementById('nav-downtime').style.display = 'none';
+    document.getElementById('btn-dash-ot').style.display = 'none';
+  }
 
-        // --- NAVEGACIÓN ---
-        function setTab(tabId) {
-            document.querySelectorAll('.panel-hidden, .card:not(.card-header)').forEach(el => {
-                if (el.id && el.id.startsWith('tab-')) el.classList.add('panel-hidden');
-            });
-            document.getElementById('tab-' + tabId).classList.remove('panel-hidden');
+  await loadData();
+  setTab('dashboard');
+}
 
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.getAttribute('onclick').includes(tabId));
-            });
+// --- DATA ---
+async function loadData(){
+  const [otR, eqR, uR] = await Promise.all([
+    db.from('ordenes_trabajo').select('*').order('fecha_creacion',{ascending:false}),
+    db.from('equipos').select('*').order('id'),
+    db.from('profiles').select('*')
+  ]);
+  allOTs = otR.data || [];
+  allEqs = eqR.data || [];
+  allProfs = uR.data || [];
+  
+  renderDash(); renderOrdenes(); renderEquipos(); renderUsuarios(); renderDowntime();
+}
 
-            if (tabId !== 'escaner') stopScanner();
-        }
+// --- NAVEGACIÓN ---
+function setTab(t){
+  document.querySelectorAll('.main > div').forEach(el => el.classList.add('panel-hidden'));
+  document.getElementById('tab-'+t).classList.remove('panel-hidden');
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('onclick').includes(t)));
+  if(t==='checklist') renderCLSel();
+  if(t!=='escaner') stopScanner();
+}
 
-        // --- MÓDULO DE EQUIPOS Y QR ---
-        function renderEquipos() {
-            const html = equipos.length ? `<table>
-        <thead><tr><th>Código</th><th>Equipo</th><th>Área</th><th>Estado</th><th>Acciones</th></tr></thead>
-        <tbody>${equipos.map(e => `
-          <tr>
-            <td style="font-family:monospace; color:var(--text-muted)">${e.codigo}</td>
-            <td><strong>${e.nombre}</strong></td>
-            <td>${e.area || '-'}</td>
-            <td><span class="badge" style="border-color:${e.estado === 'Operativo' ? 'var(--success)' : 'var(--danger)'}; color:${e.estado === 'Operativo' ? 'var(--success)' : 'var(--danger)'}">${e.estado}</span></td>
-            <td style="display:flex; gap:6px;">
-              <button class="btn" onclick="verQR('${e.codigo}', '${e.nombre}')" title="Generar QR"><i class="ti ti-qrcode"></i></button>
-              ${curProf.rol === 'admin' ? `
-                <button class="btn" onclick="openModalEquipo(${e.id})" title="Editar"><i class="ti ti-edit"></i></button>
-                <button class="btn btn-danger" onclick="deleteEq(${e.id})" title="Eliminar"><i class="ti ti-trash"></i></button>
-              ` : ''}
-            </td>
-          </tr>
-        `).join('')}</tbody></table>` : '<p style="color:var(--text-muted); font-size: 13px;">No hay equipos registrados.</p>';
-            document.getElementById('eq-list').innerHTML = html;
-        }
+// --- DASHBOARD ---
+function renderDash(){
+  const mesActual = new Date().getMonth();
+  const compMes = allOTs.filter(o => o.estado==='Completada' && new Date(o.fecha_cierre).getMonth() === mesActual).length;
+  
+  document.getElementById('k-urg').textContent = allOTs.filter(o=>o.estado==='Urgente').length;
+  document.getElementById('k-prog').textContent = allOTs.filter(o=>o.estado==='En progreso').length;
+  document.getElementById('k-comp').textContent = compMes;
+  document.getElementById('k-eq').textContent = allEqs.length;
 
-        function openModalEquipo(id = null) {
-            if (id) {
-                const e = equipos.find(x => x.id === id);
-                document.getElementById('edit-eq-id').value = e.id;
-                document.getElementById('eq-cod').value = e.codigo;
-                document.getElementById('eq-nom').value = e.nombre;
-                document.getElementById('eq-area').value = e.area;
-                document.getElementById('eq-modal-title').textContent = "Editar Equipo";
-            } else {
-                document.getElementById('edit-eq-id').value = "";
-                document.getElementById('eq-modal-title').textContent = "Nuevo Equipo";
-            }
-            openModal('modal-equipo');
-        }
+  document.getElementById('dash-ots').innerHTML = allOTs.slice(0,6).map(o=>`
+    <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
+      <div><div style="font-weight:600; font-size:13px;">${o.equipo_nombre}</div><div style="font-size:11px; color:var(--text-muted);">${o.descripcion}</div></div>
+      <div style="text-align:right;">${b(o.estado)}<div style="font-size:11px; color:var(--text-muted); margin-top:4px;">${o.tecnico_nombre||'-'}</div></div>
+    </div>`).join('') || '<p style="font-size:12px; color:var(--text-muted);">Sin órdenes</p>';
 
-        async function guardarEquipo() {
-            const id = document.getElementById('edit-eq-id').value;
-            const payload = {
-                codigo: document.getElementById('eq-cod').value.trim(),
-                nombre: document.getElementById('eq-nom').value.trim(),
-                area: document.getElementById('eq-area').value.trim()
-            };
-            if (!payload.codigo || !payload.nombre) return alert("Código y Nombre son obligatorios");
+  document.getElementById('dash-res').innerHTML = `
+    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;"><span>Total OT's</span><strong>${allOTs.length}</strong></div>
+    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;"><span>Correctivos</span><strong>${allOTs.filter(o=>o.tipo==='Correctivo').length}</strong></div>
+    <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px;"><span>Preventivos</span><strong>${allOTs.filter(o=>o.tipo==='Preventivo').length}</strong></div>
+  `;
+}
 
-            if (id) {
-                await db.from('equipos').update(payload).eq('id', id);
-            } else {
-                await db.from('equipos').insert(payload);
-            }
+// --- ORDENES Y NUEVA OT ---
+function renderOrdenes(){
+  const f = document.getElementById('f-est').value;
+  const list = f ? allOTs.filter(o=>o.estado===f) : allOTs;
+  document.getElementById('ots-wrap').innerHTML = list.length ? `<table><thead><tr><th>ID</th><th>Equipo</th><th>Tipo</th><th>Estado</th><th>Técnico</th><th>Fecha</th><th></th></tr></thead><tbody>
+    ${list.map(o=>`<tr>
+      <td style="color:var(--text-muted); font-size:11px;">#${o.id}</td>
+      <td><strong>${o.equipo_nombre}</strong></td>
+      <td>${b(o.tipo)}</td><td>${b(o.estado)}</td><td>${o.tecnico_nombre||'-'}</td>
+      <td style="color:var(--text-muted); font-size:11px;">${fmt(o.fecha_creacion)}</td>
+      <td>${curProf.rol==='admin' && o.estado!=='Completada' ? `<button class="btn" onclick="updEst(${o.id})"><i class="ti ti-edit"></i></button>`:''}</td>
+    </tr>`).join('')}</tbody></table>` : '<p style="font-size:12px; color:var(--text-muted);">Sin datos</p>';
+}
 
-            closeModal('modal-equipo');
-            fetchData();
-        }
+function openNuevaOT(eqId = null){
+  document.getElementById('f-equipo').innerHTML = '<option value="">Seleccione...</option>' + allEqs.map(e=>`<option value="${e.id}" ${eqId==e.id?'selected':''}>${e.codigo} - ${e.nombre}</option>`).join('');
+  document.getElementById('f-tec').innerHTML = '<option value="">Auto-asignarme</option>' + allProfs.filter(p=>p.rol==='tecnico' || p.rol==='admin').map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');
+  document.getElementById('f-desc').value = '';
+  openM('modal-ot');
+}
 
-        async function deleteEq(id) {
-            if (!confirm("¿Estás seguro de eliminar este equipo permanentemente?")) return;
-            await db.from('equipos').delete().eq('id', id);
-            fetchData();
-        }
+async function crearOT(){
+  const eqId = document.getElementById('f-equipo').value;
+  if(!eqId) return toast("Selecciona equipo");
+  const eq = allEqs.find(e=>e.id == eqId);
+  const tId = document.getElementById('f-tec').value || curUser.id;
+  const t = allProfs.find(p=>p.id == tId) || curProf;
 
-        function verQR(codigo, nombre) {
-            document.getElementById('qr-eq-nom').textContent = nombre;
-            document.getElementById('qr-eq-cod').textContent = codigo;
-            const container = document.getElementById('qr-code-canvas');
-            container.innerHTML = '';
-            new QRCode(container, {
-                text: codigo, width: 150, height: 150, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
-            });
-            openModal('modal-qr');
-        }
+  await db.from('ordenes_trabajo').insert({
+    equipo_id: eq.id, equipo_nombre: eq.nombre, equipo_zona: eq.area,
+    tipo: document.getElementById('f-tipo').value, prioridad: document.getElementById('f-pri').value,
+    estado: document.getElementById('f-pri').value==='Urgente'?'Urgente':'Pendiente',
+    tecnico_id: t.id, tecnico_nombre: t.nombre, descripcion: document.getElementById('f-desc').value
+  });
+  
+  closeModal('modal-ot'); toast("OT Creada"); await loadData();
+}
 
-        // --- MÓDULO DE USUARIOS ---
-        function renderUsuarios() {
-            if (curProf.rol !== 'admin') return;
-            const html = usuarios.length ? `<table>
-        <thead><tr><th>Nombre</th><th>Rol</th><th>Acciones</th></tr></thead>
-        <tbody>${usuarios.map(u => `
-          <tr>
-            <td><strong>${u.nombre}</strong></td>
-            <td><span class="badge">${u.rol}</span></td>
-            <td style="display:flex; gap:6px;">
-              <button class="btn" onclick="editUser('${u.id}')"><i class="ti ti-edit"></i></button>
-              <button class="btn btn-danger" onclick="deleteUser('${u.id}')"><i class="ti ti-trash"></i></button>
-            </td>
-          </tr>
-        `).join('')}</tbody></table>` : '';
-            document.getElementById('user-list').innerHTML = html;
-        }
+async function updEst(id){
+  const ot = allOTs.find(o=>o.id===id);
+  const arr = ['Pendiente','En progreso','Completada'];
+  let n = arr[(arr.indexOf(ot.estado)+1)%arr.length];
+  await db.from('ordenes_trabajo').update({estado:n, fecha_cierre:n==='Completada'?new Date().toISOString():null}).eq('id',id);
+  await loadData();
+}
 
-        function editUser(id) {
-            const u = usuarios.find(x => x.id === id);
-            document.getElementById('edit-u-id').value = u.id;
-            document.getElementById('u-nom').value = u.nombre;
-            document.getElementById('u-rol').value = u.rol;
-            openModal('modal-usuario');
-        }
+// --- CHECKLIST ENGINE (FaciliTrack original logic) ---
+function getCL(nombre){ const pre = nombre.split(' ')[0].toUpperCase(); return CL[pre] || CL['CNC']; /* Fallback for demo */ }
+function renderCLSel(){
+  const act = allOTs.filter(o=>o.estado!=='Completada' && (curProf.rol!=='tecnico' || o.tecnico_id===curUser.id));
+  document.getElementById('cl-sel').innerHTML = act.length ? act.map(o=>`
+    <div class="card" style="cursor:pointer; border-color:var(--accent);" onclick="abrirCL(${o.id})">
+      <div style="display:flex; justify-content:space-between;"><div><div style="font-size:11px; color:var(--text-muted);">#${o.id}</div><strong>${o.equipo_nombre}</strong></div>${b(o.prioridad)}</div>
+      <div style="font-size:12px; color:var(--text-muted); margin:10px 0;">${o.descripcion||'Sin desc.'}</div>
+      <span class="badge b-green">✓ Ejecutar Checklist</span>
+    </div>`).join('') : '<p>No hay OTs activas asignadas a ti.</p>';
+}
 
-        async function saveUser() {
-            const id = document.getElementById('edit-u-id').value;
-            await db.from('profiles').update({
-                nombre: document.getElementById('u-nom').value,
-                rol: document.getElementById('u-rol').value
-            }).eq('id', id);
-            closeModal('modal-usuario');
-            fetchData();
-        }
+function abrirCL(id){
+  clOT = allOTs.find(o=>o.id===id); clR={}; resetTimer();
+  document.getElementById('obs-txt').value=''; setupFirma();
+  document.getElementById('cl-ttl').textContent = clOT.equipo_nombre;
+  document.getElementById('cl-meta').textContent = `${clOT.tipo} · ${clOT.prioridad}`;
+  
+  const cl = getCL(clOT.equipo_nombre);
+  document.getElementById('cl-items').innerHTML = cl.items.map(i=>`
+    <div class="chk-item">
+      <div style="flex:1;"><div style="font-size:13px; font-weight:500;">${i.label}</div>
+      <div class="bool-btns">
+        <button class="bool-btn" id="bo-${i.id}" onclick="setB('${i.id}',true)">Conforme</button>
+        <button class="bool-btn" id="bf-${i.id}" onclick="setB('${i.id}',false)">No Conforme</button>
+      </div></div>
+    </div>`).join('');
+  
+  document.getElementById('cl-sel').style.display='none';
+  document.getElementById('cl-form').style.display='block';
+  actProg();
+}
 
-        async function deleteUser(id) {
-            if (id === curUser.id) return alert("No puedes eliminar tu propio usuario.");
-            if (!confirm("¿Eliminar este perfil del sistema? (El usuario seguirá existiendo en Auth pero no tendrá acceso)")) return;
-            await db.from('profiles').delete().eq('id', id);
-            fetchData();
-        }
+function setB(id, val){
+  clR[id]=val;
+  document.getElementById('bo-'+id).className = 'bool-btn' + (val?' ok':'');
+  document.getElementById('bf-'+id).className = 'bool-btn' + (!val?' fail':'');
+  actProg();
+}
+function actProg(){
+  const cl=getCL(clOT.equipo_nombre);
+  const d=cl.items.filter(i=>clR[i.id]!==undefined).length, t=cl.items.length;
+  document.getElementById('cl-prog').style.width = (d/t*100)+'%';
+  document.getElementById('cl-prog-lbl').textContent = `${d}/${t}`;
+}
 
-        // --- MÓDULO DE ESCÁNER (HTML5-QRCODE) ---
-        function startScanner() {
-            if (html5QrcodeScanner) return;
-            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
-            html5QrcodeScanner.render(onScanSuccess, () => { }); // Ignorar fallas de cuadro
-        }
+function toggleTimer(){
+  tOn=!tOn; const b=document.getElementById('timer-btn');
+  if(tOn){ b.innerHTML='<i class="ti ti-player-pause"></i>'; tInt=setInterval(()=>{tSec++; let h=Math.floor(tSec/3600),m=Math.floor((tSec%3600)/60),s=tSec%60; document.getElementById('timer-d').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000); }
+  else{ b.innerHTML='<i class="ti ti-player-play"></i>'; clearInterval(tInt); }
+}
+function resetTimer(){ clearInterval(tInt); tOn=false; tSec=0; document.getElementById('timer-d').textContent='00:00:00'; document.getElementById('timer-btn').innerHTML='<i class="ti ti-player-play"></i>'; }
 
-        function stopScanner() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().catch(e => console.error(e));
-                html5QrcodeScanner = null;
-            }
-        }
+function setupFirma(){
+  const c=document.getElementById('firma-c'); fCtx=c.getContext('2d'); fCtx.clearRect(0,0,c.width,c.height);
+  fCtx.strokeStyle='#111'; fCtx.lineWidth=2; fDraw=false;
+  const p=e=>{let r=c.getBoundingClientRect(); return {x: (e.touches?e.touches[0].clientX:e.clientX)-r.left, y: (e.touches?e.touches[0].clientY:e.clientY)-r.top};};
+  c.onmousedown=c.ontouchstart=e=>{e.preventDefault();fDraw=true;let pos=p(e);fCtx.beginPath();fCtx.moveTo(pos.x,pos.y);};
+  c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(fDraw){let pos=p(e);fCtx.lineTo(pos.x,pos.y);fCtx.stroke();}};
+  c.onmouseup=c.ontouchend=()=>fDraw=false;
+}
+function clearFirma(){ fCtx.clearRect(0,0,document.getElementById('firma-c').width,100); }
 
-        function onScanSuccess(decodedText) {
-            const eq = equipos.find(e => e.codigo === decodedText);
-            if (eq) {
-                stopScanner();
-                document.getElementById('m-eq-id').value = eq.id;
-                document.getElementById('m-eq-nom').textContent = eq.nombre;
-                document.getElementById('m-eq-cod').textContent = eq.codigo;
-                document.getElementById('m-tec').value = curProf.nombre;
-                openModal('modal-mant');
-            } else {
-                alert("Código QR no reconocido: " + decodedText);
-            }
-        }
+async function cerrarOT(){
+  const cl=getCL(clOT.equipo_nombre);
+  if(cl.items.filter(i=>clR[i.id]!==undefined).length < cl.items.length) return toast("Faltan items del checklist");
+  clearInterval(tInt);
+  
+  await db.from('ordenes_trabajo').update({
+    estado:'Completada', fecha_cierre:new Date().toISOString(),
+    tiempo_minutos:Math.round(tSec/60), observaciones:document.getElementById('obs-txt').value
+  }).eq('id',clOT.id);
+  
+  toast("OT Finalizada Correctamente"); volverCL(); await loadData();
+}
+function volverCL(){ document.getElementById('cl-form').style.display='none'; document.getElementById('cl-sel').style.display=''; renderCLSel(); resetTimer(); }
 
-        async function guardarMantenimiento() {
-            const equipo_id = document.getElementById('m-eq-id').value;
-            const tipo = document.getElementById('m-tipo').value;
-            const descripcion = document.getElementById('m-desc').value.trim();
+// --- EQUIPOS Y QR ---
+function renderEquipos(){
+  document.getElementById('eq-list').innerHTML = `<table><thead><tr><th>Código</th><th>Equipo</th><th>Área</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+    ${allEqs.map(e=>`<tr><td style="font-family:monospace; color:var(--text-muted);">${e.codigo}</td><td><strong>${e.nombre}</strong></td><td>${e.area||'-'}</td><td>${b(e.estado)}</td>
+      <td style="display:flex; gap:6px;">
+        <button class="btn" onclick="verQR('${e.codigo}','${e.nombre}')"><i class="ti ti-qrcode"></i></button>
+        <button class="btn" onclick="verHist(${e.id})"><i class="ti ti-history"></i></button>
+        ${curProf.rol==='admin'?`<button class="btn" onclick="openModalEq(${e.id})"><i class="ti ti-edit"></i></button><button class="btn btn-danger" onclick="delEq(${e.id})"><i class="ti ti-trash"></i></button>`:''}
+      </td></tr>`).join('')}</tbody></table>`;
+}
 
-            if (!descripcion) return alert("Agrega una descripción de la intervención.");
+function openModalEq(id=null){
+  const e = id ? allEqs.find(x=>x.id===id) : {id:'',codigo:'',nombre:'',area:''};
+  document.getElementById('e-id').value = e.id; document.getElementById('e-cod').value = e.codigo; document.getElementById('e-nom').value = e.nombre; document.getElementById('e-area').value = e.area;
+  openM('modal-eq');
+}
+async function saveEq(){
+  const id=document.getElementById('e-id').value, d={codigo:document.getElementById('e-cod').value, nombre:document.getElementById('e-nom').value, area:document.getElementById('e-area').value};
+  if(id) await db.from('equipos').update(d).eq('id',id); else await db.from('equipos').insert(d);
+  closeModal('modal-eq'); await loadData();
+}
+async function delEq(id){ if(confirm("¿Eliminar equipo?")) { await db.from('equipos').delete().eq('id',id); await loadData(); } }
 
-            const { error } = await db.from('mantenimientos').insert({
-                equipo_id, tecnico_id: curUser.id, tecnico_nombre: curProf.nombre, tipo, descripcion
-            });
+function verQR(cod, nom){
+  document.getElementById('qr-nom').textContent=nom; document.getElementById('qr-cod').textContent=cod;
+  document.getElementById('qr-canvas').innerHTML='';
+  new QRCode(document.getElementById('qr-canvas'), {text:cod, width:150, height:150, colorDark:"#000", colorLight:"#fff"});
+  openM('modal-qr');
+}
 
-            if (tipo === 'Falla') {
-                await db.from('equipos').update({ estado: 'Fuera de servicio' }).eq('id', equipo_id);
-            } else if (tipo === 'Correctivo' || tipo === 'Preventivo') {
-                await db.from('equipos').update({ estado: 'Operativo' }).eq('id', equipo_id);
-            }
+function verHist(id){
+  const ots = allOTs.filter(o=>o.equipo_id===id);
+  document.getElementById('h-body').innerHTML = ots.length ? ots.map(o=>`
+    <div class="tl-item"><div class="tl-line"><div class="tl-dot"></div><div class="tl-track"></div></div>
+    <div><div style="font-weight:600; font-size:13px;">${b(o.estado)} ${o.tipo}</div><div style="font-size:11px; color:var(--text-muted);">${fmt(o.fecha_creacion)} · ${o.tecnico_nombre}</div></div></div>
+  `).join('') : '<p>Sin historial</p>';
+  openM('modal-hist');
+}
 
-            if (error) return alert("Error: " + error.message);
+// --- USUARIOS ---
+function renderUsuarios(){
+  if(curProf.rol!=='admin') return;
+  document.getElementById('user-list').innerHTML = `<table><thead><tr><th>Nombre</th><th>Rol</th></tr></thead><tbody>
+    ${allProfs.map(u=>`<tr><td><strong>${u.nombre}</strong></td><td><span class="badge b-gray">${u.rol}</span></td></tr>`).join('')}</tbody></table>`;
+}
 
-            closeModal('modal-mant');
-            setTab('dashboard');
-            fetchData();
-        }
+// --- DOWNTIME ---
+function renderDowntime(){
+  const otsMes = allOTs.filter(o=>new Date(o.fecha_creacion) > new Date(Date.now() - 30*24*60*60*1000));
+  const fallas = otsMes.filter(o=>o.tipo==='Correctivo');
+  
+  const minTot = otsMes.reduce((s,o)=>s+(o.tiempo_minutos||0),0);
+  document.getElementById('dt-hrs').textContent = (minTot/60).toFixed(1) + 'h';
+  document.getElementById('dt-fallas').textContent = fallas.length;
+  document.getElementById('dt-disp').textContent = allEqs.length ? Math.round((allEqs.filter(e=>e.estado==='Operativo').length / allEqs.length)*100) + '%' : '100%';
+  document.getElementById('dt-mttr').textContent = fallas.length ? Math.round(minTot / fallas.length) + 'm' : '0m';
 
-        // --- HISTORIAL Y DASHBOARD ---
-        function renderHistorial(mantenimientos) {
-            const html = mantenimientos.length ? `<table>
-        <thead><tr><th>Fecha</th><th>Equipo</th><th>Acción</th><th>Técnico</th><th>Detalle</th></tr></thead>
-        <tbody>${mantenimientos.slice(0, 15).map(m => `
-          <tr>
-            <td style="color:var(--text-muted); font-size:11px;">${formatDate(m.fecha_registro)}</td>
-            <td><strong>${m.equipos?.nombre || '-'}</strong></td>
-            <td><span class="badge" style="background:${m.tipo === 'Falla' ? 'var(--danger)' : 'transparent'}; color:${m.tipo === 'Falla' ? '#fff' : ''}">${m.tipo}</span></td>
-            <td>${m.tecnico_nombre || '-'}</td>
-            <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.descripcion}</td>
-          </tr>
-        `).join('')}</tbody></table>` : '<p style="color:var(--text-muted); font-size: 13px;">No hay registros recientes.</p>';
-            document.getElementById('hist-list').innerHTML = html;
-        }
+  // Barras de impacto
+  let hEq = {}; otsMes.forEach(o=>{ if(o.tiempo_minutos) hEq[o.equipo_nombre] = (hEq[o.equipo_nombre]||0) + o.tiempo_minutos; });
+  let arr = Object.entries(hEq).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  let max = arr[0]?.[1] || 1;
+  document.getElementById('dt-bars').innerHTML = arr.length ? arr.map(a=>`
+    <div style="display:flex; align-items:center; margin-bottom:12px; font-size:12px;">
+      <div style="width:100px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${a[0]}</div>
+      <div class="dt-bar-wrap"><div class="dt-bar" style="width:${(a[1]/max)*100}%; background:var(--danger);"></div></div>
+      <div style="width:40px; text-align:right;">${(a[1]/60).toFixed(1)}h</div>
+    </div>`).join('') : '<p style="font-size:12px; color:var(--text-muted);">Sin datos suficientes.</p>';
+}
 
-        function renderDowntime(mantenimientos) {
-            const fallas = mantenimientos.filter(x => x.tipo === 'Falla');
-            const equiposAfectados = new Set(fallas.map(f => f.equipo_id)).size;
-
-            document.getElementById('dt-stats').innerHTML = `
-        <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--text-muted); font-size:12px; font-weight:500; margin-bottom:8px;">Total Eventos de Paro</h4>
-          <div style="font-size:32px; font-weight:700;">${fallas.length}</div>
-        </div>
-        <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--text-muted); font-size:12px; font-weight:500; margin-bottom:8px;">Equipos Críticos (con fallas)</h4>
-          <div style="font-size:32px; font-weight:700;">${equiposAfectados}</div>
-        </div>
-      `;
-
-            const html = fallas.length ? `<table>
-        <thead><tr><th>Fecha de Falla</th><th>Equipo</th><th>Técnico Reportó</th><th>Descripción del Problema</th></tr></thead>
-        <tbody>${fallas.map(f => `
-          <tr>
-            <td style="color:var(--text-muted); font-size:11px;">${formatDate(f.fecha_registro)}</td>
-            <td><strong>${f.equipos?.nombre || '-'}</strong> <br><span style="font-size:10px; color:#888;">${f.equipos?.codigo || ''}</span></td>
-            <td>${f.tecnico_nombre}</td>
-            <td>${f.descripcion}</td>
-          </tr>
-        `).join('')}</tbody></table>` : '<p style="color:var(--text-muted); font-size: 13px;">Excelente, no hay fallas registradas.</p>';
-            document.getElementById('dt-list').innerHTML = html;
-        }
-    </script>
+// --- ESCANER RÁPIDO ---
+function startScanner(){
+  if(html5Scanner) return;
+  html5Scanner = new Html5QrcodeScanner("reader", {fps:10, qrbox:250}, false);
+  html5Scanner.render(onScanSuccess);
+}
+function stopScanner(){ if(html5Scanner){ html5Scanner.clear(); html5Scanner=null; } }
+function onScanSuccess(text){
+  const eq = allEqs.find(e=>e.codigo===text);
+  if(eq){
+    stopScanner();
+    openNuevaOT(eq.id);
+    toast("Equipo Detectado: " + eq.nombre);
+  } else alert("QR No reconocido");
+}
+</script>
 </body>
 </html>
