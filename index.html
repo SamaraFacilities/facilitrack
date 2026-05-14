@@ -222,6 +222,7 @@ on conflict (codigo) do nothing;</div>
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#2d7a3a;"><div class="rt-dot"></div><span id="rt-st">En vivo</span></div>
+      <button class="btn-sm" onclick="loadAll()" style="padding:4px; border:none; background:none; color:#888; margin-right:4px;" title="Refrescar vista"><i class="ti ti-refresh"></i></button>
       <div class="user-chip"><div class="av" id="u-av">??</div><span id="u-name" style="font-size:12px;color:#333;">–</span><span class="role-badge" id="u-rol">–</span></div>
       <button class="btn-logout" onclick="doLogout()" title="Salir"><i class="ti ti-logout"></i></button>
     </div>
@@ -279,13 +280,13 @@ on conflict (codigo) do nothing;</div>
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#1a5fa8"></span>Total</div><div class="kpi-value" id="eq-to">–</div></div>
       </div>
       <div class="card">
-        <div class="card-header"><div class="card-title"><i class="ti ti-settings-2"></i> Inventario de equipos</div><button class="btn-sm btn-primary" id="btn-add-eq" style="display:none" onclick="openM('modal-equipo')"><i class="ti ti-plus"></i> Agregar</button></div>
+        <div class="card-header"><div class="card-title"><i class="ti ti-settings-2"></i> Inventario de equipos</div><button class="btn-sm btn-primary" id="btn-add-eq" style="display:none" onclick="openModalEq()"><i class="ti ti-plus"></i> Agregar</button></div>
         <div id="eq-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
     <div id="tab-tecnicos" class="panel-hidden">
       <div class="card">
-        <div class="card-header"><div class="card-title"><i class="ti ti-users"></i> Equipo de trabajo</div><button class="btn-sm btn-primary" id="btn-inv" style="display:none" onclick="openM('modal-invite')"><i class="ti ti-user-plus"></i> Configurar usuario</button></div>
+        <div class="card-header"><div class="card-title"><i class="ti ti-users"></i> Equipo de trabajo</div><button class="btn-sm btn-primary" id="btn-inv" style="display:none" onclick="openModalUser()"><i class="ti ti-user-plus"></i> Configurar usuario</button></div>
         <div id="tec-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
@@ -392,7 +393,7 @@ on conflict (codigo) do nothing;</div>
 <div class="modal-backdrop" id="modal-invite">
   <div class="modal" style="max-width:420px;">
     <div class="modal-title"><span><i class="ti ti-user-plus" style="margin-right:6px;"></i>Configurar perfil de usuario</span><button class="close-btn" onclick="closeM('modal-invite')"><i class="ti ti-x"></i></button></div>
-    <p style="font-size:12px;color:#888;margin-bottom:14px;">Primero invita al usuario en Supabase → Authentication → Invite user. Luego pega su UUID aquí:</p>
+    <p style="font-size:12px;color:#888;margin-bottom:14px;" id="usr-hint">Primero invita al usuario en Supabase → Authentication → Invite user. Luego pega su UUID aquí:</p>
     <div class="form-grid" style="grid-template-columns:1fr;">
       <div class="form-group"><label>UUID del usuario (desde Auth)</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
       <div class="form-group"><label>Nombre completo</label><input type="text" id="inv-nom" placeholder="Carlos Mendoza"></div>
@@ -462,7 +463,7 @@ const db=createClient(SUPA_URL,SUPA_KEY);
 let curUser=null,curProf=null,allOTs=[],allEqs=[],allProfs=[],rtCh=null;
 let html5Scanner = null;
 
-function toast(msg,dur=2800){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+function toast(msg,dur=3500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 function ini(n){return(n||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();}
 function fmt(ts){if(!ts)return'–';const d=new Date(ts);return d.toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 function badge(e){const m={'Urgente':'badge-red','En progreso':'badge-amber','Pendiente':'badge-gray','Completada':'badge-green','Operativo':'badge-green','En mantenimiento':'badge-amber','Fuera de servicio':'badge-red','Alta':'badge-red','Media':'badge-amber','Baja':'badge-gray','Correctivo':'badge-red','Preventivo':'badge-blue','Predictivo':'badge-purple','Inspección':'badge-blue'};return`<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;}
@@ -473,8 +474,8 @@ function canDo(a){
   const r=curProf?.rol;
   const p={
     crear_ot:['tecnico','supervisor','supervisor_zona','admin'],
-    ver_tecnicos:['supervisor','gerencia','admin'], // <-- Admin añadido aquí
-    gestionar_usuarios:['gerencia','admin'],        // <-- Admin añadido aquí
+    ver_tecnicos:['supervisor','gerencia','admin'], 
+    gestionar_usuarios:['gerencia','admin'],        
     gestionar_equipos:['admin','supervisor','gerencia'],
     ver_downtime:['admin','gerencia','supervisor','supervisor_zona']
   };
@@ -572,17 +573,29 @@ async function loadOTs(){
 async function loadEqs(){const{data}=await db.from('equipos').select('*').order('codigo');allEqs=data||[];}
 async function loadProfs(){if(!canDo('ver_tecnicos'))return;const{data}=await db.from('profiles').select('*').order('nombre');allProfs=data||[];}
 
-// ── REALTIME ──
+// ── REALTIME CON NOTIFICACIONES CORREGIDAS ──
 function setupRT(){
   rtCh=db.channel('ft-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async p=>{
-      await loadOTs();renderDash();
+      await loadOTs();
+      renderDash();
+      renderOrdenes();
+      renderCLSel();
       if(canDo('ver_downtime')) updateDowntimeEquipo();
-      if(document.getElementById('tab-ordenes').classList.contains('panel-visible'))renderOrdenes();
-      if(document.getElementById('tab-checklist').classList.contains('panel-visible'))renderCLSel();
-      if(p.new&&p.new.tecnico_id!==curUser?.id){
-        if(p.eventType==='INSERT')toast('📋 Nueva OT: '+( p.new.equipo_nombre||''));
-        if(p.eventType==='UPDATE'&&p.new.estado==='Completada')toast('✅ OT cerrada: '+(p.new.equipo_nombre||''));
+      
+      // Lógica de notificaciones corregida:
+      if(p.eventType === 'INSERT') {
+          if(p.new.tecnico_id === curUser?.id) {
+              // Notifica AL técnico que le acaba de caer una orden
+              toast('🔔 Nueva orden asignada a ti: ' + (p.new.equipo_nombre||''), 5000);
+          } else if(canDo('gestionar_equipos')) {
+              // Notifica al admin/supervisor que alguien levantó un ticket
+              toast('📋 Nueva OT registrada: ' + (p.new.equipo_nombre||''));
+          }
+      } else if (p.eventType === 'UPDATE' && p.new.estado === 'Completada' && p.old.estado !== 'Completada') {
+          if(canDo('gestionar_equipos')) {
+              toast('✅ OT completada en ' + (p.new.equipo_nombre||''));
+          }
       }
     })
     .subscribe(s=>{document.getElementById('rt-st').textContent=s==='SUBSCRIBED'?'En vivo':'Reconectando...';});
@@ -625,9 +638,9 @@ function onScanSuccess(decodedText) {
   if (eq) {
     stopScanner();
     openNuevaOT(eq.id); // Abre con equipo pre-seleccionado
-    toast("Equipo Detectado: " + eq.nombre);
+    toast("✅ Equipo Detectado: " + eq.nombre);
   } else {
-    toast("Código QR no reconocido en la base de datos");
+    toast("❌ Código QR no reconocido en la base de datos");
   }
 }
 
@@ -780,7 +793,13 @@ async function guardarEquipo(){
 
 async function eliminarEquipo(id){
   if(!confirm("¿Estás seguro de eliminar este equipo de forma permanente?")) return;
-  await db.from('equipos').delete().eq('id', id);
+  const {error} = await db.from('equipos').delete().eq('id', id);
+  if (error) {
+      toast("❌ No se puede borrar: El equipo tiene historial de órdenes.");
+      console.error(error);
+      return;
+  }
+  toast("✅ Equipo eliminado");
   await loadEqs(); renderEquipos(); renderDash();
 }
 
@@ -860,14 +879,16 @@ async function guardarPerfil(){
   const payload = {id:uuid,nombre:nom,rol:rol,zona:zonaAsignada,especialidad:espAsignada,turno:document.getElementById('inv-tur').value};
   
   const{error}=await db.from('profiles').upsert(payload);
-  if(error){toast('Error: '+error.message);return;}
+  if(error){toast('❌ Error al guardar: '+error.message); console.error(error); return;}
   closeM('modal-invite');toast('✅ Perfil guardado');await loadProfs();renderTecnicos();
 }
 
 async function eliminarUsuario(id){
   if(id === curUser.id) return toast("No puedes eliminarte a ti mismo.");
   if(!confirm("¿Eliminar este perfil de la base de datos?")) return;
-  await db.from('profiles').delete().eq('id', id);
+  const {error} = await db.from('profiles').delete().eq('id', id);
+  if(error) { toast('❌ Error: ' + error.message); console.error(error); return; }
+  toast('✅ Usuario eliminado');
   await loadProfs(); renderTecnicos();
 }
 
