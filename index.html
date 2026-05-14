@@ -41,6 +41,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .role-badge{font-size:10px;padding:2px 6px;border-radius:10px;font-weight:500}
 .r-tecnico{background:#e6f0fa;color:#10417a}
 .r-supervisor{background:#fdf3e3;color:#7a5000}
+.r-supervisor_area{background:#fef3c7;color:#92400e}
 .r-admin{background:#eaf4ec;color:#1f6130}
 .r-gerencia{background:#f3e8ff;color:#6b21a8}
 .btn-logout{background:none;border:none;cursor:pointer;color:#888;font-size:18px;padding:4px}
@@ -50,7 +51,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-btn:hover{color:#111}
 .nav-btn.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:500}
 .nav-badge{background:#b03030;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px}
-.main{padding:16px;max-width:1100px;margin:0 auto}
+.main{padding:16px;max-width:1200px;margin:0 auto}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
 @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 .kpi-card{background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px}
@@ -122,7 +123,20 @@ tr:last-child td{border-bottom:none}
 .tech-av{width:26px;height:26px;border-radius:50%;background:#d0dce8;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--navy)}
 .empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
 .empty-state i{font-size:32px;display:block;margin-bottom:8px}
-.sql-box{background:#1e1e2e;color:#cdd6f4;font-family:monospace;font-size:11px;padding:16px;border-radius:8px;overflow-x:auto;white-space:pre;line-height:1.6;margin:12px 0}
+/* DOWNTIME */
+.dt-bar-wrap{background:#f0f0f0;border-radius:4px;height:8px;overflow:hidden;flex:1}
+.dt-bar{height:100%;border-radius:4px;transition:width 0.4s}
+.dt-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.dt-row:last-child{border-bottom:none}
+.dt-equipo{font-size:13px;font-weight:500;color:#111;width:130px;flex-shrink:0}
+.dt-zona{font-size:11px;color:#888;width:80px;flex-shrink:0}
+.dt-hrs{font-size:12px;font-weight:500;width:50px;text-align:right;flex-shrink:0}
+.dt-fallas{font-size:12px;color:#888;width:40px;text-align:center;flex-shrink:0}
+.zona-chip{font-size:10px;padding:2px 7px;border-radius:10px;background:#e8edf5;color:#1a2b4a;font-weight:500}
+/* SUPERVISOR AREA TICKET */
+.ticket-form{background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:20px;max-width:540px;margin:0 auto}
+.ticket-form h2{font-size:16px;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.zona-info-bar{background:#e8edf5;border-radius:8px;padding:10px 14px;font-size:12px;color:#1a2b4a;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
@@ -132,69 +146,63 @@ tr:last-child td{border-bottom:none}
     <div class="login-logo"><i class="ti ti-tool"></i></div>
     <div class="login-title">FaciliTrack</div>
     <div class="login-sub">Gestión de mantenimiento industrial</div>
-    <div class="form-field"><label>Correo electrónico</label><input type="email" id="l-email" placeholder="tecnico@empresa.com" autocomplete="email"></div>
+    <div class="form-field"><label>Correo electrónico</label><input type="email" id="l-email" placeholder="usuario@empresa.com" autocomplete="email"></div>
     <div class="form-field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn-login" id="btn-login" onclick="doLogin()">Iniciar sesión</button>
     <div class="login-err" id="login-err"></div>
     <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eee;">
-      <div style="font-size:11px;color:#aaa;text-align:center;margin-bottom:8px;">Primera vez — ejecuta el SQL de configuración</div>
-      <button class="btn-sm" style="width:100%;font-size:11px;" onclick="document.getElementById('modal-setup').classList.add('open')"><i class="ti ti-database"></i> Ver SQL inicial</button>
+      <button class="btn-sm" style="width:100%;font-size:11px;" onclick="openM('modal-setup')"><i class="ti ti-database"></i> Ver SQL de configuración inicial</button>
     </div>
   </div>
 </div>
 
+<!-- SETUP SQL MODAL -->
 <div class="modal-backdrop" id="modal-setup">
-  <div class="modal" style="max-width:640px;">
-    <div class="modal-title"><span><i class="ti ti-database" style="margin-right:6px;"></i>SQL inicial — pega en Supabase → SQL Editor → Run</span><button class="close-btn" onclick="closeM('modal-setup')"><i class="ti ti-x"></i></button></div>
-    <div class="sql-box">-- Perfiles de usuario
-create table if not exists profiles (
-  id uuid references auth.users primary key,
-  nombre text not null,
-  rol text check (rol in ('tecnico','supervisor','admin','gerencia')) default 'tecnico',
-  turno text, especialidad text, activo boolean default true
-);
+  <div class="modal" style="max-width:660px;">
+    <div class="modal-title"><span><i class="ti ti-database" style="margin-right:6px;"></i>SQL inicial — Supabase → SQL Editor → Run</span><button class="close-btn" onclick="closeM('modal-setup')"><i class="ti ti-x"></i></button></div>
+    <div style="background:#1e1e2e;color:#cdd6f4;font-family:monospace;font-size:11px;padding:16px;border-radius:8px;overflow-x:auto;white-space:pre;line-height:1.6;margin:12px 0;">
+-- 1. Perfiles (agrega supervisor_area)
+alter table profiles drop constraint if exists profiles_rol_check;
+alter table profiles add constraint profiles_rol_check
+  check (rol in ('tecnico','supervisor','supervisor_area','admin','gerencia'));
 
--- Equipos
+-- Agrega columna zona al perfil (para supervisor_area)
+alter table profiles add column if not exists zona text;
+
+-- 2. Resto de tablas (si no existen)
 create table if not exists equipos (
   id serial primary key, codigo text unique not null,
   nombre text not null, area text, modelo text, serie text,
   criticidad text default 'media', estado text default 'Operativo',
   created_at timestamptz default now()
 );
-
--- Órdenes de trabajo
 create table if not exists ordenes_trabajo (
   id serial primary key, equipo_id int references equipos(id),
-  equipo_nombre text, tipo text, prioridad text,
+  equipo_nombre text, equipo_zona text, tipo text, prioridad text,
   estado text default 'Pendiente',
   tecnico_id uuid references profiles(id), tecnico_nombre text,
   descripcion text, observaciones text, tiempo_minutos int,
   fecha_creacion timestamptz default now(), fecha_cierre timestamptz,
   creado_por uuid references profiles(id)
 );
-
--- Respuestas de checklist
 create table if not exists respuestas_checklist (
   id serial primary key, orden_id int references ordenes_trabajo(id) on delete cascade,
   item_id text, item_label text, respuesta text, created_at timestamptz default now()
 );
 
--- Habilitar Realtime
+-- 3. Realtime
 alter publication supabase_realtime add table ordenes_trabajo;
 
--- Equipos de ejemplo
+-- 4. Equipos de ejemplo con zona
 insert into equipos (codigo,nombre,area,modelo,estado) values
-  ('CNC-01','Torno CNC','Mecanizado','Mazak QTN-200','Operativo'),
-  ('COMP-02','Compresor Atlas','Servicios','Atlas GA15','Operativo'),
-  ('BAND-01','Banda transportadora','Logística','Intralox S1200','Operativo'),
-  ('SOLD-03','Robot soldador','Soldadura','FANUC ARC-M','Operativo'),
-  ('BOMB-01','Bomba hidráulica','Hidráulica','Parker PV180','Operativo'),
-  ('ELECT-01','Tablero eléctrico E3','Eléctrico','Siemens S7-400','Operativo')
-on conflict (codigo) do nothing;
-
--- Tu primer usuario admin (reemplaza el UUID con el de Supabase Auth):
--- insert into profiles (id,nombre,rol) values ('TU-UUID-AQUI','Tu Nombre','admin');</div>
-    <p style="font-size:12px;color:#888;margin-top:8px;">Después: Authentication → Invite user → copia el UUID → agrega con insert into profiles.</p>
+  ('CNC-01','Torno CNC','Zona 1','Mazak QTN-200','Operativo'),
+  ('COMP-02','Compresor Atlas','Zona 2','Atlas GA15','Operativo'),
+  ('BAND-01','Banda transportadora','Zona 3','Intralox S1200','Operativo'),
+  ('SOLD-03','Robot soldador','Zona 4','FANUC ARC-M','Operativo'),
+  ('BOMB-01','Bomba hidráulica','Zona 5','Parker PV180','Operativo'),
+  ('ELECT-01','Tablero eléctrico E3','Zona 6','Siemens S7-400','Operativo')
+on conflict (codigo) do nothing;</div>
+    <p style="font-size:12px;color:#888;">Para supervisor de área: <code style="background:#f4f5f7;padding:2px 6px;border-radius:4px;">insert into profiles (id,nombre,rol,zona) values ('UUID','Nombre','supervisor_area','Zona 1');</code></p>
     <div style="text-align:right;margin-top:12px;"><button class="btn-sm btn-primary" onclick="closeM('modal-setup')">Entendido</button></div>
   </div>
 </div>
@@ -203,7 +211,7 @@ on conflict (codigo) do nothing;
   <div class="header">
     <div class="header-left">
       <div class="logo"><i class="ti ti-tool"></i></div>
-      <div><div class="app-title">FaciliTrack</div><div class="app-sub">Gestión de mantenimiento</div></div>
+      <div><div class="app-title">FaciliTrack</div><div class="app-sub" id="app-sub-zona">Gestión de mantenimiento</div></div>
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#2d7a3a;"><div class="rt-dot"></div><span id="rt-st">En vivo</span></div>
@@ -213,14 +221,19 @@ on conflict (codigo) do nothing;
   </div>
   <div class="nav-wrap">
     <div class="nav" id="main-nav">
-      <button class="nav-btn active" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>
-      <button class="nav-btn" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>
-      <button class="nav-btn" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>
-      <button class="nav-btn" id="nav-tec" onclick="setTab('tecnicos')"><i class="ti ti-users"></i> Técnicos</button>
-      <button class="nav-btn" onclick="setTab('checklist')"><i class="ti ti-checklist"></i> Checklist</button>
+      <button class="nav-btn active" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>
+      <button class="nav-btn" id="nav-ticket" onclick="setTab('ticket')" style="display:none"><i class="ti ti-ticket"></i> Levantar ticket</button>
+      <button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')" style="display:none"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>
+      <button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')" style="display:none"><i class="ti ti-settings-2"></i> Equipos</button>
+      <button class="nav-btn" id="nav-tecnicos" onclick="setTab('tecnicos')" style="display:none"><i class="ti ti-users"></i> Técnicos</button>
+      <button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')" style="display:none"><i class="ti ti-clock-stop"></i> Downtime</button>
+      <button class="nav-btn" id="nav-checklist" onclick="setTab('checklist')" style="display:none"><i class="ti ti-checklist"></i> Checklist</button>
     </div>
   </div>
+
   <div class="main">
+
+    <!-- DASHBOARD -->
     <div id="tab-dashboard">
       <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:#eaf4ec;border-radius:6px;font-size:11px;color:#1f6130;margin-bottom:12px;"><div class="rt-dot"></div>Datos en tiempo real — se actualizan en todos los dispositivos automáticamente</div>
       <div class="kpi-grid">
@@ -231,8 +244,10 @@ on conflict (codigo) do nothing;
       </div>
       <div class="two-col">
         <div class="card">
-          <div class="card-header"><div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes recientes</div><button class="btn-sm btn-primary" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button></div>
-          <div id="dash-ots"><div class="loading"><div class="spinner"></div> Cargando...</div></div>
+          <div class="card-header"><div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes recientes</div>
+            <button class="btn-sm btn-primary" id="dash-nueva-ot-btn" onclick="openNuevaOT()" style="display:none"><i class="ti ti-plus"></i> Nueva OT</button>
+          </div>
+          <div id="dash-ots"><div class="loading"><div class="spinner"></div></div></div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title"><i class="ti ti-chart-bar"></i> Resumen</div></div>
@@ -240,6 +255,37 @@ on conflict (codigo) do nothing;
         </div>
       </div>
     </div>
+
+    <!-- TICKET (supervisor_area) -->
+    <div id="tab-ticket" class="panel-hidden">
+      <div class="ticket-form">
+        <h2><i class="ti ti-ticket" style="font-size:20px;"></i> Levantar ticket de falla</h2>
+        <div class="zona-info-bar" id="ticket-zona-bar"><i class="ti ti-map-pin"></i> <span id="ticket-zona-label">–</span></div>
+        <div class="form-grid" style="grid-template-columns:1fr;">
+          <div class="form-group"><label>Equipo de tu zona</label><select id="tk-equipo"><option value="">Cargando...</option></select></div>
+          <div class="form-group"><label>Tipo de falla</label>
+            <select id="tk-tipo"><option>Correctivo</option><option>Preventivo</option><option>Inspección</option></select>
+          </div>
+          <div class="form-group"><label>Prioridad</label>
+            <select id="tk-pri"><option>Urgente</option><option>Alta</option><option>Media</option><option>Baja</option></select>
+          </div>
+          <div class="form-group"><label>Descripción del problema</label>
+            <textarea id="tk-desc" placeholder="Describe lo que está pasando con el equipo..." style="min-height:100px;"></textarea>
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <button class="btn-sm btn-primary" style="width:100%;padding:12px;font-size:14px;" onclick="crearTicket()"><i class="ti ti-send"></i> Enviar ticket a mantenimiento</button>
+        </div>
+        <div id="ticket-exito" style="display:none;margin-top:14px;background:#eaf4ec;border-radius:8px;padding:14px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:6px;">✅</div>
+          <div style="font-size:14px;font-weight:500;color:#1f6130;">Ticket enviado correctamente</div>
+          <div style="font-size:12px;color:#888;margin-top:4px;">El equipo de mantenimiento fue notificado</div>
+          <button class="btn-sm" style="margin-top:10px;" onclick="nuevoTicket()">Levantar otro ticket</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDENES -->
     <div id="tab-ordenes" class="panel-hidden">
       <div class="card">
         <div class="card-header">
@@ -248,12 +294,14 @@ on conflict (codigo) do nothing;
             <select id="f-est-fil" style="border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:12px;" onchange="renderOrdenes()">
               <option value="">Todos</option><option>Urgente</option><option>En progreso</option><option>Pendiente</option><option>Completada</option>
             </select>
-            <button class="btn-sm btn-primary" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button>
+            <button class="btn-sm btn-primary" id="btn-nueva-ot" onclick="openNuevaOT()" style="display:none"><i class="ti ti-plus"></i> Nueva OT</button>
           </div>
         </div>
         <div id="ots-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
+
+    <!-- EQUIPOS -->
     <div id="tab-equipos" class="panel-hidden">
       <div class="kpi-grid" style="margin-bottom:14px;">
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#2d7a3a"></span>Operativos</div><div class="kpi-value" id="eq-ok">–</div></div>
@@ -266,12 +314,45 @@ on conflict (codigo) do nothing;
         <div id="eq-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
+
+    <!-- TECNICOS -->
     <div id="tab-tecnicos" class="panel-hidden">
       <div class="card">
         <div class="card-header"><div class="card-title"><i class="ti ti-users"></i> Equipo de trabajo</div><button class="btn-sm btn-primary" id="btn-inv" style="display:none" onclick="openM('modal-invite')"><i class="ti ti-user-plus"></i> Configurar usuario</button></div>
         <div id="tec-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
+
+    <!-- DOWNTIME -->
+    <div id="tab-downtime" class="panel-hidden">
+      <div class="kpi-grid" style="margin-bottom:14px;">
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b03030"></span>Horas paradas (mes)</div><div class="kpi-value" id="dt-hrs-total">–</div><div class="kpi-sub">Total planta</div></div>
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b87a00"></span>Fallas totales</div><div class="kpi-value" id="dt-fallas-total">–</div><div class="kpi-sub">Correctivos del mes</div></div>
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#2d7a3a"></span>Disponibilidad promedio</div><div class="kpi-value" id="dt-disp">–</div><div class="kpi-sub">% equipos operativos</div></div>
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#1a5fa8"></span>MTTR promedio</div><div class="kpi-value" id="dt-mttr">–</div><div class="kpi-sub">Minutos por OT</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-clock-stop"></i> Downtime por equipo — últimos 30 días</div>
+          <select id="dt-zona-fil" style="border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:12px;" onchange="renderDowntime()">
+            <option value="">Todas las zonas</option>
+          </select>
+        </div>
+        <div id="dt-tabla"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="ti ti-map-pin"></i> Downtime por zona</div></div>
+          <div id="dt-zonas"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="ti ti-trending-up"></i> Top fallas recurrentes</div></div>
+          <div id="dt-top"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHECKLIST -->
     <div id="tab-checklist" class="panel-hidden">
       <div id="cl-sel">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="font-size:15px;font-weight:500;">Ejecutar checklist de OT</div><span style="font-size:12px;color:#888;">Selecciona una orden activa</span></div>
@@ -322,9 +403,11 @@ on conflict (codigo) do nothing;
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
+<!-- MODAL NUEVA OT -->
 <div class="modal-backdrop" id="modal-ot">
   <div class="modal">
     <div class="modal-title"><span><i class="ti ti-clipboard-plus" style="margin-right:6px;"></i>Nueva orden de trabajo</span><button class="close-btn" onclick="closeM('modal-ot')"><i class="ti ti-x"></i></button></div>
@@ -339,18 +422,29 @@ on conflict (codigo) do nothing;
   </div>
 </div>
 
+<!-- MODAL HISTORIAL -->
 <div class="modal-backdrop" id="modal-hist">
   <div class="modal"><div class="modal-title"><span id="hist-ttl">Historial</span><button class="close-btn" onclick="closeM('modal-hist')"><i class="ti ti-x"></i></button></div><div id="hist-body"></div></div>
 </div>
 
+<!-- MODAL INVITE -->
 <div class="modal-backdrop" id="modal-invite">
-  <div class="modal" style="max-width:420px;">
+  <div class="modal" style="max-width:440px;">
     <div class="modal-title"><span><i class="ti ti-user-plus" style="margin-right:6px;"></i>Configurar perfil de usuario</span><button class="close-btn" onclick="closeM('modal-invite')"><i class="ti ti-x"></i></button></div>
-    <p style="font-size:12px;color:#888;margin-bottom:14px;">Primero invita al usuario en Supabase → Authentication → Invite user. Luego pega su UUID aquí:</p>
+    <p style="font-size:12px;color:#888;margin-bottom:14px;">Invita al usuario en Supabase → Authentication → Invite user. Luego pega su UUID aquí:</p>
     <div class="form-grid" style="grid-template-columns:1fr;">
-      <div class="form-group"><label>UUID del usuario (desde Auth)</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+      <div class="form-group"><label>UUID del usuario</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
       <div class="form-group"><label>Nombre completo</label><input type="text" id="inv-nom" placeholder="Carlos Mendoza"></div>
-      <div class="form-group"><label>Rol</label><select id="inv-rol"><option value="tecnico">Técnico</option><option value="supervisor">Supervisor</option><option value="admin">Administrador</option><option value="gerencia">Gerencia</option></select></div>
+      <div class="form-group"><label>Rol</label>
+        <select id="inv-rol" onchange="toggleZonaField()">
+          <option value="tecnico">Técnico</option>
+          <option value="supervisor_area">Supervisor de área</option>
+          <option value="supervisor">Supervisor de mantenimiento</option>
+          <option value="admin">Administrador</option>
+          <option value="gerencia">Gerencia</option>
+        </select>
+      </div>
+      <div class="form-group" id="zona-field" style="display:none;"><label>Zona asignada</label><select id="inv-zona"><option value="">Seleccionar zona...</option></select></div>
       <div class="form-group"><label>Especialidad</label><input type="text" id="inv-esp" placeholder="Mecánico CNC..."></div>
       <div class="form-group"><label>Turno</label><select id="inv-tur"><option>Mañana</option><option>Tarde</option><option>Nocturno</option></select></div>
     </div>
@@ -358,13 +452,14 @@ on conflict (codigo) do nothing;
   </div>
 </div>
 
+<!-- MODAL EQUIPO -->
 <div class="modal-backdrop" id="modal-equipo">
   <div class="modal" style="max-width:440px;">
     <div class="modal-title"><span><i class="ti ti-settings-2" style="margin-right:6px;"></i>Nuevo equipo</span><button class="close-btn" onclick="closeM('modal-equipo')"><i class="ti ti-x"></i></button></div>
     <div class="form-grid">
       <div class="form-group"><label>Código</label><input type="text" id="eq-cod" placeholder="CNC-03"></div>
       <div class="form-group"><label>Nombre</label><input type="text" id="eq-nom" placeholder="Torno CNC 3"></div>
-      <div class="form-group"><label>Área</label><input type="text" id="eq-area" placeholder="Mecanizado"></div>
+      <div class="form-group"><label>Zona / Área</label><input type="text" id="eq-area" placeholder="Zona 1"></div>
       <div class="form-group"><label>Modelo</label><input type="text" id="eq-mod" placeholder="Mazak QTN-200"></div>
       <div class="form-group"><label>N° de serie</label><input type="text" id="eq-ser" placeholder="SN-2024-001"></div>
       <div class="form-group"><label>Criticidad</label><select id="eq-cri"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></div>
@@ -383,15 +478,26 @@ const db=createClient(SUPA_URL,SUPA_KEY);
 
 let curUser=null,curProf=null,allOTs=[],allEqs=[],allProfs=[],rtCh=null;
 
+// ── UTILS ──
 function toast(msg,dur=2800){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 function ini(n){return(n||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();}
 function fmt(ts){if(!ts)return'–';const d=new Date(ts);return d.toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 function badge(e){const m={'Urgente':'badge-red','En progreso':'badge-amber','Pendiente':'badge-gray','Completada':'badge-green','Operativo':'badge-green','En mantenimiento':'badge-amber','Fuera de servicio':'badge-red','Alta':'badge-red','Media':'badge-amber','Baja':'badge-gray','Correctivo':'badge-red','Preventivo':'badge-blue','Predictivo':'badge-purple','Inspección':'badge-blue'};return`<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;}
-function rolBadge(r){const c={tecnico:'r-tecnico',supervisor:'r-supervisor',admin:'r-admin',gerencia:'r-gerencia'};const l={tecnico:'Técnico',supervisor:'Supervisor',admin:'Admin',gerencia:'Gerencia'};return`<span class="role-badge ${c[r]||''}">${l[r]||r}</span>`;}
-function canDo(a){const r=curProf?.rol;const p={crear_ot:['tecnico','supervisor','admin'],ver_tecnicos:['supervisor','admin'],gestionar_usuarios:['admin'],gestionar_equipos:['admin','supervisor']};return(p[a]||[]).includes(r);}
+function rolBadge(r){const c={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_area:'r-supervisor_area',admin:'r-admin',gerencia:'r-gerencia'};const l={tecnico:'Técnico',supervisor:'Sup. Mantenimiento',supervisor_area:'Sup. Área',admin:'Admin',gerencia:'Gerencia'};return`<span class="role-badge ${c[r]||''}">${l[r]||r}</span>`;}
 function openM(id){document.getElementById(id).classList.add('open');}
 function closeM(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)b.classList.remove('open');}));
+
+// ── PERMISOS POR ROL ──
+const PERMISOS={
+  tecnico:      {tabs:['dashboard','checklist'], nuevaOT:false, verTecnicos:false, verDowntime:false, soloSusOTs:true},
+  supervisor_area:{tabs:['dashboard','ticket'],  nuevaOT:false, verTecnicos:false, verDowntime:false, soloSuZona:true},
+  supervisor:   {tabs:['dashboard','ordenes','equipos','tecnicos','checklist'], nuevaOT:true, verTecnicos:true, verDowntime:false, soloSusOTs:false},
+  admin:        {tabs:['dashboard','ordenes','equipos','tecnicos','downtime','checklist'], nuevaOT:true, verTecnicos:true, verDowntime:true, gestionaUsuarios:true, gestionaEquipos:true},
+  gerencia:     {tabs:['dashboard','downtime','ordenes'], nuevaOT:false, verTecnicos:false, verDowntime:true},
+};
+function perm(p){return PERMISOS[curProf?.rol]?.[p]||false;}
+function tabs(){return PERMISOS[curProf?.rol]?.tabs||[];}
 
 // ── AUTH ──
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
@@ -403,57 +509,94 @@ async function doLogin(){
   err.classList.remove('show');
   if(!email||!pass){err.textContent='Completa todos los campos.';err.classList.add('show');return;}
   btn.disabled=true;btn.textContent='Iniciando...';
-  const {data,error}=await db.auth.signInWithPassword({email,password:pass});
+  const{data,error}=await db.auth.signInWithPassword({email,password:pass});
   btn.disabled=false;btn.textContent='Iniciar sesión';
   if(error){err.textContent=error.message;err.classList.add('show');return;}
   await bootApp(data.user);
 }
+
 async function bootApp(user){
   curUser=user;
-  const {data:prof}=await db.from('profiles').select('*').eq('id',user.id).single();
+  const{data:prof}=await db.from('profiles').select('*').eq('id',user.id).single();
   curProf=prof;
   if(!prof){
-    document.getElementById('login-err').textContent='Tu perfil no está configurado. Pide al administrador que lo registre en la base de datos.';
+    document.getElementById('login-err').textContent='Tu perfil no está configurado. Pide al administrador que lo registre.';
     document.getElementById('login-err').classList.add('show');
     await db.auth.signOut();return;
   }
+  // Header
   document.getElementById('u-av').textContent=ini(prof.nombre);
   document.getElementById('u-name').textContent=prof.nombre.split(' ')[0];
-  const rc={tecnico:'r-tecnico',supervisor:'r-supervisor',admin:'r-admin',gerencia:'r-gerencia'};
-  const rl={tecnico:'Técnico',supervisor:'Supervisor',admin:'Admin',gerencia:'Gerencia'};
+  const rc={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_area:'r-supervisor_area',admin:'r-admin',gerencia:'r-gerencia'};
+  const rl={tecnico:'Técnico',supervisor:'Sup. Mant.',supervisor_area:'Sup. Área',admin:'Admin',gerencia:'Gerencia'};
   const rb=document.getElementById('u-rol');rb.className='role-badge '+(rc[prof.rol]||'');rb.textContent=rl[prof.rol]||prof.rol;
-  if(!canDo('ver_tecnicos'))document.getElementById('nav-tec').style.display='none';
-  if(canDo('gestionar_usuarios'))document.getElementById('btn-inv').style.display='';
-  if(canDo('gestionar_equipos'))document.getElementById('btn-add-eq').style.display='';
+  // Zona en header para supervisor_area
+  if(prof.rol==='supervisor_area'&&prof.zona){
+    document.getElementById('app-sub-zona').textContent='Zona: '+prof.zona;
+  }
+  // Mostrar tabs según rol
+  const tabsRol=tabs();
+  const navMap={dashboard:'nav-dashboard',ticket:'nav-ticket',ordenes:'nav-ordenes',equipos:'nav-equipos',tecnicos:'nav-tecnicos',downtime:'nav-downtime',checklist:'nav-checklist'};
+  Object.entries(navMap).forEach(([t,id])=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display=tabsRol.includes(t)?'':'none';
+  });
+  // Botones según permisos
+  if(perm('nuevaOT')){
+    document.getElementById('dash-nueva-ot-btn').style.display='';
+    const b=document.getElementById('btn-nueva-ot');if(b)b.style.display='';
+  }
+  if(perm('gestionaUsuarios'))document.getElementById('btn-inv').style.display='';
+  if(perm('gestionaEquipos'))document.getElementById('btn-add-eq').style.display='';
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   await loadAll();
   setupRT();
+  // Primer tab
+  const primerTab=tabsRol[0]||'dashboard';
+  setTab(primerTab);
 }
+
 async function doLogout(){if(rtCh)db.removeChannel(rtCh);await db.auth.signOut();curUser=null;curProf=null;document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';}
 db.auth.getSession().then(async({data:{session}})=>{if(session)await bootApp(session.user);});
 
 // ── DATA ──
 async function loadAll(){await Promise.all([loadOTs(),loadEqs(),loadProfs()]);renderDash();}
+
 async function loadOTs(){
   let q=db.from('ordenes_trabajo').select('*').order('fecha_creacion',{ascending:false});
-  if(curProf?.rol==='tecnico')q=q.eq('tecnico_id',curUser.id);
-  const{data}=await q;allOTs=data||[];
+  if(curProf?.rol==='tecnico') q=q.eq('tecnico_id',curUser.id);
+  if(curProf?.rol==='supervisor_area'&&curProf.zona) q=q.eq('equipo_zona',curProf.zona);
+  const{data}=await q;
+  allOTs=data||[];
   const urg=allOTs.filter(o=>o.estado==='Urgente').length;
-  const b=document.getElementById('badge-urg');b.textContent=urg;b.style.display=urg?'':'none';
+  const b=document.getElementById('badge-urg');if(b){b.textContent=urg;b.style.display=urg?'':'none';}
 }
-async function loadEqs(){const{data}=await db.from('equipos').select('*').order('codigo');allEqs=data||[];}
-async function loadProfs(){if(!canDo('ver_tecnicos'))return;const{data}=await db.from('profiles').select('*').order('nombre');allProfs=data||[];}
+
+async function loadEqs(){
+  let q=db.from('equipos').select('*').order('area');
+  if(curProf?.rol==='supervisor_area'&&curProf.zona) q=q.eq('area',curProf.zona);
+  const{data}=await db.from('equipos').select('*').order('area');
+  allEqs=data||[];
+}
+
+async function loadProfs(){
+  if(!perm('verTecnicos'))return;
+  const{data}=await db.from('profiles').select('*').order('nombre');
+  allProfs=data||[];
+}
 
 // ── REALTIME ──
 function setupRT(){
   rtCh=db.channel('ft-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async p=>{
       await loadOTs();renderDash();
-      if(document.getElementById('tab-ordenes').classList.contains('panel-visible'))renderOrdenes();
-      if(document.getElementById('tab-checklist').classList.contains('panel-visible'))renderCLSel();
+      const tab=document.querySelector('.nav-btn.active')?.getAttribute('onclick')?.match(/setTab\('(\w+)'\)/)?.[1];
+      if(tab==='ordenes')renderOrdenes();
+      if(tab==='checklist')renderCLSel();
+      if(tab==='downtime')renderDowntime();
       if(p.new&&p.new.tecnico_id!==curUser?.id){
-        if(p.eventType==='INSERT')toast('📋 Nueva OT: '+( p.new.equipo_nombre||''));
+        if(p.eventType==='INSERT')toast('📋 Nuevo ticket: '+(p.new.equipo_nombre||''));
         if(p.eventType==='UPDATE'&&p.new.estado==='Completada')toast('✅ OT cerrada: '+(p.new.equipo_nombre||''));
       }
     })
@@ -472,72 +615,189 @@ function renderDash(){
   document.getElementById('eq-fu').textContent=allEqs.filter(e=>e.estado==='Fuera de servicio').length;
   document.getElementById('eq-to').textContent=allEqs.length;
   const rec=allOTs.slice(0,6);
-  document.getElementById('dash-ots').innerHTML=rec.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Tipo</th><th>Estado</th><th>Técnico</th></tr></thead><tbody>${rec.map(o=>`<tr><td style="font-size:11px;color:#aaa;">#${o.id}</td><td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td><td>${badge(o.tipo)}</td><td>${badge(o.estado)}</td><td><span class="tech-av">${ini(o.tecnico_nombre)}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
+  document.getElementById('dash-ots').innerHTML=rec.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Zona</th><th>Tipo</th><th>Estado</th></tr></thead><tbody>${rec.map(o=>`<tr>
+    <td style="font-size:11px;color:#aaa;">#${o.id}</td>
+    <td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td>
+    <td><span class="zona-chip">${o.equipo_zona||'–'}</span></td>
+    <td>${badge(o.tipo)}</td><td>${badge(o.estado)}</td>
+  </tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
   const compl=allOTs.filter(o=>o.estado==='Completada').length;
-  const pend=allOTs.filter(o=>['Pendiente','En progreso'].includes(o.estado)).length;
   document.getElementById('dash-res').innerHTML=`
     <div class="stat-row"><span style="color:#888;">Total OTs</span><strong>${allOTs.length}</strong></div>
     <div class="stat-row"><span style="color:#888;">Completadas</span><strong style="color:#1f6130;">${compl}</strong></div>
-    <div class="stat-row"><span style="color:#888;">Pendientes / En progreso</span><strong style="color:#7a5000;">${pend}</strong></div>
+    <div class="stat-row"><span style="color:#888;">Pendientes/Progreso</span><strong style="color:#7a5000;">${allOTs.filter(o=>['Pendiente','En progreso'].includes(o.estado)).length}</strong></div>
     <div class="stat-row"><span style="color:#888;">Urgentes</span><strong style="color:#8a2020;">${allOTs.filter(o=>o.estado==='Urgente').length}</strong></div>
     <div class="stat-row"><span style="color:#888;">Correctivos</span><strong>${allOTs.filter(o=>o.tipo==='Correctivo').length}</strong></div>
-    <div class="stat-row"><span style="color:#888;">Preventivos</span><strong>${allOTs.filter(o=>o.tipo==='Preventivo').length}</strong></div>
-    <div class="stat-row"><span style="color:#888;">Equipos registrados</span><strong>${allEqs.length}</strong></div>`;
+    <div class="stat-row"><span style="color:#888;">Preventivos</span><strong>${allOTs.filter(o=>o.tipo==='Preventivo').length}</strong></div>`;
+}
+
+// ── TICKET (supervisor_area) ──
+function initTicketForm(){
+  const zona=curProf?.zona||'–';
+  document.getElementById('ticket-zona-label').textContent='Tu zona: '+zona;
+  const eqsZona=allEqs.filter(e=>e.area===zona);
+  const sel=document.getElementById('tk-equipo');
+  sel.innerHTML=`<option value="">Selecciona el equipo con falla...</option>`+eqsZona.map(e=>`<option value="${e.id}" data-zona="${e.area}">${e.codigo} – ${e.nombre}</option>`).join('');
+  document.getElementById('ticket-exito').style.display='none';
+  document.getElementById('tk-desc').value='';
+}
+
+async function crearTicket(){
+  const eqId=document.getElementById('tk-equipo').value;
+  if(!eqId){toast('Selecciona el equipo con falla');return;}
+  const eq=allEqs.find(e=>e.id==eqId);
+  const pri=document.getElementById('tk-pri').value;
+  const{error}=await db.from('ordenes_trabajo').insert({
+    equipo_id:eq.id,
+    equipo_nombre:`${eq.codigo} – ${eq.nombre}`,
+    equipo_zona:eq.area,
+    tipo:document.getElementById('tk-tipo').value,
+    prioridad:pri,
+    estado:pri==='Urgente'?'Urgente':'Pendiente',
+    tecnico_nombre:'Sin asignar',
+    descripcion:document.getElementById('tk-desc').value.trim()||'Reporte de supervisor de área',
+    creado_por:curUser.id
+  });
+  if(error){toast('Error: '+error.message);return;}
+  document.getElementById('ticket-exito').style.display='';
+  await loadOTs();renderDash();
+}
+
+function nuevoTicket(){
+  document.getElementById('ticket-exito').style.display='none';
+  document.getElementById('tk-desc').value='';
+  document.getElementById('tk-equipo').value='';
 }
 
 // ── ORDENES ──
 function renderOrdenes(){
   const f=document.getElementById('f-est-fil').value;
   const lista=f?allOTs.filter(o=>o.estado===f):allOTs;
-  document.getElementById('ots-wrap').innerHTML=lista.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Descripción</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th>Fecha</th><th></th></tr></thead><tbody>${lista.map(o=>`<tr>
+  document.getElementById('ots-wrap').innerHTML=lista.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Zona</th><th>Descripción</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th>Fecha</th><th></th></tr></thead><tbody>${lista.map(o=>`<tr>
     <td style="font-size:11px;color:#aaa;">#${o.id}</td>
     <td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td>
-    <td style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.descripcion||'–'}</td>
+    <td><span class="zona-chip">${o.equipo_zona||'–'}</span></td>
+    <td style="font-size:12px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.descripcion||'–'}</td>
     <td>${badge(o.tipo)}</td><td>${badge(o.prioridad)}</td><td>${badge(o.estado)}</td>
     <td><span class="tech-av" title="${o.tecnico_nombre||''}">${ini(o.tecnico_nombre)}</span></td>
     <td style="font-size:11px;color:#aaa;">${fmt(o.fecha_creacion)}</td>
-    <td>${o.estado!=='Completada'&&canDo('crear_ot')?`<button class="btn-sm" onclick="cambiarEst(${o.id})"><i class="ti ti-edit"></i></button>`:''}</td>
+    <td>${o.estado!=='Completada'&&perm('nuevaOT')?`<button class="btn-sm" onclick="cambiarEst(${o.id})"><i class="ti ti-edit"></i></button>`:''}</td>
   </tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
 }
 
 async function crearOT(){
-  const eqId=document.getElementById('f-equipo').value;
-  if(!eqId){toast('Selecciona un equipo');return;}
+  const eqId=document.getElementById('f-equipo').value;if(!eqId){toast('Selecciona un equipo');return;}
   const eq=allEqs.find(e=>e.id==eqId);
   const tecId=document.getElementById('f-tec').value;
   const tec=allProfs.find(p=>p.id===tecId);
   const{error}=await db.from('ordenes_trabajo').insert({
-    equipo_id:eq.id,equipo_nombre:`${eq.codigo} – ${eq.nombre}`,
-    tipo:document.getElementById('f-tipo').value,
-    prioridad:document.getElementById('f-pri').value,
+    equipo_id:eq.id,equipo_nombre:`${eq.codigo} – ${eq.nombre}`,equipo_zona:eq.area,
+    tipo:document.getElementById('f-tipo').value,prioridad:document.getElementById('f-pri').value,
     estado:document.getElementById('f-pri').value==='Urgente'?'Urgente':'Pendiente',
-    tecnico_id:tecId||curUser.id,
-    tecnico_nombre:tec?.nombre||curProf?.nombre,
-    descripcion:document.getElementById('f-desc').value.trim()||'Sin descripción',
-    creado_por:curUser.id
+    tecnico_id:tecId||curUser.id,tecnico_nombre:tec?.nombre||curProf?.nombre,
+    descripcion:document.getElementById('f-desc').value.trim()||'Sin descripción',creado_por:curUser.id
   });
   if(error){toast('Error: '+error.message);return;}
-  closeM('modal-ot');toast('✅ OT creada');
-  await loadOTs();renderDash();
+  closeM('modal-ot');toast('✅ OT creada');await loadOTs();renderDash();
 }
 
 async function cambiarEst(otId){
   const ot=allOTs.find(o=>o.id===otId);if(!ot)return;
   const estados=['Pendiente','En progreso','Urgente','Completada'];
   const nuevo=estados[(estados.indexOf(ot.estado)+1)%estados.length];
-  const upd={estado:nuevo};
-  if(nuevo==='Completada')upd.fecha_cierre=new Date().toISOString();
+  const upd={estado:nuevo};if(nuevo==='Completada')upd.fecha_cierre=new Date().toISOString();
   await db.from('ordenes_trabajo').update(upd).eq('id',otId);
   toast('Estado → '+nuevo);await loadOTs();renderDash();
-  if(document.getElementById('tab-ordenes').classList.contains('panel-visible'))renderOrdenes();
+  renderOrdenes();
+}
+
+// ── DOWNTIME ──
+function renderDowntime(){
+  const ahora=new Date();
+  const hace30=new Date(ahora-30*24*60*60*1000);
+  const otsMes=allOTs.filter(o=>new Date(o.fecha_creacion)>=hace30);
+  const correctivos=otsMes.filter(o=>o.tipo==='Correctivo');
+
+  // KPIs
+  const hrsTotal=otsMes.reduce((s,o)=>s+(o.tiempo_minutos||0),0)/60;
+  const fallasTot=correctivos.length;
+  const dispPct=allEqs.length?Math.round(allEqs.filter(e=>e.estado==='Operativo').length/allEqs.length*100):100;
+  const mttr=otsMes.filter(o=>o.tiempo_minutos).length?
+    Math.round(otsMes.filter(o=>o.tiempo_minutos).reduce((s,o)=>s+(o.tiempo_minutos||0),0)/otsMes.filter(o=>o.tiempo_minutos).length):0;
+
+  document.getElementById('dt-hrs-total').textContent=hrsTotal.toFixed(1)+'h';
+  document.getElementById('dt-fallas-total').textContent=fallasTot;
+  document.getElementById('dt-disp').textContent=dispPct+'%';
+  document.getElementById('dt-mttr').textContent=mttr+' min';
+
+  // Filtro zona
+  const zonas=[...new Set(allEqs.map(e=>e.area).filter(Boolean))].sort();
+  const selZona=document.getElementById('dt-zona-fil');
+  const valActual=selZona.value;
+  selZona.innerHTML='<option value="">Todas las zonas</option>'+zonas.map(z=>`<option value="${z}">${z}</option>`).join('');
+  selZona.value=valActual;
+  const zonaFil=selZona.value;
+
+  // Por equipo
+  const eqsFil=zonaFil?allEqs.filter(e=>e.area===zonaFil):allEqs;
+  const maxHrs=Math.max(...eqsFil.map(eq=>{
+    const otsEq=otsMes.filter(o=>o.equipo_id===eq.id);
+    return otsEq.reduce((s,o)=>s+(o.tiempo_minutos||0),0)/60;
+  }),0.1);
+
+  document.getElementById('dt-tabla').innerHTML=eqsFil.length?`
+    <div style="margin-bottom:8px;display:flex;gap:8px;font-size:11px;color:#aaa;padding:0 4px;">
+      <span style="width:130px;">Equipo</span><span style="width:80px;">Zona</span>
+      <span style="flex:1;">Horas paradas</span><span style="width:50px;text-align:right;">Hrs</span><span style="width:40px;text-align:center;">Fallas</span>
+    </div>
+    ${eqsFil.map(eq=>{
+      const otsEq=otsMes.filter(o=>o.equipo_id===eq.id);
+      const hrs=otsEq.reduce((s,o)=>s+(o.tiempo_minutos||0),0)/60;
+      const fallas=otsEq.filter(o=>o.tipo==='Correctivo').length;
+      const pct=Math.round(hrs/maxHrs*100);
+      const color=hrs>8?'#b03030':hrs>4?'#b87a00':'#2d7a3a';
+      return`<div class="dt-row">
+        <div class="dt-equipo">${eq.codigo}</div>
+        <div class="dt-zona"><span class="zona-chip">${eq.area||'–'}</span></div>
+        <div class="dt-bar-wrap"><div class="dt-bar" style="width:${pct}%;background:${color};"></div></div>
+        <div class="dt-hrs" style="color:${color};">${hrs.toFixed(1)}h</div>
+        <div class="dt-fallas">${fallas}</div>
+      </div>`;
+    }).join('')}`:'<div class="empty-state">Sin equipos en esta zona</div>';
+
+  // Por zona
+  const dtZonas=zonas.map(z=>{
+    const eqsZ=allEqs.filter(e=>e.area===z);
+    const hrsZ=otsMes.filter(o=>eqsZ.some(e=>e.id===o.equipo_id)).reduce((s,o)=>s+(o.tiempo_minutos||0),0)/60;
+    return{zona:z,hrs:hrsZ};
+  }).sort((a,b)=>b.hrs-a.hrs);
+  const maxZ=Math.max(...dtZonas.map(z=>z.hrs),0.1);
+  document.getElementById('dt-zonas').innerHTML=dtZonas.map(z=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="font-weight:500;">${z.zona}</span><span style="color:#888;">${z.hrs.toFixed(1)}h</span>
+      </div>
+      <div class="dt-bar-wrap"><div class="dt-bar" style="width:${Math.round(z.hrs/maxZ*100)}%;background:${z.hrs>8?'#b03030':z.hrs>4?'#b87a00':'#2d7a3a'};"></div></div>
+    </div>`).join('')||'<div class="empty-state" style="padding:16px;">Sin datos</div>';
+
+  // Top fallas
+  const freq={};otsMes.filter(o=>o.tipo==='Correctivo').forEach(o=>{
+    const k=o.equipo_nombre||'Desconocido';freq[k]=(freq[k]||0)+1;
+  });
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  document.getElementById('dt-top').innerHTML=top.length?top.map(([eq,n],i)=>`
+    <div class="stat-row">
+      <span style="font-size:12px;">${i+1}. ${eq}</span>
+      <span class="badge badge-red">${n} falla${n>1?'s':''}</span>
+    </div>`).join(''):'<div class="empty-state" style="padding:16px;"><i class="ti ti-check"></i>Sin fallas recurrentes</div>';
 }
 
 // ── EQUIPOS ──
 function renderEquipos(){
-  document.getElementById('eq-wrap').innerHTML=allEqs.length?`<div style="overflow-x:auto;"><table><thead><tr><th>Código</th><th>Nombre</th><th>Área</th><th>Modelo</th><th>Estado</th><th>Criticidad</th><th></th></tr></thead><tbody>${allEqs.map(e=>`<tr>
+  document.getElementById('eq-wrap').innerHTML=allEqs.length?`<div style="overflow-x:auto;"><table><thead><tr><th>Código</th><th>Nombre</th><th>Zona/Área</th><th>Modelo</th><th>Estado</th><th>Criticidad</th><th></th></tr></thead><tbody>${allEqs.map(e=>`<tr>
     <td style="font-size:11px;color:#888;font-family:monospace;">${e.codigo}</td>
     <td><strong style="font-weight:500;">${e.nombre}</strong></td>
-    <td style="color:#888;font-size:12px;">${e.area||'–'}</td>
+    <td><span class="zona-chip">${e.area||'–'}</span></td>
     <td style="font-size:12px;">${e.modelo||'–'}</td>
     <td>${badge(e.estado)}</td>
     <td><span class="badge badge-gray">${e.criticidad||'media'}</span></td>
@@ -546,8 +806,7 @@ function renderEquipos(){
 }
 
 async function guardarEquipo(){
-  const cod=document.getElementById('eq-cod').value.trim();
-  const nom=document.getElementById('eq-nom').value.trim();
+  const cod=document.getElementById('eq-cod').value.trim(),nom=document.getElementById('eq-nom').value.trim();
   if(!cod||!nom){toast('Código y nombre obligatorios');return;}
   const{error}=await db.from('equipos').insert({codigo:cod,nombre:nom,area:document.getElementById('eq-area').value.trim(),modelo:document.getElementById('eq-mod').value.trim(),serie:document.getElementById('eq-ser').value.trim(),criticidad:document.getElementById('eq-cri').value});
   if(error){toast('Error: '+error.message);return;}
@@ -560,98 +819,54 @@ async function verHist(eqId,nombre){
   openM('modal-hist');
   const{data}=await db.from('ordenes_trabajo').select('*').eq('equipo_id',eqId).order('fecha_creacion',{ascending:false}).limit(15);
   const items=data||[];
-  document.getElementById('hist-body').innerHTML=items.length?items.map((o,i)=>`<div class="tl-item"><div class="tl-line"><div class="tl-dot"></div>${i<items.length-1?'<div class="tl-track"></div>':''}</div><div class="tl-content"><div class="tl-title">${o.descripcion||o.tipo} ${badge(o.estado)}</div><div class="tl-time">${fmt(o.fecha_creacion)} · ${o.tecnico_nombre||'Sin asignar'}</div></div></div>`).join(''):'<div class="empty-state">Sin historial registrado</div>';
+  document.getElementById('hist-body').innerHTML=items.length?items.map((o,i)=>`<div class="tl-item"><div class="tl-line"><div class="tl-dot"></div>${i<items.length-1?'<div class="tl-track"></div>':''}</div><div class="tl-content"><div class="tl-title">${o.descripcion||o.tipo} ${badge(o.estado)}</div><div class="tl-time">${fmt(o.fecha_creacion)} · ${o.tecnico_nombre||'Sin asignar'} · ${o.tiempo_minutos?o.tiempo_minutos+' min':'–'}</div></div></div>`).join(''):'<div class="empty-state">Sin historial</div>';
 }
 
 // ── TÉCNICOS ──
 function renderTecnicos(){
-  document.getElementById('tec-wrap').innerHTML=allProfs.length?`<table><thead><tr><th>Nombre</th><th>Rol</th><th>Especialidad</th><th>Turno</th><th>OTs activas</th><th>Completadas</th></tr></thead><tbody>${allProfs.map(p=>{
+  document.getElementById('tec-wrap').innerHTML=allProfs.length?`<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona</th><th>Especialidad</th><th>Turno</th><th>OTs activas</th><th>Completadas</th></tr></thead><tbody>${allProfs.map(p=>{
     const act=allOTs.filter(o=>o.tecnico_id===p.id&&o.estado!=='Completada').length;
     const comp=allOTs.filter(o=>o.tecnico_id===p.id&&o.estado==='Completada').length;
-    return`<tr><td><div style="display:flex;align-items:center;gap:8px;"><span class="tech-av">${ini(p.nombre)}</span><span style="font-weight:500;">${p.nombre}</span></div></td><td>${rolBadge(p.rol)}</td><td style="font-size:12px;color:#888;">${p.especialidad||'–'}</td><td style="font-size:12px;">${p.turno||'–'}</td><td style="text-align:center;font-weight:500;">${act}</td><td style="text-align:center;color:#888;">${comp}</td></tr>`;
-  }).join('')}</tbody></table>`:'<div class="empty-state"><i class="ti ti-users"></i>Sin usuarios registrados</div>';
+    return`<tr><td><div style="display:flex;align-items:center;gap:8px;"><span class="tech-av">${ini(p.nombre)}</span><span style="font-weight:500;">${p.nombre}</span></div></td><td>${rolBadge(p.rol)}</td><td>${p.zona?`<span class="zona-chip">${p.zona}</span>`:'–'}</td><td style="font-size:12px;color:#888;">${p.especialidad||'–'}</td><td style="font-size:12px;">${p.turno||'–'}</td><td style="text-align:center;font-weight:500;">${act}</td><td style="text-align:center;color:#888;">${comp}</td></tr>`;
+  }).join('')}</tbody></table>`:'<div class="empty-state"><i class="ti ti-users"></i>Sin usuarios</div>';
+}
+
+function toggleZonaField(){
+  const rol=document.getElementById('inv-rol').value;
+  const zf=document.getElementById('zona-field');
+  zf.style.display=rol==='supervisor_area'?'':'none';
+  if(rol==='supervisor_area'){
+    const zonas=[...new Set(allEqs.map(e=>e.area).filter(Boolean))].sort();
+    document.getElementById('inv-zona').innerHTML='<option value="">Seleccionar zona...</option>'+zonas.map(z=>`<option>${z}</option>`).join('');
+  }
 }
 
 async function guardarPerfil(){
-  const uuid=document.getElementById('inv-uuid').value.trim();
-  const nom=document.getElementById('inv-nom').value.trim();
+  const uuid=document.getElementById('inv-uuid').value.trim(),nom=document.getElementById('inv-nom').value.trim();
   if(!uuid||!nom){toast('UUID y nombre obligatorios');return;}
-  const{error}=await db.from('profiles').upsert({id:uuid,nombre:nom,rol:document.getElementById('inv-rol').value,especialidad:document.getElementById('inv-esp').value.trim(),turno:document.getElementById('inv-tur').value});
+  const rol=document.getElementById('inv-rol').value;
+  const zona=rol==='supervisor_area'?document.getElementById('inv-zona').value:'';
+  const{error}=await db.from('profiles').upsert({id:uuid,nombre:nom,rol,zona:zona||null,especialidad:document.getElementById('inv-esp').value.trim(),turno:document.getElementById('inv-tur').value});
   if(error){toast('Error: '+error.message);return;}
   closeM('modal-invite');toast('✅ Perfil guardado');await loadProfs();renderTecnicos();
 }
 
 // ── CHECKLIST ──
 const CL={
-  'CNC':{nombre:'Checklist CNC / Torno',items:[
-    {id:'c1',label:'Verificar nivel de lubricante de guías',tipo:'bool'},
-    {id:'c2',label:'Revisar alarmas activas en panel',tipo:'bool'},
-    {id:'c3',label:'Temperatura del spindle',tipo:'numero',unidad:'°C',min:20,max:60},
-    {id:'c4',label:'Presión neumática',tipo:'numero',unidad:'bar',min:5,max:8},
-    {id:'c5',label:'Estado de herramienta de corte',tipo:'seleccion',opciones:['Bueno','Desgaste leve','Requiere cambio']},
-    {id:'c6',label:'Vibración en husillo (1-10)',tipo:'numero',unidad:'',min:1,max:10},
-    {id:'c7',label:'Limpieza del área de trabajo',tipo:'bool'},
-  ]},
-  'COMP':{nombre:'Checklist Compresor',items:[
-    {id:'c1',label:'Presión de aceite',tipo:'numero',unidad:'psi',min:40,max:80},
-    {id:'c2',label:'Temperatura de descarga',tipo:'numero',unidad:'°C',min:0,max:100},
-    {id:'c3',label:'Nivel de aceite visual',tipo:'seleccion',opciones:['Lleno','Medio','Bajo – requiere recarga']},
-    {id:'c4',label:'Ruido o vibraciones anormales',tipo:'bool'},
-    {id:'c5',label:'Filtro de aire',tipo:'seleccion',opciones:['Limpio','Sucio – limpiar','Saturado – cambiar']},
-    {id:'c6',label:'Horas de operación',tipo:'numero',unidad:'hrs',min:0,max:9999},
-  ]},
-  'SOLD':{nombre:'Checklist Robot Soldador',items:[
-    {id:'c1',label:'Calibración de posición de referencia',tipo:'bool'},
-    {id:'c2',label:'Amperaje de soldadura',tipo:'numero',unidad:'A',min:80,max:200},
-    {id:'c3',label:'Estado antorcha / boquilla',tipo:'seleccion',opciones:['OK','Desgaste leve','Cambiar']},
-    {id:'c4',label:'Nivel de gas de protección',tipo:'seleccion',opciones:['Lleno','Medio','Bajo']},
-    {id:'c5',label:'Revisar cable de alimentación',tipo:'bool'},
-    {id:'c6',label:'Test de ciclo en vacío',tipo:'bool'},
-  ]},
-  'BAND':{nombre:'Checklist Banda Transportadora',items:[
-    {id:'c1',label:'Alineación de la banda',tipo:'seleccion',opciones:['Centrada','Desviación leve','Requiere ajuste']},
-    {id:'c2',label:'Tensión de la banda',tipo:'seleccion',opciones:['Correcta','Floja','Tensa']},
-    {id:'c3',label:'Estado de rodillos',tipo:'bool'},
-    {id:'c4',label:'Temperatura del motor',tipo:'numero',unidad:'°C',min:0,max:90},
-    {id:'c5',label:'Guardas de seguridad en su lugar',tipo:'bool'},
-    {id:'c6',label:'Lubricación de chumaceras',tipo:'bool'},
-  ]},
-  'ELECT':{nombre:'Checklist Tablero Eléctrico',items:[
-    {id:'c1',label:'Voltaje L1-L2',tipo:'numero',unidad:'V',min:210,max:230},
-    {id:'c2',label:'Voltaje L2-L3',tipo:'numero',unidad:'V',min:210,max:230},
-    {id:'c3',label:'Voltaje L1-L3',tipo:'numero',unidad:'V',min:210,max:230},
-    {id:'c4',label:'Puntos calientes detectados (termografía)',tipo:'bool'},
-    {id:'c5',label:'Torque de terminales verificado',tipo:'bool'},
-    {id:'c6',label:'Limpieza interior del tablero',tipo:'seleccion',opciones:['Limpio','Polvo leve','Requiere limpieza']},
-    {id:'c7',label:'Interruptores en buen estado',tipo:'bool'},
-  ]},
-  'BOMB':{nombre:'Checklist Bomba Hidráulica',items:[
-    {id:'c1',label:'Presión de sistema',tipo:'numero',unidad:'bar',min:80,max:160},
-    {id:'c2',label:'Temperatura del aceite',tipo:'numero',unidad:'°C',min:30,max:70},
-    {id:'c3',label:'Nivel de aceite en depósito',tipo:'seleccion',opciones:['Correcto','Bajo','Muy bajo – parar equipo']},
-    {id:'c4',label:'Fugas visibles',tipo:'bool'},
-    {id:'c5',label:'Filtro de retorno',tipo:'seleccion',opciones:['OK','Saturado – cambiar']},
-  ]},
+  'CNC':{items:[{id:'c1',label:'Nivel lubricante guías',tipo:'bool'},{id:'c2',label:'Alarmas activas en panel',tipo:'bool'},{id:'c3',label:'Temperatura spindle',tipo:'numero',unidad:'°C',min:20,max:60},{id:'c4',label:'Presión neumática',tipo:'numero',unidad:'bar',min:5,max:8},{id:'c5',label:'Estado herramienta',tipo:'seleccion',opciones:['Bueno','Desgaste leve','Requiere cambio']},{id:'c6',label:'Vibración husillo (1-10)',tipo:'numero',unidad:'',min:1,max:10},{id:'c7',label:'Limpieza área',tipo:'bool'}]},
+  'COMP':{items:[{id:'c1',label:'Presión aceite',tipo:'numero',unidad:'psi',min:40,max:80},{id:'c2',label:'Temperatura descarga',tipo:'numero',unidad:'°C',min:0,max:100},{id:'c3',label:'Nivel aceite',tipo:'seleccion',opciones:['Lleno','Medio','Bajo']},{id:'c4',label:'Ruido/vibración anormal',tipo:'bool'},{id:'c5',label:'Filtro de aire',tipo:'seleccion',opciones:['Limpio','Sucio','Saturado']},{id:'c6',label:'Horas operación',tipo:'numero',unidad:'hrs',min:0,max:9999}]},
+  'SOLD':{items:[{id:'c1',label:'Calibración posición referencia',tipo:'bool'},{id:'c2',label:'Amperaje soldadura',tipo:'numero',unidad:'A',min:80,max:200},{id:'c3',label:'Estado antorcha',tipo:'seleccion',opciones:['OK','Desgaste','Cambiar']},{id:'c4',label:'Gas de protección',tipo:'seleccion',opciones:['Lleno','Medio','Bajo']},{id:'c5',label:'Cable alimentación',tipo:'bool'},{id:'c6',label:'Test ciclo vacío',tipo:'bool'}]},
+  'BAND':{items:[{id:'c1',label:'Alineación banda',tipo:'seleccion',opciones:['Centrada','Desviación','Requiere ajuste']},{id:'c2',label:'Tensión banda',tipo:'seleccion',opciones:['Correcta','Floja','Tensa']},{id:'c3',label:'Estado rodillos',tipo:'bool'},{id:'c4',label:'Temperatura motor',tipo:'numero',unidad:'°C',min:0,max:90},{id:'c5',label:'Guardas de seguridad',tipo:'bool'},{id:'c6',label:'Lubricación chumaceras',tipo:'bool'}]},
+  'ELECT':{items:[{id:'c1',label:'Voltaje L1-L2',tipo:'numero',unidad:'V',min:210,max:230},{id:'c2',label:'Voltaje L2-L3',tipo:'numero',unidad:'V',min:210,max:230},{id:'c3',label:'Voltaje L1-L3',tipo:'numero',unidad:'V',min:210,max:230},{id:'c4',label:'Puntos calientes',tipo:'bool'},{id:'c5',label:'Torque terminales',tipo:'bool'},{id:'c6',label:'Limpieza tablero',tipo:'seleccion',opciones:['Limpio','Polvo','Requiere limpieza']},{id:'c7',label:'Interruptores OK',tipo:'bool'}]},
+  'BOMB':{items:[{id:'c1',label:'Presión sistema',tipo:'numero',unidad:'bar',min:80,max:160},{id:'c2',label:'Temperatura aceite',tipo:'numero',unidad:'°C',min:30,max:70},{id:'c3',label:'Nivel aceite depósito',tipo:'seleccion',opciones:['Correcto','Bajo','Muy bajo']},{id:'c4',label:'Fugas visibles',tipo:'bool'},{id:'c5',label:'Filtro retorno',tipo:'seleccion',opciones:['OK','Saturado']}]},
 };
 
-let clOT=null,clR={};
-let tInt=null,tSec=0,tOn=false;
-let fCtx=null,fDraw=false;
-
-function getCLKey(n){if(!n)return null;const m=(n.match(/^([A-Z]+)/)||[])[1];if(!m)return null;return Object.keys(CL).find(k=>m.startsWith(k))||null;}
-
+let clOT=null,clR={},tInt=null,tSec=0,tOn=false,fCtx=null,fDraw=false;
+function getCLKey(n){if(!n)return null;const m=(n.match(/^([A-Z]+)/)||[])[1];return Object.keys(CL).find(k=>m&&m.startsWith(k))||null;}
 function renderCLSel(){
   const act=allOTs.filter(o=>o.estado!=='Completada');
-  document.getElementById('cl-cards').innerHTML=act.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">${act.map(o=>{
-    const k=getCLKey(o.equipo_nombre||'');const h=!!k;
-    return`<div class="card" style="cursor:${h?'pointer':'default'};opacity:${h?1:0.6};transition:box-shadow .15s;" ${h?`onclick="abrirCL(${o.id})" onmouseenter="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.1)'" onmouseleave="this.style.boxShadow=''"`:''}>
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;"><div><div style="font-size:11px;color:#aaa;margin-bottom:2px;">#${o.id}</div><div style="font-size:14px;font-weight:500;">${o.equipo_nombre||'–'}</div></div>${badge(o.prioridad)}</div>
-      <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.4;">${o.descripcion||'–'}</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;color:#aaa;"><i class="ti ti-user"></i> ${(o.tecnico_nombre||'Sin asignar').split(' ')[0]}</span>${h?'<span style="font-size:11px;background:#eaf4ec;color:#1f6130;padding:2px 8px;border-radius:20px;">✓ Checklist disponible</span>':'<span style="font-size:11px;color:#aaa;">Sin checklist</span>'}</div>
-    </div>`;
-  }).join('')}</div>`:'<div class="empty-state"><i class="ti ti-clipboard-check"></i>No hay órdenes activas</div>';
+  document.getElementById('cl-cards').innerHTML=act.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">${act.map(o=>{const k=getCLKey(o.equipo_nombre||'');const h=!!k;return`<div class="card" style="cursor:${h?'pointer':'default'};opacity:${h?1:0.6};transition:box-shadow .15s;" ${h?`onclick="abrirCL(${o.id})" onmouseenter="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.1)'" onmouseleave="this.style.boxShadow=''"`:''}><div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;"><div><div style="font-size:11px;color:#aaa;">#${o.id}</div><div style="font-size:14px;font-weight:500;">${o.equipo_nombre||'–'}</div></div>${badge(o.prioridad)}</div><div style="font-size:12px;color:#888;margin-bottom:8px;">${o.descripcion||'–'}</div><div style="display:flex;justify-content:space-between;align-items:center;"><span class="zona-chip">${o.equipo_zona||'–'}</span>${h?'<span style="font-size:11px;background:#eaf4ec;color:#1f6130;padding:2px 8px;border-radius:20px;">✓ Checklist</span>':'<span style="font-size:11px;color:#aaa;">Sin checklist</span>'}</div></div>`;}).join('')}</div>`:'<div class="empty-state"><i class="ti ti-clipboard-check"></i>No hay órdenes activas</div>';
 }
-
 function abrirCL(otId){
   clOT=allOTs.find(o=>o.id===otId);if(!clOT)return;
   clR={};resetTimer();
@@ -659,35 +874,20 @@ function abrirCL(otId){
   document.getElementById('cl-ttl').textContent=`#${clOT.id} – ${clOT.equipo_nombre||'–'}`;
   document.getElementById('cl-meta').textContent=`${clOT.tipo} · ${clOT.tecnico_nombre||'–'} · ${fmt(clOT.fecha_creacion)}`;
   document.getElementById('cl-est').innerHTML=badge(clOT.estado);
-  document.getElementById('cl-sel').style.display='none';
-  document.getElementById('cl-form').style.display='';
+  document.getElementById('cl-sel').style.display='none';document.getElementById('cl-form').style.display='';
   const k=getCLKey(clOT.equipo_nombre||'');
   if(!k){document.getElementById('cl-items').innerHTML='<div class="empty-state">Sin checklist para este equipo</div>';return;}
   renderCLItems(CL[k]);setupFirma();resetFG();actualizaProg(CL[k]);
 }
-
-function renderCLItems(cl){
-  document.getElementById('cl-items').innerHTML=cl.items.map((item,idx)=>{
-    let inp='';
-    if(item.tipo==='bool'){
-      inp=`<div class="bool-btns"><button class="bool-btn" id="bok-${item.id}" onclick="setBool('${item.id}',true)">✓ Conforme</button><button class="bool-btn" id="bfail-${item.id}" onclick="setBool('${item.id}',false)">✗ No conforme</button></div>`;
-    }else if(item.tipo==='numero'){
-      inp=`<div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><input type="number" placeholder="–" min="${item.min}" max="${item.max}" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;" oninput="setNum('${item.id}',this.value,${item.min},${item.max},this)"><span style="font-size:12px;color:#888;">${item.unidad}</span><span id="rng-${item.id}" style="font-size:11px;color:#aaa;">rango: ${item.min}–${item.max}</span></div>`;
-    }else if(item.tipo==='seleccion'){
-      inp=`<select onchange="setSel('${item.id}',this.value)" style="margin-top:6px;border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:13px;outline:none;"><option value="">Seleccionar...</option>${item.opciones.map(op=>`<option>${op}</option>`).join('')}</select>`;
-    }
-    return`<div class="chk-item" id="ci-${item.id}"><div class="chk-row"><div class="chk-dot" id="dot-${item.id}"></div><div style="flex:1;"><div style="font-size:13px;">${item.label}</div>${inp}</div></div></div>`;
-  }).join('');
-}
-
+function renderCLItems(cl){document.getElementById('cl-items').innerHTML=cl.items.map((item,idx)=>{let inp='';if(item.tipo==='bool'){inp=`<div class="bool-btns"><button class="bool-btn" id="bok-${item.id}" onclick="setBool('${item.id}',true)">✓ Conforme</button><button class="bool-btn" id="bfail-${item.id}" onclick="setBool('${item.id}',false)">✗ No conforme</button></div>`;}else if(item.tipo==='numero'){inp=`<div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><input type="number" min="${item.min}" max="${item.max}" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;" oninput="setNum('${item.id}',this.value,${item.min},${item.max},this)"><span style="font-size:12px;color:#888;">${item.unidad}</span><span id="rng-${item.id}" style="font-size:11px;color:#aaa;">rango:${item.min}–${item.max}</span></div>`;}else if(item.tipo==='seleccion'){inp=`<select onchange="setSel('${item.id}',this.value)" style="margin-top:6px;border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:13px;outline:none;"><option value="">Seleccionar...</option>${item.opciones.map(op=>`<option>${op}</option>`).join('')}</select>`;}return`<div class="chk-item"><div class="chk-row"><div class="chk-dot" id="dot-${item.id}"></div><div style="flex:1;"><div style="font-size:13px;">${item.label}</div>${inp}</div></div></div>`;}).join('');}
 function markD(id,ok){const d=document.getElementById('dot-'+id);if(!d)return;d.classList.remove('ok','fail');d.classList.add(ok?'ok':'fail');d.innerHTML=ok?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i>';}
-function setBool(id,v){clR[id]=v;const bo=document.getElementById('bok-'+id);const bf=document.getElementById('bfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markD(id,v);actualizaProg(getCurCL());}
+function setBool(id,v){clR[id]=v;const bo=document.getElementById('bok-'+id);const bf=document.getElementById('bfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(
+!v?' active-fail':'');markD(id,v);actualizaProg(getCurCL());}
 function setNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');const rng=document.getElementById('rng-'+id);if(rng)rng.style.color=ok?'#1f6130':(v?'#8a2020':'#aaa');if(v!==''){clR[id]=n;markD(id,ok);actualizaProg(getCurCL());}}
 function setSel(id,v){if(!v)return;clR[id]=v;markD(id,true);actualizaProg(getCurCL());}
 function getCurCL(){const k=getCLKey(clOT?.equipo_nombre||'');return k?CL[k]:null;}
 function actualizaProg(cl){if(!cl)return;const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;document.getElementById('cl-prog').style.width=Math.round(d/t*100)+'%';document.getElementById('cl-prog-lbl').textContent=`${d}/${t}`;}
-function addRef(){const v=document.getElementById('ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:16px;">×</button>`;document.getElementById('ref-list').appendChild(d);document.getElementById('ref-in').value='';}
-
+function addRef(){const v=document.getElementById('ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:16px;">x</button>`;document.getElementById('ref-list').appendChild(d);document.getElementById('ref-in').value='';}
 function pad(n){return String(n).padStart(2,'0');}
 function updT(){const h=Math.floor(tSec/3600),m=Math.floor((tSec%3600)/60),s=tSec%60;const el=document.getElementById('timer-d');if(el)el.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;}
 function toggleTimer(){tOn=!tOn;const b=document.getElementById('timer-btn');if(tOn){b.innerHTML='<i class="ti ti-player-pause"></i> Pausar';tInt=setInterval(()=>{tSec++;updT();},1000);}else{b.innerHTML='<i class="ti ti-player-play"></i> Reanudar';clearInterval(tInt);}}
@@ -695,39 +895,36 @@ function resetTimer(){clearInterval(tInt);tOn=false;tSec=0;updT();const b=docume
 function setupFirma(){const c=document.getElementById('firma-c');if(!c)return;fCtx=c.getContext('2d');fCtx.clearRect(0,0,c.width,c.height);fCtx.strokeStyle='#1a2b4a';fCtx.lineWidth=2;fCtx.lineCap='round';fDraw=false;const pos=e=>{const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sx,y:(s.clientY-r.top)*sy};};c.onmousedown=c.ontouchstart=e=>{e.preventDefault();fDraw=true;const p=pos(e);fCtx.beginPath();fCtx.moveTo(p.x,p.y);};c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!fDraw)return;const p=pos(e);fCtx.lineTo(p.x,p.y);fCtx.stroke();};c.onmouseup=c.ontouchend=c.onmouseleave=()=>fDraw=false;}
 function clearFirma(){const c=document.getElementById('firma-c');if(fCtx)fCtx.clearRect(0,0,c.width,c.height);}
 const fE=['🔩','🔧','⚙️','🛠️','📐','🔌'];
-function resetFG(){document.getElementById('foto-grid').innerHTML=`<label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:#aaa;" onclick="simFoto(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>`;}
-function simFoto(btn){const g=document.getElementById('foto-grid');const d=document.createElement('div');const em=fE[Math.floor(Math.random()*fE.length)];d.style.cssText='height:70px;border-radius:8px;background:#f4f5f7;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;';d.innerHTML=`${em}<button onclick="this.parentElement.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.35);border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:10px;line-height:16px;padding:0;">×</button>`;g.insertBefore(d,btn);}
-
+function resetFG(){document.getElementById('foto-grid').innerHTML='<label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:#aaa;" onclick="simFoto(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>';}
+function simFoto(btn){const g=document.getElementById('foto-grid');const d=document.createElement('div');const em=fE[Math.floor(Math.random()*fE.length)];d.style.cssText='height:70px;border-radius:8px;background:#f4f5f7;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;';d.innerHTML=`${em}<button onclick="this.parentElement.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.35);border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:10px;line-height:16px;padding:0;">x</button>`;g.insertBefore(d,btn);}
 async function cerrarOT(){
   const cl=getCurCL();
-  if(cl){const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;if(d<t){toast(`Faltan ${t-d} ítem(s) por completar`);return;}}
+  if(cl){const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;if(d<t){toast(`Faltan ${t-d} items`);return;}}
   clearInterval(tInt);tOn=false;
   const min=Math.round(tSec/60);
-  const obs=document.getElementById('obs-txt').value.trim();
-  const{error}=await db.from('ordenes_trabajo').update({estado:'Completada',fecha_cierre:new Date().toISOString(),observaciones:obs,tiempo_minutos:min}).eq('id',clOT.id);
+  const{error}=await db.from('ordenes_trabajo').update({estado:'Completada',fecha_cierre:new Date().toISOString(),observaciones:document.getElementById('obs-txt').value.trim(),tiempo_minutos:min}).eq('id',clOT.id);
   if(error){toast('Error: '+error.message);return;}
-  if(cl){const ra=cl.items.filter(i=>clR[i.id]!==undefined).map(i=>({orden_id:clOT.id,item_id:i.id,item_label:i.label,respuesta:String(clR[i.id])}));if(ra.length)await db.from('respuestas_checklist').insert(ra);}
+  if(getCurCL()){const ra=getCurCL().items.filter(i=>clR[i.id]!==undefined).map(i=>({orden_id:clOT.id,item_id:i.id,item_label:i.label,respuesta:String(clR[i.id])}));if(ra.length)await db.from('respuestas_checklist').insert(ra);}
   await loadOTs();
-  document.getElementById('cl-form').innerHTML=`<div style="text-align:center;padding:60px 20px;"><div style="font-size:56px;margin-bottom:16px;">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:8px;">OT #${clOT.id} cerrada</div><div style="font-size:13px;color:#888;margin-bottom:24px;">Tiempo: ${pad(Math.floor(min/60))}:${pad(min%60)} hrs · Checklist guardado en Supabase</div><button class="btn-sm btn-primary" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Ver otras órdenes</button></div>`;
-  renderDash();toast('✅ OT cerrada y guardada en la base de datos');
+  document.getElementById('cl-form').innerHTML='<div style="text-align:center;padding:60px 20px;"><div style="font-size:56px;margin-bottom:16px;">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:8px;">OT cerrada</div><div style="font-size:13px;color:#888;margin-bottom:24px;">Guardado en Supabase</div><button class="btn-sm btn-primary" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Ver otras ordenes</button></div>';
+  renderDash();toast('OT cerrada correctamente');
 }
 function volverCL(){clearInterval(tInt);tOn=false;document.getElementById('cl-form').style.display='none';document.getElementById('cl-sel').style.display='';renderCLSel();}
-
-// ── NAV ──
-const TABS=['dashboard','ordenes','equipos','tecnicos','checklist'];
+const ALL_TABS=['dashboard','ticket','ordenes','equipos','tecnicos','downtime','checklist'];
 function setTab(t){
-  TABS.forEach(x=>{document.getElementById('tab-'+x).className=x===t?'panel-visible':'panel-hidden';});
-  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',TABS[i]===t));
+  ALL_TABS.forEach(x=>{const el=document.getElementById('tab-'+x);if(el)el.className=x===t?'panel-visible':'panel-hidden';});
+  document.querySelectorAll('.nav-btn').forEach(b=>{const m=b.getAttribute('onclick')?.match(/setTab\('(\w+)'\)/);if(m)b.classList.toggle('active',m[1]===t);});
   if(t==='ordenes')renderOrdenes();
   if(t==='equipos')renderEquipos();
   if(t==='tecnicos')renderTecnicos();
+  if(t==='downtime')renderDowntime();
   if(t==='checklist')renderCLSel();
+  if(t==='ticket')initTicketForm();
 }
 function openNuevaOT(){
-  document.getElementById('f-equipo').innerHTML='<option value="">Selecciona equipo...</option>'+allEqs.map(e=>`<option value="${e.id}">${e.codigo} – ${e.nombre}</option>`).join('');
-  document.getElementById('f-tec').innerHTML='<option value="">Sin asignar</option>'+allProfs.map(p=>`<option value="${p.id}">${p.nombre} (${p.rol})</option>`).join('');
-  document.getElementById('f-desc').value='';
-  openM('modal-ot');
+  document.getElementById('f-equipo').innerHTML='<option value="">Selecciona equipo...</option>'+allEqs.map(e=>`<option value="${e.id}">${e.codigo} - ${e.nombre} (${e.area||'-'})</option>`).join('');
+  document.getElementById('f-tec').innerHTML='<option value="">Sin asignar</option>'+allProfs.filter(p=>['tecnico','supervisor'].includes(p.rol)).map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');
+  document.getElementById('f-desc').value='';openM('modal-ot');
 }
 </script>
 </body>
