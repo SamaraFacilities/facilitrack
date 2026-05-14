@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="FaciliTrack">
-<title>FaciliTrack</title>
+<meta name="apple-mobile-web-app-title" content="Samara">
+<title>Samara</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -144,7 +144,7 @@ tr:last-child td{border-bottom:none}
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo"><i class="ti ti-tool"></i></div>
-    <div class="login-title">FaciliTrack</div>
+    <div class="login-title">Samara</div>
     <div class="login-sub">Gestión de mantenimiento industrial</div>
     <div class="form-field"><label>Correo electrónico</label><input type="email" id="l-email" placeholder="usuario@empresa.com" autocomplete="email"></div>
     <div class="form-field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
@@ -211,7 +211,7 @@ on conflict (codigo) do nothing;</div>
   <div class="header">
     <div class="header-left">
       <div class="logo"><i class="ti ti-tool"></i></div>
-      <div><div class="app-title">FaciliTrack</div><div class="app-sub" id="app-sub-zona">Gestión de mantenimiento</div></div>
+      <div><div class="app-title">Samara</div><div class="app-sub" id="app-sub-zona">Gestión de mantenimiento</div></div>
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#2d7a3a;"><div class="rt-dot"></div><span id="rt-st">En vivo</span></div>
@@ -927,5 +927,89 @@ function openNuevaOT(){
   document.getElementById('f-desc').value='';openM('modal-ot');
 }
 </script>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<script>
+// ===== SAMARA QR MODULE =====
+
+async function generarQRParaEquipo(data){
+ const qrText=`samara://equipo/${data.id}`;
+
+ QRCode.toDataURL(qrText,async(err,url)=>{
+
+  if(err)return console.log(err);
+
+  await db.from('equipos')
+  .update({qr_url:url})
+  .eq('id',data.id);
+
+  await db.from('equipos_qr')
+  .insert({
+      equipo_id:data.id,
+      qr_code:qrText,
+      qr_url:url
+  });
+
+ });
+
+}
+
+let scannerStarted=false;
+
+function iniciarScanner(){
+
+ if(scannerStarted)return;
+
+ scannerStarted=true;
+
+ const readerDiv=document.getElementById('reader');
+ if(!readerDiv)return;
+
+ const scanner=new Html5QrcodeScanner(
+   'reader',
+   {fps:10,qrbox:250}
+ );
+
+ scanner.render(onScan);
+}
+
+
+async function onScan(code){
+
+ const id=code.split('/').pop();
+
+ const {data:eq}=await db
+ .from('equipos')
+ .select('*')
+ .eq('id',id)
+ .single();
+
+ if(!eq)return;
+
+ await db.from('registro_escaneos')
+ .insert({
+    equipo_id:eq.id,
+    tecnico_id:curUser.id,
+    tecnico_nombre:curProf.nombre,
+    tipo_evento:'Escaneo'
+ });
+
+ await db.from('ordenes_trabajo')
+ .update({
+    tecnico_id:curUser.id,
+    tecnico_nombre:curProf.nombre,
+    estado:'En progreso',
+    fecha_inicio:new Date()
+ })
+ .eq('equipo_id',eq.id)
+ .eq('estado','Pendiente');
+
+ toast("Equipo escaneado y técnico asignado");
+
+}
+</script>
+
 </body>
 </html>
