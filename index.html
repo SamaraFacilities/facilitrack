@@ -907,9 +907,13 @@ function openModalUser(id = null){
     document.getElementById('inv-nom').value = u.nombre;
     document.getElementById('inv-rol').value = u.rol;
     document.getElementById('inv-zona').value = u.zona || '';
-    document.getElementById('inv-esp').value = u.especialidad;
+    document.getElementById('inv-esp').value = u.especialidad || '';
     document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user" style="margin-right:6px;"></i>Editar Perfil';
-    document.getElementById('usr-hint').style.display = 'none';
+    
+    // Verificamos que el hint exista antes de intentar ocultarlo
+    const hint = document.getElementById('usr-hint');
+    if(hint) hint.style.display = 'none';
+    
     toggleUserFields();
   } else {
     document.getElementById('inv-edit-id').value = '';
@@ -917,7 +921,11 @@ function openModalUser(id = null){
     document.querySelectorAll('#modal-invite input').forEach(i => i.value = '');
     document.getElementById('inv-zona').value = '';
     document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user-plus" style="margin-right:6px;"></i>Configurar Perfil';
-    document.getElementById('usr-hint').style.display = 'block';
+    
+    // Verificamos que el hint exista antes de intentar mostrarlo
+    const hint = document.getElementById('usr-hint');
+    if(hint) hint.style.display = 'block';
+    
     toggleUserFields();
   }
   openM('modal-invite');
