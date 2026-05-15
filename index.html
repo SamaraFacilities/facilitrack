@@ -106,7 +106,7 @@ tr:last-child td{border-bottom:none}
 .tl-title{font-size:13px;font-weight:500;color:#111}
 .tl-time{font-size:11px;color:#888}
 
-/* CHECKLIST ESTILOS ORIGINALES */
+/* CHECKLIST ESTILOS */
 .chk-item{padding:12px 0;border-bottom:0.5px solid var(--border)}
 .chk-item:last-child{border-bottom:none}
 .chk-row{display:flex;align-items:flex-start;gap:10px}
@@ -131,7 +131,7 @@ tr:last-child td{border-bottom:none}
 .tech-av{width:26px;height:26px;border-radius:50%;background:#d0dce8;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--navy)}
 .empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
 
-/* NUEVOS MODULOS (Scanner, Calendar, QR) */
+/* CALENDARIO Y DRAG & DROP */
 #reader { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
 #reader video { object-fit: cover; border-radius: 12px; }
 @media print {
@@ -144,7 +144,6 @@ tr:last-child td{border-bottom:none}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-day-header{text-align:center;font-size:11px;font-weight:600;color:#888;padding:8px 0;text-transform:uppercase;}
 
-/* NUEVAS CLASES PARA CALENDARIO INTERACTIVO (Arrestrar y Soltar) */
 .cal-cell{background:#fff;border:1px solid #ddd;border-radius:6px;min-height:95px;padding:6px;display:flex;flex-direction:column;gap:4px;transition:all 0.15s;cursor:pointer;position:relative;}
 .cal-cell:hover{border-color:var(--blue); background:#fafbfc;}
 .cal-cell.drag-over{background:#e6f0fa; border-style:dashed; border-color:var(--blue);}
@@ -184,12 +183,10 @@ tr:last-child td{border-bottom:none}
   </div>
   
   <div class="nav-wrap">
-    <div class="nav" id="main-nav">
-      </div>
+    <div class="nav" id="main-nav"></div>
   </div>
   
   <div class="main">
-    
     <div id="tab-escaner" class="panel-hidden card">
       <div class="card-header"><div class="card-title"><i class="ti ti-scan"></i> Identificar Equipo QR</div></div>
       <div style="max-width: 450px; margin: 0 auto; text-align: center;">
@@ -556,6 +553,10 @@ async function loadAll(){
   ]);
   allOTs=otR.data||[]; allEqs=eqR.data||[]; allProfs=prR.data||[];
   
+  const urg = allOTs.filter(o=>o.estado==='Urgente').length;
+  const b = document.getElementById('badge-urg');
+  if(b){ b.textContent=urg; b.style.display=urg?'':'none'; }
+
   if(canDo('ver_dashboard')) { renderDash(); renderEquipos(); renderDowntime(); renderCalendar(); }
   if(canDo('ver_tecnicos')) renderUsuarios();
   
@@ -568,9 +569,6 @@ function setupRT(){
   rtCh=db.channel('ft-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async p=>{
       await loadAll();
-      if(p.eventType === 'INSERT') {
-          if(p.new.tecnico_id === curUser?.id) toast('🔔 Nueva orden asignada a ti: ' + (p.new.equipo_nombre||''), 5000);
-      }
     })
     .subscribe(s=>{document.getElementById('rt-st').textContent=s==='SUBSCRIBED'?'En vivo':'Reconectando...';});
 }
@@ -642,7 +640,7 @@ function openEqHub(eqId){
   openM('modal-eq-hub');
 }
 
-// ── CALENDARIO INTERACTIVO MEJORADO (CON DRAG & DROP Y CLICK PARA AGREGAR) ──
+// ── CALENDARIO INTERACTIVO DRAG & DROP ──
 function chgMonth(dir){
   currMonth += dir;
   if(currMonth < 0) { currMonth = 11; currYear--; }
@@ -661,13 +659,10 @@ function renderCalendar(){
   let html = `<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>`;
   for(let i=0; i<firstDay; i++) html += `<div class="cal-cell" style="background:transparent; border:none; cursor:default;"></div>`;
   
-  // Filtrar órdenes que tienen fecha o son de tipo preventivo
   const prevOTs = allOTs.filter(o => o.fecha_programada || (o.tipo === 'Preventivo'));
   
   for(let d=1; d<=daysInMonth; d++){
     let isToday = (d===new Date().getDate() && currMonth===new Date().getMonth() && currYear===new Date().getFullYear()) ? 'today' : '';
-    
-    // Armar el string de la fecha para esta celda (Formato ISO: YYYY-MM-DD)
     const datestring = `${currYear}-${String(currMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     
     let dayOTs = prevOTs.filter(o => {
@@ -676,14 +671,12 @@ function renderCalendar(){
        return dDate.getDate() === d && dDate.getMonth() === currMonth && dDate.getFullYear() === currYear;
     });
 
-    // Renderizar eventos con atributos de arrastrado (Draggable)
     let evHtml = dayOTs.map(o => {
        const isComp = o.estado === 'Completada' ? 'completada' : '';
        const canDrag = o.estado !== 'Completada' ? 'draggable="true" ondragstart="evtDragStart(event, '+o.id+')"' : '';
        return `<div class="cal-event ${isComp}" ${canDrag} onclick="event.stopPropagation(); alert('OT #${o.id}: ${o.equipo_nombre}\\nTipo: ${o.tipo}\\nEstado: ${o.estado}\\nAsignado: ${o.tecnico_nombre||'Pendiente'}')">${o.equipo_nombre}</div>`;
     }).join('');
 
-    // Agregar funciones contenedoras de soltar (Dropzones) y clic para crear
     html += `
       <div class="cal-cell ${isToday}" 
            data-fecha="${datestring}" 
@@ -699,7 +692,6 @@ function renderCalendar(){
   if(grid) grid.innerHTML = html;
 }
 
-// Funciones controladoras de Arrastrar y Soltar (Drag & Drop)
 function evtDragStart(e, otId) {
   e.dataTransfer.setData("text/plain", otId);
 }
@@ -717,32 +709,23 @@ async function evtDrop(e, nuevaFecha) {
   const otId = e.dataTransfer.getData("text/plain");
   if(!otId) return;
 
-  // Actualizar la fecha programada en Supabase de forma inmediata
   const { error } = await db.from('ordenes_trabajo').update({ fecha_programada: nuevaFecha }).eq('id', otId);
-  
   if (error) {
     toast("❌ Error al reprogramar: " + error.message);
   } else {
     toast("📅 OT #" + otId + " reprogramada con éxito");
-    await loadAll(); // Recargar datos y refrescar la vista en tiempo real
+    await loadAll();
   }
 }
 
-// Función al hacer clic en un día vacío para programar
 function clicCeldaCalendario(fechaSeleccionada) {
-  // Forzar la apertura del modal de nueva orden pasándole la fecha elegida
   openNuevaOT(null, fechaSeleccionada);
 }
-
 
 // ── DASHBOARD ──
 function renderDash(){
   const hoy=new Date();hoy.setHours(0,0,0,0);
-  const urg = allOTs.filter(o=>o.estado==='Urgente').length;
-  document.getElementById('k-urg').textContent=urg;
-  const b=document.getElementById('badge-urg');
-  if(b){ b.textContent=urg; b.style.display=urg?'':'none'; }
-
+  document.getElementById('k-urg').textContent=allOTs.filter(o=>o.estado==='Urgente').length;
   document.getElementById('k-prog').textContent=allOTs.filter(o=>o.estado==='En progreso').length;
   document.getElementById('k-hoy').textContent=allOTs.filter(o=>o.estado==='Completada'&&o.fecha_cierre&&new Date(o.fecha_cierre)>=hoy).length;
   document.getElementById('k-eq').textContent=allEqs.length;
@@ -762,7 +745,7 @@ function renderDash(){
     <div class="stat-row"><span style="color:#888;">Equipos registrados</span><strong>${allEqs.length}</strong></div>`;
 }
 
-// ── ORDENES Y CALENDARIO ──
+// ── ORDENES ──
 function renderOrdenes(){
   const f=document.getElementById('f-est-fil').value;
   let lista=f?allOTs.filter(o=>o.estado===f):allOTs;
@@ -782,7 +765,6 @@ function renderOrdenes(){
   </tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
 }
 
-// Se modificó para recibir una fecha pre-seleccionada desde el calendario
 function openNuevaOT(eqIdPre = null, fechaPre = null){
   document.getElementById('f-equipo').disabled = false;
   document.getElementById('f-equipo').innerHTML='<option value="">Selecciona equipo...</option>'+allEqs.map(e=>`<option value="${e.id}">${e.codigo} – ${e.nombre}</option>`).join('');
@@ -797,7 +779,6 @@ function openNuevaOT(eqIdPre = null, fechaPre = null){
   
   document.getElementById('f-desc').value='';
   
-  // Si viene una fecha desde el calendario, forzar tipo "Preventivo" y rellenar el input de fecha
   if(fechaPre) {
     document.getElementById('f-tipo').value = 'Preventivo';
     document.getElementById('f-fecha').value = fechaPre;
@@ -831,7 +812,7 @@ async function crearOT(){
   });
   if(error){toast('Error: '+error.message);return;}
   closeM('modal-ot');toast('✅ OT creada');
-  await loadAll(); // Carga y refresca todo globalmente
+  await loadAll();
 }
 
 async function cambiarEst(otId){
@@ -923,7 +904,6 @@ async function guardarEquipo(){
     if(error){toast('Error: '+error.message);return;}
     toast('✅ Equipo agregado');
   }
-  
   closeM('modal-equipo');await loadAll();
 }
 
@@ -944,7 +924,7 @@ function verQR(codigo, nombre) {
   openM('modal-qr');
 }
 
-// ── USUARIOS ──
+// ── PERSONAL ──
 function renderUsuarios(){
   let html = `<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona (Sup.)</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>`;
   html += allProfs.map(u=>`<tr>
@@ -1011,7 +991,7 @@ async function guardarPerfil(){
   
   const{error}=await db.from('profiles').upsert(payload);
   if(error){toast('❌ Error: '+error.message);return;}
-  closeM('modal-invite');toast('✅ Perfil guardado');await loadAll();
+  closeM('modal-invite');toast('Perfil guardado con éxito');await loadAll();
 }
 
 async function delUsr(id){
@@ -1023,19 +1003,16 @@ async function delUsr(id){
   await loadAll();
 }
 
-// ── DOWNTIME LISTADO GLOBAL ──
+// ── DOWNTIME ──
 function renderDowntime() {
   const fallas = allOTs.filter(o=>o.tipo==='Correctivo');
-  
   let eqStats = {};
   fallas.forEach(f => {
       if(!eqStats[f.equipo_id]) eqStats[f.equipo_id] = {nom: f.equipo_nombre, count:0, min:0, id:f.equipo_id};
       eqStats[f.equipo_id].count++;
       eqStats[f.equipo_id].min += (f.tiempo_minutos||0);
   });
-  
   let list = Object.values(eqStats).sort((a,b)=> b.min - a.min);
-
   document.getElementById('dt-list-equipos').innerHTML = list.length ? `<table><thead><tr><th>Equipo</th><th>Fallas Totales</th><th>Horas Paro</th><th>MTTR</th><th></th></tr></thead><tbody>
     ${list.map(e => `<tr>
       <td><strong>${e.nom}</strong></td>
@@ -1044,7 +1021,7 @@ function renderDowntime() {
       <td>${Math.round(e.min/e.count)}m</td>
       <td><button class="btn-sm" onclick="verDetalleDT(${e.id}, '${e.nom}')">Ver Detalle</button></td>
     </tr>`).join('')}
-  </tbody></table>` : '<div class="empty-state">Excelente, no hay fallas (Correctivos) registrados.</div>';
+  </tbody></table>` : '<div class="empty-state">No hay fallas (Correctivos) registrados.</div>';
 }
 
 function verDetalleDT(eqId, nombre) {
@@ -1132,4 +1109,62 @@ function renderCLSel(){
 function abrirCL(otId){
   clOT=allOTs.find(o=>o.id===otId);if(!clOT)return;
   clR={};resetTimer();
-  document.getElementById('ref-in').value='';document.getElementById('ref-list').
+  document.getElementById('ref-in').value='';document.getElementById('ref-list').innerHTML='';document.getElementById('obs-txt').value='';
+  document.getElementById('cl-ttl').textContent=`#${clOT.id} – ${clOT.equipo_nombre||'–'}`;
+  document.getElementById('cl-meta').textContent=`${clOT.tipo} · ${clOT.tecnico_nombre||'–'} · ${fmt(clOT.fecha_creacion)}`;
+  document.getElementById('cl-sel').style.display='none';
+  document.getElementById('cl-form').style.display='';
+  const k=getCLKey(clOT.equipo_nombre||'');
+  if(!k){document.getElementById('cl-items').innerHTML='<div class="empty-state">Sin checklist para este equipo</div>';return;}
+  renderCLItems(CL[k]);setupFirma();resetFG();actualizaProg(CL[k]);
+}
+
+function renderCLItems(cl){
+  document.getElementById('cl-items').innerHTML=cl.items.map((item,idx)=>{
+    let inp='';
+    if(item.tipo==='bool'){
+      inp=`<div class="bool-btns"><button class="bool-btn" id="bok-${item.id}" onclick="setBool('${item.id}',true)">✓ Conforme</button><button class="bool-btn" id="bfail-${item.id}" onclick="setBool('${item.id}',false)">✗ No conforme</button></div>`;
+    }else if(item.tipo==='numero'){
+      inp=`<div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><input type="number" placeholder="–" min="${item.min}" max="${item.max}" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;" oninput="setNum('${item.id}',this.value,${item.min},${item.max},this)"><span style="font-size:12px;color:#888;">${item.unidad}</span><span id="rng-${item.id}" style="font-size:11px;color:#aaa;">rango: ${item.min}–${item.max}</span></div>`;
+    }else if(item.tipo==='seleccion'){
+      inp=`<select onchange="setSel('${item.id}',this.value)" style="margin-top:6px;border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:13px;outline:none;"><option value="">Seleccionar...</option>${item.opciones.map(op=>`<option>${op}</option>`).join('')}</select>`;
+    }
+    return`<div class="chk-item" id="ci-${item.id}"><div class="chk-row"><div class="chk-dot" id="dot-${item.id}"></div><div style="flex:1;"><div style="font-size:13px;">${item.label}</div>${inp}</div></div></div>`;
+  }).join('');
+}
+
+function markD(id,ok){const d=document.getElementById('dot-'+id);if(!d)return;d.classList.remove('ok','fail');d.classList.add(ok?'ok':'fail');d.innerHTML=ok?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i>';}
+function setBool(id,v){clR[id]=v;const bo=document.getElementById('bok-'+id);const bf=document.getElementById('bfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markD(id,v);actualizaProg(getCurCL());}
+function setNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');const rng=document.getElementById('rng-${item.id}');if(rng)rng.style.color=ok?'#1f6130':(v?'#8a2020':'#aaa');if(v!==''){clR[id]=n;markD(id,ok);actualizaProg(getCurCL());}}
+function setSel(id,v){if(!v)return;clR[id]=v;markD(id,true);actualizaProg(getCurCL());}
+function getCurCL(){const k=getCLKey(clOT?.equipo_nombre||'');return k?CL[k]:null;}
+function actualizaProg(cl){if(!cl)return;const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;document.getElementById('cl-prog').style.width=Math.round(d/t*100)+'%';document.getElementById('cl-prog-lbl').textContent=`${d}/${t}`;}
+function addRef(){const v=document.getElementById('ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:16px;">×</button>`;document.getElementById('ref-list').appendChild(d);document.getElementById('ref-in').value='';}
+
+function pad(n){return String(n).padStart(2,'0');}
+function updT(){const h=Math.floor(tSec/3600),m=Math.floor((tSec%3600)/60),s=tSec%60;const el=document.getElementById('timer-d');if(el)el.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;}
+function toggleTimer(){tOn=!tOn;const b=document.getElementById('timer-btn');if(tOn){b.innerHTML='<i class="ti ti-player-pause"></i> Pausar';tInt=setInterval(()=>{tSec++;updT();},1000);}else{b.innerHTML='<i class="ti ti-player-play"></i> Reanudar';clearInterval(tInt);}}
+function resetTimer(){clearInterval(tInt);tOn=false;tSec=0;updT();const b=document.getElementById('timer-btn');if(b)b.innerHTML='<i class="ti ti-player-play"></i> Iniciar';}
+function setupFirma(){const c=document.getElementById('firma-c');if(!c)return;fCtx=c.getContext('2d');fCtx.clearRect(0,0,c.width,c.height);fCtx.strokeStyle='#1a2b4a';fCtx.lineWidth=2;fCtx.lineCap='round';fDraw=false;const pos=e=>{const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sx,y:(s.clientY-r.top)*sy};};c.onmousedown=c.ontouchstart=e=>{e.preventDefault();fDraw=true;const p=pos(e);fCtx.beginPath();fCtx.moveTo(p.x,p.y);};c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!fDraw)return;const p=pos(e);fCtx.lineTo(p.x,p.y);fCtx.stroke();};c.onmouseup=c.ontouchend=c.onmouseleave=()=>fDraw=false;}
+function clearFirma(){const c=document.getElementById('firma-c');if(fCtx)fCtx.clearRect(0,0,c.width,c.height);}
+const fE=['🔩','🔧','⚙️','🛠️','📐','🔌'];
+function resetFG(){document.getElementById('foto-grid').innerHTML=`<label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:#aaa;" onclick="simFoto(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>`;}
+function simFoto(btn){const g=document.getElementById('foto-grid');const d=document.createElement('div');const em=fE[Math.floor(Math.random()*fE.length)];d.style.cssText='height:70px;border-radius:8px;background:#f4f5f7;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;';d.innerHTML=`${em}<button onclick="this.parentElement.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.35);border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:10px;line-height:16px;padding:0;">×</button>`;g.insertBefore(d,btn);}
+
+async function cerrarOT(){
+  const cl=getCurCL();
+  if(cl){const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;if(d<t){toast(`Faltan ${t-d} ítem(s) por completar`);return;}}
+  clearInterval(tInt);tOn=false;
+  const min=Math.round(tSec/60);
+  const obs=document.getElementById('obs-txt').value.trim();
+  const{error}=await db.from('ordenes_trabajo').update({estado:'Completada',fecha_cierre:new Date().toISOString(),observaciones:obs,tiempo_minutos:min}).eq('id',clOT.id);
+  if(error){toast('Error: '+error.message);return;}
+  if(cl){const ra=cl.items.filter(i=>clR[i.id]!==undefined).map(i=>({orden_id:clOT.id,item_id:i.id,item_label:i.label,respuesta:String(clR[i.id])}));if(ra.length)await db.from('respuestas_checklist').insert(ra);}
+  await loadAll();
+  document.getElementById('cl-form').innerHTML=`<div style="text-align:center;padding:60px 20px;"><div style="font-size:56px;margin-bottom:16px;">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:8px;">OT #${clOT.id} cerrada</div><div style="font-size:13px;color:#888;margin-bottom:24px;">Tiempo: ${pad(Math.floor(min/60))}:${pad(min%60)} hrs · Checklist guardado en Supabase</div><button class="btn-sm btn-primary" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Ver otras órdenes</button></div>`;
+  toast('✅ OT cerrada y guardada en la base de datos');
+}
+function volverCL(){clearInterval(tInt);tOn=false;document.getElementById('cl-form').style.display='none';document.getElementById('cl-sel').style.display='';renderCLSel();}
+</script>
+</body>
+</html>
