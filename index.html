@@ -11,7 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
+ 
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--navy:#1a2b4a;--navy2:#243a61;--green:#2d7a3a;--green-bg:#eaf4ec;--green-txt:#1f6130;--amber:#b87a00;--amber-bg:#fdf3e3;--amber-txt:#7a5000;--red:#b03030;--red-bg:#fbeaea;--red-txt:#8a2020;--blue:#1a5fa8;--blue-bg:#e6f0fa;--blue-txt:#10417a;--border:rgba(0,0,0,0.1);--r:10px}
@@ -140,17 +140,17 @@ tr:last-child td{border-bottom:none}
 .cal-event{font-size:10px;padding:4px 6px;border-radius:4px;background:var(--blue-bg);color:var(--blue-txt);border:1px solid #b6d4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;font-weight:500;user-select:none}
 .cal-event:active{cursor:grabbing}
 .cal-event.completada{background:var(--green-bg);color:var(--green-txt);border-color:#c2e0c6;cursor:default}
-
+ 
 /* ── NUEVO: ESTILOS DEL FLUJO TÉCNICO ── */
 #escaner-wrapper{display:flex;flex-direction:column;gap:16px}
-
+ 
 /* Panel de estado del escáner */
 .scan-status{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:4px;transition:all 0.3s}
 .scan-status.idle{background:#f4f5f7;color:#888}
 .scan-status.scanning{background:#e6f0fa;color:var(--blue-txt)}
 .scan-status.found{background:var(--green-bg);color:var(--green-txt)}
 .scan-status.error{background:var(--red-bg);color:var(--red-txt)}
-
+ 
 /* Panel del equipo detectado */
 #equipo-panel{display:none;animation:slideUp 0.3s ease}
 @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -161,7 +161,7 @@ tr:last-child td{border-bottom:none}
 .equipo-codigo{font-size:12px;opacity:0.7;font-family:monospace}
 .equipo-meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .equipo-chip{font-size:11px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-weight:500}
-
+ 
 /* Cards de OTs para el técnico */
 .ot-card-tecnico{border:1.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:all 0.2s;background:#fff;position:relative;overflow:hidden}
 .ot-card-tecnico::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:2px 0 0 2px}
@@ -182,22 +182,22 @@ tr:last-child td{border-bottom:none}
 .btn-tomar:hover{background:var(--navy2);transform:scale(1.03)}
 .btn-tomar.mine-btn{background:var(--green);color:#fff}
 .btn-tomar.mine-btn:hover{background:#256830}
-
+ 
 .sin-ots{text-align:center;padding:32px 20px;color:#aaa}
 .sin-ots i{font-size:40px;display:block;margin-bottom:10px;opacity:0.5}
-
+ 
 /* Panel Nueva OT rápida */
 .nueva-ot-rapida{border:1.5px dashed #ddd;border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;color:#999}
 .nueva-ot-rapida:hover{border-color:var(--navy);color:var(--navy);background:#f8fafd}
 .nueva-ot-rapida i{font-size:20px;display:block;margin-bottom:4px}
-
+ 
 /* Checklist directo después de seleccionar OT */
 #cl-directo{display:none}
 .cl-directo-header{background:linear-gradient(135deg,var(--green),#256830);border-radius:12px;padding:16px 20px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:12px}
 .cl-directo-header i{font-size:22px;opacity:0.9}
 .cl-back-btn{background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s}
 .cl-back-btn:hover{background:rgba(255,255,255,0.3)}
-
+ 
 /* Paso a paso visual */
 .pasos{display:flex;align-items:center;gap:0;margin-bottom:20px;overflow-x:auto;padding-bottom:4px}
 .paso{display:flex;align-items:center;gap:8px;flex-shrink:0}
@@ -208,14 +208,14 @@ tr:last-child td{border-bottom:none}
 .paso-label{font-size:11px;color:#888;font-weight:500}
 .paso-label.active{color:var(--navy);font-weight:600}
 .paso-sep{width:24px;height:1px;background:#ddd;flex-shrink:0}
-
+ 
 /* Alerta de auto-asignación */
 .auto-assign-alert{background:var(--blue-bg);border:1px solid #b6d4f0;border-radius:8px;padding:12px 14px;font-size:12px;color:var(--blue-txt);display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .auto-assign-alert i{font-size:16px;flex-shrink:0}
 </style>
 </head>
 <body>
-
+ 
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo"><i class="ti ti-tool"></i></div>
@@ -227,7 +227,7 @@ tr:last-child td{border-bottom:none}
     <div class="login-err" id="login-err"></div>
   </div>
 </div>
-
+ 
 <div id="app">
   <div class="header">
     <div class="header-left">
@@ -247,12 +247,12 @@ tr:last-child td{border-bottom:none}
   </div>
   
   <div class="main">
-
+ 
     <!-- ══════════════════════════════════════════
          TAB ESCÁNER — FLUJO COMPLETO DEL TÉCNICO
     ══════════════════════════════════════════ -->
     <div id="tab-escaner" class="panel-hidden">
-
+ 
       <!-- PASO A PASO VISUAL — se adapta por rol en JS -->
       <div class="pasos" id="pasos-indicator" style="margin-bottom:16px;">
         <div class="paso">
@@ -270,7 +270,7 @@ tr:last-child td{border-bottom:none}
           <span class="paso-label" id="paso3-lbl">Ejecutar checklist</span>
         </div>
       </div>
-
+ 
       <!-- PANEL 1: Escáner QR -->
       <div id="scan-panel">
         <div class="card">
@@ -290,10 +290,10 @@ tr:last-child td{border-bottom:none}
           </div>
         </div>
       </div>
-
+ 
       <!-- PANEL 2A: Vista SUPERVISOR DE ZONA — status del equipo + levantar OT -->
       <div id="sz-panel" style="display:none;animation:slideUp 0.3s ease;">
-
+ 
         <!-- Cabecera del equipo (compartida) -->
         <div class="equipo-header" id="sz-eq-header">
           <div class="equipo-icon"><i class="ti ti-settings-2"></i></div>
@@ -310,7 +310,7 @@ tr:last-child td{border-bottom:none}
             <i class="ti ti-scan"></i> Nuevo scan
           </button>
         </div>
-
+ 
         <!-- Status detallado del equipo -->
         <div class="card" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:12px;">
@@ -329,14 +329,14 @@ tr:last-child td{border-bottom:none}
               <div style="font-size:11px;color:#aaa;" id="sz-stat-ots-sub">–</div>
             </div>
           </div>
-
+ 
         <!-- Status detallado del equipo -->
         <div class="card" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:12px;">
             <div class="card-title"><i class="ti ti-activity"></i> Estado actual del equipo</div>
             <span id="sz-eq-est-badge"></span>
           </div>
-
+ 
           <!-- Datos técnicos del equipo -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
             <div style="background:#f8f9fb;border-radius:8px;padding:12px;">
@@ -350,7 +350,7 @@ tr:last-child td{border-bottom:none}
               <div style="font-size:11px;color:#aaa;" id="sz-stat-ots-sub">–</div>
             </div>
           </div>
-
+ 
           <!-- Modelo y serie -->
           <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
             <div style="font-size:12px;color:#666;background:#f4f5f7;padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:5px;">
@@ -363,7 +363,7 @@ tr:last-child td{border-bottom:none}
               <i class="ti ti-flame" style="font-size:13px;"></i> Criticidad: <strong id="sz-eq-criticidad">–</strong>
             </div>
           </div>
-
+ 
           <!-- Barra de progreso PM -->
           <div id="sz-pm-wrap" style="margin-bottom:14px;display:none;">
             <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:5px;">
@@ -375,11 +375,11 @@ tr:last-child td{border-bottom:none}
             </div>
             <div style="font-size:10px;color:#aaa;margin-top:4px;" id="sz-pm-hint">–</div>
           </div>
-
+ 
           <!-- OTs activas resumen (solo lectura para supervisor) -->
           <div id="sz-ots-resumen"></div>
         </div>
-
+ 
         <!-- OTs completadas recientes -->
         <div class="card" style="margin-bottom:14px;" id="sz-historial-wrap">
           <div class="card-header" style="margin-bottom:10px;">
@@ -387,7 +387,7 @@ tr:last-child td{border-bottom:none}
           </div>
           <div id="sz-historial"></div>
         </div>
-
+ 
         <!-- Botón principal: Levantar OT -->
         <div class="card" style="padding:24px;">
           <div style="display:flex;align-items:flex-start;gap:16px;">
@@ -397,7 +397,7 @@ tr:last-child td{border-bottom:none}
             <div style="flex:1;">
               <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Levantar Orden de Trabajo</div>
               <div style="font-size:12px;color:#888;margin-bottom:16px;">Si detectas una falla, anomalía o necesidad de mantenimiento, regístrala aquí. El administrador asignará al técnico.</div>
-
+ 
               <!-- Formulario rápido inline para supervisor de zona -->
               <div style="display:flex;flex-direction:column;gap:10px;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -450,24 +450,24 @@ tr:last-child td{border-bottom:none}
             <i class="ti ti-scan"></i> Nuevo scan
           </button>
         </div>
-
+ 
         <!-- OTs activas del equipo -->
         <div class="card" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:10px;">
             <div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes de trabajo activas</div>
             <span id="ots-count-badge" style="font-size:11px;background:#f4f5f7;padding:3px 10px;border-radius:20px;color:#666;">0 OTs</span>
           </div>
-
+ 
           <!-- Alerta auto-asignación -->
           <div class="auto-assign-alert" id="auto-assign-info">
             <i class="ti ti-info-circle"></i>
             <span>Al seleccionar una OT sin asignar, quedarás asignado automáticamente. OTs ya asignadas a ti aparecen marcadas.</span>
           </div>
-
+ 
           <div id="ots-equipo-lista">
             <div class="loading"><div class="spinner"></div></div>
           </div>
-
+ 
           <!-- Opción crear nueva OT si es admin -->
           <div id="nueva-ot-btn-wrap" style="display:none;margin-top:10px;">
             <div class="nueva-ot-rapida" onclick="openNuevaOT(document.getElementById('eq-id-actual').value)">
@@ -478,7 +478,7 @@ tr:last-child td{border-bottom:none}
           <input type="hidden" id="eq-id-actual">
         </div>
       </div>
-
+ 
       <!-- PANEL 3: Checklist directo (post-selección de OT) -->
       <div id="cl-directo">
         <div class="cl-directo-header">
@@ -489,7 +489,7 @@ tr:last-child td{border-bottom:none}
           </div>
           <button class="cl-back-btn" onclick="volverAOTs()"><i class="ti ti-arrow-left"></i> Volver</button>
         </div>
-
+ 
         <div class="two-col">
           <div>
             <div class="card" style="margin-bottom:14px;">
@@ -535,9 +535,9 @@ tr:last-child td{border-bottom:none}
           </div>
         </div>
       </div>
-
+ 
     </div><!-- /tab-escaner -->
-
+ 
     <!-- RESTO DE TABS (sin cambios) -->
     <div id="tab-dashboard" class="panel-hidden">
       <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:#eaf4ec;border-radius:6px;font-size:11px;color:#1f6130;margin-bottom:12px;"><div class="rt-dot"></div>Datos en tiempo real — se actualizan automáticamente</div>
@@ -568,7 +568,7 @@ tr:last-child td{border-bottom:none}
       <div style="font-size:11px;color:#666;margin-bottom:12px;display:flex;align-items:center;gap:4px;"><i class="ti ti-info-circle"></i><strong>Modo Interactivo:</strong> Haz clic en cualquier día para programar un Preventivo. Arrastra para reprogramar.</div>
       <div class="cal-grid" id="cal-grid"></div>
     </div>
-
+ 
     <div id="tab-ordenes" class="panel-hidden">
       <div class="card">
         <div class="card-header">
@@ -583,14 +583,14 @@ tr:last-child td{border-bottom:none}
         <div id="ots-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
-
+ 
     <div id="tab-equipos" class="panel-hidden">
       <div class="card">
         <div class="card-header"><div class="card-title"><i class="ti ti-settings-2"></i> Inventario de equipos</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalEq()"><i class="ti ti-plus"></i> Agregar</button></div>
         <div id="eq-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
-
+ 
     <div id="tab-tecnicos" class="panel-hidden">
       <div class="card">
         <div class="card-header"><div class="card-title"><i class="ti ti-users"></i> Equipo de trabajo</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalUser()"><i class="ti ti-user-plus"></i> Agregar Personal</button></div>
@@ -603,7 +603,7 @@ tr:last-child td{border-bottom:none}
       <p style="font-size:12px;color:#666;margin-bottom:16px;">Listado global de equipos con fallas registradas (Correctivos). Clic en "Ver Detalle" para analizar el equipo.</p>
       <div id="dt-list-equipos"></div>
     </div>
-
+ 
     <div id="tab-checklist" class="panel-hidden">
       <div id="cl-sel">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="font-size:15px;font-weight:500;">Ejecutar checklist de OT</div></div>
@@ -660,10 +660,10 @@ tr:last-child td{border-bottom:none}
         </div>
       </div>
     </div>
-
+ 
   </div><!-- /main -->
 </div><!-- /app -->
-
+ 
 <!-- MODALES SIN CAMBIOS -->
 <div class="modal-backdrop" id="modal-ot">
   <div class="modal">
@@ -679,7 +679,7 @@ tr:last-child td{border-bottom:none}
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-ot')">Cancelar</button><button class="btn-sm btn-primary" onclick="crearOT()"><i class="ti ti-check"></i> Crear OT</button></div>
   </div>
 </div>
-
+ 
 <div class="modal-backdrop" id="modal-invite">
   <div class="modal" style="max-width:420px;">
     <div class="modal-title"><span id="usr-modal-title">Configurar Perfil</span><button class="close-btn" onclick="closeM('modal-invite')"><i class="ti ti-x"></i></button></div>
@@ -703,7 +703,7 @@ tr:last-child td{border-bottom:none}
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-invite')">Cancelar</button><button class="btn-sm btn-primary" onclick="guardarPerfil()"><i class="ti ti-check"></i> Guardar</button></div>
   </div>
 </div>
-
+ 
 <div class="modal-backdrop" id="modal-equipo">
   <div class="modal" style="max-width:440px;">
     <div class="modal-title"><span id="eq-modal-title">Nuevo Equipo</span><button class="close-btn" onclick="closeM('modal-equipo')"><i class="ti ti-x"></i></button></div>
@@ -726,7 +726,7 @@ tr:last-child td{border-bottom:none}
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-equipo')">Cancelar</button><button class="btn-sm btn-primary" onclick="guardarEquipo()"><i class="ti ti-check"></i> Guardar</button></div>
   </div>
 </div>
-
+ 
 <div class="modal-backdrop" id="modal-dt-detalle">
   <div class="modal" style="max-width:600px;">
     <div class="modal-title">Detalle de Fallas<button class="close-btn" onclick="closeM('modal-dt-detalle')"><i class="ti ti-x"></i></button></div>
@@ -734,7 +734,7 @@ tr:last-child td{border-bottom:none}
     <div id="dt-det-lista"></div>
   </div>
 </div>
-
+ 
 <div class="modal-backdrop" id="modal-qr">
   <div class="modal" style="text-align:center;max-width:320px;">
     <div class="modal-title" style="justify-content:center;">Etiqueta QR <button class="close-btn" style="position:absolute;right:24px;" onclick="closeM('modal-qr')"><i class="ti ti-x"></i></button></div>
@@ -749,39 +749,39 @@ tr:last-child td{border-bottom:none}
     </div>
   </div>
 </div>
-
+ 
 <div id="toast"></div>
-
+ 
 <script>
 const SUPA_URL='https://knzelkthjzdtlghaizmr.supabase.co';
 const SUPA_KEY='sb_publishable_GG8verAjJsOogBUy1j0wtw_buSA6kwK';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
-
+ 
 let curUser=null,curProf=null,allOTs=[],allEqs=[],allProfs=[],rtCh=null;
 let html5Scanner=null;
 let currYear=new Date().getFullYear(),currMonth=new Date().getMonth();
-
+ 
 // Estado del flujo técnico
 let eqActual=null;   // equipo detectado por QR
 let otActual=null;   // OT seleccionada para el checklist
-
+ 
 function toast(msg,dur=3500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 function ini(n){return(n||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();}
 function fmt(ts){if(!ts)return'–';const d=new Date(ts);return d.toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 function badge(e){const m={'Urgente':'badge-red','En progreso':'badge-amber','Pendiente':'badge-gray','Completada':'badge-green','Operativo':'badge-green','En mantenimiento':'badge-amber','Fuera de servicio':'badge-red','Alta':'badge-red','Media':'badge-amber','Baja':'badge-gray','Correctivo':'badge-red','Preventivo':'badge-blue','Predictivo':'badge-purple','Inspección':'badge-blue'};return`<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;}
 function rolBadge(r){const c={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_zona:'r-supervisor_zona',admin:'r-admin',gerencia:'r-gerencia'};const l={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. Zona',admin:'Admin',gerencia:'Gerencia'};return`<span class="role-badge ${c[r]||''}">${l[r]||r}</span>`;}
-
+ 
 function canDo(a){
   const r=curProf?.rol;
   const p={crear_ot:['tecnico','supervisor','supervisor_zona','admin'],ver_tecnicos:['gerencia','admin'],gestionar_usuarios:['admin'],gestionar_equipos:['admin','supervisor','gerencia'],ver_dashboard:['admin','gerencia','supervisor']};
   return(p[a]||[]).includes(r);
 }
-
+ 
 function openM(id){document.getElementById(id).classList.add('open');}
 function closeM(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)b.classList.remove('open');}));
-
+ 
 function toggleUserFields(){
   const rol=document.getElementById('inv-rol').value;
   document.getElementById('grp-zona').style.display=(rol==='supervisor_zona')?'flex':'none';
@@ -790,7 +790,7 @@ function toggleUserFields(){
 function toggleFechaProg(){
   document.getElementById('grp-fecha-prog').style.display=document.getElementById('f-tipo').value==='Preventivo'?'flex':'none';
 }
-
+ 
 // ── PASO A PASO VISUAL ──
 function setPasos(activo){
   // activo: 1, 2 o 3
@@ -804,7 +804,7 @@ function setPasos(activo){
     else num.textContent=i;
   }
 }
-
+ 
 // ── AUTH ──
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 async function doLogin(){
@@ -820,7 +820,7 @@ async function doLogin(){
   if(error){err.textContent=error.message;err.classList.add('show');return;}
   await bootApp(data.user);
 }
-
+ 
 async function bootApp(user){
   curUser=user;
   const{data:prof}=await db.from('profiles').select('*').eq('id',user.id).single();
@@ -835,7 +835,7 @@ async function bootApp(user){
   const rc={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_zona:'r-supervisor_zona',admin:'r-admin',gerencia:'r-gerencia'};
   const rl={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. de Zona',admin:'Admin',gerencia:'Gerencia'};
   const rb=document.getElementById('u-rol');rb.className='role-badge '+(rc[prof.rol]||'');rb.textContent=rl[prof.rol]||prof.rol;
-
+ 
   const nav=document.getElementById('main-nav');
   nav.innerHTML='';
   if(['tecnico','supervisor_zona'].includes(curProf.rol)){
@@ -861,9 +861,9 @@ async function bootApp(user){
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
   }
-
+ 
   document.querySelectorAll('.btn-admin-only').forEach(b=>b.style.display=curProf.rol==='admin'?'':'none');
-
+ 
   // Adaptar UI según rol en el escáner
   if(curProf.rol==='supervisor_zona'){
     // Solo 2 pasos: escanear → levantar OT
@@ -880,7 +880,7 @@ async function bootApp(user){
   document.getElementById('app').style.display='block';
   await loadAll();
   setupRT();
-
+ 
   if(['tecnico','supervisor_zona'].includes(curProf.rol)){
     setTab('escaner');
     startScanner();
@@ -888,7 +888,7 @@ async function bootApp(user){
     setTab('dashboard');
   }
 }
-
+ 
 async function doLogout(){
   if(rtCh)db.removeChannel(rtCh);
   stopScanner();
@@ -898,7 +898,7 @@ async function doLogout(){
   document.getElementById('login-screen').style.display='flex';
 }
 db.auth.getSession().then(async({data:{session}})=>{if(session)await bootApp(session.user);});
-
+ 
 // ── DATA & REALTIME ──
 async function loadAll(){
   const[otR,eqR,prR]=await Promise.all([
@@ -924,14 +924,14 @@ async function loadAll(){
     }
   }
 }
-
+ 
 function setupRT(){
   if(rtCh)db.removeChannel(rtCh);
   rtCh=db.channel('ft-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async()=>{await loadAll();})
     .subscribe(s=>{document.getElementById('rt-st').textContent=s==='SUBSCRIBED'?'En vivo':'Reconectando...';});
 }
-
+ 
 // ── NAVEGACIÓN ──
 const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime'];
 function setTab(t){
@@ -951,11 +951,11 @@ function setTab(t){
   if(t==='calendario'&&canDo('ver_dashboard'))renderCalendar();
   if(t!=='escaner')stopScanner();
 }
-
+ 
 // ══════════════════════════════════════════
 // FLUJO TÉCNICO: ESCÁNER → OTs → CHECKLIST
 // ══════════════════════════════════════════
-
+ 
 function startScanner(){
   if(html5Scanner) return;
   html5Scanner=new Html5QrcodeScanner("reader",{fps:10,qrbox:{width:250,height:250}},false);
@@ -970,11 +970,11 @@ function startScanner(){
     }
   },()=>{});
 }
-
+ 
 function stopScanner(){
   if(html5Scanner){html5Scanner.clear().catch(()=>{});html5Scanner=null;}
 }
-
+ 
 function resetEscaner(){
   // Volver al estado de escáner
   eqActual=null;
@@ -986,18 +986,18 @@ function resetEscaner(){
   setPasos(1);
   startScanner();
 }
-
+ 
 function mostrarEquipoEscaneado(eq){
   eqActual=eq;
   document.getElementById('scan-panel').style.display='none';
   document.getElementById('cl-directo').style.display='none';
-
+ 
   if(curProf.rol==='supervisor_zona'){
     // ── FLUJO SUPERVISOR DE ZONA ──
     document.getElementById('equipo-panel').style.display='none';
     document.getElementById('sz-panel').style.display='block';
     document.getElementById('sz-eq-id').value=eq.id;
-
+ 
     // Cabecera
     document.getElementById('sz-eq-nombre').textContent=eq.nombre;
     document.getElementById('sz-eq-codigo').textContent=eq.codigo;
@@ -1005,7 +1005,7 @@ function mostrarEquipoEscaneado(eq){
     document.getElementById('sz-eq-estado').textContent=eq.estado||'–';
     document.getElementById('sz-eq-hrs').textContent=(eq.horas_actuales||0)+' hrs uso';
     document.getElementById('sz-eq-est-badge').innerHTML=badge(eq.estado||'Operativo');
-
+ 
     // Datos técnicos
     document.getElementById('sz-eq-modelo').textContent=eq.modelo||'Sin modelo';
     document.getElementById('sz-eq-serie').textContent=eq.serie||'–';
@@ -1013,12 +1013,12 @@ function mostrarEquipoEscaneado(eq){
     const critEl=document.getElementById('sz-eq-criticidad');
     critEl.textContent=critMap[eq.criticidad]||eq.criticidad||'–';
     critEl.style.color=eq.criticidad==='alta'?'#b03030':eq.criticidad==='media'?'#b87a00':'#2d7a3a';
-
+ 
     // Stats OTs
     const hAct=eq.horas_actuales||0, hFrec=eq.frec_pm_horas||0;
     document.getElementById('sz-stat-hrs').textContent=hAct+' h';
     document.getElementById('sz-stat-frec').textContent=hFrec?'PM cada '+hFrec+' hrs':'Sin frecuencia PM';
-
+ 
     // Barra PM
     const pmWrap=document.getElementById('sz-pm-wrap');
     if(hFrec>0){
@@ -1032,32 +1032,32 @@ function mostrarEquipoEscaneado(eq){
     } else {
       pmWrap.style.display='none';
     }
-
+ 
     // OTs activas resumen + historial
     renderOTsResumenSZ(eq);
     renderHistorialSZ(eq);
     setPasos(2);
-
+ 
   } else {
     // ── FLUJO TÉCNICO ──
     document.getElementById('sz-panel').style.display='none';
     document.getElementById('equipo-panel').style.display='block';
     document.getElementById('eq-id-actual').value=eq.id;
-
+ 
     document.getElementById('eq-h-nombre').textContent=eq.nombre;
     document.getElementById('eq-h-codigo').textContent=eq.codigo;
     document.getElementById('eq-h-area').textContent=eq.area||'Sin zona';
     document.getElementById('eq-h-estado').textContent=eq.estado||'–';
     document.getElementById('eq-h-hrs').textContent=(eq.horas_actuales||0)+' hrs uso';
-
+ 
     document.getElementById('nueva-ot-btn-wrap').style.display=curProf.rol==='admin'?'block':'none';
     document.getElementById('auto-assign-info').style.display=curProf.rol==='tecnico'?'flex':'none';
-
+ 
     setPasos(2);
     renderOTsEquipo(eq);
   }
 }
-
+ 
 // Resumen de OTs activas para supervisor de zona (solo lectura)
 function renderOTsResumenSZ(eq){
   const ots=allOTs.filter(o=>o.equipo_id===eq.id&&o.estado!=='Completada');
@@ -1065,16 +1065,16 @@ function renderOTsResumenSZ(eq){
   const sub=document.getElementById('sz-stat-ots-sub');
   const resumen=document.getElementById('sz-ots-resumen');
   if(!el||!resumen)return;
-
+ 
   el.textContent=ots.length;
   el.style.color=ots.length?'#b03030':'#2d7a3a';
   sub.textContent=ots.length?'requieren atención':'sin fallas activas';
-
+ 
   if(!ots.length){
     resumen.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--green-bg);border-radius:8px;font-size:12px;color:var(--green-txt);"><i class="ti ti-circle-check"></i> Equipo operando sin fallas activas</div>';
     return;
   }
-
+ 
   resumen.innerHTML=`<div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">OTs en curso</div>`+
   ots.map(o=>`
     <div style="border:1px solid var(--border);border-left:3px solid ${o.prioridad==='Urgente'?'#b03030':o.prioridad==='Alta'?'#e06030':o.prioridad==='Media'?'#b87a00':'#999'};border-radius:6px;padding:10px 12px;margin-bottom:8px;background:#fff;">
@@ -1091,7 +1091,7 @@ function renderOTsResumenSZ(eq){
       </div>
     </div>`).join('');
 }
-
+ 
 // Historial de OTs completadas recientes para el equipo (vista supervisor zona)
 function renderHistorialSZ(eq){
   const wrap=document.getElementById('sz-historial-wrap');
@@ -1116,7 +1116,7 @@ function renderHistorialSZ(eq){
       </div>
     </div>`).join('');
 }
-
+ 
 // Crear OT desde el formulario rápido del supervisor de zona
 async function crearOTSupervisorZona(){
   const eqId=document.getElementById('sz-eq-id').value;
@@ -1130,7 +1130,7 @@ async function crearOTSupervisorZona(){
   
   const btn=document.querySelector('#sz-panel .btn-tomar:last-of-type');
   if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Enviando...';}
-
+ 
   const{error}=await db.from('ordenes_trabajo').insert({
     equipo_id:eq.id,
     equipo_nombre:`${eq.codigo} – ${eq.nombre}`,
@@ -1140,9 +1140,9 @@ async function crearOTSupervisorZona(){
     descripcion:desc,
     creado_por:curUser.id
   });
-
+ 
   if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i> Enviar Orden de Trabajo';}
-
+ 
   if(error){toast('❌ Error al crear OT: '+error.message);return;}
   
   document.getElementById('sz-f-desc').value='';
@@ -1151,7 +1151,7 @@ async function crearOTSupervisorZona(){
   
   await loadAll();
   toast('✅ Orden de trabajo creada — pendiente de asignación');
-
+ 
   // Mostrar confirmación visual inline
   const card=document.querySelector('#sz-panel .card:last-of-type');
   if(card){
@@ -1165,10 +1165,10 @@ async function crearOTSupervisorZona(){
   const lista=document.getElementById('ots-equipo-lista');
   // OTs activas de este equipo
   let ots=allOTs.filter(o=>o.equipo_id===eq.id && o.estado!=='Completada');
-
+ 
   const badge2=document.getElementById('ots-count-badge');
   if(badge2) badge2.textContent=ots.length+' OT'+(ots.length!==1?'s':'');
-
+ 
   if(!ots.length){
     lista.innerHTML=`
       <div class="sin-ots">
@@ -1179,7 +1179,7 @@ async function crearOTSupervisorZona(){
       </div>`;
     return;
   }
-
+ 
   lista.innerHTML=ots.map(o=>{
     const prioClass=(o.prioridad||'baja').toLowerCase();
     const esMia=o.tecnico_id===curUser.id;
@@ -1196,7 +1196,7 @@ async function crearOTSupervisorZona(){
     } else {
       btnHtml=`<span style="font-size:11px;color:#aaa;"><i class="ti ti-user"></i> Asignada a ${o.tecnico_nombre||'otro'}</span>`;
     }
-
+ 
     return`<div class="ot-card-tecnico ${prioClass} ${esMia?'mine':''}">
       <div class="ot-top">
         <div>
@@ -1220,19 +1220,19 @@ async function crearOTSupervisorZona(){
     </div>`;
   }).join('');
 }
-
+ 
 // Tomar la OT y asignarse automáticamente
 async function tomarYEjecutar(otId){
   const ot=allOTs.find(o=>o.id===otId);
   if(!ot) return;
-
+ 
   toast('Asignándote a la OT...');
   const{error}=await db.from('ordenes_trabajo').update({
     tecnico_id: curUser.id,
     tecnico_nombre: curProf.nombre,
     estado: 'En progreso'
   }).eq('id',otId);
-
+ 
   if(error){toast('❌ Error al asignarte: '+error.message);return;}
   toast('✅ OT asignada — iniciando checklist');
   await loadAll();
@@ -1240,7 +1240,7 @@ async function tomarYEjecutar(otId){
   const otActualizada=allOTs.find(o=>o.id===otId);
   if(otActualizada) abrirCLDirecto(otActualizada);
 }
-
+ 
 // Seleccionar OT ya asignada (mía) y abrir checklist
 function seleccionarOT(otId){
   const ot=allOTs.find(o=>o.id===otId);
@@ -1251,19 +1251,19 @@ function seleccionarOT(otId){
   }
   abrirCLDirecto(ot);
 }
-
+ 
 // Abrir checklist en el tab escáner directamente
 function abrirCLDirecto(ot){
   otActual=ot;
   const k=getCLKey(ot.equipo_nombre||'');
-
+ 
   document.getElementById('equipo-panel').style.display='none';
   document.getElementById('cl-directo').style.display='block';
   setPasos(3);
-
+ 
   document.getElementById('cld-titulo').textContent=`#${ot.id} – ${ot.equipo_nombre||'–'}`;
   document.getElementById('cld-meta').textContent=`${ot.tipo} · ${ot.tecnico_nombre||curProf.nombre} · ${fmt(ot.fecha_creacion)}`;
-
+ 
   // Reset estado
   cldR={};
   resetTimerD();
@@ -1271,7 +1271,7 @@ function abrirCLDirecto(ot){
   document.getElementById('cld-ref-list').innerHTML='';
   document.getElementById('cld-obs-txt').value='';
   resetFGD();
-
+ 
   if(!k){
     document.getElementById('cld-items').innerHTML=`
       <div style="text-align:center;padding:32px;color:#aaa;">
@@ -1282,12 +1282,12 @@ function abrirCLDirecto(ot){
     document.getElementById('cld-prog-lbl').textContent='';
     return;
   }
-
+ 
   renderCLDItems(CL[k]);
   setupFirmaD();
   actualizaProgD(CL[k]);
 }
-
+ 
 function volverAOTs(){
   document.getElementById('cl-directo').style.display='none';
   document.getElementById('equipo-panel').style.display='block';
@@ -1295,7 +1295,7 @@ function volverAOTs(){
   otActual=null;
   resetTimerD();
 }
-
+ 
 // Render de items del checklist directo
 let cldR={};
 function renderCLDItems(cl){
@@ -1311,21 +1311,21 @@ function renderCLDItems(cl){
     return`<div class="chk-item" id="dci-${item.id}"><div class="chk-row"><div class="chk-dot" id="ddot-${item.id}"></div><div style="flex:1;"><div style="font-size:13px;">${item.label}</div>${inp}</div></div></div>`;
   }).join('');
 }
-
+ 
 function markDD(id,ok){const d=document.getElementById('ddot-'+id);if(!d)return;d.classList.remove('ok','fail');d.classList.add(ok?'ok':'fail');d.innerHTML=ok?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i>';}
 function setDBool(id,v){cldR[id]=v;const bo=document.getElementById('dbok-'+id);const bf=document.getElementById('dbfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markDD(id,v);actualizaProgD(getCurCLD());}
 function setDNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');if(v!==''){cldR[id]=n;markDD(id,ok);actualizaProgD(getCurCLD());}}
 function setDSel(id,v){if(!v)return;cldR[id]=v;markDD(id,true);actualizaProgD(getCurCLD());}
 function getCurCLD(){const k=getCLKey(otActual?.equipo_nombre||'');return k?CL[k]:null;}
 function actualizaProgD(cl){if(!cl)return;const t=cl.items.length,d=cl.items.filter(i=>cldR[i.id]!==undefined).length;document.getElementById('cld-prog').style.width=Math.round(d/t*100)+'%';document.getElementById('cld-prog-lbl').textContent=`${d}/${t} items`;}
-
+ 
 // Timer del checklist directo
 let cldTInt=null,cldTSec=0,cldTOn=false;
 function pad(n){return String(n).padStart(2,'0');}
 function updTD(){const h=Math.floor(cldTSec/3600),m=Math.floor((cldTSec%3600)/60),s=cldTSec%60;const el=document.getElementById('cld-timer-d');if(el)el.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;}
 function toggleTimerD(){cldTOn=!cldTOn;const b=document.getElementById('cld-timer-btn');if(cldTOn){b.innerHTML='<i class="ti ti-player-pause"></i> Pausar';cldTInt=setInterval(()=>{cldTSec++;updTD();},1000);}else{b.innerHTML='<i class="ti ti-player-play"></i> Reanudar';clearInterval(cldTInt);}}
 function resetTimerD(){clearInterval(cldTInt);cldTOn=false;cldTSec=0;updTD();const b=document.getElementById('cld-timer-btn');if(b)b.innerHTML='<i class="ti ti-player-play"></i> Iniciar';}
-
+ 
 // Firma del checklist directo
 let cldFCtx=null,cldFDraw=false;
 function setupFirmaD(){
@@ -1338,13 +1338,13 @@ function setupFirmaD(){
   c.onmouseup=c.ontouchend=c.onmouseleave=()=>cldFDraw=false;
 }
 function clearFirmaD(){const c=document.getElementById('cld-firma-c');if(cldFCtx)cldFCtx.clearRect(0,0,c.width,c.height);}
-
+ 
 const fED=['🔩','🔧','⚙️','🛠️','📐','🔌'];
 function resetFGD(){document.getElementById('cld-foto-grid').innerHTML=`<label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:#aaa;" onclick="simFotoD(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>`;}
 function simFotoD(btn){const g=document.getElementById('cld-foto-grid');const d=document.createElement('div');const em=fED[Math.floor(Math.random()*fED.length)];d.style.cssText='height:70px;border-radius:8px;background:#f4f5f7;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;';d.innerHTML=`${em}<button onclick="this.parentElement.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.35);border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:10px;line-height:16px;padding:0;">×</button>`;g.insertBefore(d,btn);}
-
+ 
 function addRefD(){const v=document.getElementById('cld-ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:16px;">×</button>`;document.getElementById('cld-ref-list').appendChild(d);document.getElementById('cld-ref-in').value='';}
-
+ 
 async function cerrarOTDirecto(){
   const cl=getCurCLD();
   if(cl){
@@ -1366,7 +1366,7 @@ async function cerrarOTDirecto(){
     if(ra.length)await db.from('respuestas_checklist').insert(ra);
   }
   await loadAll();
-
+ 
   // Pantalla de éxito dentro del panel escáner
   const clD=document.getElementById('cl-directo');
   clD.innerHTML=`
@@ -1382,7 +1382,7 @@ async function cerrarOTDirecto(){
     </div>`;
   toast('✅ OT cerrada y guardada');
 }
-
+ 
 // ── DASHBOARD ──
 function renderDash(){
   const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -1403,7 +1403,7 @@ function renderDash(){
     <div class="stat-row"><span style="color:#888;">Preventivos</span><strong>${allOTs.filter(o=>o.tipo==='Preventivo').length}</strong></div>
     <div class="stat-row"><span style="color:#888;">Equipos registrados</span><strong>${allEqs.length}</strong></div>`;
 }
-
+ 
 // ── ORDENES ──
 function renderOrdenes(){
   const f=document.getElementById('f-est-fil').value;
@@ -1422,7 +1422,7 @@ function renderOrdenes(){
     </td>
   </tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
 }
-
+ 
 function openNuevaOT(eqIdPre=null,fechaPre=null){
   document.getElementById('f-equipo').disabled=false;
   document.getElementById('f-equipo').innerHTML='<option value="">Selecciona equipo...</option>'+allEqs.map(e=>`<option value="${e.id}">${e.codigo} – ${e.nombre}</option>`).join('');
@@ -1435,7 +1435,7 @@ function openNuevaOT(eqIdPre=null,fechaPre=null){
   toggleFechaProg();
   openM('modal-ot');
 }
-
+ 
 async function crearOT(){
   const eqId=document.getElementById('f-equipo').value;
   if(!eqId){toast('Selecciona un equipo');return;}
@@ -1457,7 +1457,7 @@ async function crearOT(){
   if(error){toast('Error: '+error.message);return;}
   closeM('modal-ot');
   await loadAll();
-
+ 
   // Feedback especial para supervisor de zona: confirmar y ofrecer nuevo scan
   if(curProf.rol==='supervisor_zona' && eqActual){
     const szPanel=document.getElementById('sz-panel');
@@ -1483,7 +1483,7 @@ async function crearOT(){
     toast('✅ OT creada');
   }
 }
-
+ 
 async function cambiarEst(otId){
   const ot=allOTs.find(o=>o.id===otId);if(!ot)return;
   const estados=['Pendiente','En progreso','Urgente','Completada'];
@@ -1493,14 +1493,14 @@ async function cambiarEst(otId){
   await db.from('ordenes_trabajo').update(upd).eq('id',otId);
   toast('Estado → '+nuevo);await loadAll();
 }
-
+ 
 async function eliminarOT(id){
   if(confirm("¿Eliminar definitivamente esta OT?")){
     await db.from('ordenes_trabajo').delete().eq('id',id);
     toast("✅ Orden eliminada");loadAll();
   }
 }
-
+ 
 // ── EQUIPOS ──
 function renderEquipos(){
   let html=`<table><thead><tr><th>Código</th><th>Nombre</th><th>Zona Asignada</th><th>Uso (Hrs)</th><th>Frec. PM</th><th>Estado</th><th></th></tr></thead><tbody>`;
@@ -1524,7 +1524,7 @@ function renderEquipos(){
   }).join('');
   document.getElementById('eq-wrap').innerHTML=html+`</tbody></table>`;
 }
-
+ 
 function openModalEq(id=null){
   if(id){
     const e=allEqs.find(x=>x.id===id);
@@ -1550,7 +1550,7 @@ function openModalEq(id=null){
   }
   openM('modal-equipo');
 }
-
+ 
 async function guardarEquipo(){
   const id=document.getElementById('eq-edit-id').value;
   const cod=document.getElementById('eq-cod').value.trim();
@@ -1561,14 +1561,14 @@ async function guardarEquipo(){
   else{const{error}=await db.from('equipos').insert(payload);if(error){toast('Error: '+error.message);return;}toast('✅ Equipo agregado');}
   closeM('modal-equipo');await loadAll();
 }
-
+ 
 async function eliminarEquipo(id){
   if(!confirm("¿Estás seguro de eliminar este equipo de forma permanente?"))return;
   const{error}=await db.from('equipos').delete().eq('id',id);
   if(error){toast("❌ No se puede borrar: El equipo tiene historial de órdenes.");return;}
   toast("✅ Equipo eliminado");await loadAll();
 }
-
+ 
 function verQR(codigo,nombre){
   document.getElementById('qr-eq-nom').textContent=nombre;
   document.getElementById('qr-eq-cod').textContent=codigo;
@@ -1577,7 +1577,7 @@ function verQR(codigo,nombre){
   new QRCode(container,{text:codigo,width:140,height:140,colorDark:"#1a2b4a",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
   openM('modal-qr');
 }
-
+ 
 // ── PERSONAL ──
 function renderUsuarios(){
   let html=`<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>`;
@@ -1593,7 +1593,7 @@ function renderUsuarios(){
   </tr>`).join('');
   document.getElementById('tec-wrap').innerHTML=html+`</tbody></table>`;
 }
-
+ 
 function openModalUser(id=null){
   if(id){
     const u=allProfs.find(x=>x.id===id);
@@ -1620,7 +1620,7 @@ function openModalUser(id=null){
   }
   openM('modal-invite');
 }
-
+ 
 async function guardarPerfil(){
   const id=document.getElementById('inv-edit-id').value;
   const uuid=document.getElementById('inv-uuid').value.trim();
@@ -1634,7 +1634,7 @@ async function guardarPerfil(){
   if(error){toast('❌ Error: '+error.message);return;}
   closeM('modal-invite');toast('Perfil guardado');await loadAll();
 }
-
+ 
 async function delUsr(id){
   if(id===curUser.id)return toast("No puedes eliminarte a ti mismo.");
   if(!confirm("¿Eliminar este perfil?"))return;
@@ -1642,7 +1642,7 @@ async function delUsr(id){
   if(error){toast('❌ Error: '+error.message);return;}
   toast('✅ Usuario eliminado');await loadAll();
 }
-
+ 
 // ── DOWNTIME ──
 function renderDowntime(){
   const fallas=allOTs.filter(o=>o.tipo==='Correctivo');
@@ -1655,14 +1655,14 @@ function renderDowntime(){
   let list=Object.values(eqStats).sort((a,b)=>b.min-a.min);
   document.getElementById('dt-list-equipos').innerHTML=list.length?`<table><thead><tr><th>Equipo</th><th>Fallas</th><th>Horas Paro</th><th>MTTR</th><th></th></tr></thead><tbody>${list.map(e=>`<tr><td><strong>${e.nom}</strong></td><td><span class="badge badge-red">${e.count}</span></td><td style="color:var(--red-txt);font-weight:600;">${(e.min/60).toFixed(1)}h</td><td>${Math.round(e.min/e.count)}m</td><td><button class="btn-sm" onclick="verDetalleDT(${e.id},'${e.nom}')">Ver Detalle</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty-state">No hay fallas (Correctivos) registrados.</div>';
 }
-
+ 
 function verDetalleDT(eqId,nombre){
   const fallas=allOTs.filter(o=>o.equipo_id==eqId&&o.tipo==='Correctivo');
   document.getElementById('dt-det-nom').textContent="Historial de Correctivos: "+nombre;
   document.getElementById('dt-det-lista').innerHTML=`<table><thead><tr><th>Fecha</th><th>Falla</th><th>Duración</th></tr></thead><tbody>${fallas.map(f=>`<tr><td style="font-size:12px;color:#888;">${fmt(f.fecha_creacion)}</td><td style="font-size:12px;">${f.descripcion||'Sin desc.'}</td><td style="font-size:12px;font-weight:600;color:var(--red-txt);">${f.tiempo_minutos?f.tiempo_minutos+'m':'-'}</td></tr>`).join('')}</tbody></table>`;
   openM('modal-dt-detalle');
 }
-
+ 
 // ── CALENDARIO ──
 function chgMonth(dir){
   currMonth+=dir;
@@ -1670,7 +1670,7 @@ function chgMonth(dir){
   else if(currMonth>11){currMonth=0;currYear++;}
   renderCalendar();
 }
-
+ 
 function renderCalendar(){
   const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const lbl=document.getElementById('cal-month-lbl');
@@ -1691,7 +1691,7 @@ function renderCalendar(){
   const grid=document.getElementById('cal-grid');
   if(grid)grid.innerHTML=html;
 }
-
+ 
 function evtDragStart(e,otId){e.dataTransfer.setData("text/plain",otId);}
 function evtDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
 function evtDragLeave(e){e.currentTarget.classList.remove('drag-over');}
@@ -1703,7 +1703,7 @@ async function evtDrop(e,nuevaFecha){
   else{toast("📅 OT #"+otId+" reprogramada");await loadAll();}
 }
 function clicCeldaCalendario(fechaSeleccionada){openNuevaOT(null,fechaSeleccionada);}
-
+ 
 // ── CHECKLIST (TAB CHECKLIST ORIGINAL, SIN CAMBIOS) ──
 const CL={
   'CNC':{nombre:'Checklist CNC / Torno',items:[
@@ -1756,13 +1756,13 @@ const CL={
     {id:'c5',label:'Filtro de retorno',tipo:'seleccion',opciones:['OK','Saturado – cambiar']},
   ]},
 };
-
+ 
 let clOT=null,clR={};
 let tInt=null,tSec=0,tOn=false;
 let fCtx=null,fDraw=false;
-
+ 
 function getCLKey(n){if(!n)return null;const m=(n.match(/^([A-Z]+)/)||[])[1];if(!m)return null;return Object.keys(CL).find(k=>m.startsWith(k))||null;}
-
+ 
 function renderCLSel(){
   let act=allOTs.filter(o=>o.estado!=='Completada');
   if(curProf.rol==='tecnico')act=act.filter(o=>o.tecnico_id===curUser.id);
@@ -1775,7 +1775,7 @@ function renderCLSel(){
     </div>`;
   }).join('')}</div>`:'<div class="empty-state"><i class="ti ti-clipboard-check"></i>No hay órdenes activas asignadas</div>';
 }
-
+ 
 function abrirCL(otId){
   clOT=allOTs.find(o=>o.id===otId);if(!clOT)return;
   clR={};resetTimer();
@@ -1788,7 +1788,7 @@ function abrirCL(otId){
   if(!k){document.getElementById('cl-items').innerHTML='<div class="empty-state">Sin checklist para este equipo</div>';return;}
   renderCLItems(CL[k]);setupFirma();resetFG();actualizaProg(CL[k]);
 }
-
+ 
 function renderCLItems(cl){
   document.getElementById('cl-items').innerHTML=cl.items.map(item=>{
     let inp='';
@@ -1798,7 +1798,7 @@ function renderCLItems(cl){
     return`<div class="chk-item" id="ci-${item.id}"><div class="chk-row"><div class="chk-dot" id="dot-${item.id}"></div><div style="flex:1;"><div style="font-size:13px;">${item.label}</div>${inp}</div></div></div>`;
   }).join('');
 }
-
+ 
 function markD(id,ok){const d=document.getElementById('dot-'+id);if(!d)return;d.classList.remove('ok','fail');d.classList.add(ok?'ok':'fail');d.innerHTML=ok?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i>';}
 function setBool(id,v){clR[id]=v;const bo=document.getElementById('bok-'+id);const bf=document.getElementById('bfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markD(id,v);actualizaProg(getCurCL());}
 function setNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');if(v!==''){clR[id]=n;markD(id,ok);actualizaProg(getCurCL());}}
