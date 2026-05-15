@@ -253,7 +253,7 @@ tr:last-child td{border-bottom:none}
     ══════════════════════════════════════════ -->
     <div id="tab-escaner" class="panel-hidden">
 
-      <!-- PASO A PASO VISUAL -->
+      <!-- PASO A PASO VISUAL — se adapta por rol en JS -->
       <div class="pasos" id="pasos-indicator" style="margin-bottom:16px;">
         <div class="paso">
           <div class="paso-num active" id="paso1-num">1</div>
@@ -264,8 +264,8 @@ tr:last-child td{border-bottom:none}
           <div class="paso-num pending" id="paso2-num">2</div>
           <span class="paso-label" id="paso2-lbl">Seleccionar OT</span>
         </div>
-        <div class="paso-sep"></div>
-        <div class="paso">
+        <div class="paso-sep" id="paso-sep-3"></div>
+        <div class="paso" id="paso-3-wrap">
           <div class="paso-num pending" id="paso3-num">3</div>
           <span class="paso-label" id="paso3-lbl">Ejecutar checklist</span>
         </div>
@@ -281,7 +281,7 @@ tr:last-child td{border-bottom:none}
             </div>
           </div>
           <div style="max-width:420px;margin:0 auto;text-align:center;">
-            <p style="font-size:13px;color:#666;margin-bottom:14px;">Apunta la cámara al código QR del equipo para ver sus órdenes de trabajo.</p>
+            <p style="font-size:13px;color:#666;margin-bottom:14px;" id="scan-hint-txt">Apunta la cámara al código QR del equipo para ver sus órdenes de trabajo.</p>
             <div id="reader"></div>
             <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
               <button class="btn-sm" onclick="stopScanner()"><i class="ti ti-camera-off"></i> Detener cámara</button>
@@ -291,8 +291,148 @@ tr:last-child td{border-bottom:none}
         </div>
       </div>
 
-      <!-- PANEL 2: Equipo detectado + OTs activas -->
-      <div id="equipo-panel">
+      <!-- PANEL 2A: Vista SUPERVISOR DE ZONA — status del equipo + levantar OT -->
+      <div id="sz-panel" style="display:none;animation:slideUp 0.3s ease;">
+
+        <!-- Cabecera del equipo (compartida) -->
+        <div class="equipo-header" id="sz-eq-header">
+          <div class="equipo-icon"><i class="ti ti-settings-2"></i></div>
+          <div style="flex:1;">
+            <div class="equipo-nombre" id="sz-eq-nombre">–</div>
+            <div class="equipo-codigo" id="sz-eq-codigo">–</div>
+            <div class="equipo-meta">
+              <span class="equipo-chip" id="sz-eq-area">–</span>
+              <span class="equipo-chip" id="sz-eq-estado">–</span>
+              <span class="equipo-chip" id="sz-eq-hrs">–</span>
+            </div>
+          </div>
+          <button onclick="resetEscaner()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;">
+            <i class="ti ti-scan"></i> Nuevo scan
+          </button>
+        </div>
+
+        <!-- Status detallado del equipo -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header" style="margin-bottom:12px;">
+            <div class="card-title"><i class="ti ti-activity"></i> Estado actual del equipo</div>
+            <span id="sz-eq-est-badge"></span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div style="background:#f8f9fb;border-radius:8px;padding:12px;">
+              <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Horas de uso</div>
+              <div style="font-size:22px;font-weight:700;color:var(--navy);" id="sz-stat-hrs">–</div>
+              <div style="font-size:11px;color:#aaa;" id="sz-stat-frec">–</div>
+            </div>
+            <div style="background:#f8f9fb;border-radius:8px;padding:12px;">
+              <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">OTs activas</div>
+              <div style="font-size:22px;font-weight:700;" id="sz-stat-ots" style="color:#111;">–</div>
+              <div style="font-size:11px;color:#aaa;" id="sz-stat-ots-sub">–</div>
+            </div>
+          </div>
+
+        <!-- Status detallado del equipo -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header" style="margin-bottom:12px;">
+            <div class="card-title"><i class="ti ti-activity"></i> Estado actual del equipo</div>
+            <span id="sz-eq-est-badge"></span>
+          </div>
+
+          <!-- Datos técnicos del equipo -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+            <div style="background:#f8f9fb;border-radius:8px;padding:12px;">
+              <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Horas de uso</div>
+              <div style="font-size:22px;font-weight:700;color:var(--navy);" id="sz-stat-hrs">–</div>
+              <div style="font-size:11px;color:#aaa;" id="sz-stat-frec">–</div>
+            </div>
+            <div style="background:#f8f9fb;border-radius:8px;padding:12px;">
+              <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">OTs activas</div>
+              <div style="font-size:22px;font-weight:700;" id="sz-stat-ots">–</div>
+              <div style="font-size:11px;color:#aaa;" id="sz-stat-ots-sub">–</div>
+            </div>
+          </div>
+
+          <!-- Modelo y serie -->
+          <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+            <div style="font-size:12px;color:#666;background:#f4f5f7;padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:5px;">
+              <i class="ti ti-cpu" style="font-size:13px;"></i> <span id="sz-eq-modelo">–</span>
+            </div>
+            <div style="font-size:12px;color:#666;background:#f4f5f7;padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:5px;">
+              <i class="ti ti-barcode" style="font-size:13px;"></i> S/N: <span id="sz-eq-serie">–</span>
+            </div>
+            <div style="font-size:12px;color:#666;background:#f4f5f7;padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:5px;">
+              <i class="ti ti-flame" style="font-size:13px;"></i> Criticidad: <strong id="sz-eq-criticidad">–</strong>
+            </div>
+          </div>
+
+          <!-- Barra de progreso PM -->
+          <div id="sz-pm-wrap" style="margin-bottom:14px;display:none;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:5px;">
+              <span>Progreso hacia próximo mantenimiento preventivo</span>
+              <strong id="sz-pm-pct" style="color:var(--navy);">–</strong>
+            </div>
+            <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;">
+              <div id="sz-pm-bar" style="height:100%;border-radius:4px;transition:width .4s;"></div>
+            </div>
+            <div style="font-size:10px;color:#aaa;margin-top:4px;" id="sz-pm-hint">–</div>
+          </div>
+
+          <!-- OTs activas resumen (solo lectura para supervisor) -->
+          <div id="sz-ots-resumen"></div>
+        </div>
+
+        <!-- OTs completadas recientes -->
+        <div class="card" style="margin-bottom:14px;" id="sz-historial-wrap">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div class="card-title"><i class="ti ti-history"></i> Últimos trabajos realizados</div>
+          </div>
+          <div id="sz-historial"></div>
+        </div>
+
+        <!-- Botón principal: Levantar OT -->
+        <div class="card" style="padding:24px;">
+          <div style="display:flex;align-items:flex-start;gap:16px;">
+            <div style="width:48px;height:48px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <i class="ti ti-clipboard-plus" style="font-size:22px;color:#fff;"></i>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Levantar Orden de Trabajo</div>
+              <div style="font-size:12px;color:#888;margin-bottom:16px;">Si detectas una falla, anomalía o necesidad de mantenimiento, regístrala aquí. El administrador asignará al técnico.</div>
+
+              <!-- Formulario rápido inline para supervisor de zona -->
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="form-group">
+                    <label>Tipo de trabajo</label>
+                    <select id="sz-f-tipo" style="border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;outline:none;background:#fff;">
+                      <option value="Correctivo">Correctivo (falla)</option>
+                      <option value="Preventivo">Preventivo</option>
+                      <option value="Inspección">Inspección</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Urgencia</label>
+                    <select id="sz-f-pri" style="border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;outline:none;background:#fff;">
+                      <option value="Urgente">🔴 Urgente — parar equipo</option>
+                      <option value="Alta">🟠 Alta — atender hoy</option>
+                      <option value="Media" selected>🟡 Media — próxima guardia</option>
+                      <option value="Baja">⚪ Baja — programar</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Descripción de la novedad o falla</label>
+                  <textarea id="sz-f-desc" placeholder="Ej: Ruido anormal en el cabezal, vibración excesiva al arrancar, fuga de aceite en el sello..." style="width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;outline:none;box-sizing:border-box;"></textarea>
+                </div>
+                <button class="btn-tomar" style="justify-content:center;font-size:14px;padding:12px;width:100%;" onclick="crearOTSupervisorZona()">
+                  <i class="ti ti-send"></i> Enviar Orden de Trabajo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="sz-eq-id">
+      </div>
+      <div id="equipo-panel" style="display:none;">
         
         <!-- Cabecera del equipo -->
         <div class="equipo-header" id="eq-header">
@@ -705,7 +845,10 @@ async function bootApp(user){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-calendario" onclick="setTab('calendario')"><i class="ti ti-calendar"></i> Calendario PM</button>`;
   }
-  nav.innerHTML+=`<button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>`;
+  // supervisor_zona: solo tab Escáner
+  if(curProf.rol!=='supervisor_zona'){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>`;
+  }
   if(['tecnico','admin','supervisor'].includes(curProf.rol)){
     nav.innerHTML+=`<button class="nav-btn" id="nav-checklist" onclick="setTab('checklist')"><i class="ti ti-checklist"></i> Checklist</button>`;
   }
@@ -720,6 +863,19 @@ async function bootApp(user){
   }
 
   document.querySelectorAll('.btn-admin-only').forEach(b=>b.style.display=curProf.rol==='admin'?'':'none');
+
+  // Adaptar UI según rol en el escáner
+  if(curProf.rol==='supervisor_zona'){
+    // Solo 2 pasos: escanear → levantar OT
+    const paso3wrap=document.getElementById('paso-3-wrap');
+    const paso3sep=document.getElementById('paso-sep-3');
+    if(paso3wrap)paso3wrap.style.display='none';
+    if(paso3sep)paso3sep.style.display='none';
+    const paso2lbl=document.getElementById('paso2-lbl');
+    if(paso2lbl)paso2lbl.textContent='Ver status y levantar OT';
+    const hintEl=document.getElementById('scan-hint-txt');
+    if(hintEl)hintEl.textContent='Apunta la cámara al código QR del equipo para ver su estado actual y levantar una orden de trabajo.';
+  }
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   await loadAll();
@@ -753,7 +909,7 @@ async function loadAll(){
   allOTs=otR.data||[];allEqs=eqR.data||[];allProfs=prR.data||[];
   const urg=allOTs.filter(o=>o.estado==='Urgente').length;
   const b=document.getElementById('badge-urg');
-  if(b){b.textContent=urg;b.style.display=urg?'':'none';}
+  if(b){b.textContent=urg;b.style.display=urg?'inline':'none';}
   if(canDo('ver_dashboard')){renderDash();renderEquipos();renderDowntime();renderCalendar();}
   if(canDo('ver_tecnicos'))renderUsuarios();
   renderOrdenes();
@@ -761,7 +917,11 @@ async function loadAll(){
   // Si hay equipo detectado, refrescar su panel
   if(eqActual){
     const eq=allEqs.find(e=>e.id===eqActual.id);
-    if(eq)renderOTsEquipo(eq);
+    if(eq){
+      eqActual=eq;
+      if(curProf?.rol==='supervisor_zona'){renderOTsResumenSZ(eq);renderHistorialSZ(eq);}
+      else renderOTsEquipo(eq);
+    }
   }
 }
 
@@ -821,6 +981,7 @@ function resetEscaner(){
   otActual=null;
   document.getElementById('scan-panel').style.display='';
   document.getElementById('equipo-panel').style.display='none';
+  document.getElementById('sz-panel').style.display='none';
   document.getElementById('cl-directo').style.display='none';
   setPasos(1);
   startScanner();
@@ -828,35 +989,179 @@ function resetEscaner(){
 
 function mostrarEquipoEscaneado(eq){
   eqActual=eq;
-  // Ocultar escáner, mostrar panel equipo
   document.getElementById('scan-panel').style.display='none';
-  document.getElementById('equipo-panel').style.display='block';
   document.getElementById('cl-directo').style.display='none';
-  document.getElementById('eq-id-actual').value=eq.id;
 
-  // Llenar cabecera
-  document.getElementById('eq-h-nombre').textContent=eq.nombre;
-  document.getElementById('eq-h-codigo').textContent=eq.codigo;
-  document.getElementById('eq-h-area').textContent=eq.area||'Sin zona';
-  document.getElementById('eq-h-estado').textContent=eq.estado||'–';
-  document.getElementById('eq-h-hrs').textContent=(eq.horas_actuales||0)+' hrs uso';
+  if(curProf.rol==='supervisor_zona'){
+    // ── FLUJO SUPERVISOR DE ZONA ──
+    document.getElementById('equipo-panel').style.display='none';
+    document.getElementById('sz-panel').style.display='block';
+    document.getElementById('sz-eq-id').value=eq.id;
 
-  // Botón nueva OT sólo para admin
-  document.getElementById('nueva-ot-btn-wrap').style.display=curProf.rol==='admin'?'block':'none';
+    // Cabecera
+    document.getElementById('sz-eq-nombre').textContent=eq.nombre;
+    document.getElementById('sz-eq-codigo').textContent=eq.codigo;
+    document.getElementById('sz-eq-area').textContent=eq.area||'Sin zona';
+    document.getElementById('sz-eq-estado').textContent=eq.estado||'–';
+    document.getElementById('sz-eq-hrs').textContent=(eq.horas_actuales||0)+' hrs uso';
+    document.getElementById('sz-eq-est-badge').innerHTML=badge(eq.estado||'Operativo');
 
-  // Info auto-asignación
-  const infoEl=document.getElementById('auto-assign-info');
-  if(curProf.rol==='tecnico'){
-    infoEl.style.display='flex';
+    // Datos técnicos
+    document.getElementById('sz-eq-modelo').textContent=eq.modelo||'Sin modelo';
+    document.getElementById('sz-eq-serie').textContent=eq.serie||'–';
+    const critMap={alta:'Alta ⚠️',media:'Media',baja:'Baja'};
+    const critEl=document.getElementById('sz-eq-criticidad');
+    critEl.textContent=critMap[eq.criticidad]||eq.criticidad||'–';
+    critEl.style.color=eq.criticidad==='alta'?'#b03030':eq.criticidad==='media'?'#b87a00':'#2d7a3a';
+
+    // Stats OTs
+    const hAct=eq.horas_actuales||0, hFrec=eq.frec_pm_horas||0;
+    document.getElementById('sz-stat-hrs').textContent=hAct+' h';
+    document.getElementById('sz-stat-frec').textContent=hFrec?'PM cada '+hFrec+' hrs':'Sin frecuencia PM';
+
+    // Barra PM
+    const pmWrap=document.getElementById('sz-pm-wrap');
+    if(hFrec>0){
+      const pct=Math.min(Math.round((hAct/hFrec)*100),100);
+      const color=pct>=100?'#b03030':pct>=80?'#b87a00':'#2d7a3a';
+      document.getElementById('sz-pm-pct').textContent=pct+'%';
+      document.getElementById('sz-pm-bar').style.cssText=`width:${pct}%;background:${color};`;
+      const hRestantes=hFrec-hAct;
+      document.getElementById('sz-pm-hint').textContent=pct>=100?'⚠️ Mantenimiento preventivo vencido':'Próximo PM en aprox. '+Math.max(0,hRestantes)+' horas de uso';
+      pmWrap.style.display='block';
+    } else {
+      pmWrap.style.display='none';
+    }
+
+    // OTs activas resumen + historial
+    renderOTsResumenSZ(eq);
+    renderHistorialSZ(eq);
+    setPasos(2);
+
   } else {
-    infoEl.style.display='none';
-  }
+    // ── FLUJO TÉCNICO ──
+    document.getElementById('sz-panel').style.display='none';
+    document.getElementById('equipo-panel').style.display='block';
+    document.getElementById('eq-id-actual').value=eq.id;
 
-  setPasos(2);
-  renderOTsEquipo(eq);
+    document.getElementById('eq-h-nombre').textContent=eq.nombre;
+    document.getElementById('eq-h-codigo').textContent=eq.codigo;
+    document.getElementById('eq-h-area').textContent=eq.area||'Sin zona';
+    document.getElementById('eq-h-estado').textContent=eq.estado||'–';
+    document.getElementById('eq-h-hrs').textContent=(eq.horas_actuales||0)+' hrs uso';
+
+    document.getElementById('nueva-ot-btn-wrap').style.display=curProf.rol==='admin'?'block':'none';
+    document.getElementById('auto-assign-info').style.display=curProf.rol==='tecnico'?'flex':'none';
+
+    setPasos(2);
+    renderOTsEquipo(eq);
+  }
 }
 
-function renderOTsEquipo(eq){
+// Resumen de OTs activas para supervisor de zona (solo lectura)
+function renderOTsResumenSZ(eq){
+  const ots=allOTs.filter(o=>o.equipo_id===eq.id&&o.estado!=='Completada');
+  const el=document.getElementById('sz-stat-ots');
+  const sub=document.getElementById('sz-stat-ots-sub');
+  const resumen=document.getElementById('sz-ots-resumen');
+  if(!el||!resumen)return;
+
+  el.textContent=ots.length;
+  el.style.color=ots.length?'#b03030':'#2d7a3a';
+  sub.textContent=ots.length?'requieren atención':'sin fallas activas';
+
+  if(!ots.length){
+    resumen.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--green-bg);border-radius:8px;font-size:12px;color:var(--green-txt);"><i class="ti ti-circle-check"></i> Equipo operando sin fallas activas</div>';
+    return;
+  }
+
+  resumen.innerHTML=`<div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">OTs en curso</div>`+
+  ots.map(o=>`
+    <div style="border:1px solid var(--border);border-left:3px solid ${o.prioridad==='Urgente'?'#b03030':o.prioridad==='Alta'?'#e06030':o.prioridad==='Media'?'#b87a00':'#999'};border-radius:6px;padding:10px 12px;margin-bottom:8px;background:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div>
+          <div style="font-size:11px;color:#aaa;font-family:monospace;">#${o.id} · ${o.tipo}</div>
+          <div style="font-size:13px;font-weight:500;margin-top:2px;">${o.descripcion||'Sin descripción'}</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end;flex-shrink:0;">${badge(o.prioridad)}${badge(o.estado)}</div>
+      </div>
+      <div style="font-size:11px;color:#888;margin-top:6px;display:flex;align-items:center;gap:5px;">
+        <div class="tech-av" style="width:18px;height:18px;font-size:9px;">${ini(o.tecnico_nombre)}</div>
+        ${o.tecnico_nombre||'<em style="color:#aaa;">Sin asignar — pendiente de técnico</em>'}
+      </div>
+    </div>`).join('');
+}
+
+// Historial de OTs completadas recientes para el equipo (vista supervisor zona)
+function renderHistorialSZ(eq){
+  const wrap=document.getElementById('sz-historial-wrap');
+  const el=document.getElementById('sz-historial');
+  if(!wrap||!el)return;
+  const completadas=allOTs.filter(o=>o.equipo_id===eq.id&&o.estado==='Completada')
+    .sort((a,b)=>new Date(b.fecha_cierre||0)-new Date(a.fecha_cierre||0))
+    .slice(0,4);
+  if(!completadas.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  el.innerHTML=completadas.map(o=>`
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;"></div>
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:500;">${o.descripcion||'Trabajo sin descripción'}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span>${badge(o.tipo)}</span>
+          <span><i class="ti ti-user" style="font-size:10px;"></i> ${o.tecnico_nombre||'–'}</span>
+          <span><i class="ti ti-clock" style="font-size:10px;"></i> ${o.tiempo_minutos?o.tiempo_minutos+'m':'-'}</span>
+          <span style="color:#aaa;">${fmt(o.fecha_cierre)}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// Crear OT desde el formulario rápido del supervisor de zona
+async function crearOTSupervisorZona(){
+  const eqId=document.getElementById('sz-eq-id').value;
+  if(!eqId){toast('Error: equipo no identificado');return;}
+  const eq=allEqs.find(e=>e.id==eqId);
+  if(!eq){toast('Equipo no encontrado');return;}
+  const tipo=document.getElementById('sz-f-tipo').value;
+  const pri=document.getElementById('sz-f-pri').value;
+  const desc=document.getElementById('sz-f-desc').value.trim();
+  if(!desc){toast('Describe la falla o novedad detectada');document.getElementById('sz-f-desc').focus();return;}
+  
+  const btn=document.querySelector('#sz-panel .btn-tomar:last-of-type');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Enviando...';}
+
+  const{error}=await db.from('ordenes_trabajo').insert({
+    equipo_id:eq.id,
+    equipo_nombre:`${eq.codigo} – ${eq.nombre}`,
+    tipo,prioridad:pri,
+    estado:pri==='Urgente'?'Urgente':'Pendiente',
+    tecnico_id:null,tecnico_nombre:null,
+    descripcion:desc,
+    creado_por:curUser.id
+  });
+
+  if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i> Enviar Orden de Trabajo';}
+
+  if(error){toast('❌ Error al crear OT: '+error.message);return;}
+  
+  document.getElementById('sz-f-desc').value='';
+  document.getElementById('sz-f-tipo').value='Correctivo';
+  document.getElementById('sz-f-pri').value='Media';
+  
+  await loadAll();
+  toast('✅ Orden de trabajo creada — pendiente de asignación');
+
+  // Mostrar confirmación visual inline
+  const card=document.querySelector('#sz-panel .card:last-of-type');
+  if(card){
+    const conf=document.createElement('div');
+    conf.style.cssText='background:var(--green-bg);border:1px solid #c2e0c6;border-radius:8px;padding:12px 14px;font-size:13px;color:var(--green-txt);display:flex;align-items:center;gap:8px;margin-top:12px;';
+    conf.innerHTML='<i class="ti ti-circle-check" style="font-size:18px;"></i><div><strong>¡OT enviada!</strong> El administrador recibirá la notificación y asignará al técnico.</div>';
+    card.appendChild(conf);
+    setTimeout(()=>conf.remove(),5000);
+  }
+}
   const lista=document.getElementById('ots-equipo-lista');
   // OTs activas de este equipo
   let ots=allOTs.filter(o=>o.equipo_id===eq.id && o.estado!=='Completada');
@@ -1139,18 +1444,44 @@ async function crearOT(){
   const tec=allProfs.find(p=>p.id===tId);
   const tipo=document.getElementById('f-tipo').value;
   const fechaP=document.getElementById('f-fecha').value;
+  const desc=document.getElementById('f-desc').value.trim()||'Sin descripción';
   const{error}=await db.from('ordenes_trabajo').insert({
     equipo_id:eq.id,equipo_nombre:`${eq.codigo} – ${eq.nombre}`,
     tipo,prioridad:document.getElementById('f-pri').value,
     estado:document.getElementById('f-pri').value==='Urgente'?'Urgente':'Pendiente',
     tecnico_id:tId||null,tecnico_nombre:tec?tec.nombre:null,
-    descripcion:document.getElementById('f-desc').value.trim()||'Sin descripción',
+    descripcion:desc,
     fecha_programada:(tipo==='Preventivo'&&fechaP)?fechaP:null,
     creado_por:curUser.id
   });
   if(error){toast('Error: '+error.message);return;}
-  closeM('modal-ot');toast('✅ OT creada');
+  closeM('modal-ot');
   await loadAll();
+
+  // Feedback especial para supervisor de zona: confirmar y ofrecer nuevo scan
+  if(curProf.rol==='supervisor_zona' && eqActual){
+    const szPanel=document.getElementById('sz-panel');
+    if(szPanel){
+      szPanel.innerHTML=`
+        <div style="text-align:center;padding:60px 20px;">
+          <div style="width:72px;height:72px;background:#eaf4ec;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px;">📋</div>
+          <div style="font-size:20px;font-weight:700;color:#1f6130;margin-bottom:6px;">¡OT levantada!</div>
+          <div style="font-size:13px;color:#111;margin-bottom:4px;font-weight:500;">${eq.codigo} – ${eq.nombre}</div>
+          <div style="font-size:13px;color:#888;margin-bottom:4px;">${tipo} · Prioridad: ${document.getElementById('f-pri')?.value||'–'}</div>
+          <div style="font-size:12px;color:#aaa;margin-bottom:24px;">Será asignada al técnico por el administrador</div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <button class="btn-tomar" style="font-size:13px;padding:10px 20px;" onclick="resetEscaner()">
+              <i class="ti ti-scan"></i> Escanear otro equipo
+            </button>
+            <button class="btn-sm" onclick="location.reload()">
+              <i class="ti ti-refresh"></i> Volver al inicio
+            </button>
+          </div>
+        </div>`;
+    }
+  } else {
+    toast('✅ OT creada');
+  }
 }
 
 async function cambiarEst(otId){
