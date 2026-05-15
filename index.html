@@ -13,7 +13,6 @@
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <style>
-/* ── ESTILOS ORIGINALES INTACTOS ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--navy:#1a2b4a;--navy2:#243a61;--green:#2d7a3a;--green-bg:#eaf4ec;--green-txt:#1f6130;--amber:#b87a00;--amber-bg:#fdf3e3;--amber-txt:#7a5000;--red:#b03030;--red-bg:#fbeaea;--red-txt:#8a2020;--blue:#1a5fa8;--blue-bg:#e6f0fa;--blue-txt:#10417a;--border:rgba(0,0,0,0.1);--r:10px}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;min-height:100vh}
@@ -25,8 +24,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .login-sub{font-size:13px;color:#888;text-align:center;margin-bottom:24px}
 .form-field{margin-bottom:14px}
 .form-field label{display:block;font-size:12px;color:#666;margin-bottom:5px;font-weight:500}
-.form-field input, .form-field select {width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;transition:border 0.15s; background:#fff;}
-.form-field input:focus, .form-field select:focus {border-color:var(--navy)}
+.form-field input,.form-field select{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;transition:border 0.15s;background:#fff}
+.form-field input:focus,.form-field select:focus{border-color:var(--navy)}
 .btn-login{width:100%;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:500;cursor:pointer}
 .btn-login:hover{background:var(--navy2)}
 .btn-login:disabled{opacity:0.6;cursor:not-allowed}
@@ -68,12 +67,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card{background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:16px}
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .card-title{font-size:13px;font-weight:500;color:#111;display:flex;align-items:center;gap:7px}
-.btn-sm{padding:5px 12px;font-size:12px;border:0.5px solid #ddd;border-radius:6px;cursor:pointer;background:transparent;color:#111; display:inline-flex; align-items:center; gap:4px;}
+.btn-sm{padding:5px 12px;font-size:12px;border:0.5px solid #ddd;border-radius:6px;cursor:pointer;background:transparent;color:#111;display:inline-flex;align-items:center;gap:4px}
 .btn-sm:hover{background:#f4f5f7}
 .btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
 .btn-primary:hover{background:var(--navy2)}
-.btn-danger{color:var(--red-txt); border-color:var(--red-bg);}
-.btn-danger:hover{background:var(--red-bg);}
+.btn-danger{color:var(--red-txt);border-color:var(--red-bg)}
+.btn-danger:hover{background:var(--red-bg)}
 table{width:100%;border-collapse:collapse}
 th{font-size:11px;color:#888;font-weight:500;text-align:left;padding:6px 8px;border-bottom:0.5px solid var(--border)}
 td{font-size:13px;color:#111;padding:9px 8px;border-bottom:0.5px solid var(--border)}
@@ -89,14 +88,14 @@ tr:last-child td{border-bottom:none}
 .panel-visible{display:block}
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center;padding:16px}
 .modal-backdrop.open{display:flex}
-.modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.2)}
+.modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
 .modal-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
 .close-btn{background:none;border:none;cursor:pointer;color:#888;font-size:20px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:500px){.form-grid{grid-template-columns:1fr}}
 .form-group{display:flex;flex-direction:column;gap:4px}
 .form-group label{font-size:12px;color:#666;font-weight:500}
-.form-group textarea{resize:vertical;min-height:70px;width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;}
+.form-group textarea{resize:vertical;min-height:70px;width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none}
 .form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 .tl-item{display:flex;gap:12px;padding:8px 0}
 .tl-line{display:flex;flex-direction:column;align-items:center}
@@ -105,8 +104,6 @@ tr:last-child td{border-bottom:none}
 .tl-content{flex:1;padding-bottom:10px}
 .tl-title{font-size:13px;font-weight:500;color:#111}
 .tl-time{font-size:11px;color:#888}
-
-/* CHECKLIST ESTILOS */
 .chk-item{padding:12px 0;border-bottom:0.5px solid var(--border)}
 .chk-item:last-child{border-bottom:none}
 .chk-row{display:flex;align-items:flex-start;gap:10px}
@@ -120,7 +117,6 @@ tr:last-child td{border-bottom:none}
 .bool-btn.active-fail{background:var(--red-bg);border-color:var(--red);color:var(--red-txt)}
 .rt-dot{width:8px;height:8px;border-radius:50%;background:#2d7a3a;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
-
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1}
 .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:#888;gap:8px;font-size:13px}
@@ -130,28 +126,92 @@ tr:last-child td{border-bottom:none}
 .stat-row:last-child{border-bottom:none}
 .tech-av{width:26px;height:26px;border-radius:50%;background:#d0dce8;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--navy)}
 .empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
+#reader{width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+#reader video{object-fit:cover;border-radius:12px}
+@media print{body *{visibility:hidden}#print-area,#print-area *{visibility:visible}#print-area{position:absolute;left:0;top:0;width:100%;text-align:center}}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-header{text-align:center;font-size:11px;font-weight:600;color:#888;padding:8px 0;text-transform:uppercase}
+.cal-cell{background:#fff;border:1px solid #ddd;border-radius:6px;min-height:95px;padding:6px;display:flex;flex-direction:column;gap:4px;transition:all 0.15s;cursor:pointer;position:relative}
+.cal-cell:hover{border-color:var(--blue);background:#fafbfc}
+.cal-cell.drag-over{background:#e6f0fa;border-style:dashed;border-color:var(--blue)}
+.cal-cell.today{border-color:var(--navy);background:#edf3f7}
+.cal-date{font-size:12px;font-weight:600;color:#666;text-align:right;pointer-events:none}
+.cal-event{font-size:10px;padding:4px 6px;border-radius:4px;background:var(--blue-bg);color:var(--blue-txt);border:1px solid #b6d4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;font-weight:500;user-select:none}
+.cal-event:active{cursor:grabbing}
+.cal-event.completada{background:var(--green-bg);color:var(--green-txt);border-color:#c2e0c6;cursor:default}
 
-/* CALENDARIO Y DRAG & DROP */
-#reader { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-#reader video { object-fit: cover; border-radius: 12px; }
-@media print {
-  body * { visibility: hidden; }
-  #print-area, #print-area * { visibility: visible; }
-  #print-area { position: absolute; left: 0; top: 0; width: 100%; text-align: center; }
-}
+/* ── NUEVO: ESTILOS DEL FLUJO TÉCNICO ── */
+#escaner-wrapper{display:flex;flex-direction:column;gap:16px}
 
-.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-day-header{text-align:center;font-size:11px;font-weight:600;color:#888;padding:8px 0;text-transform:uppercase;}
+/* Panel de estado del escáner */
+.scan-status{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:4px;transition:all 0.3s}
+.scan-status.idle{background:#f4f5f7;color:#888}
+.scan-status.scanning{background:#e6f0fa;color:var(--blue-txt)}
+.scan-status.found{background:var(--green-bg);color:var(--green-txt)}
+.scan-status.error{background:var(--red-bg);color:var(--red-txt)}
 
-.cal-cell{background:#fff;border:1px solid #ddd;border-radius:6px;min-height:95px;padding:6px;display:flex;flex-direction:column;gap:4px;transition:all 0.15s;cursor:pointer;position:relative;}
-.cal-cell:hover{border-color:var(--blue); background:#fafbfc;}
-.cal-cell.drag-over{background:#e6f0fa; border-style:dashed; border-color:var(--blue);}
-.cal-cell.today{border-color:var(--navy);background:#edf3f7;}
-.cal-date{font-size:12px;font-weight:600;color:#666;text-align:right;pointer-events:none;}
-.cal-event{font-size:10px;padding:4px 6px;border-radius:4px;background:var(--blue-bg);color:var(--blue-txt);border:1px solid #b6d4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;font-weight:500;user-select:none;}
-.cal-event:active{cursor:grabbing;}
-.cal-event.completada{background:var(--green-bg); color:var(--green-txt); border-color:#c2e0c6; cursor:default;}
+/* Panel del equipo detectado */
+#equipo-panel{display:none;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.equipo-header{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:12px;padding:20px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.equipo-icon{width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.equipo-icon i{font-size:24px;color:#fff}
+.equipo-nombre{font-size:18px;font-weight:700;margin-bottom:2px}
+.equipo-codigo{font-size:12px;opacity:0.7;font-family:monospace}
+.equipo-meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.equipo-chip{font-size:11px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-weight:500}
+
+/* Cards de OTs para el técnico */
+.ot-card-tecnico{border:1.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:all 0.2s;background:#fff;position:relative;overflow:hidden}
+.ot-card-tecnico::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:2px 0 0 2px}
+.ot-card-tecnico.urgente::before{background:var(--red)}
+.ot-card-tecnico.alta::before{background:#e06030}
+.ot-card-tecnico.media::before{background:var(--amber)}
+.ot-card-tecnico.baja::before{background:#888}
+.ot-card-tecnico:hover{border-color:var(--navy);box-shadow:0 2px 12px rgba(26,43,74,0.12);transform:translateY(-1px)}
+.ot-card-tecnico.mine{border-color:#b6d4f0;background:var(--blue-bg)}
+.ot-card-tecnico.mine::after{content:'Tú';position:absolute;top:10px;right:10px;background:var(--navy);color:#fff;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.ot-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;padding-right:40px}
+.ot-id{font-size:10px;color:#aaa;margin-bottom:2px;font-family:monospace}
+.ot-tipo-nombre{font-size:14px;font-weight:600;color:#111}
+.ot-desc{font-size:12px;color:#666;margin-bottom:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ot-footer{display:flex;align-items:center;justify-content:space-between}
+.ot-asignado{font-size:11px;color:#888;display:flex;align-items:center;gap:5px}
+.btn-tomar{background:var(--navy);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px}
+.btn-tomar:hover{background:var(--navy2);transform:scale(1.03)}
+.btn-tomar.mine-btn{background:var(--green);color:#fff}
+.btn-tomar.mine-btn:hover{background:#256830}
+
+.sin-ots{text-align:center;padding:32px 20px;color:#aaa}
+.sin-ots i{font-size:40px;display:block;margin-bottom:10px;opacity:0.5}
+
+/* Panel Nueva OT rápida */
+.nueva-ot-rapida{border:1.5px dashed #ddd;border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;color:#999}
+.nueva-ot-rapida:hover{border-color:var(--navy);color:var(--navy);background:#f8fafd}
+.nueva-ot-rapida i{font-size:20px;display:block;margin-bottom:4px}
+
+/* Checklist directo después de seleccionar OT */
+#cl-directo{display:none}
+.cl-directo-header{background:linear-gradient(135deg,var(--green),#256830);border-radius:12px;padding:16px 20px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.cl-directo-header i{font-size:22px;opacity:0.9}
+.cl-back-btn{background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s}
+.cl-back-btn:hover{background:rgba(255,255,255,0.3)}
+
+/* Paso a paso visual */
+.pasos{display:flex;align-items:center;gap:0;margin-bottom:20px;overflow-x:auto;padding-bottom:4px}
+.paso{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.paso-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s}
+.paso-num.done{background:var(--green);color:#fff}
+.paso-num.active{background:var(--navy);color:#fff}
+.paso-num.pending{background:#f0f0f0;color:#aaa}
+.paso-label{font-size:11px;color:#888;font-weight:500}
+.paso-label.active{color:var(--navy);font-weight:600}
+.paso-sep{width:24px;height:1px;background:#ddd;flex-shrink:0}
+
+/* Alerta de auto-asignación */
+.auto-assign-alert{background:var(--blue-bg);border:1px solid #b6d4f0;border-radius:8px;padding:12px 14px;font-size:12px;color:var(--blue-txt);display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.auto-assign-alert i{font-size:16px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -176,7 +236,7 @@ tr:last-child td{border-bottom:none}
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#2d7a3a;"><div class="rt-dot"></div><span id="rt-st">En vivo</span></div>
-      <button class="btn-sm" onclick="loadAll()" style="padding:4px; border:none; background:none; color:#888; margin-right:4px;" title="Refrescar vista"><i class="ti ti-refresh"></i></button>
+      <button class="btn-sm" onclick="loadAll()" style="padding:4px;border:none;background:none;color:#888;margin-right:4px;" title="Refrescar"><i class="ti ti-refresh"></i></button>
       <div class="user-chip"><div class="av" id="u-av">??</div><span id="u-name" style="font-size:12px;color:#333;">–</span><span class="role-badge" id="u-rol">–</span></div>
       <button class="btn-logout" onclick="doLogout()" title="Salir"><i class="ti ti-logout"></i></button>
     </div>
@@ -187,15 +247,158 @@ tr:last-child td{border-bottom:none}
   </div>
   
   <div class="main">
-    <div id="tab-escaner" class="panel-hidden card">
-      <div class="card-header"><div class="card-title"><i class="ti ti-scan"></i> Identificar Equipo QR</div></div>
-      <div style="max-width: 450px; margin: 0 auto; text-align: center;">
-        <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Apunta la cámara al código QR de la máquina para acceder a su perfil o levantar un ticket.</p>
-        <div id="reader"></div>
-        <button class="btn-sm" style="margin-top: 16px; justify-content:center;" onclick="stopScanner()">Detener Cámara</button>
-      </div>
-    </div>
 
+    <!-- ══════════════════════════════════════════
+         TAB ESCÁNER — FLUJO COMPLETO DEL TÉCNICO
+    ══════════════════════════════════════════ -->
+    <div id="tab-escaner" class="panel-hidden">
+
+      <!-- PASO A PASO VISUAL -->
+      <div class="pasos" id="pasos-indicator" style="margin-bottom:16px;">
+        <div class="paso">
+          <div class="paso-num active" id="paso1-num">1</div>
+          <span class="paso-label active" id="paso1-lbl">Escanear equipo</span>
+        </div>
+        <div class="paso-sep"></div>
+        <div class="paso">
+          <div class="paso-num pending" id="paso2-num">2</div>
+          <span class="paso-label" id="paso2-lbl">Seleccionar OT</span>
+        </div>
+        <div class="paso-sep"></div>
+        <div class="paso">
+          <div class="paso-num pending" id="paso3-num">3</div>
+          <span class="paso-label" id="paso3-lbl">Ejecutar checklist</span>
+        </div>
+      </div>
+
+      <!-- PANEL 1: Escáner QR -->
+      <div id="scan-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-scan"></i> Identificar Equipo por QR</div>
+            <div id="scan-status-badge" class="scan-status scanning">
+              <div class="rt-dot"></div> Cámara activa
+            </div>
+          </div>
+          <div style="max-width:420px;margin:0 auto;text-align:center;">
+            <p style="font-size:13px;color:#666;margin-bottom:14px;">Apunta la cámara al código QR del equipo para ver sus órdenes de trabajo.</p>
+            <div id="reader"></div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
+              <button class="btn-sm" onclick="stopScanner()"><i class="ti ti-camera-off"></i> Detener cámara</button>
+              <button class="btn-sm btn-primary" onclick="startScanner()"><i class="ti ti-camera"></i> Reiniciar cámara</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: Equipo detectado + OTs activas -->
+      <div id="equipo-panel">
+        
+        <!-- Cabecera del equipo -->
+        <div class="equipo-header" id="eq-header">
+          <div class="equipo-icon"><i class="ti ti-settings-2"></i></div>
+          <div style="flex:1;">
+            <div class="equipo-nombre" id="eq-h-nombre">–</div>
+            <div class="equipo-codigo" id="eq-h-codigo">–</div>
+            <div class="equipo-meta">
+              <span class="equipo-chip" id="eq-h-area">–</span>
+              <span class="equipo-chip" id="eq-h-estado">–</span>
+              <span class="equipo-chip" id="eq-h-hrs">–</span>
+            </div>
+          </div>
+          <button onclick="resetEscaner()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;">
+            <i class="ti ti-scan"></i> Nuevo scan
+          </button>
+        </div>
+
+        <!-- OTs activas del equipo -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes de trabajo activas</div>
+            <span id="ots-count-badge" style="font-size:11px;background:#f4f5f7;padding:3px 10px;border-radius:20px;color:#666;">0 OTs</span>
+          </div>
+
+          <!-- Alerta auto-asignación -->
+          <div class="auto-assign-alert" id="auto-assign-info">
+            <i class="ti ti-info-circle"></i>
+            <span>Al seleccionar una OT sin asignar, quedarás asignado automáticamente. OTs ya asignadas a ti aparecen marcadas.</span>
+          </div>
+
+          <div id="ots-equipo-lista">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+
+          <!-- Opción crear nueva OT si es admin -->
+          <div id="nueva-ot-btn-wrap" style="display:none;margin-top:10px;">
+            <div class="nueva-ot-rapida" onclick="openNuevaOT(document.getElementById('eq-id-actual').value)">
+              <i class="ti ti-plus"></i>
+              Levantar nueva OT para este equipo
+            </div>
+          </div>
+          <input type="hidden" id="eq-id-actual">
+        </div>
+      </div>
+
+      <!-- PANEL 3: Checklist directo (post-selección de OT) -->
+      <div id="cl-directo">
+        <div class="cl-directo-header">
+          <i class="ti ti-clipboard-check"></i>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:700;" id="cld-titulo">–</div>
+            <div style="font-size:12px;opacity:0.8;margin-top:2px;" id="cld-meta">–</div>
+          </div>
+          <button class="cl-back-btn" onclick="volverAOTs()"><i class="ti ti-arrow-left"></i> Volver</button>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:14px;">
+              <div class="card-header"><div class="card-title"><i class="ti ti-checklist"></i> Inspección</div><span id="cld-prog-lbl" style="font-size:12px;color:#888;"></span></div>
+              <div style="height:4px;background:#f0f0f0;border-radius:2px;margin-bottom:14px;overflow:hidden;"><div id="cld-prog" style="height:100%;background:#2d7a3a;border-radius:2px;width:0%;transition:width .3s;"></div></div>
+              <div id="cld-items"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-camera"></i> Evidencia fotográfica</div></div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cld-foto-grid">
+                <label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:#aaa;" onclick="simFotoD(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-tools"></i> Refacciones usadas</div></div>
+              <div id="cld-ref-list" style="margin-bottom:10px;min-height:10px;"></div>
+              <div style="display:flex;gap:6px;"><input id="cld-ref-in" type="text" placeholder="Nombre de refacción..." style="flex:1;border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:12px;"><button class="btn-sm" onclick="addRefD()"><i class="ti ti-plus"></i></button></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-clock"></i> Tiempo trabajado</div></div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="font-size:28px;font-weight:300;font-variant-numeric:tabular-nums;" id="cld-timer-d">00:00:00</div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <button class="btn-sm btn-primary" id="cld-timer-btn" onclick="toggleTimerD()"><i class="ti ti-player-play"></i> Iniciar</button>
+                  <button class="btn-sm" onclick="resetTimerD()"><i class="ti ti-rotate"></i> Reset</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-notes"></i> Observaciones</div></div>
+              <textarea id="cld-obs-txt" placeholder="Notas del técnico..." style="width:100%;border:1px solid #ddd;border-radius:6px;padding:8px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;box-sizing:border-box;"></textarea>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-signature"></i> Firma del técnico</div></div>
+              <canvas id="cld-firma-c" width="300" height="90" style="border:1px solid #ddd;border-radius:6px;width:100%;display:block;cursor:crosshair;background:#f9f9f9;touch-action:none;"></canvas>
+              <div style="display:flex;gap:6px;margin-top:8px;">
+                <button class="btn-sm" style="flex:1;justify-content:center;" onclick="clearFirmaD()">Borrar firma</button>
+                <button class="btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="cerrarOTDirecto()"><i class="ti ti-check"></i> Cerrar OT</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-escaner -->
+
+    <!-- RESTO DE TABS (sin cambios) -->
     <div id="tab-dashboard" class="panel-hidden">
       <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:#eaf4ec;border-radius:6px;font-size:11px;color:#1f6130;margin-bottom:12px;"><div class="rt-dot"></div>Datos en tiempo real — se actualizan automáticamente</div>
       <div class="kpi-grid">
@@ -219,10 +422,10 @@ tr:last-child td{border-bottom:none}
     <div id="tab-calendario" class="panel-hidden card">
       <div class="cal-header">
         <button class="btn-sm" onclick="chgMonth(-1)"><i class="ti ti-chevron-left"></i></button>
-        <div id="cal-month-lbl" style="font-size:16px; font-weight:600; color:var(--navy); text-align:center; min-width:180px;">Mes Año</div>
+        <div id="cal-month-lbl" style="font-size:16px;font-weight:600;color:var(--navy);text-align:center;min-width:180px;">Mes Año</div>
         <button class="btn-sm" onclick="chgMonth(1)"><i class="ti ti-chevron-right"></i></button>
       </div>
-      <div style="font-size:11px; color:#666; margin-bottom:12px; display:flex; align-items:center; gap:4px;"><i class="ti ti-info-circle"></i> <strong>Modo Interactivo:</strong> Haz clic en cualquier día para programar un Preventivo. Arrastra un preventivo a otro día para reprogramarlo.</div>
+      <div style="font-size:11px;color:#666;margin-bottom:12px;display:flex;align-items:center;gap:4px;"><i class="ti ti-info-circle"></i><strong>Modo Interactivo:</strong> Haz clic en cualquier día para programar un Preventivo. Arrastra para reprogramar.</div>
       <div class="cal-grid" id="cal-grid"></div>
     </div>
 
@@ -257,7 +460,7 @@ tr:last-child td{border-bottom:none}
     
     <div id="tab-downtime" class="panel-hidden card">
       <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-activity"></i> Análisis de Downtime General</div></div>
-      <p style="font-size:12px; color:#666; margin-bottom:16px;">Listado global de equipos con fallas registradas (Correctivos). Clic en "Ver Detalle" para analizar el equipo.</p>
+      <p style="font-size:12px;color:#666;margin-bottom:16px;">Listado global de equipos con fallas registradas (Correctivos). Clic en "Ver Detalle" para analizar el equipo.</p>
       <div id="dt-list-equipos"></div>
     </div>
 
@@ -293,8 +496,12 @@ tr:last-child td{border-bottom:none}
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-clock"></i> Tiempo trabajado</div></div>
-              <div style="display:flex;align-items:center;gap:10px;"><div style="font-size:28px;font-weight:300;font-variant-numeric:tabular-nums;" id="timer-d">00:00:00</div>
-                <div style="display:flex;flex-direction:column;gap:4px;"><button class="btn-sm btn-primary" id="timer-btn" onclick="toggleTimer()"><i class="ti ti-player-play"></i> Iniciar</button><button class="btn-sm" onclick="resetTimer()"><i class="ti ti-rotate"></i> Reset</button></div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="font-size:28px;font-weight:300;font-variant-numeric:tabular-nums;" id="timer-d">00:00:00</div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <button class="btn-sm btn-primary" id="timer-btn" onclick="toggleTimer()"><i class="ti ti-player-play"></i> Iniciar</button>
+                  <button class="btn-sm" onclick="resetTimer()"><i class="ti ti-rotate"></i> Reset</button>
+                </div>
               </div>
             </div>
             <div class="card">
@@ -304,37 +511,20 @@ tr:last-child td{border-bottom:none}
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-signature"></i> Firma del técnico</div></div>
               <canvas id="firma-c" width="300" height="90" style="border:1px solid #ddd;border-radius:6px;width:100%;display:block;cursor:crosshair;background:#f9f9f9;touch-action:none;"></canvas>
-              <div style="display:flex;gap:6px;margin-top:8px;"><button class="btn-sm" style="flex:1;justify-content:center;" onclick="clearFirma()">Borrar</button><button class="btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="cerrarOT()"><i class="ti ti-check"></i> Cerrar OT</button></div>
+              <div style="display:flex;gap:6px;margin-top:8px;">
+                <button class="btn-sm" style="flex:1;justify-content:center;" onclick="clearFirma()">Borrar</button>
+                <button class="btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="cerrarOT()"><i class="ti ti-check"></i> Cerrar OT</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="modal-backdrop" id="modal-eq-hub">
-  <div class="modal" style="max-width:550px;">
-    <div class="modal-title"><span><i class="ti ti-settings-2" style="margin-right:6px;"></i>Ficha del Equipo</span><button class="close-btn" onclick="closeM('modal-eq-hub')"><i class="ti ti-x"></i></button></div>
-    <div style="background:#f4f5f7; border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:20px;">
-      <div style="font-size:18px; font-weight:700; color:var(--navy);" id="hub-eq-nom"></div>
-      <div style="font-family:monospace; color:#666; font-size:13px; margin-bottom:12px;" id="hub-eq-cod"></div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px;">
-        <div><strong>Área:</strong> <span id="hub-eq-area"></span></div>
-        <div><strong>Horas Uso:</strong> <span id="hub-eq-hrs" style="color:var(--navy); font-weight:600;"></span></div>
-      </div>
-    </div>
-    <div style="margin-bottom:20px;">
-      <div style="font-size:14px; font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-        Trabajos Activos
-        <button class="btn-sm btn-primary btn-admin-only" id="btn-hub-new-ot" style="display:none; padding:4px 8px; font-size:11px;" onclick="openNuevaOT(document.getElementById('hub-eq-id').value)"><i class="ti ti-plus"></i> Levantar Ticket</button>
-      </div>
-      <input type="hidden" id="hub-eq-id">
-      <div id="hub-activas"></div>
-    </div>
-  </div>
-</div>
+  </div><!-- /main -->
+</div><!-- /app -->
 
+<!-- MODALES SIN CAMBIOS -->
 <div class="modal-backdrop" id="modal-ot">
   <div class="modal">
     <div class="modal-title"><span><i class="ti ti-clipboard-plus" style="margin-right:6px;"></i>Nueva orden de trabajo</span><button class="close-btn" onclick="closeM('modal-ot')"><i class="ti ti-x"></i></button></div>
@@ -356,15 +546,12 @@ tr:last-child td{border-bottom:none}
     <input type="hidden" id="inv-edit-id">
     <p style="font-size:12px;color:#888;margin-bottom:14px;" id="usr-hint">Primero invita al usuario en Supabase → Authentication → Invite user. Luego pega su UUID aquí:</p>
     <div class="form-grid" style="grid-template-columns:1fr;">
-      <div class="form-group"><label>UUID del usuario (desde Auth)</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+      <div class="form-group"><label>UUID del usuario</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
       <div class="form-group"><label>Nombre completo</label><input type="text" id="inv-nom" placeholder="Carlos Mendoza"></div>
       <div class="form-group"><label>Rol</label>
         <select id="inv-rol" onchange="toggleUserFields()">
-          <option value="tecnico">Técnico</option>
-          <option value="supervisor">Supervisor</option>
-          <option value="supervisor_zona">Supervisor de Zona</option>
-          <option value="admin">Administrador</option>
-          <option value="gerencia">Gerencia</option>
+          <option value="tecnico">Técnico</option><option value="supervisor">Supervisor</option>
+          <option value="supervisor_zona">Supervisor de Zona</option><option value="admin">Administrador</option><option value="gerencia">Gerencia</option>
         </select>
       </div>
       <div class="form-group" id="grp-zona" style="display:none;"><label>Asignación de Zona</label>
@@ -403,22 +590,22 @@ tr:last-child td{border-bottom:none}
 <div class="modal-backdrop" id="modal-dt-detalle">
   <div class="modal" style="max-width:600px;">
     <div class="modal-title">Detalle de Fallas<button class="close-btn" onclick="closeM('modal-dt-detalle')"><i class="ti ti-x"></i></button></div>
-    <h3 id="dt-det-nom" style="font-size:15px; margin-bottom:16px;">-</h3>
+    <h3 id="dt-det-nom" style="font-size:15px;margin-bottom:16px;">-</h3>
     <div id="dt-det-lista"></div>
   </div>
 </div>
 
 <div class="modal-backdrop" id="modal-qr">
-  <div class="modal" style="text-align: center; max-width: 320px;">
-    <div class="modal-title" style="justify-content: center;">Etiqueta QR <button class="close-btn" style="position: absolute; right: 24px;" onclick="closeM('modal-qr')"><i class="ti ti-x"></i></button></div>
-    <div id="print-area" style="padding: 20px; background: #fff; border: 1px dashed #ccc; border-radius: 8px; display: inline-block;">
-      <h3 id="qr-eq-nom" style="margin-bottom: 4px; font-size: 16px;">-</h3>
-      <p id="qr-eq-cod" style="font-family: monospace; color: #666; font-size: 12px; margin-bottom: 16px;">-</p>
-      <div id="qr-code-canvas" style="display: flex; justify-content: center; margin-bottom: 12px;"></div>
-      <p style="font-size: 10px; color: #999;">Propiedad de la Empresa</p>
+  <div class="modal" style="text-align:center;max-width:320px;">
+    <div class="modal-title" style="justify-content:center;">Etiqueta QR <button class="close-btn" style="position:absolute;right:24px;" onclick="closeM('modal-qr')"><i class="ti ti-x"></i></button></div>
+    <div id="print-area" style="padding:20px;background:#fff;border:1px dashed #ccc;border-radius:8px;display:inline-block;">
+      <h3 id="qr-eq-nom" style="margin-bottom:4px;font-size:16px;">-</h3>
+      <p id="qr-eq-cod" style="font-family:monospace;color:#666;font-size:12px;margin-bottom:16px;">-</p>
+      <div id="qr-code-canvas" style="display:flex;justify-content:center;margin-bottom:12px;"></div>
+      <p style="font-size:10px;color:#999;">Propiedad de la Empresa</p>
     </div>
-    <div style="margin-top: 24px;">
-      <button class="btn-sm btn-primary" style="justify-content:center; width:100%;" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir Etiqueta</button>
+    <div style="margin-top:24px;">
+      <button class="btn-sm btn-primary" style="justify-content:center;width:100%;" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir Etiqueta</button>
     </div>
   </div>
 </div>
@@ -426,15 +613,18 @@ tr:last-child td{border-bottom:none}
 <div id="toast"></div>
 
 <script>
-// --- SUPABASE CONFIG ---
 const SUPA_URL='https://knzelkthjzdtlghaizmr.supabase.co';
 const SUPA_KEY='sb_publishable_GG8verAjJsOogBUy1j0wtw_buSA6kwK';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 
 let curUser=null,curProf=null,allOTs=[],allEqs=[],allProfs=[],rtCh=null;
-let html5Scanner = null;
-let currYear=new Date().getFullYear(), currMonth=new Date().getMonth();
+let html5Scanner=null;
+let currYear=new Date().getFullYear(),currMonth=new Date().getMonth();
+
+// Estado del flujo técnico
+let eqActual=null;   // equipo detectado por QR
+let otActual=null;   // OT seleccionada para el checklist
 
 function toast(msg,dur=3500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 function ini(n){return(n||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();}
@@ -442,35 +632,40 @@ function fmt(ts){if(!ts)return'–';const d=new Date(ts);return d.toLocaleDateSt
 function badge(e){const m={'Urgente':'badge-red','En progreso':'badge-amber','Pendiente':'badge-gray','Completada':'badge-green','Operativo':'badge-green','En mantenimiento':'badge-amber','Fuera de servicio':'badge-red','Alta':'badge-red','Media':'badge-amber','Baja':'badge-gray','Correctivo':'badge-red','Preventivo':'badge-blue','Predictivo':'badge-purple','Inspección':'badge-blue'};return`<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;}
 function rolBadge(r){const c={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_zona:'r-supervisor_zona',admin:'r-admin',gerencia:'r-gerencia'};const l={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. Zona',admin:'Admin',gerencia:'Gerencia'};return`<span class="role-badge ${c[r]||''}">${l[r]||r}</span>`;}
 
-// ── PERMISOS ──
 function canDo(a){
   const r=curProf?.rol;
-  const p={
-    crear_ot:['tecnico','supervisor','supervisor_zona','admin'],
-    ver_tecnicos:['gerencia','admin'], 
-    gestionar_usuarios:['admin'], 
-    gestionar_equipos:['admin','supervisor','gerencia'],
-    ver_dashboard:['admin','gerencia','supervisor']
-  };
-  return (p[a]||[]).includes(r);
+  const p={crear_ot:['tecnico','supervisor','supervisor_zona','admin'],ver_tecnicos:['gerencia','admin'],gestionar_usuarios:['admin'],gestionar_equipos:['admin','supervisor','gerencia'],ver_dashboard:['admin','gerencia','supervisor']};
+  return(p[a]||[]).includes(r);
 }
 
 function openM(id){document.getElementById(id).classList.add('open');}
 function closeM(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)b.classList.remove('open');}));
 
-// ── LÓGICA DINÁMICA DE CAMPOS ──
 function toggleUserFields(){
-  const rol = document.getElementById('inv-rol').value;
-  document.getElementById('grp-zona').style.display = (rol === 'supervisor_zona') ? 'flex' : 'none';
-  document.getElementById('grp-esp').style.display = ['supervisor_zona', 'supervisor', 'gerencia'].includes(rol) ? 'none' : 'flex';
+  const rol=document.getElementById('inv-rol').value;
+  document.getElementById('grp-zona').style.display=(rol==='supervisor_zona')?'flex':'none';
+  document.getElementById('grp-esp').style.display=['supervisor_zona','supervisor','gerencia'].includes(rol)?'none':'flex';
 }
-
 function toggleFechaProg(){
-  document.getElementById('grp-fecha-prog').style.display = document.getElementById('f-tipo').value === 'Preventivo' ? 'flex' : 'none';
+  document.getElementById('grp-fecha-prog').style.display=document.getElementById('f-tipo').value==='Preventivo'?'flex':'none';
 }
 
-// ── AUTH Y NAVEGACION INICIAL ──
+// ── PASO A PASO VISUAL ──
+function setPasos(activo){
+  // activo: 1, 2 o 3
+  for(let i=1;i<=3;i++){
+    const num=document.getElementById(`paso${i}-num`);
+    const lbl=document.getElementById(`paso${i}-lbl`);
+    if(!num||!lbl) continue;
+    num.className='paso-num '+(i<activo?'done':i===activo?'active':'pending');
+    lbl.className='paso-label'+(i===activo?' active':'');
+    if(i<activo) num.innerHTML='<i class="ti ti-check" style="font-size:11px;"></i>';
+    else num.textContent=i;
+  }
+}
+
+// ── AUTH ──
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 async function doLogin(){
   const email=document.getElementById('l-email').value.trim();
@@ -480,7 +675,7 @@ async function doLogin(){
   err.classList.remove('show');
   if(!email||!pass){err.textContent='Completa todos los campos.';err.classList.add('show');return;}
   btn.disabled=true;btn.textContent='Iniciando...';
-  const {data,error}=await db.auth.signInWithPassword({email,password:pass});
+  const{data,error}=await db.auth.signInWithPassword({email,password:pass});
   btn.disabled=false;btn.textContent='Iniciar sesión';
   if(error){err.textContent=error.message;err.classList.add('show');return;}
   await bootApp(data.user);
@@ -488,7 +683,7 @@ async function doLogin(){
 
 async function bootApp(user){
   curUser=user;
-  const {data:prof}=await db.from('profiles').select('*').eq('id',user.id).single();
+  const{data:prof}=await db.from('profiles').select('*').eq('id',user.id).single();
   curProf=prof;
   if(!prof){
     document.getElementById('login-err').textContent='Tu perfil no está configurado. Contacta al administrador.';
@@ -500,226 +695,387 @@ async function bootApp(user){
   const rc={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_zona:'r-supervisor_zona',admin:'r-admin',gerencia:'r-gerencia'};
   const rl={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. de Zona',admin:'Admin',gerencia:'Gerencia'};
   const rb=document.getElementById('u-rol');rb.className='role-badge '+(rc[prof.rol]||'');rb.textContent=rl[prof.rol]||prof.rol;
-  
-  const nav = document.getElementById('main-nav');
-  nav.innerHTML = '';
-  
-  if(['tecnico', 'supervisor_zona'].includes(curProf.rol)) {
-    nav.innerHTML += `<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner'); startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
+
+  const nav=document.getElementById('main-nav');
+  nav.innerHTML='';
+  if(['tecnico','supervisor_zona'].includes(curProf.rol)){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
   }
-  if(canDo('ver_dashboard')) {
-    nav.innerHTML += `<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
-    nav.innerHTML += `<button class="nav-btn" id="nav-calendario" onclick="setTab('calendario')"><i class="ti ti-calendar"></i> Calendario PM</button>`;
+  if(canDo('ver_dashboard')){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-calendario" onclick="setTab('calendario')"><i class="ti ti-calendar"></i> Calendario PM</button>`;
   }
-  nav.innerHTML += `<button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>`;
-  
-  if(['tecnico', 'admin', 'supervisor'].includes(curProf.rol)) {
-    nav.innerHTML += `<button class="nav-btn" id="nav-checklist" onclick="setTab('checklist')"><i class="ti ti-checklist"></i> Checklist</button>`;
+  nav.innerHTML+=`<button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>`;
+  if(['tecnico','admin','supervisor'].includes(curProf.rol)){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-checklist" onclick="setTab('checklist')"><i class="ti ti-checklist"></i> Checklist</button>`;
   }
-  
-  if(canDo('ver_dashboard')) {
-    nav.innerHTML += `<button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>`;
+  if(canDo('ver_dashboard')){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>`;
   }
-  if(canDo('ver_tecnicos')) {
-    nav.innerHTML += `<button class="nav-btn" id="nav-tecnicos" onclick="setTab('tecnicos')"><i class="ti ti-users"></i> Personal</button>`;
+  if(canDo('ver_tecnicos')){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-tecnicos" onclick="setTab('tecnicos')"><i class="ti ti-users"></i> Personal</button>`;
   }
-  if(canDo('ver_dashboard')) {
-    nav.innerHTML += `<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
+  if(canDo('ver_dashboard')){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
   }
 
-  document.querySelectorAll('.btn-admin-only').forEach(b => b.style.display = curProf.rol==='admin' ? '' : 'none');
-
+  document.querySelectorAll('.btn-admin-only').forEach(b=>b.style.display=curProf.rol==='admin'?'':'none');
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   await loadAll();
   setupRT();
-  
-  if (['tecnico', 'supervisor_zona'].includes(curProf.rol)) {
-      setTab('escaner');
-      startScanner();
+
+  if(['tecnico','supervisor_zona'].includes(curProf.rol)){
+    setTab('escaner');
+    startScanner();
   } else {
-      setTab('dashboard');
+    setTab('dashboard');
   }
 }
-async function doLogout(){if(rtCh)db.removeChannel(rtCh);await db.auth.signOut();curUser=null;curProf=null;document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';}
+
+async function doLogout(){
+  if(rtCh)db.removeChannel(rtCh);
+  stopScanner();
+  await db.auth.signOut();
+  curUser=null;curProf=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+}
 db.auth.getSession().then(async({data:{session}})=>{if(session)await bootApp(session.user);});
 
 // ── DATA & REALTIME ──
 async function loadAll(){
-  const [otR, eqR, prR] = await Promise.all([
+  const[otR,eqR,prR]=await Promise.all([
     db.from('ordenes_trabajo').select('*').order('fecha_creacion',{ascending:false}),
     db.from('equipos').select('*').order('codigo'),
-    canDo('ver_tecnicos') ? db.from('profiles').select('*') : Promise.resolve({data:[]})
+    canDo('ver_tecnicos')?db.from('profiles').select('*'):Promise.resolve({data:[]})
   ]);
-  allOTs=otR.data||[]; allEqs=eqR.data||[]; allProfs=prR.data||[];
-  
-  const urg = allOTs.filter(o=>o.estado==='Urgente').length;
-  const b = document.getElementById('badge-urg');
-  if(b){ b.textContent=urg; b.style.display=urg?'':'none'; }
-
-  if(canDo('ver_dashboard')) { renderDash(); renderEquipos(); renderDowntime(); renderCalendar(); }
-  if(canDo('ver_tecnicos')) renderUsuarios();
-  
-  renderOrdenes(); 
-  if(['tecnico', 'admin', 'supervisor'].includes(curProf?.rol)) renderCLSel();
+  allOTs=otR.data||[];allEqs=eqR.data||[];allProfs=prR.data||[];
+  const urg=allOTs.filter(o=>o.estado==='Urgente').length;
+  const b=document.getElementById('badge-urg');
+  if(b){b.textContent=urg;b.style.display=urg?'':'none';}
+  if(canDo('ver_dashboard')){renderDash();renderEquipos();renderDowntime();renderCalendar();}
+  if(canDo('ver_tecnicos'))renderUsuarios();
+  renderOrdenes();
+  if(['tecnico','admin','supervisor'].includes(curProf?.rol))renderCLSel();
+  // Si hay equipo detectado, refrescar su panel
+  if(eqActual){
+    const eq=allEqs.find(e=>e.id===eqActual.id);
+    if(eq)renderOTsEquipo(eq);
+  }
 }
 
 function setupRT(){
-  if(rtCh) db.removeChannel(rtCh);
+  if(rtCh)db.removeChannel(rtCh);
   rtCh=db.channel('ft-rt')
-    .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async p=>{
-      await loadAll();
-    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async()=>{await loadAll();})
     .subscribe(s=>{document.getElementById('rt-st').textContent=s==='SUBSCRIBED'?'En vivo':'Reconectando...';});
 }
 
 // ── NAVEGACIÓN ──
-const TABS = ['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime'];
+const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime'];
 function setTab(t){
-  TABS.forEach(x => { 
-      const el = document.getElementById('tab-'+x); 
-      if(el) el.className = x===t ? 'panel-visible' : 'panel-hidden'; 
+  TABS.forEach(x=>{
+    const el=document.getElementById('tab-'+x);
+    if(el)el.className=x===t?'panel-visible':'panel-hidden';
   });
-  document.querySelectorAll('.nav-btn').forEach(b => {
-      b.classList.remove('active');
-      if (b.id === 'nav-'+t) b.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.remove('active');
+    if(b.id==='nav-'+t)b.classList.add('active');
   });
-  
   if(t==='ordenes')renderOrdenes();
-  if(t==='equipos' && canDo('ver_dashboard'))renderEquipos();
-  if(t==='tecnicos' && canDo('ver_tecnicos'))renderUsuarios();
+  if(t==='equipos'&&canDo('ver_dashboard'))renderEquipos();
+  if(t==='tecnicos'&&canDo('ver_tecnicos'))renderUsuarios();
   if(t==='checklist')renderCLSel();
-  if(t==='downtime' && canDo('ver_dashboard'))renderDowntime();
-  if(t==='calendario' && canDo('ver_dashboard'))renderCalendar();
+  if(t==='downtime'&&canDo('ver_dashboard'))renderDowntime();
+  if(t==='calendario'&&canDo('ver_dashboard'))renderCalendar();
   if(t!=='escaner')stopScanner();
 }
 
-// ── ESCANER Y HUB ──
-function startScanner() {
-  if (html5Scanner) return;
-  html5Scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-  html5Scanner.render(decodedText => {
-    const eq = allEqs.find(e => e.codigo === decodedText);
-    if (eq) {
+// ══════════════════════════════════════════
+// FLUJO TÉCNICO: ESCÁNER → OTs → CHECKLIST
+// ══════════════════════════════════════════
+
+function startScanner(){
+  if(html5Scanner) return;
+  html5Scanner=new Html5QrcodeScanner("reader",{fps:10,qrbox:{width:250,height:250}},false);
+  html5Scanner.render(decodedText=>{
+    const eq=allEqs.find(e=>e.codigo===decodedText);
+    if(eq){
       stopScanner();
-      if(curProf.rol === 'supervisor_zona') {
-          openNuevaOT(eq.id);
-      } else {
-          openEqHub(eq.id);
-      }
-      toast("✅ Equipo Detectado: " + eq.nombre);
+      mostrarEquipoEscaneado(eq);
+      toast('✅ Equipo detectado: '+eq.nombre);
     } else {
-      toast("❌ Código QR no reconocido en la base de datos");
+      toast('❌ Código QR no reconocido');
     }
-  }, () => {});
-}
-function stopScanner() {
-  if (html5Scanner) { html5Scanner.clear().catch(e => console.error(e)); html5Scanner = null; }
+  },()=>{});
 }
 
-function openEqHub(eqId){
-  const eq = allEqs.find(e => e.id === eqId);
-  document.getElementById('hub-eq-id').value = eq.id;
-  document.getElementById('hub-eq-nom').textContent = eq.nombre;
-  document.getElementById('hub-eq-cod').textContent = eq.codigo;
-  document.getElementById('hub-eq-area').textContent = eq.area || 'N/A';
-  document.getElementById('hub-eq-hrs').textContent = (eq.horas_actuales||0) + ' / ' + (eq.frec_pm_horas||0) + ' hrs';
-
-  document.getElementById('btn-hub-new-ot').style.display = (curProf.rol === 'admin') ? '' : 'none';
-
-  const ots = allOTs.filter(o => o.equipo_id === eq.id && o.estado !== 'Completada');
-  document.getElementById('hub-activas').innerHTML = ots.length ? ots.map(o => `
-    <div style="border:1px solid var(--border); padding:12px; border-radius:8px; margin-bottom:8px; background:var(--blue-bg);">
-      <div style="display:flex; justify-content:space-between;"><strong>${o.tipo}</strong> ${badge(o.prioridad)}</div>
-      <div style="font-size:12px; margin:6px 0;">${o.descripcion || 'Sin descripción'}</div>
-      <div style="font-size:11px; color:#666;">Asignado a: ${o.tecnico_nombre || 'Pendiente'}</div>
-      ${(curProf.rol === 'tecnico' && o.tecnico_id === curUser.id) ? `<button class="btn-sm btn-primary" style="margin-top:10px; width:100%; justify-content:center;" onclick="closeM('modal-eq-hub'); setTab('checklist'); abrirCL(${o.id});">Iniciar Trabajo</button>` : ''}
-    </div>
-  `).join('') : '<div style="font-size:12px; color:#888;">Equipo operando sin fallas activas.</div>';
-
-  openM('modal-eq-hub');
+function stopScanner(){
+  if(html5Scanner){html5Scanner.clear().catch(()=>{});html5Scanner=null;}
 }
 
-// ── CALENDARIO INTERACTIVO DRAG & DROP ──
-function chgMonth(dir){
-  currMonth += dir;
-  if(currMonth < 0) { currMonth = 11; currYear--; }
-  else if(currMonth > 11) { currMonth = 0; currYear++; }
-  renderCalendar();
+function resetEscaner(){
+  // Volver al estado de escáner
+  eqActual=null;
+  otActual=null;
+  document.getElementById('scan-panel').style.display='';
+  document.getElementById('equipo-panel').style.display='none';
+  document.getElementById('cl-directo').style.display='none';
+  setPasos(1);
+  startScanner();
 }
 
-function renderCalendar(){
-  const monthNames = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-  const lbl = document.getElementById('cal-month-lbl');
-  if(lbl) lbl.textContent = `${monthNames[currMonth]} ${currYear}`;
-  
-  const firstDay = new Date(currYear, currMonth, 1).getDay();
-  const daysInMonth = new Date(currYear, currMonth+1, 0).getDate();
-  
-  let html = `<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>`;
-  for(let i=0; i<firstDay; i++) html += `<div class="cal-cell" style="background:transparent; border:none; cursor:default;"></div>`;
-  
-  const prevOTs = allOTs.filter(o => o.fecha_programada || (o.tipo === 'Preventivo'));
-  
-  for(let d=1; d<=daysInMonth; d++){
-    let isToday = (d===new Date().getDate() && currMonth===new Date().getMonth() && currYear===new Date().getFullYear()) ? 'today' : '';
-    const datestring = `${currYear}-${String(currMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    
-    let dayOTs = prevOTs.filter(o => {
-       if(!o.fecha_programada) return false;
-       let dDate = new Date(new Date(o.fecha_programada).getTime() + new Date().getTimezoneOffset() * 60000); 
-       return dDate.getDate() === d && dDate.getMonth() === currMonth && dDate.getFullYear() === currYear;
-    });
+function mostrarEquipoEscaneado(eq){
+  eqActual=eq;
+  // Ocultar escáner, mostrar panel equipo
+  document.getElementById('scan-panel').style.display='none';
+  document.getElementById('equipo-panel').style.display='block';
+  document.getElementById('cl-directo').style.display='none';
+  document.getElementById('eq-id-actual').value=eq.id;
 
-    let evHtml = dayOTs.map(o => {
-       const isComp = o.estado === 'Completada' ? 'completada' : '';
-       const canDrag = o.estado !== 'Completada' ? 'draggable="true" ondragstart="evtDragStart(event, '+o.id+')"' : '';
-       return `<div class="cal-event ${isComp}" ${canDrag} onclick="event.stopPropagation(); alert('OT #${o.id}: ${o.equipo_nombre}\\nTipo: ${o.tipo}\\nEstado: ${o.estado}\\nAsignado: ${o.tecnico_nombre||'Pendiente'}')">${o.equipo_nombre}</div>`;
-    }).join('');
+  // Llenar cabecera
+  document.getElementById('eq-h-nombre').textContent=eq.nombre;
+  document.getElementById('eq-h-codigo').textContent=eq.codigo;
+  document.getElementById('eq-h-area').textContent=eq.area||'Sin zona';
+  document.getElementById('eq-h-estado').textContent=eq.estado||'–';
+  document.getElementById('eq-h-hrs').textContent=(eq.horas_actuales||0)+' hrs uso';
 
-    html += `
-      <div class="cal-cell ${isToday}" 
-           data-fecha="${datestring}" 
-           onclick="clicCeldaCalendario('${datestring}')"
-           ondragover="evtDragOver(event)" 
-           ondragleave="evtDragLeave(event)" 
-           ondrop="evtDrop(event, '${datestring}')">
-        <div class="cal-date">${d}</div>
-        ${evHtml}
-      </div>`;
-  }
-  const grid = document.getElementById('cal-grid');
-  if(grid) grid.innerHTML = html;
-}
+  // Botón nueva OT sólo para admin
+  document.getElementById('nueva-ot-btn-wrap').style.display=curProf.rol==='admin'?'block':'none';
 
-function evtDragStart(e, otId) {
-  e.dataTransfer.setData("text/plain", otId);
-}
-function evtDragOver(e) {
-  e.preventDefault();
-  e.currentTarget.classList.add('drag-over');
-}
-function evtDragLeave(e) {
-  e.currentTarget.classList.remove('drag-over');
-}
-async function evtDrop(e, nuevaFecha) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
-  
-  const otId = e.dataTransfer.getData("text/plain");
-  if(!otId) return;
-
-  const { error } = await db.from('ordenes_trabajo').update({ fecha_programada: nuevaFecha }).eq('id', otId);
-  if (error) {
-    toast("❌ Error al reprogramar: " + error.message);
+  // Info auto-asignación
+  const infoEl=document.getElementById('auto-assign-info');
+  if(curProf.rol==='tecnico'){
+    infoEl.style.display='flex';
   } else {
-    toast("📅 OT #" + otId + " reprogramada con éxito");
-    await loadAll();
+    infoEl.style.display='none';
   }
+
+  setPasos(2);
+  renderOTsEquipo(eq);
 }
 
-function clicCeldaCalendario(fechaSeleccionada) {
-  openNuevaOT(null, fechaSeleccionada);
+function renderOTsEquipo(eq){
+  const lista=document.getElementById('ots-equipo-lista');
+  // OTs activas de este equipo
+  let ots=allOTs.filter(o=>o.equipo_id===eq.id && o.estado!=='Completada');
+
+  const badge2=document.getElementById('ots-count-badge');
+  if(badge2) badge2.textContent=ots.length+' OT'+(ots.length!==1?'s':'');
+
+  if(!ots.length){
+    lista.innerHTML=`
+      <div class="sin-ots">
+        <i class="ti ti-circle-check"></i>
+        <strong>Equipo sin fallas activas</strong>
+        <p style="font-size:12px;margin-top:4px;">No hay órdenes de trabajo pendientes para este equipo.</p>
+        ${curProf.rol==='admin'?'':''}
+      </div>`;
+    return;
+  }
+
+  lista.innerHTML=ots.map(o=>{
+    const prioClass=(o.prioridad||'baja').toLowerCase();
+    const esMia=o.tecnico_id===curUser.id;
+    const sinAsignar=!o.tecnico_id;
+    const tieneCL=!!getCLKey(o.equipo_nombre||'');
+    
+    let btnHtml='';
+    if(esMia){
+      btnHtml=`<button class="btn-tomar mine-btn" onclick="seleccionarOT(${o.id})"><i class="ti ti-player-play"></i> Iniciar trabajo</button>`;
+    } else if(sinAsignar && curProf.rol==='tecnico'){
+      btnHtml=`<button class="btn-tomar" onclick="tomarYEjecutar(${o.id})"><i class="ti ti-hand-click"></i> Tomar y ejecutar</button>`;
+    } else if(curProf.rol!=='tecnico'){
+      btnHtml=tieneCL?`<button class="btn-tomar" onclick="seleccionarOT(${o.id})"><i class="ti ti-clipboard-check"></i> Ver checklist</button>`:'';
+    } else {
+      btnHtml=`<span style="font-size:11px;color:#aaa;"><i class="ti ti-user"></i> Asignada a ${o.tecnico_nombre||'otro'}</span>`;
+    }
+
+    return`<div class="ot-card-tecnico ${prioClass} ${esMia?'mine':''}">
+      <div class="ot-top">
+        <div>
+          <div class="ot-id">#${o.id} · ${o.tipo}</div>
+          <div class="ot-tipo-nombre">${o.descripcion||'Sin descripción'}</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end;">
+          ${badge(o.prioridad)}
+          ${badge(o.estado)}
+        </div>
+      </div>
+      <div class="ot-desc">${o.descripcion||''}</div>
+      <div class="ot-footer">
+        <div class="ot-asignado">
+          <div class="tech-av">${ini(o.tecnico_nombre)}</div>
+          ${o.tecnico_nombre||'Sin asignar'}
+          ${!tieneCL?'<span style="margin-left:6px;font-size:10px;background:#f4f5f7;padding:2px 6px;border-radius:10px;color:#aaa;">Sin checklist</span>':''}
+        </div>
+        ${btnHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Tomar la OT y asignarse automáticamente
+async function tomarYEjecutar(otId){
+  const ot=allOTs.find(o=>o.id===otId);
+  if(!ot) return;
+
+  toast('Asignándote a la OT...');
+  const{error}=await db.from('ordenes_trabajo').update({
+    tecnico_id: curUser.id,
+    tecnico_nombre: curProf.nombre,
+    estado: 'En progreso'
+  }).eq('id',otId);
+
+  if(error){toast('❌ Error al asignarte: '+error.message);return;}
+  toast('✅ OT asignada — iniciando checklist');
+  await loadAll();
+  // Obtener la OT actualizada
+  const otActualizada=allOTs.find(o=>o.id===otId);
+  if(otActualizada) abrirCLDirecto(otActualizada);
+}
+
+// Seleccionar OT ya asignada (mía) y abrir checklist
+function seleccionarOT(otId){
+  const ot=allOTs.find(o=>o.id===otId);
+  if(!ot) return;
+  // Cambiar estado a En progreso si está en Pendiente
+  if(ot.estado==='Pendiente'||ot.estado==='Urgente'){
+    db.from('ordenes_trabajo').update({estado:'En progreso'}).eq('id',otId).then(()=>loadAll());
+  }
+  abrirCLDirecto(ot);
+}
+
+// Abrir checklist en el tab escáner directamente
+function abrirCLDirecto(ot){
+  otActual=ot;
+  const k=getCLKey(ot.equipo_nombre||'');
+
+  document.getElementById('equipo-panel').style.display='none';
+  document.getElementById('cl-directo').style.display='block';
+  setPasos(3);
+
+  document.getElementById('cld-titulo').textContent=`#${ot.id} – ${ot.equipo_nombre||'–'}`;
+  document.getElementById('cld-meta').textContent=`${ot.tipo} · ${ot.tecnico_nombre||curProf.nombre} · ${fmt(ot.fecha_creacion)}`;
+
+  // Reset estado
+  cldR={};
+  resetTimerD();
+  document.getElementById('cld-ref-in').value='';
+  document.getElementById('cld-ref-list').innerHTML='';
+  document.getElementById('cld-obs-txt').value='';
+  resetFGD();
+
+  if(!k){
+    document.getElementById('cld-items').innerHTML=`
+      <div style="text-align:center;padding:32px;color:#aaa;">
+        <i class="ti ti-clipboard-x" style="font-size:36px;display:block;margin-bottom:8px;opacity:0.5;"></i>
+        No hay checklist configurado para este tipo de equipo.
+      </div>`;
+    document.getElementById('cld-prog').style.width='0%';
+    document.getElementById('cld-prog-lbl').textContent='';
+    return;
+  }
+
+  renderCLDItems(CL[k]);
+  setupFirmaD();
+  actualizaProgD(CL[k]);
+}
+
+function volverAOTs(){
+  document.getElementById('cl-directo').style.display='none';
+  document.getElementById('equipo-panel').style.display='block';
+  setPasos(2);
+  otActual=null;
+  resetTimerD();
+}
+
+// Render de items del checklist directo
+let cldR={};
+function renderCLDItems(cl){
+  document.getElementById('cld-items').innerHTML=cl.items.map(item=>{
+    let inp='';
+    if(item.tipo==='bool'){
+      inp=`<div class="bool-btns"><button class="bool-btn" id="dbok-${item.id}" onclick="setDBool('${item.id}',true)">✓ Conforme</button><button class="bool-btn" id="dbfail-${item.id}" onclick="setDBool('${item.id}',false)">✗ No conforme</button></div>`;
+    } else if(item.tipo==='numero'){
+      inp=`<div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><input type="number" placeholder="–" min="${item.min}" max="${item.max}" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;" oninput="setDNum('${item.id}',this.value,${item.min},${item.max},this)"><span style="font-size:12px;color:#888;">${item.unidad}</span><span style="font-size:11px;color:#aaa;">rango: ${item.min}–${item.max}</span></div>`;
+    } else if(item.tipo==='seleccion'){
+      inp=`<select onchange="setDSel('${item.id}',this.value)" style="margin-top:6px;border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:13px;outline:none;"><option value="">Seleccionar...</option>${item.opciones.map(op=>`<option>${op}</option>`).join('')}</select>`;
+    }
+    return`<div class="chk-item" id="dci-${item.id}"><div class="chk-row"><div class="chk-dot" id="ddot-${item.id}"></div><div style="flex:1;"><div style="font-size:13px;">${item.label}</div>${inp}</div></div></div>`;
+  }).join('');
+}
+
+function markDD(id,ok){const d=document.getElementById('ddot-'+id);if(!d)return;d.classList.remove('ok','fail');d.classList.add(ok?'ok':'fail');d.innerHTML=ok?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i>';}
+function setDBool(id,v){cldR[id]=v;const bo=document.getElementById('dbok-'+id);const bf=document.getElementById('dbfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markDD(id,v);actualizaProgD(getCurCLD());}
+function setDNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');if(v!==''){cldR[id]=n;markDD(id,ok);actualizaProgD(getCurCLD());}}
+function setDSel(id,v){if(!v)return;cldR[id]=v;markDD(id,true);actualizaProgD(getCurCLD());}
+function getCurCLD(){const k=getCLKey(otActual?.equipo_nombre||'');return k?CL[k]:null;}
+function actualizaProgD(cl){if(!cl)return;const t=cl.items.length,d=cl.items.filter(i=>cldR[i.id]!==undefined).length;document.getElementById('cld-prog').style.width=Math.round(d/t*100)+'%';document.getElementById('cld-prog-lbl').textContent=`${d}/${t} items`;}
+
+// Timer del checklist directo
+let cldTInt=null,cldTSec=0,cldTOn=false;
+function pad(n){return String(n).padStart(2,'0');}
+function updTD(){const h=Math.floor(cldTSec/3600),m=Math.floor((cldTSec%3600)/60),s=cldTSec%60;const el=document.getElementById('cld-timer-d');if(el)el.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;}
+function toggleTimerD(){cldTOn=!cldTOn;const b=document.getElementById('cld-timer-btn');if(cldTOn){b.innerHTML='<i class="ti ti-player-pause"></i> Pausar';cldTInt=setInterval(()=>{cldTSec++;updTD();},1000);}else{b.innerHTML='<i class="ti ti-player-play"></i> Reanudar';clearInterval(cldTInt);}}
+function resetTimerD(){clearInterval(cldTInt);cldTOn=false;cldTSec=0;updTD();const b=document.getElementById('cld-timer-btn');if(b)b.innerHTML='<i class="ti ti-player-play"></i> Iniciar';}
+
+// Firma del checklist directo
+let cldFCtx=null,cldFDraw=false;
+function setupFirmaD(){
+  const c=document.getElementById('cld-firma-c');if(!c)return;
+  cldFCtx=c.getContext('2d');cldFCtx.clearRect(0,0,c.width,c.height);
+  cldFCtx.strokeStyle='#1a2b4a';cldFCtx.lineWidth=2;cldFCtx.lineCap='round';cldFDraw=false;
+  const pos=e=>{const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sx,y:(s.clientY-r.top)*sy};};
+  c.onmousedown=c.ontouchstart=e=>{e.preventDefault();cldFDraw=true;const p=pos(e);cldFCtx.beginPath();cldFCtx.moveTo(p.x,p.y);};
+  c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!cldFDraw)return;const p=pos(e);cldFCtx.lineTo(p.x,p.y);cldFCtx.stroke();};
+  c.onmouseup=c.ontouchend=c.onmouseleave=()=>cldFDraw=false;
+}
+function clearFirmaD(){const c=document.getElementById('cld-firma-c');if(cldFCtx)cldFCtx.clearRect(0,0,c.width,c.height);}
+
+const fED=['🔩','🔧','⚙️','🛠️','📐','🔌'];
+function resetFGD(){document.getElementById('cld-foto-grid').innerHTML=`<label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:#aaa;" onclick="simFotoD(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>`;}
+function simFotoD(btn){const g=document.getElementById('cld-foto-grid');const d=document.createElement('div');const em=fED[Math.floor(Math.random()*fED.length)];d.style.cssText='height:70px;border-radius:8px;background:#f4f5f7;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;';d.innerHTML=`${em}<button onclick="this.parentElement.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.35);border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:10px;line-height:16px;padding:0;">×</button>`;g.insertBefore(d,btn);}
+
+function addRefD(){const v=document.getElementById('cld-ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:16px;">×</button>`;document.getElementById('cld-ref-list').appendChild(d);document.getElementById('cld-ref-in').value='';}
+
+async function cerrarOTDirecto(){
+  const cl=getCurCLD();
+  if(cl){
+    const t=cl.items.length,d=cl.items.filter(i=>cldR[i.id]!==undefined).length;
+    if(d<t){toast(`Faltan ${t-d} ítem(s) por completar`);return;}
+  }
+  clearInterval(cldTInt);cldTOn=false;
+  const min=Math.round(cldTSec/60);
+  const obs=document.getElementById('cld-obs-txt').value.trim();
+  const{error}=await db.from('ordenes_trabajo').update({
+    estado:'Completada',
+    fecha_cierre:new Date().toISOString(),
+    observaciones:obs,
+    tiempo_minutos:min
+  }).eq('id',otActual.id);
+  if(error){toast('Error: '+error.message);return;}
+  if(cl){
+    const ra=cl.items.filter(i=>cldR[i.id]!==undefined).map(i=>({orden_id:otActual.id,item_id:i.id,item_label:i.label,respuesta:String(cldR[i.id])}));
+    if(ra.length)await db.from('respuestas_checklist').insert(ra);
+  }
+  await loadAll();
+
+  // Pantalla de éxito dentro del panel escáner
+  const clD=document.getElementById('cl-directo');
+  clD.innerHTML=`
+    <div style="text-align:center;padding:60px 20px;">
+      <div style="width:72px;height:72px;background:#eaf4ec;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px;">✅</div>
+      <div style="font-size:20px;font-weight:700;color:#1f6130;margin-bottom:6px;">¡OT Cerrada!</div>
+      <div style="font-size:13px;color:#888;margin-bottom:6px;">OT #${otActual.id} — ${otActual.equipo_nombre}</div>
+      <div style="font-size:13px;color:#888;margin-bottom:24px;">Tiempo trabajado: ${pad(Math.floor(min/60))}h ${pad(min%60)}m · Checklist guardado</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-sm btn-primary" onclick="resetEscaner()"><i class="ti ti-scan"></i> Escanear otro equipo</button>
+        <button class="btn-sm" onclick="volverAOTs()"><i class="ti ti-clipboard-list"></i> Ver más OTs del equipo</button>
+      </div>
+    </div>`;
+  toast('✅ OT cerrada y guardada');
 }
 
 // ── DASHBOARD ──
@@ -729,10 +1085,8 @@ function renderDash(){
   document.getElementById('k-prog').textContent=allOTs.filter(o=>o.estado==='En progreso').length;
   document.getElementById('k-hoy').textContent=allOTs.filter(o=>o.estado==='Completada'&&o.fecha_cierre&&new Date(o.fecha_cierre)>=hoy).length;
   document.getElementById('k-eq').textContent=allEqs.length;
-  
   const rec=allOTs.slice(0,6);
   document.getElementById('dash-ots').innerHTML=rec.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Tipo</th><th>Estado</th><th>Técnico</th></tr></thead><tbody>${rec.map(o=>`<tr><td style="font-size:11px;color:#aaa;">#${o.id}</td><td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td><td>${badge(o.tipo)}</td><td>${badge(o.estado)}</td><td><span class="tech-av">${ini(o.tecnico_nombre)}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
-  
   const compl=allOTs.filter(o=>o.estado==='Completada').length;
   const pend=allOTs.filter(o=>['Pendiente','En progreso'].includes(o.estado)).length;
   document.getElementById('dash-res').innerHTML=`
@@ -749,43 +1103,30 @@ function renderDash(){
 function renderOrdenes(){
   const f=document.getElementById('f-est-fil').value;
   let lista=f?allOTs.filter(o=>o.estado===f):allOTs;
-  if(curProf.rol === 'tecnico') lista=lista.filter(o=>o.tecnico_id===curUser.id);
-  
+  if(curProf.rol==='tecnico')lista=lista.filter(o=>o.tecnico_id===curUser.id);
   document.getElementById('ots-wrap').innerHTML=lista.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Programado</th><th>Descripción</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th></th></tr></thead><tbody>${lista.map(o=>`<tr>
     <td style="font-size:11px;color:#aaa;">#${o.id}</td>
     <td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td>
-    <td style="font-size:11px;color:#888;">${o.fecha_programada ? new Date(new Date(o.fecha_programada).getTime() + new Date().getTimezoneOffset() * 60000).toLocaleDateString('es-MX') : '–'}</td>
+    <td style="font-size:11px;color:#888;">${o.fecha_programada?new Date(new Date(o.fecha_programada).getTime()+new Date().getTimezoneOffset()*60000).toLocaleDateString('es-MX'):'–'}</td>
     <td style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.descripcion||'–'}</td>
     <td>${badge(o.tipo)}</td><td>${badge(o.prioridad)}</td><td>${badge(o.estado)}</td>
     <td><span class="tech-av" title="${o.tecnico_nombre||''}">${ini(o.tecnico_nombre)}</span></td>
-    <td style="display:flex; gap:4px;">
+    <td style="display:flex;gap:4px;">
       ${o.estado!=='Completada'&&canDo('crear_ot')?`<button class="btn-sm" onclick="cambiarEst(${o.id})"><i class="ti ti-edit"></i></button>`:''}
       ${curProf.rol==='admin'?`<button class="btn-sm btn-danger" onclick="eliminarOT(${o.id})"><i class="ti ti-trash"></i></button>`:''}
     </td>
   </tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
 }
 
-function openNuevaOT(eqIdPre = null, fechaPre = null){
-  document.getElementById('f-equipo').disabled = false;
+function openNuevaOT(eqIdPre=null,fechaPre=null){
+  document.getElementById('f-equipo').disabled=false;
   document.getElementById('f-equipo').innerHTML='<option value="">Selecciona equipo...</option>'+allEqs.map(e=>`<option value="${e.id}">${e.codigo} – ${e.nombre}</option>`).join('');
-  if(eqIdPre) { document.getElementById('f-equipo').value = eqIdPre; document.getElementById('f-equipo').disabled = true; }
-  
-  if(curProf.rol === 'supervisor_zona'){
-    document.getElementById('group-tec').style.display = 'none';
-  } else {
-    document.getElementById('group-tec').style.display = 'flex';
-    document.getElementById('f-tec').innerHTML='<option value="">Sin asignar</option>'+allProfs.filter(p=>p.rol==='tecnico').map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');
-  }
-  
+  if(eqIdPre){document.getElementById('f-equipo').value=eqIdPre;document.getElementById('f-equipo').disabled=true;}
+  if(curProf.rol==='supervisor_zona'){document.getElementById('group-tec').style.display='none';}
+  else{document.getElementById('group-tec').style.display='flex';document.getElementById('f-tec').innerHTML='<option value="">Sin asignar</option>'+allProfs.filter(p=>p.rol==='tecnico').map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');}
   document.getElementById('f-desc').value='';
-  
-  if(fechaPre) {
-    document.getElementById('f-tipo').value = 'Preventivo';
-    document.getElementById('f-fecha').value = fechaPre;
-  } else {
-    document.getElementById('f-fecha').value = '';
-  }
-  
+  if(fechaPre){document.getElementById('f-tipo').value='Preventivo';document.getElementById('f-fecha').value=fechaPre;}
+  else document.getElementById('f-fecha').value='';
   toggleFechaProg();
   openM('modal-ot');
 }
@@ -794,20 +1135,17 @@ async function crearOT(){
   const eqId=document.getElementById('f-equipo').value;
   if(!eqId){toast('Selecciona un equipo');return;}
   const eq=allEqs.find(e=>e.id==eqId);
-  const tId = curProf.rol === 'supervisor_zona' ? null : document.getElementById('f-tec').value;
+  const tId=curProf.rol==='supervisor_zona'?null:document.getElementById('f-tec').value;
   const tec=allProfs.find(p=>p.id===tId);
-  const tipo = document.getElementById('f-tipo').value;
-  const fechaP = document.getElementById('f-fecha').value;
-
+  const tipo=document.getElementById('f-tipo').value;
+  const fechaP=document.getElementById('f-fecha').value;
   const{error}=await db.from('ordenes_trabajo').insert({
     equipo_id:eq.id,equipo_nombre:`${eq.codigo} – ${eq.nombre}`,
-    tipo:tipo,
-    prioridad:document.getElementById('f-pri').value,
+    tipo,prioridad:document.getElementById('f-pri').value,
     estado:document.getElementById('f-pri').value==='Urgente'?'Urgente':'Pendiente',
-    tecnico_id:tId||null,
-    tecnico_nombre:tec?tec.nombre:null,
+    tecnico_id:tId||null,tecnico_nombre:tec?tec.nombre:null,
     descripcion:document.getElementById('f-desc').value.trim()||'Sin descripción',
-    fecha_programada: (tipo==='Preventivo' && fechaP) ? fechaP : null,
+    fecha_programada:(tipo==='Preventivo'&&fechaP)?fechaP:null,
     creado_por:curUser.id
   });
   if(error){toast('Error: '+error.message);return;}
@@ -828,149 +1166,125 @@ async function cambiarEst(otId){
 async function eliminarOT(id){
   if(confirm("¿Eliminar definitivamente esta OT?")){
     await db.from('ordenes_trabajo').delete().eq('id',id);
-    toast("✅ Orden eliminada"); loadAll();
+    toast("✅ Orden eliminada");loadAll();
   }
 }
 
 // ── EQUIPOS ──
 function renderEquipos(){
-  let html = `<table><thead><tr><th>Código</th><th>Nombre</th><th>Zona Asignada</th><th>Uso (Hrs)</th><th>Frec. PM</th><th>Estado</th><th></th></tr></thead><tbody>`;
-  html += allEqs.map(e=>{
-    const reqPM = (e.horas_actuales||0) >= (e.frec_pm_horas||999999) && (e.horas_actuales||0)>0;
-    return `<tr>
+  let html=`<table><thead><tr><th>Código</th><th>Nombre</th><th>Zona Asignada</th><th>Uso (Hrs)</th><th>Frec. PM</th><th>Estado</th><th></th></tr></thead><tbody>`;
+  html+=allEqs.map(e=>{
+    const reqPM=(e.horas_actuales||0)>=(e.frec_pm_horas||999999)&&(e.horas_actuales||0)>0;
+    return`<tr>
       <td style="font-size:11px;color:#888;font-family:monospace;">${e.codigo}</td>
       <td><strong style="font-weight:500;">${e.nombre}</strong></td>
       <td style="color:#888;font-size:12px;font-weight:500;">${e.area||'–'}</td>
       <td style="font-size:12px;">${e.horas_actuales||0}</td>
       <td style="font-size:12px;color:#888;">cada ${e.frec_pm_horas||0}h</td>
       <td>${badge(e.estado)} ${reqPM?'<span class="badge badge-red" style="margin-left:4px;">PM Req.</span>':''}</td>
-      <td style="display:flex; gap:6px;">
-        <button class="btn-sm" title="Generar QR" onclick="verQR('${e.codigo}', '${e.nombre}')"><i class="ti ti-qrcode"></i></button>
-        ${curProf.rol === 'admin' ? `
+      <td style="display:flex;gap:6px;">
+        <button class="btn-sm" title="Generar QR" onclick="verQR('${e.codigo}','${e.nombre}')"><i class="ti ti-qrcode"></i></button>
+        ${curProf.rol==='admin'?`
           <button class="btn-sm" title="Editar" onclick="openModalEq(${e.id})"><i class="ti ti-edit"></i></button>
           <button class="btn-sm btn-danger" title="Eliminar" onclick="eliminarEquipo(${e.id})"><i class="ti ti-trash"></i></button>
-        ` : ''}
+        `:''}
       </td>
     </tr>`;
   }).join('');
-  document.getElementById('eq-wrap').innerHTML = html + `</tbody></table>`;
+  document.getElementById('eq-wrap').innerHTML=html+`</tbody></table>`;
 }
 
-function openModalEq(id = null){
+function openModalEq(id=null){
   if(id){
-    const e = allEqs.find(x => x.id === id);
-    document.getElementById('eq-edit-id').value = e.id;
-    document.getElementById('eq-cod').value = e.codigo;
-    document.getElementById('eq-nom').value = e.nombre;
-    document.getElementById('eq-zona').value = e.area || '';
-    document.getElementById('eq-mod').value = e.modelo;
-    document.getElementById('eq-ser').value = e.serie;
-    document.getElementById('eq-est').value = e.estado || 'Operativo';
-    document.getElementById('eq-hrs').value = e.horas_actuales || 0;
-    document.getElementById('eq-frec').value = e.frec_pm_horas || 1000;
-    document.getElementById('eq-cri').value = e.criticidad;
-    document.getElementById('eq-modal-title').innerHTML = '<i class="ti ti-settings-2" style="margin-right:6px;"></i> Editar Equipo';
+    const e=allEqs.find(x=>x.id===id);
+    document.getElementById('eq-edit-id').value=e.id;
+    document.getElementById('eq-cod').value=e.codigo;
+    document.getElementById('eq-nom').value=e.nombre;
+    document.getElementById('eq-zona').value=e.area||'';
+    document.getElementById('eq-mod').value=e.modelo;
+    document.getElementById('eq-ser').value=e.serie;
+    document.getElementById('eq-est').value=e.estado||'Operativo';
+    document.getElementById('eq-hrs').value=e.horas_actuales||0;
+    document.getElementById('eq-frec').value=e.frec_pm_horas||1000;
+    document.getElementById('eq-cri').value=e.criticidad;
+    document.getElementById('eq-modal-title').innerHTML='<i class="ti ti-settings-2" style="margin-right:6px;"></i> Editar Equipo';
   } else {
-    document.getElementById('eq-edit-id').value = '';
-    document.querySelectorAll('#modal-equipo input').forEach(i => i.value = '');
-    document.getElementById('eq-zona').value = '';
-    document.getElementById('eq-est').value = 'Operativo';
-    document.getElementById('eq-hrs').value = '0';
-    document.getElementById('eq-frec').value = '1000';
-    document.getElementById('eq-modal-title').innerHTML = '<i class="ti ti-settings-2" style="margin-right:6px;"></i> Nuevo Equipo';
+    document.getElementById('eq-edit-id').value='';
+    document.querySelectorAll('#modal-equipo input').forEach(i=>i.value='');
+    document.getElementById('eq-zona').value='';
+    document.getElementById('eq-est').value='Operativo';
+    document.getElementById('eq-hrs').value='0';
+    document.getElementById('eq-frec').value='1000';
+    document.getElementById('eq-modal-title').innerHTML='<i class="ti ti-settings-2" style="margin-right:6px;"></i> Nuevo Equipo';
   }
   openM('modal-equipo');
 }
 
 async function guardarEquipo(){
-  const id = document.getElementById('eq-edit-id').value;
+  const id=document.getElementById('eq-edit-id').value;
   const cod=document.getElementById('eq-cod').value.trim();
   const nom=document.getElementById('eq-nom').value.trim();
   if(!cod||!nom){toast('Código y nombre obligatorios');return;}
-  
-  const payload = {
-    codigo:cod, nombre:nom, area:document.getElementById('eq-zona').value,
-    modelo:document.getElementById('eq-mod').value.trim(), serie:document.getElementById('eq-ser').value.trim(),
-    estado:document.getElementById('eq-est').value, criticidad:document.getElementById('eq-cri').value,
-    horas_actuales: document.getElementById('eq-hrs').value || 0, frec_pm_horas: document.getElementById('eq-frec').value || 0
-  };
-  
-  if(id) {
-    const {error} = await db.from('equipos').update(payload).eq('id', id);
-    if(error){toast('Error: '+error.message);return;}
-    toast('✅ Equipo actualizado');
-  } else {
-    const {error} = await db.from('equipos').insert(payload);
-    if(error){toast('Error: '+error.message);return;}
-    toast('✅ Equipo agregado');
-  }
+  const payload={codigo:cod,nombre:nom,area:document.getElementById('eq-zona').value,modelo:document.getElementById('eq-mod').value.trim(),serie:document.getElementById('eq-ser').value.trim(),estado:document.getElementById('eq-est').value,criticidad:document.getElementById('eq-cri').value,horas_actuales:document.getElementById('eq-hrs').value||0,frec_pm_horas:document.getElementById('eq-frec').value||0};
+  if(id){const{error}=await db.from('equipos').update(payload).eq('id',id);if(error){toast('Error: '+error.message);return;}toast('✅ Equipo actualizado');}
+  else{const{error}=await db.from('equipos').insert(payload);if(error){toast('Error: '+error.message);return;}toast('✅ Equipo agregado');}
   closeM('modal-equipo');await loadAll();
 }
 
 async function eliminarEquipo(id){
-  if(!confirm("¿Estás seguro de eliminar este equipo de forma permanente?")) return;
-  const {error} = await db.from('equipos').delete().eq('id', id);
-  if (error) { toast("❌ No se puede borrar: El equipo tiene historial de órdenes."); return; }
-  toast("✅ Equipo eliminado");
-  await loadAll();
+  if(!confirm("¿Estás seguro de eliminar este equipo de forma permanente?"))return;
+  const{error}=await db.from('equipos').delete().eq('id',id);
+  if(error){toast("❌ No se puede borrar: El equipo tiene historial de órdenes.");return;}
+  toast("✅ Equipo eliminado");await loadAll();
 }
 
-function verQR(codigo, nombre) {
-  document.getElementById('qr-eq-nom').textContent = nombre;
-  document.getElementById('qr-eq-cod').textContent = codigo;
-  const container = document.getElementById('qr-code-canvas');
-  container.innerHTML = ''; 
-  new QRCode(container, {text: codigo, width: 140, height: 140, colorDark: "#1a2b4a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H});
+function verQR(codigo,nombre){
+  document.getElementById('qr-eq-nom').textContent=nombre;
+  document.getElementById('qr-eq-cod').textContent=codigo;
+  const container=document.getElementById('qr-code-canvas');
+  container.innerHTML='';
+  new QRCode(container,{text:codigo,width:140,height:140,colorDark:"#1a2b4a",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
   openM('modal-qr');
 }
 
 // ── PERSONAL ──
 function renderUsuarios(){
-  let html = `<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona (Sup.)</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>`;
-  html += allProfs.map(u=>`<tr>
+  let html=`<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>`;
+  html+=allProfs.map(u=>`<tr>
     <td><strong>${u.nombre}</strong></td>
     <td>${rolBadge(u.rol)}</td>
     <td>${u.zona||'-'}</td>
     <td>${u.especialidad||'-'}</td>
     <td>${u.turno||'-'}</td>
     <td style="display:flex;gap:4px;">
-      ${curProf.rol==='admin'?`
-        <button class="btn-sm" onclick="openModalUser('${u.id}')"><i class="ti ti-edit"></i></button>
-        <button class="btn-sm btn-danger" onclick="delUsr('${u.id}')"><i class="ti ti-trash"></i></button>
-      `:''}
+      ${curProf.rol==='admin'?`<button class="btn-sm" onclick="openModalUser('${u.id}')"><i class="ti ti-edit"></i></button><button class="btn-sm btn-danger" onclick="delUsr('${u.id}')"><i class="ti ti-trash"></i></button>`:''}
     </td>
   </tr>`).join('');
-  document.getElementById('tec-wrap').innerHTML = html + `</tbody></table>`;
+  document.getElementById('tec-wrap').innerHTML=html+`</tbody></table>`;
 }
 
-function openModalUser(id = null){
+function openModalUser(id=null){
   if(id){
-    const u = allProfs.find(x => x.id === id);
-    document.getElementById('inv-edit-id').value = u.id;
-    document.getElementById('inv-uuid').value = u.id;
-    document.getElementById('inv-uuid').readOnly = true; 
-    document.getElementById('inv-nom').value = u.nombre;
-    document.getElementById('inv-rol').value = u.rol;
-    document.getElementById('inv-zona').value = u.zona || '';
-    document.getElementById('inv-esp').value = u.especialidad || '';
-    document.getElementById('inv-tur').value = u.turno || 'Mañana';
-    document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user" style="margin-right:6px;"></i>Editar Perfil';
-    
-    const hint = document.getElementById('usr-hint');
-    if(hint) hint.style.display = 'none';
-    
+    const u=allProfs.find(x=>x.id===id);
+    document.getElementById('inv-edit-id').value=u.id;
+    document.getElementById('inv-uuid').value=u.id;
+    document.getElementById('inv-uuid').readOnly=true;
+    document.getElementById('inv-nom').value=u.nombre;
+    document.getElementById('inv-rol').value=u.rol;
+    document.getElementById('inv-zona').value=u.zona||'';
+    document.getElementById('inv-esp').value=u.especialidad||'';
+    document.getElementById('inv-tur').value=u.turno||'Mañana';
+    document.getElementById('usr-modal-title').innerHTML='<i class="ti ti-user" style="margin-right:6px;"></i>Editar Perfil';
+    const hint=document.getElementById('usr-hint');if(hint)hint.style.display='none';
     toggleUserFields();
   } else {
-    document.getElementById('inv-edit-id').value = '';
-    document.getElementById('inv-uuid').readOnly = false;
-    document.querySelectorAll('#modal-invite input').forEach(i => i.value = '');
-    document.getElementById('inv-zona').value = '';
-    document.getElementById('inv-tur').value = 'Mañana';
-    document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user-plus" style="margin-right:6px;"></i>Configurar Perfil';
-    
-    const hint = document.getElementById('usr-hint');
-    if(hint) hint.style.display = 'block';
-    
+    document.getElementById('inv-edit-id').value='';
+    document.getElementById('inv-uuid').readOnly=false;
+    document.querySelectorAll('#modal-invite input').forEach(i=>i.value='');
+    document.getElementById('inv-zona').value='';
+    document.getElementById('inv-tur').value='Mañana';
+    document.getElementById('usr-modal-title').innerHTML='<i class="ti ti-user-plus" style="margin-right:6px;"></i>Configurar Perfil';
+    const hint=document.getElementById('usr-hint');if(hint)hint.style.display='block';
     toggleUserFields();
   }
   openM('modal-invite');
@@ -982,58 +1296,84 @@ async function guardarPerfil(){
   const nom=document.getElementById('inv-nom').value.trim();
   const rol=document.getElementById('inv-rol').value;
   if(!uuid||!nom){toast('UUID y nombre obligatorios');return;}
-  
-  const zonaAsignada = rol === 'supervisor_zona' ? document.getElementById('inv-zona').value : null;
-  const espAsignada = (rol === 'supervisor_zona' || rol === 'supervisor' || rol === 'gerencia') ? null : document.getElementById('inv-esp').value.trim();
-  const turnoAsignado = document.getElementById('inv-tur').value;
-
-  const payload = {id:uuid,nombre:nom,rol:rol,zona:zonaAsignada,especialidad:espAsignada,turno:turnoAsignado};
-  
+  const zonaAsignada=rol==='supervisor_zona'?document.getElementById('inv-zona').value:null;
+  const espAsignada=['supervisor_zona','supervisor','gerencia'].includes(rol)?null:document.getElementById('inv-esp').value.trim();
+  const payload={id:uuid,nombre:nom,rol,zona:zonaAsignada,especialidad:espAsignada,turno:document.getElementById('inv-tur').value};
   const{error}=await db.from('profiles').upsert(payload);
   if(error){toast('❌ Error: '+error.message);return;}
-  closeM('modal-invite');toast('Perfil guardado con éxito');await loadAll();
+  closeM('modal-invite');toast('Perfil guardado');await loadAll();
 }
 
 async function delUsr(id){
-  if(id === curUser.id) return toast("No puedes eliminarte a ti mismo.");
-  if(!confirm("¿Eliminar este perfil de la base de datos?")) return;
-  const {error} = await db.from('profiles').delete().eq('id', id);
-  if(error) { toast('❌ Error: ' + error.message); return; }
-  toast('✅ Usuario eliminado');
-  await loadAll();
+  if(id===curUser.id)return toast("No puedes eliminarte a ti mismo.");
+  if(!confirm("¿Eliminar este perfil?"))return;
+  const{error}=await db.from('profiles').delete().eq('id',id);
+  if(error){toast('❌ Error: '+error.message);return;}
+  toast('✅ Usuario eliminado');await loadAll();
 }
 
 // ── DOWNTIME ──
-function renderDowntime() {
-  const fallas = allOTs.filter(o=>o.tipo==='Correctivo');
-  let eqStats = {};
-  fallas.forEach(f => {
-      if(!eqStats[f.equipo_id]) eqStats[f.equipo_id] = {nom: f.equipo_nombre, count:0, min:0, id:f.equipo_id};
-      eqStats[f.equipo_id].count++;
-      eqStats[f.equipo_id].min += (f.tiempo_minutos||0);
+function renderDowntime(){
+  const fallas=allOTs.filter(o=>o.tipo==='Correctivo');
+  let eqStats={};
+  fallas.forEach(f=>{
+    if(!eqStats[f.equipo_id])eqStats[f.equipo_id]={nom:f.equipo_nombre,count:0,min:0,id:f.equipo_id};
+    eqStats[f.equipo_id].count++;
+    eqStats[f.equipo_id].min+=(f.tiempo_minutos||0);
   });
-  let list = Object.values(eqStats).sort((a,b)=> b.min - a.min);
-  document.getElementById('dt-list-equipos').innerHTML = list.length ? `<table><thead><tr><th>Equipo</th><th>Fallas Totales</th><th>Horas Paro</th><th>MTTR</th><th></th></tr></thead><tbody>
-    ${list.map(e => `<tr>
-      <td><strong>${e.nom}</strong></td>
-      <td><span class="badge badge-red">${e.count}</span></td>
-      <td style="color:var(--red-txt); font-weight:600;">${(e.min/60).toFixed(1)}h</td>
-      <td>${Math.round(e.min/e.count)}m</td>
-      <td><button class="btn-sm" onclick="verDetalleDT(${e.id}, '${e.nom}')">Ver Detalle</button></td>
-    </tr>`).join('')}
-  </tbody></table>` : '<div class="empty-state">No hay fallas (Correctivos) registrados.</div>';
+  let list=Object.values(eqStats).sort((a,b)=>b.min-a.min);
+  document.getElementById('dt-list-equipos').innerHTML=list.length?`<table><thead><tr><th>Equipo</th><th>Fallas</th><th>Horas Paro</th><th>MTTR</th><th></th></tr></thead><tbody>${list.map(e=>`<tr><td><strong>${e.nom}</strong></td><td><span class="badge badge-red">${e.count}</span></td><td style="color:var(--red-txt);font-weight:600;">${(e.min/60).toFixed(1)}h</td><td>${Math.round(e.min/e.count)}m</td><td><button class="btn-sm" onclick="verDetalleDT(${e.id},'${e.nom}')">Ver Detalle</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty-state">No hay fallas (Correctivos) registrados.</div>';
 }
 
-function verDetalleDT(eqId, nombre) {
-    const fallas = allOTs.filter(o=> o.equipo_id == eqId && o.tipo === 'Correctivo');
-    document.getElementById('dt-det-nom').textContent = "Historial de Correctivos: " + nombre;
-    document.getElementById('dt-det-lista').innerHTML = `<table><thead><tr><th>Fecha</th><th>Falla</th><th>Duración</th></tr></thead><tbody>
-        ${fallas.map(f => `<tr><td style="font-size:12px;color:#888;">${fmt(f.fecha_creacion)}</td><td style="font-size:12px;">${f.descripcion||'Sin desc.'}</td><td style="font-size:12px;font-weight:600;color:var(--red-txt);">${f.tiempo_minutos?f.tiempo_minutos+'m':'-'}</td></tr>`).join('')}
-    </tbody></table>`;
-    openM('modal-dt-detalle');
+function verDetalleDT(eqId,nombre){
+  const fallas=allOTs.filter(o=>o.equipo_id==eqId&&o.tipo==='Correctivo');
+  document.getElementById('dt-det-nom').textContent="Historial de Correctivos: "+nombre;
+  document.getElementById('dt-det-lista').innerHTML=`<table><thead><tr><th>Fecha</th><th>Falla</th><th>Duración</th></tr></thead><tbody>${fallas.map(f=>`<tr><td style="font-size:12px;color:#888;">${fmt(f.fecha_creacion)}</td><td style="font-size:12px;">${f.descripcion||'Sin desc.'}</td><td style="font-size:12px;font-weight:600;color:var(--red-txt);">${f.tiempo_minutos?f.tiempo_minutos+'m':'-'}</td></tr>`).join('')}</tbody></table>`;
+  openM('modal-dt-detalle');
 }
 
-// ── CHECKLIST ENGINE ──
+// ── CALENDARIO ──
+function chgMonth(dir){
+  currMonth+=dir;
+  if(currMonth<0){currMonth=11;currYear--;}
+  else if(currMonth>11){currMonth=0;currYear++;}
+  renderCalendar();
+}
+
+function renderCalendar(){
+  const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const lbl=document.getElementById('cal-month-lbl');
+  if(lbl)lbl.textContent=`${monthNames[currMonth]} ${currYear}`;
+  const firstDay=new Date(currYear,currMonth,1).getDay();
+  const daysInMonth=new Date(currYear,currMonth+1,0).getDate();
+  let html=`<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>`;
+  for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell" style="background:transparent;border:none;cursor:default;"></div>`;
+  const prevOTs=allOTs.filter(o=>o.fecha_programada||(o.tipo==='Preventivo'));
+  for(let d=1;d<=daysInMonth;d++){
+    let isToday=(d===new Date().getDate()&&currMonth===new Date().getMonth()&&currYear===new Date().getFullYear())?'today':'';
+    const datestring=`${currYear}-${String(currMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let dayOTs=prevOTs.filter(o=>{if(!o.fecha_programada)return false;let dDate=new Date(new Date(o.fecha_programada).getTime()+new Date().getTimezoneOffset()*60000);return dDate.getDate()===d&&dDate.getMonth()===currMonth&&dDate.getFullYear()===currYear;});
+    let evHtml=dayOTs.map(o=>{const isComp=o.estado==='Completada'?'completada':'';const canDrag=o.estado!=='Completada'?`draggable="true" ondragstart="evtDragStart(event,${o.id})"`:''
+;return`<div class="cal-event ${isComp}" ${canDrag} onclick="event.stopPropagation();alert('OT #${o.id}: ${o.equipo_nombre}\\nTipo: ${o.tipo}\\nEstado: ${o.estado}\\nAsignado: ${o.tecnico_nombre||'Pendiente'}')">${o.equipo_nombre}</div>`;}).join('');
+    html+=`<div class="cal-cell ${isToday}" data-fecha="${datestring}" onclick="clicCeldaCalendario('${datestring}')" ondragover="evtDragOver(event)" ondragleave="evtDragLeave(event)" ondrop="evtDrop(event,'${datestring}')"><div class="cal-date">${d}</div>${evHtml}</div>`;
+  }
+  const grid=document.getElementById('cal-grid');
+  if(grid)grid.innerHTML=html;
+}
+
+function evtDragStart(e,otId){e.dataTransfer.setData("text/plain",otId);}
+function evtDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function evtDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+async function evtDrop(e,nuevaFecha){
+  e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  const otId=e.dataTransfer.getData("text/plain");if(!otId)return;
+  const{error}=await db.from('ordenes_trabajo').update({fecha_programada:nuevaFecha}).eq('id',otId);
+  if(error){toast("❌ Error al reprogramar: "+error.message);}
+  else{toast("📅 OT #"+otId+" reprogramada");await loadAll();}
+}
+function clicCeldaCalendario(fechaSeleccionada){openNuevaOT(null,fechaSeleccionada);}
+
+// ── CHECKLIST (TAB CHECKLIST ORIGINAL, SIN CAMBIOS) ──
 const CL={
   'CNC':{nombre:'Checklist CNC / Torno',items:[
     {id:'c1',label:'Verificar nivel de lubricante de guías',tipo:'bool'},
@@ -1094,11 +1434,10 @@ function getCLKey(n){if(!n)return null;const m=(n.match(/^([A-Z]+)/)||[])[1];if(
 
 function renderCLSel(){
   let act=allOTs.filter(o=>o.estado!=='Completada');
-  if(curProf.rol === 'tecnico') act = act.filter(o=>o.tecnico_id === curUser.id);
-
+  if(curProf.rol==='tecnico')act=act.filter(o=>o.tecnico_id===curUser.id);
   document.getElementById('cl-cards').innerHTML=act.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">${act.map(o=>{
     const k=getCLKey(o.equipo_nombre||'');const h=!!k;
-    return`<div class="card" style="cursor:${h?'pointer':'default'};opacity:${h?1:0.6};transition:box-shadow .15s;" ${h?`onclick="abrirCL(${o.id})" onmouseenter="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.1)'" onmouseleave="this.style.boxShadow=''"`:''}>
+    return`<div class="card" style="cursor:${h?'pointer':'default'};opacity:${h?1:0.6};transition:box-shadow .15s;" ${h?`onclick="abrirCL(${o.id})" onmouseenter="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.1)'" onmouseleave="this.style.boxShadow=''"`:''}">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;"><div><div style="font-size:11px;color:#aaa;margin-bottom:2px;">#${o.id}</div><div style="font-size:14px;font-weight:500;">${o.equipo_nombre||'–'}</div></div>${badge(o.prioridad)}</div>
       <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.4;">${o.descripcion||'–'}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;color:#aaa;"><i class="ti ti-user"></i> ${(o.tecnico_nombre||'Sin asignar').split(' ')[0]}</span>${h?'<span style="font-size:11px;background:#eaf4ec;color:#1f6130;padding:2px 8px;border-radius:20px;">✓ Checklist disponible</span>':'<span style="font-size:11px;color:#aaa;">Sin checklist</span>'}</div>
@@ -1120,28 +1459,22 @@ function abrirCL(otId){
 }
 
 function renderCLItems(cl){
-  document.getElementById('cl-items').innerHTML=cl.items.map((item,idx)=>{
+  document.getElementById('cl-items').innerHTML=cl.items.map(item=>{
     let inp='';
-    if(item.tipo==='bool'){
-      inp=`<div class="bool-btns"><button class="bool-btn" id="bok-${item.id}" onclick="setBool('${item.id}',true)">✓ Conforme</button><button class="bool-btn" id="bfail-${item.id}" onclick="setBool('${item.id}',false)">✗ No conforme</button></div>`;
-    }else if(item.tipo==='numero'){
-      inp=`<div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><input type="number" placeholder="–" min="${item.min}" max="${item.max}" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;" oninput="setNum('${item.id}',this.value,${item.min},${item.max},this)"><span style="font-size:12px;color:#888;">${item.unidad}</span><span id="rng-${item.id}" style="font-size:11px;color:#aaa;">rango: ${item.min}–${item.max}</span></div>`;
-    }else if(item.tipo==='seleccion'){
-      inp=`<select onchange="setSel('${item.id}',this.value)" style="margin-top:6px;border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:13px;outline:none;"><option value="">Seleccionar...</option>${item.opciones.map(op=>`<option>${op}</option>`).join('')}</select>`;
-    }
+    if(item.tipo==='bool'){inp=`<div class="bool-btns"><button class="bool-btn" id="bok-${item.id}" onclick="setBool('${item.id}',true)">✓ Conforme</button><button class="bool-btn" id="bfail-${item.id}" onclick="setBool('${item.id}',false)">✗ No conforme</button></div>`;}
+    else if(item.tipo==='numero'){inp=`<div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><input type="number" placeholder="–" min="${item.min}" max="${item.max}" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;" oninput="setNum('${item.id}',this.value,${item.min},${item.max},this)"><span style="font-size:12px;color:#888;">${item.unidad}</span><span id="rng-${item.id}" style="font-size:11px;color:#aaa;">rango: ${item.min}–${item.max}</span></div>`;}
+    else if(item.tipo==='seleccion'){inp=`<select onchange="setSel('${item.id}',this.value)" style="margin-top:6px;border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:13px;outline:none;"><option value="">Seleccionar...</option>${item.opciones.map(op=>`<option>${op}</option>`).join('')}</select>`;}
     return`<div class="chk-item" id="ci-${item.id}"><div class="chk-row"><div class="chk-dot" id="dot-${item.id}"></div><div style="flex:1;"><div style="font-size:13px;">${item.label}</div>${inp}</div></div></div>`;
   }).join('');
 }
 
 function markD(id,ok){const d=document.getElementById('dot-'+id);if(!d)return;d.classList.remove('ok','fail');d.classList.add(ok?'ok':'fail');d.innerHTML=ok?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i>';}
 function setBool(id,v){clR[id]=v;const bo=document.getElementById('bok-'+id);const bf=document.getElementById('bfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markD(id,v);actualizaProg(getCurCL());}
-function setNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');const rng=document.getElementById('rng-${item.id}');if(rng)rng.style.color=ok?'#1f6130':(v?'#8a2020':'#aaa');if(v!==''){clR[id]=n;markD(id,ok);actualizaProg(getCurCL());}}
+function setNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');if(v!==''){clR[id]=n;markD(id,ok);actualizaProg(getCurCL());}}
 function setSel(id,v){if(!v)return;clR[id]=v;markD(id,true);actualizaProg(getCurCL());}
 function getCurCL(){const k=getCLKey(clOT?.equipo_nombre||'');return k?CL[k]:null;}
 function actualizaProg(cl){if(!cl)return;const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;document.getElementById('cl-prog').style.width=Math.round(d/t*100)+'%';document.getElementById('cl-prog-lbl').textContent=`${d}/${t}`;}
 function addRef(){const v=document.getElementById('ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:16px;">×</button>`;document.getElementById('ref-list').appendChild(d);document.getElementById('ref-in').value='';}
-
-function pad(n){return String(n).padStart(2,'0');}
 function updT(){const h=Math.floor(tSec/3600),m=Math.floor((tSec%3600)/60),s=tSec%60;const el=document.getElementById('timer-d');if(el)el.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;}
 function toggleTimer(){tOn=!tOn;const b=document.getElementById('timer-btn');if(tOn){b.innerHTML='<i class="ti ti-player-pause"></i> Pausar';tInt=setInterval(()=>{tSec++;updT();},1000);}else{b.innerHTML='<i class="ti ti-player-play"></i> Reanudar';clearInterval(tInt);}}
 function resetTimer(){clearInterval(tInt);tOn=false;tSec=0;updT();const b=document.getElementById('timer-btn');if(b)b.innerHTML='<i class="ti ti-player-play"></i> Iniciar';}
@@ -1150,7 +1483,6 @@ function clearFirma(){const c=document.getElementById('firma-c');if(fCtx)fCtx.cl
 const fE=['🔩','🔧','⚙️','🛠️','📐','🔌'];
 function resetFG(){document.getElementById('foto-grid').innerHTML=`<label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:#aaa;" onclick="simFoto(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>`;}
 function simFoto(btn){const g=document.getElementById('foto-grid');const d=document.createElement('div');const em=fE[Math.floor(Math.random()*fE.length)];d.style.cssText='height:70px;border-radius:8px;background:#f4f5f7;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;';d.innerHTML=`${em}<button onclick="this.parentElement.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.35);border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:10px;line-height:16px;padding:0;">×</button>`;g.insertBefore(d,btn);}
-
 async function cerrarOT(){
   const cl=getCurCL();
   if(cl){const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;if(d<t){toast(`Faltan ${t-d} ítem(s) por completar`);return;}}
@@ -1161,8 +1493,8 @@ async function cerrarOT(){
   if(error){toast('Error: '+error.message);return;}
   if(cl){const ra=cl.items.filter(i=>clR[i.id]!==undefined).map(i=>({orden_id:clOT.id,item_id:i.id,item_label:i.label,respuesta:String(clR[i.id])}));if(ra.length)await db.from('respuestas_checklist').insert(ra);}
   await loadAll();
-  document.getElementById('cl-form').innerHTML=`<div style="text-align:center;padding:60px 20px;"><div style="font-size:56px;margin-bottom:16px;">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:8px;">OT #${clOT.id} cerrada</div><div style="font-size:13px;color:#888;margin-bottom:24px;">Tiempo: ${pad(Math.floor(min/60))}:${pad(min%60)} hrs · Checklist guardado en Supabase</div><button class="btn-sm btn-primary" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Ver otras órdenes</button></div>`;
-  toast('✅ OT cerrada y guardada en la base de datos');
+  document.getElementById('cl-form').innerHTML=`<div style="text-align:center;padding:60px 20px;"><div style="font-size:56px;margin-bottom:16px;">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:8px;">OT #${clOT.id} cerrada</div><div style="font-size:13px;color:#888;margin-bottom:24px;">Tiempo: ${pad(Math.floor(min/60))}:${pad(min%60)} hrs · Checklist guardado</div><button class="btn-sm btn-primary" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Ver otras órdenes</button></div>`;
+  toast('✅ OT cerrada y guardada');
 }
 function volverCL(){clearInterval(tInt);tOn=false;document.getElementById('cl-form').style.display='none';document.getElementById('cl-sel').style.display='';renderCLSel();}
 </script>
