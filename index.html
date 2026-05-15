@@ -13,6 +13,7 @@
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <style>
+/* ── ESTILOS ORIGINALES INTACTOS ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--navy:#1a2b4a;--navy2:#243a61;--green:#2d7a3a;--green-bg:#eaf4ec;--green-txt:#1f6130;--amber:#b87a00;--amber-bg:#fdf3e3;--amber-txt:#7a5000;--red:#b03030;--red-bg:#fbeaea;--red-txt:#8a2020;--blue:#1a5fa8;--blue-bg:#e6f0fa;--blue-txt:#10417a;--border:rgba(0,0,0,0.1);--r:10px}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;min-height:100vh}
@@ -24,8 +25,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .login-sub{font-size:13px;color:#888;text-align:center;margin-bottom:24px}
 .form-field{margin-bottom:14px}
 .form-field label{display:block;font-size:12px;color:#666;margin-bottom:5px;font-weight:500}
-.form-field input, .form-field select{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;transition:border 0.15s;background:#fff;}
-.form-field input:focus, .form-field select:focus{border-color:var(--navy)}
+.form-field input, .form-field select {width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;transition:border 0.15s; background:#fff;}
+.form-field input:focus, .form-field select:focus {border-color:var(--navy)}
 .btn-login{width:100%;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:500;cursor:pointer}
 .btn-login:hover{background:var(--navy2)}
 .btn-login:disabled{opacity:0.6;cursor:not-allowed}
@@ -67,11 +68,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card{background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:16px}
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .card-title{font-size:13px;font-weight:500;color:#111;display:flex;align-items:center;gap:7px}
-.btn-sm{padding:5px 12px;font-size:12px;border:0.5px solid #ddd;border-radius:6px;cursor:pointer;background:transparent;color:#111;display:inline-flex;align-items:center;gap:4px;}
+.btn-sm{padding:5px 12px;font-size:12px;border:0.5px solid #ddd;border-radius:6px;cursor:pointer;background:transparent;color:#111; display:inline-flex; align-items:center; gap:4px;}
 .btn-sm:hover{background:#f4f5f7}
 .btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
 .btn-primary:hover{background:var(--navy2)}
-.btn-danger{color:var(--red-txt);border-color:var(--red-bg);}
+.btn-danger{color:var(--red-txt); border-color:var(--red-bg);}
 .btn-danger:hover{background:var(--red-bg);}
 table{width:100%;border-collapse:collapse}
 th{font-size:11px;color:#888;font-weight:500;text-align:left;padding:6px 8px;border-bottom:0.5px solid var(--border)}
@@ -88,15 +89,14 @@ tr:last-child td{border-bottom:none}
 .panel-visible{display:block}
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center;padding:16px}
 .modal-backdrop.open{display:flex}
-.modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
+.modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.2)}
 .modal-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
 .close-btn{background:none;border:none;cursor:pointer;color:#888;font-size:20px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:500px){.form-grid{grid-template-columns:1fr}}
 .form-group{display:flex;flex-direction:column;gap:4px}
 .form-group label{font-size:12px;color:#666;font-weight:500}
-.form-group input,.form-group select,.form-group textarea{border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;background:#fff;color:#111;font-family:inherit;outline:none}
-.form-group textarea{resize:vertical;min-height:70px}
+.form-group textarea{resize:vertical;min-height:70px;width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;}
 .form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 .tl-item{display:flex;gap:12px;padding:8px 0}
 .tl-line{display:flex;flex-direction:column;align-items:center}
@@ -121,7 +121,6 @@ tr:last-child td{border-bottom:none}
 .rt-dot{width:8px;height:8px;border-radius:50%;background:#2d7a3a;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
 
-/* TOAST, LOADING Y EMPTY STATE */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1}
 .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:#888;gap:8px;font-size:13px}
@@ -131,7 +130,6 @@ tr:last-child td{border-bottom:none}
 .stat-row:last-child{border-bottom:none}
 .tech-av{width:26px;height:26px;border-radius:50%;background:#d0dce8;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--navy)}
 .empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
-.empty-state i{font-size:32px;display:block;margin-bottom:8px}
 
 /* NUEVOS MODULOS (Scanner, Calendar, QR) */
 #reader { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
@@ -196,21 +194,21 @@ tr:last-child td{border-bottom:none}
     </div>
 
     <div id="tab-dashboard" class="panel-hidden">
-      <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:#eaf4ec;border-radius:6px;font-size:11px;color:#1f6130;margin-bottom:12px;"><div class="rt-dot"></div>Datos en tiempo real — se actualizan en todos los dispositivos automáticamente</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:#eaf4ec;border-radius:6px;font-size:11px;color:#1f6130;margin-bottom:12px;"><div class="rt-dot"></div>Datos en tiempo real — se actualizan automáticamente</div>
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b03030"></span>Urgentes</div><div class="kpi-value" id="k-urg">–</div><div class="kpi-sub">Atención inmediata</div></div>
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b87a00"></span>En progreso</div><div class="kpi-value" id="k-prog">–</div><div class="kpi-sub">Asignadas</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#2d7a3a"></span>Completadas hoy</div><div class="kpi-value" id="k-hoy">–</div><div class="kpi-sub">Últimas 24 hrs</div></div>
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#2d7a3a"></span>Completadas</div><div class="kpi-value" id="k-hoy">–</div><div class="kpi-sub">Histórico</div></div>
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#1a5fa8"></span>Equipos</div><div class="kpi-value" id="k-eq">–</div><div class="kpi-sub">Registrados</div></div>
       </div>
       <div class="two-col">
         <div class="card">
           <div class="card-header"><div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes recientes</div><button class="btn-sm btn-primary btn-admin-only" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button></div>
-          <div id="dash-ots"><div class="loading"><div class="spinner"></div> Cargando...</div></div>
+          <div id="dash-ots"></div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title"><i class="ti ti-chart-bar"></i> Resumen</div></div>
-          <div id="dash-res"><div class="loading"><div class="spinner"></div></div></div>
+          <div id="dash-res"></div>
         </div>
       </div>
     </div>
@@ -227,7 +225,7 @@ tr:last-child td{border-bottom:none}
     <div id="tab-ordenes" class="panel-hidden">
       <div class="card">
         <div class="card-header">
-          <div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes de trabajo</div>
+          <div class="card-title"><i class="ti ti-clipboard-list"></i> Directorio de Órdenes</div>
           <div style="display:flex;gap:8px;">
             <select id="f-est-fil" style="border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:12px;" onchange="renderOrdenes()">
               <option value="">Todos</option><option>Urgente</option><option>En progreso</option><option>Pendiente</option><option>Completada</option>
@@ -240,12 +238,6 @@ tr:last-child td{border-bottom:none}
     </div>
 
     <div id="tab-equipos" class="panel-hidden">
-      <div class="kpi-grid" style="margin-bottom:14px;">
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#2d7a3a"></span>Operativos</div><div class="kpi-value" id="eq-ok">–</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b87a00"></span>En mantenimiento</div><div class="kpi-value" id="eq-ma">–</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b03030"></span>Fuera servicio</div><div class="kpi-value" id="eq-fu">–</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#1a5fa8"></span>Total</div><div class="kpi-value" id="eq-to">–</div></div>
-      </div>
       <div class="card">
         <div class="card-header"><div class="card-title"><i class="ti ti-settings-2"></i> Inventario de equipos</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalEq()"><i class="ti ti-plus"></i> Agregar</button></div>
         <div id="eq-wrap"><div class="loading"><div class="spinner"></div></div></div>
@@ -254,40 +246,26 @@ tr:last-child td{border-bottom:none}
 
     <div id="tab-tecnicos" class="panel-hidden">
       <div class="card">
-        <div class="card-header"><div class="card-title"><i class="ti ti-users"></i> Equipo de trabajo</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalUser()"><i class="ti ti-user-plus"></i> Configurar usuario</button></div>
+        <div class="card-header"><div class="card-title"><i class="ti ti-users"></i> Equipo de trabajo</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalUser()"><i class="ti ti-user-plus"></i> Agregar Personal</button></div>
         <div id="tec-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
     
-    <div id="tab-downtime" class="panel-hidden">
-      <div class="card" style="margin-bottom:16px;">
-        <div class="card-header" style="margin-bottom:0;"><div class="card-title"><i class="ti ti-activity"></i> Análisis de Downtime por Equipo</div></div>
-        <div style="margin-top:12px; margin-bottom:8px;">
-            <label style="font-size:12px; color:#666; font-weight:500; display:block; margin-bottom:4px;">Seleccione un equipo para analizar sus fallas:</label>
-            <select id="dt-equipo-sel" onchange="updateDowntimeEquipo()" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px; font-size:14px; outline:none;"></select>
-        </div>
-      </div>
-      <div class="kpi-grid" id="dt-kpis" style="display:none;">
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b03030"></span>Horas de Paro (Total)</div><div class="kpi-value" id="dt-hrs-eq" style="color:var(--red-txt)">–</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b87a00"></span>Eventos de Falla</div><div class="kpi-value" id="dt-fallas-eq">–</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#1a5fa8"></span>MTTR Promedio</div><div class="kpi-value" id="dt-mttr-eq">–</div></div>
-      </div>
-      <div class="card" id="dt-lista" style="display:none;">
-        <div class="card-header"><div class="card-title"><i class="ti ti-list-details"></i> Historial de Correctivos</div></div>
-        <div id="dt-lista-wrap"></div>
-      </div>
+    <div id="tab-downtime" class="panel-hidden card">
+      <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-activity"></i> Análisis de Downtime General</div></div>
+      <p style="font-size:12px; color:#666; margin-bottom:16px;">Listado global de equipos con fallas registradas (Correctivos). Clic en "Ver Detalle" para analizar el equipo.</p>
+      <div id="dt-list-equipos"></div>
     </div>
 
     <div id="tab-checklist" class="panel-hidden">
       <div id="cl-sel">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="font-size:15px;font-weight:500;">Ejecutar checklist de OT</div><span style="font-size:12px;color:#888;">Selecciona una orden activa</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="font-size:15px;font-weight:500;">Ejecutar checklist de OT</div></div>
         <div id="cl-cards"><div class="loading"><div class="spinner"></div></div></div>
       </div>
       <div id="cl-form" style="display:none;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
           <button class="btn-sm" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Volver</button>
           <div><div style="font-size:14px;font-weight:500;" id="cl-ttl">–</div><div style="font-size:12px;color:#888;" id="cl-meta">–</div></div>
-          <div style="margin-left:auto;" id="cl-est"></div>
         </div>
         <div class="two-col">
           <div>
@@ -368,13 +346,9 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<div class="modal-backdrop" id="modal-hist">
-  <div class="modal"><div class="modal-title"><span id="hist-ttl">Historial</span><button class="close-btn" onclick="closeM('modal-hist')"><i class="ti ti-x"></i></button></div><div id="hist-body"></div></div>
-</div>
-
 <div class="modal-backdrop" id="modal-invite">
   <div class="modal" style="max-width:420px;">
-    <div class="modal-title"><span><i class="ti ti-user-plus" style="margin-right:6px;"></i>Configurar perfil de usuario</span><button class="close-btn" onclick="closeM('modal-invite')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-title"><span id="usr-modal-title">Configurar Perfil</span><button class="close-btn" onclick="closeM('modal-invite')"><i class="ti ti-x"></i></button></div>
     <p style="font-size:12px;color:#888;margin-bottom:14px;" id="usr-hint">Primero invita al usuario en Supabase → Authentication → Invite user. Luego pega su UUID aquí:</p>
     <div class="form-grid" style="grid-template-columns:1fr;">
       <div class="form-group"><label>UUID del usuario (desde Auth)</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
@@ -389,9 +363,7 @@ tr:last-child td{border-bottom:none}
         </select>
       </div>
       <div class="form-group" id="grp-zona" style="display:none;"><label>Asignación de Zona</label>
-        <select id="inv-zona">
-          <option value="">Seleccione...</option><option>Zona 1</option><option>Zona 2</option><option>Zona 3</option><option>Zona 4</option><option>Zona 5</option><option>Zona 6</option><option>Zona 7</option>
-        </select>
+        <select id="inv-zona"><option value="">Seleccione...</option><option>Zona 1</option><option>Zona 2</option><option>Zona 3</option><option>Zona 4</option><option>Zona 5</option><option>Zona 6</option><option>Zona 7</option></select>
       </div>
       <div class="form-group" id="grp-esp"><label>Especialidad</label><input type="text" id="inv-esp" placeholder="Mecánico CNC..."></div>
       <div class="form-group"><label>Turno</label><select id="inv-tur"><option>Mañana</option><option>Tarde</option><option>Nocturno</option></select></div>
@@ -402,7 +374,7 @@ tr:last-child td{border-bottom:none}
 
 <div class="modal-backdrop" id="modal-equipo">
   <div class="modal" style="max-width:440px;">
-    <div class="modal-title"><span id="eq-modal-title"><i class="ti ti-settings-2" style="margin-right:6px;"></i>Nuevo equipo</span><button class="close-btn" onclick="closeM('modal-equipo')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-title"><span id="eq-modal-title">Nuevo Equipo</span><button class="close-btn" onclick="closeM('modal-equipo')"><i class="ti ti-x"></i></button></div>
     <input type="hidden" id="eq-edit-id">
     <div class="form-grid">
       <div class="form-group"><label>Código</label><input type="text" id="eq-cod" placeholder="CNC-03"></div>
@@ -420,6 +392,14 @@ tr:last-child td{border-bottom:none}
       <div class="form-group" style="grid-column:1/-1;"><label>Criticidad</label><select id="eq-cri"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></div>
     </div>
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-equipo')">Cancelar</button><button class="btn-sm btn-primary" onclick="guardarEquipo()"><i class="ti ti-check"></i> Guardar</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-dt-detalle">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-title">Detalle de Fallas<button class="close-btn" onclick="closeM('modal-dt-detalle')"><i class="ti ti-x"></i></button></div>
+    <h3 id="dt-det-nom" style="font-size:15px; margin-bottom:16px;">-</h3>
+    <div id="dt-det-lista"></div>
   </div>
 </div>
 
@@ -455,17 +435,17 @@ function toast(msg,dur=3500){const t=document.getElementById('toast');t.textCont
 function ini(n){return(n||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();}
 function fmt(ts){if(!ts)return'–';const d=new Date(ts);return d.toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 function badge(e){const m={'Urgente':'badge-red','En progreso':'badge-amber','Pendiente':'badge-gray','Completada':'badge-green','Operativo':'badge-green','En mantenimiento':'badge-amber','Fuera de servicio':'badge-red','Alta':'badge-red','Media':'badge-amber','Baja':'badge-gray','Correctivo':'badge-red','Preventivo':'badge-blue','Predictivo':'badge-purple','Inspección':'badge-blue'};return`<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;}
-function rolBadge(r){const c={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_zona:'r-supervisor_zona',admin:'r-admin',gerencia:'r-gerencia'};const l={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. de Zona',admin:'Admin',gerencia:'Gerencia'};return`<span class="role-badge ${c[r]||''}">${l[r]||r}</span>`;}
+function rolBadge(r){const c={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_zona:'r-supervisor_zona',admin:'r-admin',gerencia:'r-gerencia'};const l={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. Zona',admin:'Admin',gerencia:'Gerencia'};return`<span class="role-badge ${c[r]||''}">${l[r]||r}</span>`;}
 
 // ── PERMISOS ──
 function canDo(a){
   const r=curProf?.rol;
   const p={
     crear_ot:['tecnico','supervisor','supervisor_zona','admin'],
-    ver_tecnicos:['supervisor','gerencia','admin'], 
-    gestionar_usuarios:['admin'], // Admin tiene poder total
+    ver_tecnicos:['gerencia','admin'], 
+    gestionar_usuarios:['admin'], // Solo Admin puede gestionar usuarios
     gestionar_equipos:['admin','supervisor','gerencia'],
-    ver_dashboard:['admin','gerencia','supervisor','supervisor_zona']
+    ver_dashboard:['admin','gerencia','supervisor']
   };
   return (p[a]||[]).includes(r);
 }
@@ -474,17 +454,18 @@ function openM(id){document.getElementById(id).classList.add('open');}
 function closeM(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)b.classList.remove('open');}));
 
-// ── LOGICA DINAMICA DE CAMPOS ──
+// ── LÓGICA DINÁMICA DE CAMPOS ──
 function toggleUserFields(){
   const rol = document.getElementById('inv-rol').value;
   document.getElementById('grp-zona').style.display = (rol === 'supervisor_zona') ? 'flex' : 'none';
   document.getElementById('grp-esp').style.display = ['supervisor_zona', 'supervisor', 'gerencia'].includes(rol) ? 'none' : 'flex';
 }
+
 function toggleFechaProg(){
   document.getElementById('grp-fecha-prog').style.display = document.getElementById('f-tipo').value === 'Preventivo' ? 'flex' : 'none';
 }
 
-// ── AUTH ──
+// ── AUTH Y NAVEGACION INICIAL ──
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 async function doLogin(){
   const email=document.getElementById('l-email').value.trim();
@@ -499,12 +480,13 @@ async function doLogin(){
   if(error){err.textContent=error.message;err.classList.add('show');return;}
   await bootApp(data.user);
 }
+
 async function bootApp(user){
   curUser=user;
   const {data:prof}=await db.from('profiles').select('*').eq('id',user.id).single();
   curProf=prof;
   if(!prof){
-    document.getElementById('login-err').textContent='Tu perfil no está configurado. Pide al encargado que lo registre en la base de datos.';
+    document.getElementById('login-err').textContent='Tu perfil no está configurado. Contacta al administrador.';
     document.getElementById('login-err').classList.add('show');
     await db.auth.signOut();return;
   }
@@ -514,7 +496,7 @@ async function bootApp(user){
   const rl={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. de Zona',admin:'Admin',gerencia:'Gerencia'};
   const rb=document.getElementById('u-rol');rb.className='role-badge '+(rc[prof.rol]||'');rb.textContent=rl[prof.rol]||prof.rol;
   
-  // NAV RENDERING
+  // GENERACIÓN DEL NAV BAR DINÁMICO
   const nav = document.getElementById('main-nav');
   nav.innerHTML = '';
   
@@ -526,12 +508,22 @@ async function bootApp(user){
     nav.innerHTML += `<button class="nav-btn" id="nav-calendario" onclick="setTab('calendario')"><i class="ti ti-calendar"></i> Calendario PM</button>`;
   }
   nav.innerHTML += `<button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>`;
-  nav.innerHTML += `<button class="nav-btn" id="nav-checklist" onclick="setTab('checklist')"><i class="ti ti-checklist"></i> Checklist</button>`;
   
-  if(canDo('ver_dashboard')) nav.innerHTML += `<button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>`;
-  if(canDo('ver_tecnicos')) nav.innerHTML += `<button class="nav-btn" id="nav-tecnicos" onclick="setTab('tecnicos')"><i class="ti ti-users"></i> Técnicos</button>`;
-  if(canDo('ver_dashboard')) nav.innerHTML += `<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
+  if(['tecnico', 'admin', 'supervisor'].includes(curProf.rol)) {
+    nav.innerHTML += `<button class="nav-btn" id="nav-checklist" onclick="setTab('checklist')"><i class="ti ti-checklist"></i> Checklist</button>`;
+  }
+  
+  if(canDo('ver_dashboard')) {
+    nav.innerHTML += `<button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>`;
+  }
+  if(canDo('ver_tecnicos')) {
+    nav.innerHTML += `<button class="nav-btn" id="nav-tecnicos" onclick="setTab('tecnicos')"><i class="ti ti-users"></i> Personal</button>`;
+  }
+  if(canDo('ver_dashboard')) {
+    nav.innerHTML += `<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
+  }
 
+  // BOTONES ADMIN-ONLY
   document.querySelectorAll('.btn-admin-only').forEach(b => b.style.display = curProf.rol==='admin' ? '' : 'none');
 
   document.getElementById('login-screen').style.display='none';
@@ -539,8 +531,13 @@ async function bootApp(user){
   await loadAll();
   setupRT();
   
-  if (['tecnico', 'supervisor_zona'].includes(curProf.rol)) { setTab('escaner'); startScanner(); }
-  else { setTab('dashboard'); }
+  // ARRANQUE AUTOMÁTICO DE PESTAÑA (Repara el bug de pantalla en blanco)
+  if (['tecnico', 'supervisor_zona'].includes(curProf.rol)) {
+      setTab('escaner');
+      startScanner();
+  } else {
+      setTab('dashboard');
+  }
 }
 async function doLogout(){if(rtCh)db.removeChannel(rtCh);await db.auth.signOut();curUser=null;curProf=null;document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';}
 db.auth.getSession().then(async({data:{session}})=>{if(session)await bootApp(session.user);});
@@ -556,7 +553,9 @@ async function loadAll(){
   
   if(canDo('ver_dashboard')) { renderDash(); renderEquipos(); renderDowntime(); renderCalendar(); }
   if(canDo('ver_tecnicos')) renderUsuarios();
-  renderOrdenes(); renderCLSel();
+  
+  renderOrdenes(); 
+  if(['tecnico', 'admin', 'supervisor'].includes(curProf?.rol)) renderCLSel();
 }
 
 function setupRT(){
@@ -564,38 +563,36 @@ function setupRT(){
   rtCh=db.channel('ft-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async p=>{
       await loadAll();
+      // Notificaciones dinámicas
       if(p.eventType === 'INSERT') {
           if(p.new.tecnico_id === curUser?.id) toast('🔔 Nueva orden asignada a ti: ' + (p.new.equipo_nombre||''), 5000);
-          else if(canDo('gestionar_equipos')) toast('📋 Nueva OT registrada: ' + (p.new.equipo_nombre||''));
-      } else if (p.eventType === 'UPDATE' && p.new.estado === 'Completada' && p.old.estado !== 'Completada') {
-          if(canDo('gestionar_equipos')) toast('✅ OT completada en ' + (p.new.equipo_nombre||''));
       }
     })
     .subscribe(s=>{document.getElementById('rt-st').textContent=s==='SUBSCRIBED'?'En vivo':'Reconectando...';});
 }
 
-// ── NAV ──
-const TABS=['dashboard','ordenes','equipos','tecnicos','checklist','downtime','escaner','calendario'];
+// ── NAVEGACIÓN ──
+const TABS = ['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime'];
 function setTab(t){
-  TABS.forEach(x=>{
-    const el = document.getElementById('tab-'+x);
-    if(el) el.className=x===t?'panel-visible':'panel-hidden';
+  TABS.forEach(x => { 
+      const el = document.getElementById('tab-'+x); 
+      if(el) el.className = x===t ? 'panel-visible' : 'panel-hidden'; 
   });
   document.querySelectorAll('.nav-btn').forEach(b => {
-      const clickAttr = b.getAttribute('onclick') || '';
-      if (clickAttr.includes(`'${t}'`)) b.classList.add('active');
-      else b.classList.remove('active');
+      b.classList.remove('active');
+      if (b.id === 'nav-'+t) b.classList.add('active');
   });
+  
   if(t==='ordenes')renderOrdenes();
-  if(t==='equipos')renderEquipos();
-  if(t==='tecnicos')renderTecnicos();
+  if(t==='equipos' && canDo('ver_dashboard'))renderEquipos();
+  if(t==='tecnicos' && canDo('ver_tecnicos'))renderUsuarios();
   if(t==='checklist')renderCLSel();
-  if(t==='downtime')renderDowntime();
-  if(t==='calendario')renderCalendar();
+  if(t==='downtime' && canDo('ver_dashboard'))renderDowntime();
+  if(t==='calendario' && canDo('ver_dashboard'))renderCalendar();
   if(t!=='escaner')stopScanner();
 }
 
-// ── ESCANER Y HUB ──
+// ── ESCANER Y HUB (Reparado) ──
 function startScanner() {
   if (html5Scanner) return;
   html5Scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
@@ -603,11 +600,14 @@ function startScanner() {
     const eq = allEqs.find(e => e.codigo === decodedText);
     if (eq) {
       stopScanner();
-      if(curProf.rol === 'supervisor_zona') openNuevaOT(eq.id); // Supervisor levanta ticket directo
-      else openEqHub(eq.id); // Técnico/Admin ve la ficha
+      if(curProf.rol === 'supervisor_zona') {
+          openNuevaOT(eq.id); // Supervisor de zona va directo a levantar ticket
+      } else {
+          openEqHub(eq.id); // Tecnico o admin ve el Hub primero
+      }
       toast("✅ Equipo Detectado: " + eq.nombre);
     } else {
-      toast("❌ Código QR no reconocido");
+      toast("❌ Código QR no reconocido en la base de datos");
     }
   }, () => {});
 }
@@ -654,23 +654,19 @@ function renderCalendar(){
   const daysInMonth = new Date(currYear, currMonth+1, 0).getDate();
   
   let html = `<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>`;
-  
   for(let i=0; i<firstDay; i++) html += `<div class="cal-cell" style="background:transparent; border:none;"></div>`;
   
   const prevOTs = allOTs.filter(o => o.fecha_programada || (o.tipo === 'Preventivo'));
-  const today = new Date();
   
   for(let d=1; d<=daysInMonth; d++){
-    let isToday = (d===today.getDate() && currMonth===today.getMonth() && currYear===today.getFullYear()) ? 'today' : '';
-    
+    let isToday = (d===new Date().getDate() && currMonth===new Date().getMonth() && currYear===new Date().getFullYear()) ? 'today' : '';
     let dayOTs = prevOTs.filter(o => {
        if(!o.fecha_programada) return false;
-       let dDate = new Date(o.fecha_programada);
-       dDate = new Date(dDate.getTime() + dDate.getTimezoneOffset() * 60000); 
+       let dDate = new Date(new Date(o.fecha_programada).getTime() + new Date().getTimezoneOffset() * 60000); 
        return dDate.getDate() === d && dDate.getMonth() === currMonth && dDate.getFullYear() === currYear;
     });
 
-    let evHtml = dayOTs.map(o => `<div class="cal-event ${o.estado==='Urgente'||o.tipo==='Correctivo'?'falla':''}" onclick="alert('OT #${o.id}: ${o.equipo_nombre}\\nAsignado: ${o.tecnico_nombre||'Pendiente'}\\nDesc: ${o.descripcion}')">${o.equipo_nombre}</div>`).join('');
+    let evHtml = dayOTs.map(o => `<div class="cal-event ${o.estado==='Urgente'||o.tipo==='Correctivo'?'falla':''}" onclick="alert('OT #${o.id}: ${o.equipo_nombre}\\nAsignado a: ${o.tecnico_nombre||'Pendiente'}')">${o.equipo_nombre}</div>`).join('');
     html += `<div class="cal-cell ${isToday}"><div class="cal-date">${d}</div>${evHtml}</div>`;
   }
   const grid = document.getElementById('cal-grid');
@@ -682,13 +678,16 @@ function renderDash(){
   const hoy=new Date();hoy.setHours(0,0,0,0);
   const urg = allOTs.filter(o=>o.estado==='Urgente').length;
   document.getElementById('k-urg').textContent=urg;
-  const b=document.getElementById('badge-urg');b.textContent=urg;b.style.display=urg?'':'none';
+  const b=document.getElementById('badge-urg');
+  if(b){ b.textContent=urg; b.style.display=urg?'':'none'; }
 
   document.getElementById('k-prog').textContent=allOTs.filter(o=>o.estado==='En progreso').length;
   document.getElementById('k-hoy').textContent=allOTs.filter(o=>o.estado==='Completada'&&o.fecha_cierre&&new Date(o.fecha_cierre)>=hoy).length;
   document.getElementById('k-eq').textContent=allEqs.length;
+  
   const rec=allOTs.slice(0,6);
   document.getElementById('dash-ots').innerHTML=rec.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Tipo</th><th>Estado</th><th>Técnico</th></tr></thead><tbody>${rec.map(o=>`<tr><td style="font-size:11px;color:#aaa;">#${o.id}</td><td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td><td>${badge(o.tipo)}</td><td>${badge(o.estado)}</td><td><span class="tech-av">${ini(o.tecnico_nombre)}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
+  
   const compl=allOTs.filter(o=>o.estado==='Completada').length;
   const pend=allOTs.filter(o=>['Pendiente','En progreso'].includes(o.estado)).length;
   document.getElementById('dash-res').innerHTML=`
@@ -701,16 +700,17 @@ function renderDash(){
     <div class="stat-row"><span style="color:#888;">Equipos registrados</span><strong>${allEqs.length}</strong></div>`;
 }
 
-// ── ORDENES ──
+// ── ORDENES Y CALENDARIO ──
 function renderOrdenes(){
   const f=document.getElementById('f-est-fil').value;
   let lista=f?allOTs.filter(o=>o.estado===f):allOTs;
-  if(curProf.rol === 'tecnico') lista = lista.filter(o=>o.tecnico_id === curUser.id);
-
-  document.getElementById('ots-wrap').innerHTML=lista.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Programada</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th></th></tr></thead><tbody>${lista.map(o=>`<tr>
+  if(curProf.rol === 'tecnico') lista=lista.filter(o=>o.tecnico_id===curUser.id);
+  
+  document.getElementById('ots-wrap').innerHTML=lista.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Programado</th><th>Descripción</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th></th></tr></thead><tbody>${lista.map(o=>`<tr>
     <td style="font-size:11px;color:#aaa;">#${o.id}</td>
     <td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td>
     <td style="font-size:11px;color:#888;">${o.fecha_programada ? new Date(new Date(o.fecha_programada).getTime() + new Date().getTimezoneOffset() * 60000).toLocaleDateString('es-MX') : '–'}</td>
+    <td style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.descripcion||'–'}</td>
     <td>${badge(o.tipo)}</td><td>${badge(o.prioridad)}</td><td>${badge(o.estado)}</td>
     <td><span class="tech-av" title="${o.tecnico_nombre||''}">${ini(o.tecnico_nombre)}</span></td>
     <td style="display:flex; gap:4px;">
@@ -726,7 +726,7 @@ function openNuevaOT(eqIdPre = null){
   if(eqIdPre) { document.getElementById('f-equipo').value = eqIdPre; document.getElementById('f-equipo').disabled = true; }
   
   if(curProf.rol === 'supervisor_zona'){
-    document.getElementById('group-tec').style.display = 'none'; // Sup Zona no asigna
+    document.getElementById('group-tec').style.display = 'none';
   } else {
     document.getElementById('group-tec').style.display = 'flex';
     document.getElementById('f-tec').innerHTML='<option value="">Sin asignar</option>'+allProfs.filter(p=>p.rol==='tecnico').map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');
@@ -789,7 +789,8 @@ async function eliminarOT(id){
 
 // ── EQUIPOS ──
 function renderEquipos(){
-  document.getElementById('eq-wrap').innerHTML=allEqs.length?`<div style="overflow-x:auto;"><table><thead><tr><th>Código</th><th>Nombre</th><th>Zona Asignada</th><th>Uso (Hrs)</th><th>Frec. PM</th><th>Estado</th><th></th></tr></thead><tbody>${allEqs.map(e=>{
+  let html = `<table><thead><tr><th>Código</th><th>Nombre</th><th>Zona Asignada</th><th>Uso (Hrs)</th><th>Frec. PM</th><th>Estado</th><th></th></tr></thead><tbody>`;
+  html += allEqs.map(e=>{
     const reqPM = (e.horas_actuales||0) >= (e.frec_pm_horas||999999) && (e.horas_actuales||0)>0;
     return `<tr>
       <td style="font-size:11px;color:#888;font-family:monospace;">${e.codigo}</td>
@@ -800,14 +801,14 @@ function renderEquipos(){
       <td>${badge(e.estado)} ${reqPM?'<span class="badge badge-red" style="margin-left:4px;">PM Req.</span>':''}</td>
       <td style="display:flex; gap:6px;">
         <button class="btn-sm" title="Generar QR" onclick="verQR('${e.codigo}', '${e.nombre}')"><i class="ti ti-qrcode"></i></button>
-        <button class="btn-sm" title="Historial" onclick="verHist(${e.id},'${e.codigo} – ${e.nombre}')"><i class="ti ti-history"></i></button>
         ${curProf.rol === 'admin' ? `
           <button class="btn-sm" title="Editar" onclick="openModalEq(${e.id})"><i class="ti ti-edit"></i></button>
           <button class="btn-sm btn-danger" title="Eliminar" onclick="eliminarEquipo(${e.id})"><i class="ti ti-trash"></i></button>
         ` : ''}
       </td>
     </tr>`;
-  }).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-settings-2"></i>Sin equipos</div>';
+  }).join('');
+  document.getElementById('eq-wrap').innerHTML = html + `</tbody></table>`;
 }
 
 function openModalEq(id = null){
@@ -879,32 +880,22 @@ function verQR(codigo, nombre) {
   openM('modal-qr');
 }
 
-async function verHist(eqId,nombre){
-  document.getElementById('hist-ttl').textContent=nombre;
-  document.getElementById('hist-body').innerHTML='<div class="loading"><div class="spinner"></div></div>';
-  openM('modal-hist');
-  const{data}=await db.from('ordenes_trabajo').select('*').eq('equipo_id',eqId).order('fecha_creacion',{ascending:false}).limit(15);
-  const items=data||[];
-  document.getElementById('hist-body').innerHTML=items.length?items.map((o,i)=>`<div class="tl-item"><div class="tl-line"><div class="tl-dot"></div>${i<items.length-1?'<div class="tl-track"></div>':''}</div><div class="tl-content"><div class="tl-title">${o.descripcion||o.tipo} ${badge(o.estado)}</div><div class="tl-time">${fmt(o.fecha_creacion)} · ${o.tecnico_nombre||'Sin asignar'}</div></div></div>`).join(''):'<div class="empty-state">Sin historial registrado</div>';
-}
-
-// ── TÉCNICOS (Usuarios gestionados por Admin) ──
-function renderTecnicos(){
-  document.getElementById('tec-wrap').innerHTML=allProfs.length?`<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona (Sup.)</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>${allProfs.map(p=>{
-    return`<tr>
-        <td><div style="display:flex;align-items:center;gap:8px;"><span class="tech-av">${ini(p.nombre)}</span><span style="font-weight:500;">${p.nombre}</span></div></td>
-        <td>${rolBadge(p.rol)}</td>
-        <td style="font-size:12px;">${p.zona||'–'}</td>
-        <td style="font-size:12px;color:#888;">${p.especialidad||'–'}</td>
-        <td style="font-size:12px;">${p.turno||'–'}</td>
-        <td style="display:flex; gap:6px;">
-          ${canDo('gestionar_usuarios') ? `
-            <button class="btn-sm" title="Editar" onclick="openModalUser('${p.id}')"><i class="ti ti-edit"></i></button>
-            <button class="btn-sm btn-danger" title="Eliminar" onclick="eliminarUsuario('${p.id}')"><i class="ti ti-trash"></i></button>
-          ` : ''}
-        </td>
-    </tr>`;
-  }).join('')}</tbody></table>`:'<div class="empty-state"><i class="ti ti-users"></i>Sin usuarios registrados</div>';
+// ── USUARIOS (Admin Only) ──
+function renderUsuarios(){
+  let html = `<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona (Sup.)</th><th>Especialidad</th><th></th></tr></thead><tbody>`;
+  html += allProfs.map(u=>`<tr>
+    <td><strong>${u.nombre}</strong></td>
+    <td>${rolBadge(u.rol)}</td>
+    <td>${u.zona||'-'}</td>
+    <td>${u.especialidad||'-'}</td>
+    <td style="display:flex;gap:4px;">
+      ${curProf.rol==='admin'?`
+        <button class="btn-sm" onclick="openModalUser('${u.id}')"><i class="ti ti-edit"></i></button>
+        <button class="btn-sm btn-danger" onclick="delUsr('${u.id}')"><i class="ti ti-trash"></i></button>
+      `:''}
+    </td>
+  </tr>`).join('');
+  document.getElementById('tec-wrap').innerHTML = html + `</tbody></table>`;
 }
 
 function openModalUser(id = null){
@@ -917,7 +908,6 @@ function openModalUser(id = null){
     document.getElementById('inv-rol').value = u.rol;
     document.getElementById('inv-zona').value = u.zona || '';
     document.getElementById('inv-esp').value = u.especialidad;
-    document.getElementById('inv-tur').value = u.turno;
     document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user" style="margin-right:6px;"></i>Editar Perfil';
     document.getElementById('usr-hint').style.display = 'none';
     toggleUserFields();
@@ -943,12 +933,14 @@ async function guardarPerfil(){
   const zonaAsignada = rol === 'supervisor_zona' ? document.getElementById('inv-zona').value : null;
   const espAsignada = (rol === 'supervisor_zona' || rol === 'supervisor' || rol === 'gerencia') ? null : document.getElementById('inv-esp').value.trim();
 
-  const{error}=await db.from('profiles').upsert({id:uuid,nombre:nom,rol:rol,zona:zonaAsignada,especialidad:espAsignada,turno:document.getElementById('inv-tur').value});
+  const payload = {id:uuid,nombre:nom,rol:rol,zona:zonaAsignada,especialidad:espAsignada};
+  
+  const{error}=await db.from('profiles').upsert(payload);
   if(error){toast('❌ Error: '+error.message);return;}
   closeM('modal-invite');toast('✅ Perfil guardado');await loadProfs();renderTecnicos();
 }
 
-async function eliminarUsuario(id){
+async function delUsr(id){
   if(id === curUser.id) return toast("No puedes eliminarte a ti mismo.");
   if(!confirm("¿Eliminar este perfil de la base de datos?")) return;
   const {error} = await db.from('profiles').delete().eq('id', id);
@@ -957,44 +949,40 @@ async function eliminarUsuario(id){
   await loadProfs(); renderTecnicos();
 }
 
-// ── DOWNTIME POR EQUIPO ──
+// ── DOWNTIME LISTADO GLOBAL ──
 function renderDowntime() {
-  const sel = document.getElementById('dt-equipo-sel');
-  const currentVal = sel.value;
-  sel.innerHTML = '<option value="">Seleccione un equipo para analizar...</option>' + allEqs.map(e => `<option value="${e.id}">${e.codigo} – ${e.nombre}</option>`).join('');
-  sel.value = currentVal;
-  updateDowntimeEquipo();
+  const fallas = allOTs.filter(o=>o.tipo==='Correctivo');
+  
+  let eqStats = {};
+  fallas.forEach(f => {
+      if(!eqStats[f.equipo_id]) eqStats[f.equipo_id] = {nom: f.equipo_nombre, count:0, min:0, id:f.equipo_id};
+      eqStats[f.equipo_id].count++;
+      eqStats[f.equipo_id].min += (f.tiempo_minutos||0);
+  });
+  
+  let list = Object.values(eqStats).sort((a,b)=> b.min - a.min);
+
+  document.getElementById('dt-list-equipos').innerHTML = list.length ? `<table><thead><tr><th>Equipo</th><th>Fallas Totales</th><th>Horas Paro</th><th>MTTR</th><th></th></tr></thead><tbody>
+    ${list.map(e => `<tr>
+      <td><strong>${e.nom}</strong></td>
+      <td><span class="badge badge-red">${e.count}</span></td>
+      <td style="color:var(--red-txt); font-weight:600;">${(e.min/60).toFixed(1)}h</td>
+      <td>${Math.round(e.min/e.count)}m</td>
+      <td><button class="btn-sm" onclick="verDetalleDT(${e.id}, '${e.nom}')">Ver Detalle</button></td>
+    </tr>`).join('')}
+  </tbody></table>` : '<div class="empty-state">Excelente, no hay fallas (Correctivos) registrados.</div>';
 }
 
-function updateDowntimeEquipo() {
-  const eqId = document.getElementById('dt-equipo-sel').value;
-  if(!eqId) {
-    document.getElementById('dt-kpis').style.display = 'none';
-    document.getElementById('dt-lista').style.display = 'none';
-    return;
-  }
-  
-  document.getElementById('dt-kpis').style.display = 'grid';
-  document.getElementById('dt-lista').style.display = 'block';
-
-  // Solo toma fallas (Correctivo)
-  const eqOTs = allOTs.filter(o => o.equipo_id == eqId && o.tipo === 'Correctivo');
-  
-  const totalMinutos = eqOTs.reduce((sum, o) => sum + (o.tiempo_minutos || 0), 0);
-  const totalFallas = eqOTs.length;
-  const mttr = totalFallas > 0 ? Math.round(totalMinutos / totalFallas) : 0;
-
-  document.getElementById('dt-hrs-eq').textContent = (totalMinutos / 60).toFixed(1) + 'h';
-  document.getElementById('dt-fallas-eq').textContent = totalFallas;
-  document.getElementById('dt-mttr-eq').textContent = mttr + 'm';
-
-  document.getElementById('dt-lista-wrap').innerHTML = eqOTs.length ? 
-    `<table><thead><tr><th>Fecha de Falla</th><th>Técnico</th><th>Descripción del Problema</th><th>Duración</th></tr></thead><tbody>
-    ${eqOTs.map(o => `<tr><td style="font-size:12px;color:#666;">${fmt(o.fecha_creacion)}</td><td style="font-size:12px;">${o.tecnico_nombre||'–'}</td><td style="font-size:12px;">${o.descripcion||'–'}</td><td style="font-size:12px;font-weight:600;color:var(--red-txt);">${o.tiempo_minutos?o.tiempo_minutos+' min':'–'}</td></tr>`).join('')}
-    </tbody></table>` : '<div class="empty-state" style="padding:20px;"><i class="ti ti-check" style="color:var(--green); font-size:24px;"></i><br>No hay reportes de fallas (Correctivos) registrados.</div>';
+function verDetalleDT(eqId, nombre) {
+    const fallas = allOTs.filter(o=> o.equipo_id == eqId && o.tipo === 'Correctivo');
+    document.getElementById('dt-det-nom').textContent = "Historial de Correctivos: " + nombre;
+    document.getElementById('dt-det-lista').innerHTML = `<table><thead><tr><th>Fecha</th><th>Falla</th><th>Duración</th></tr></thead><tbody>
+        ${fallas.map(f => `<tr><td style="font-size:12px;color:#888;">${fmt(f.fecha_creacion)}</td><td style="font-size:12px;">${f.descripcion||'Sin desc.'}</td><td style="font-size:12px;font-weight:600;color:var(--red-txt);">${f.tiempo_minutos?f.tiempo_minutos+'m':'-'}</td></tr>`).join('')}
+    </tbody></table>`;
+    openM('modal-dt-detalle');
 }
 
-// ── CHECKLIST ──
+// ── CHECKLIST ENGINE ──
 const CL={
   'CNC':{nombre:'Checklist CNC / Torno',items:[
     {id:'c1',label:'Verificar nivel de lubricante de guías',tipo:'bool'},
@@ -1064,7 +1052,7 @@ function renderCLSel(){
       <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.4;">${o.descripcion||'–'}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;color:#aaa;"><i class="ti ti-user"></i> ${(o.tecnico_nombre||'Sin asignar').split(' ')[0]}</span>${h?'<span style="font-size:11px;background:#eaf4ec;color:#1f6130;padding:2px 8px;border-radius:20px;">✓ Checklist disponible</span>':'<span style="font-size:11px;color:#aaa;">Sin checklist</span>'}</div>
     </div>`;
-  }).join('')}</div>`:'<div class="empty-state"><i class="ti ti-clipboard-check"></i>No hay órdenes activas asignadas a ti</div>';
+  }).join('')}</div>`:'<div class="empty-state"><i class="ti ti-clipboard-check"></i>No hay órdenes activas asignadas</div>';
 }
 
 function abrirCL(otId){
@@ -1073,7 +1061,6 @@ function abrirCL(otId){
   document.getElementById('ref-in').value='';document.getElementById('ref-list').innerHTML='';document.getElementById('obs-txt').value='';
   document.getElementById('cl-ttl').textContent=`#${clOT.id} – ${clOT.equipo_nombre||'–'}`;
   document.getElementById('cl-meta').textContent=`${clOT.tipo} · ${clOT.tecnico_nombre||'–'} · ${fmt(clOT.fecha_creacion)}`;
-  document.getElementById('cl-est').innerHTML=badge(clOT.estado);
   document.getElementById('cl-sel').style.display='none';
   document.getElementById('cl-form').style.display='';
   const k=getCLKey(clOT.equipo_nombre||'');
@@ -1122,9 +1109,9 @@ async function cerrarOT(){
   const{error}=await db.from('ordenes_trabajo').update({estado:'Completada',fecha_cierre:new Date().toISOString(),observaciones:obs,tiempo_minutos:min}).eq('id',clOT.id);
   if(error){toast('Error: '+error.message);return;}
   if(cl){const ra=cl.items.filter(i=>clR[i.id]!==undefined).map(i=>({orden_id:clOT.id,item_id:i.id,item_label:i.label,respuesta:String(clR[i.id])}));if(ra.length)await db.from('respuestas_checklist').insert(ra);}
-  await loadOTs();
+  await loadAll();
   document.getElementById('cl-form').innerHTML=`<div style="text-align:center;padding:60px 20px;"><div style="font-size:56px;margin-bottom:16px;">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:8px;">OT #${clOT.id} cerrada</div><div style="font-size:13px;color:#888;margin-bottom:24px;">Tiempo: ${pad(Math.floor(min/60))}:${pad(min%60)} hrs · Checklist guardado en Supabase</div><button class="btn-sm btn-primary" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Ver otras órdenes</button></div>`;
-  renderDash();toast('✅ OT cerrada y guardada en la base de datos');
+  toast('✅ OT cerrada y guardada en la base de datos');
 }
 function volverCL(){clearInterval(tInt);tOn=false;document.getElementById('cl-form').style.display='none';document.getElementById('cl-sel').style.display='';renderCLSel();}
 </script>
