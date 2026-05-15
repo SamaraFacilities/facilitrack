@@ -911,9 +911,9 @@ function openModalUser(id = null){
     document.getElementById('inv-rol').value = u.rol;
     document.getElementById('inv-zona').value = u.zona || '';
     document.getElementById('inv-esp').value = u.especialidad || '';
+    document.getElementById('inv-tur').value = u.turno || 'Mañana'; // Carga el turno
     document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user" style="margin-right:6px;"></i>Editar Perfil';
     
-    // Verificamos que el hint exista antes de intentar ocultarlo
     const hint = document.getElementById('usr-hint');
     if(hint) hint.style.display = 'none';
     
@@ -923,9 +923,9 @@ function openModalUser(id = null){
     document.getElementById('inv-uuid').readOnly = false;
     document.querySelectorAll('#modal-invite input').forEach(i => i.value = '');
     document.getElementById('inv-zona').value = '';
+    document.getElementById('inv-tur').value = 'Mañana'; // Resetea el turno
     document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user-plus" style="margin-right:6px;"></i>Configurar Perfil';
     
-    // Verificamos que el hint exista antes de intentar mostrarlo
     const hint = document.getElementById('usr-hint');
     if(hint) hint.style.display = 'block';
     
@@ -943,8 +943,9 @@ async function guardarPerfil(){
   
   const zonaAsignada = rol === 'supervisor_zona' ? document.getElementById('inv-zona').value : null;
   const espAsignada = (rol === 'supervisor_zona' || rol === 'supervisor' || rol === 'gerencia') ? null : document.getElementById('inv-esp').value.trim();
+  const turnoAsignado = document.getElementById('inv-tur').value;
 
-  const payload = {id:uuid,nombre:nom,rol:rol,zona:zonaAsignada,especialidad:espAsignada};
+  const payload = {id:uuid, nombre:nom, rol:rol, zona:zonaAsignada, especialidad:espAsignada, turno:turnoAsignado};
   
   const{error}=await db.from('profiles').upsert(payload);
   if(error){toast('❌ Error: '+error.message);return;}
