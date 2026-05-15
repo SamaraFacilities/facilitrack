@@ -143,10 +143,16 @@ tr:last-child td{border-bottom:none}
 .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-day-header{text-align:center;font-size:11px;font-weight:600;color:#888;padding:8px 0;text-transform:uppercase;}
-.cal-cell{background:#fff;border:1px solid #ddd;border-radius:6px;min-height:80px;padding:6px;display:flex;flex-direction:column;gap:4px;}
-.cal-cell.today{border-color:var(--navy);background:#e6f0fa;}
-.cal-date{font-size:12px;font-weight:600;color:#666;text-align:right;}
-.cal-event{font-size:10px;padding:4px 6px;border-radius:4px;background:var(--blue-bg);color:var(--blue-txt);border:1px solid #b6d4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+
+/* NUEVAS CLASES PARA CALENDARIO INTERACTIVO (Arrestrar y Soltar) */
+.cal-cell{background:#fff;border:1px solid #ddd;border-radius:6px;min-height:95px;padding:6px;display:flex;flex-direction:column;gap:4px;transition:all 0.15s;cursor:pointer;position:relative;}
+.cal-cell:hover{border-color:var(--blue); background:#fafbfc;}
+.cal-cell.drag-over{background:#e6f0fa; border-style:dashed; border-color:var(--blue);}
+.cal-cell.today{border-color:var(--navy);background:#edf3f7;}
+.cal-date{font-size:12px;font-weight:600;color:#666;text-align:right;pointer-events:none;}
+.cal-event{font-size:10px;padding:4px 6px;border-radius:4px;background:var(--blue-bg);color:var(--blue-txt);border:1px solid #b6d4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;font-weight:500;user-select:none;}
+.cal-event:active{cursor:grabbing;}
+.cal-event.completada{background:var(--green-bg); color:var(--green-txt); border-color:#c2e0c6; cursor:default;}
 </style>
 </head>
 <body>
@@ -216,9 +222,10 @@ tr:last-child td{border-bottom:none}
     <div id="tab-calendario" class="panel-hidden card">
       <div class="cal-header">
         <button class="btn-sm" onclick="chgMonth(-1)"><i class="ti ti-chevron-left"></i></button>
-        <div id="cal-month-lbl" style="font-size:16px; font-weight:600; color:var(--navy);">Mes Año</div>
+        <div id="cal-month-lbl" style="font-size:16px; font-weight:600; color:var(--navy); text-align:center; min-width:180px;">Mes Año</div>
         <button class="btn-sm" onclick="chgMonth(1)"><i class="ti ti-chevron-right"></i></button>
       </div>
+      <div style="font-size:11px; color:#666; margin-bottom:12px; display:flex; align-items:center; gap:4px;"><i class="ti ti-info-circle"></i> <strong>Modo Interactivo:</strong> Haz clic en cualquier día para programar un Preventivo. Arrastra un preventivo a otro día para reprogramarlo.</div>
       <div class="cal-grid" id="cal-grid"></div>
     </div>
 
@@ -349,9 +356,7 @@ tr:last-child td{border-bottom:none}
 <div class="modal-backdrop" id="modal-invite">
   <div class="modal" style="max-width:420px;">
     <div class="modal-title"><span id="usr-modal-title">Configurar Perfil</span><button class="close-btn" onclick="closeM('modal-invite')"><i class="ti ti-x"></i></button></div>
-    
     <input type="hidden" id="inv-edit-id">
-    
     <p style="font-size:12px;color:#888;margin-bottom:14px;" id="usr-hint">Primero invita al usuario en Supabase → Authentication → Invite user. Luego pega su UUID aquí:</p>
     <div class="form-grid" style="grid-template-columns:1fr;">
       <div class="form-group"><label>UUID del usuario (desde Auth)</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
@@ -446,7 +451,7 @@ function canDo(a){
   const p={
     crear_ot:['tecnico','supervisor','supervisor_zona','admin'],
     ver_tecnicos:['gerencia','admin'], 
-    gestionar_usuarios:['admin'], // Solo Admin puede gestionar usuarios
+    gestionar_usuarios:['admin'], 
     gestionar_equipos:['admin','supervisor','gerencia'],
     ver_dashboard:['admin','gerencia','supervisor']
   };
@@ -499,7 +504,6 @@ async function bootApp(user){
   const rl={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. de Zona',admin:'Admin',gerencia:'Gerencia'};
   const rb=document.getElementById('u-rol');rb.className='role-badge '+(rc[prof.rol]||'');rb.textContent=rl[prof.rol]||prof.rol;
   
-  // GENERACIÓN DEL NAV BAR DINÁMICO
   const nav = document.getElementById('main-nav');
   nav.innerHTML = '';
   
@@ -526,7 +530,6 @@ async function bootApp(user){
     nav.innerHTML += `<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
   }
 
-  // BOTONES ADMIN-ONLY
   document.querySelectorAll('.btn-admin-only').forEach(b => b.style.display = curProf.rol==='admin' ? '' : 'none');
 
   document.getElementById('login-screen').style.display='none';
@@ -534,7 +537,6 @@ async function bootApp(user){
   await loadAll();
   setupRT();
   
-  // ARRANQUE AUTOMÁTICO DE PESTAÑA (Repara el bug de pantalla en blanco)
   if (['tecnico', 'supervisor_zona'].includes(curProf.rol)) {
       setTab('escaner');
       startScanner();
@@ -566,7 +568,6 @@ function setupRT(){
   rtCh=db.channel('ft-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async p=>{
       await loadAll();
-      // Notificaciones dinámicas
       if(p.eventType === 'INSERT') {
           if(p.new.tecnico_id === curUser?.id) toast('🔔 Nueva orden asignada a ti: ' + (p.new.equipo_nombre||''), 5000);
       }
@@ -595,7 +596,7 @@ function setTab(t){
   if(t!=='escaner')stopScanner();
 }
 
-// ── ESCANER Y HUB (Reparado) ──
+// ── ESCANER Y HUB ──
 function startScanner() {
   if (html5Scanner) return;
   html5Scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
@@ -604,9 +605,9 @@ function startScanner() {
     if (eq) {
       stopScanner();
       if(curProf.rol === 'supervisor_zona') {
-          openNuevaOT(eq.id); // Supervisor de zona va directo a levantar ticket
+          openNuevaOT(eq.id);
       } else {
-          openEqHub(eq.id); // Tecnico o admin ve el Hub primero
+          openEqHub(eq.id);
       }
       toast("✅ Equipo Detectado: " + eq.nombre);
     } else {
@@ -641,13 +642,14 @@ function openEqHub(eqId){
   openM('modal-eq-hub');
 }
 
-// ── CALENDARIO ──
+// ── CALENDARIO INTERACTIVO MEJORADO (CON DRAG & DROP Y CLICK PARA AGREGAR) ──
 function chgMonth(dir){
   currMonth += dir;
   if(currMonth < 0) { currMonth = 11; currYear--; }
   else if(currMonth > 11) { currMonth = 0; currYear++; }
   renderCalendar();
 }
+
 function renderCalendar(){
   const monthNames = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const lbl = document.getElementById('cal-month-lbl');
@@ -657,24 +659,81 @@ function renderCalendar(){
   const daysInMonth = new Date(currYear, currMonth+1, 0).getDate();
   
   let html = `<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>`;
-  for(let i=0; i<firstDay; i++) html += `<div class="cal-cell" style="background:transparent; border:none;"></div>`;
+  for(let i=0; i<firstDay; i++) html += `<div class="cal-cell" style="background:transparent; border:none; cursor:default;"></div>`;
   
+  // Filtrar órdenes que tienen fecha o son de tipo preventivo
   const prevOTs = allOTs.filter(o => o.fecha_programada || (o.tipo === 'Preventivo'));
   
   for(let d=1; d<=daysInMonth; d++){
     let isToday = (d===new Date().getDate() && currMonth===new Date().getMonth() && currYear===new Date().getFullYear()) ? 'today' : '';
+    
+    // Armar el string de la fecha para esta celda (Formato ISO: YYYY-MM-DD)
+    const datestring = `${currYear}-${String(currMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    
     let dayOTs = prevOTs.filter(o => {
        if(!o.fecha_programada) return false;
        let dDate = new Date(new Date(o.fecha_programada).getTime() + new Date().getTimezoneOffset() * 60000); 
        return dDate.getDate() === d && dDate.getMonth() === currMonth && dDate.getFullYear() === currYear;
     });
 
-    let evHtml = dayOTs.map(o => `<div class="cal-event ${o.estado==='Urgente'||o.tipo==='Correctivo'?'falla':''}" onclick="alert('OT #${o.id}: ${o.equipo_nombre}\\nAsignado a: ${o.tecnico_nombre||'Pendiente'}')">${o.equipo_nombre}</div>`).join('');
-    html += `<div class="cal-cell ${isToday}"><div class="cal-date">${d}</div>${evHtml}</div>`;
+    // Renderizar eventos con atributos de arrastrado (Draggable)
+    let evHtml = dayOTs.map(o => {
+       const isComp = o.estado === 'Completada' ? 'completada' : '';
+       const canDrag = o.estado !== 'Completada' ? 'draggable="true" ondragstart="evtDragStart(event, '+o.id+')"' : '';
+       return `<div class="cal-event ${isComp}" ${canDrag} onclick="event.stopPropagation(); alert('OT #${o.id}: ${o.equipo_nombre}\\nTipo: ${o.tipo}\\nEstado: ${o.estado}\\nAsignado: ${o.tecnico_nombre||'Pendiente'}')">${o.equipo_nombre}</div>`;
+    }).join('');
+
+    // Agregar funciones contenedoras de soltar (Dropzones) y clic para crear
+    html += `
+      <div class="cal-cell ${isToday}" 
+           data-fecha="${datestring}" 
+           onclick="clicCeldaCalendario('${datestring}')"
+           ondragover="evtDragOver(event)" 
+           ondragleave="evtDragLeave(event)" 
+           ondrop="evtDrop(event, '${datestring}')">
+        <div class="cal-date">${d}</div>
+        ${evHtml}
+      </div>`;
   }
   const grid = document.getElementById('cal-grid');
   if(grid) grid.innerHTML = html;
 }
+
+// Funciones controladoras de Arrastrar y Soltar (Drag & Drop)
+function evtDragStart(e, otId) {
+  e.dataTransfer.setData("text/plain", otId);
+}
+function evtDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function evtDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+async function evtDrop(e, nuevaFecha) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  
+  const otId = e.dataTransfer.getData("text/plain");
+  if(!otId) return;
+
+  // Actualizar la fecha programada en Supabase de forma inmediata
+  const { error } = await db.from('ordenes_trabajo').update({ fecha_programada: nuevaFecha }).eq('id', otId);
+  
+  if (error) {
+    toast("❌ Error al reprogramar: " + error.message);
+  } else {
+    toast("📅 OT #" + otId + " reprogramada con éxito");
+    await loadAll(); // Recargar datos y refrescar la vista en tiempo real
+  }
+}
+
+// Función al hacer clic en un día vacío para programar
+function clicCeldaCalendario(fechaSeleccionada) {
+  // Forzar la apertura del modal de nueva orden pasándole la fecha elegida
+  openNuevaOT(null, fechaSeleccionada);
+}
+
 
 // ── DASHBOARD ──
 function renderDash(){
@@ -723,7 +782,8 @@ function renderOrdenes(){
   </tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
 }
 
-function openNuevaOT(eqIdPre = null){
+// Se modificó para recibir una fecha pre-seleccionada desde el calendario
+function openNuevaOT(eqIdPre = null, fechaPre = null){
   document.getElementById('f-equipo').disabled = false;
   document.getElementById('f-equipo').innerHTML='<option value="">Selecciona equipo...</option>'+allEqs.map(e=>`<option value="${e.id}">${e.codigo} – ${e.nombre}</option>`).join('');
   if(eqIdPre) { document.getElementById('f-equipo').value = eqIdPre; document.getElementById('f-equipo').disabled = true; }
@@ -736,6 +796,15 @@ function openNuevaOT(eqIdPre = null){
   }
   
   document.getElementById('f-desc').value='';
+  
+  // Si viene una fecha desde el calendario, forzar tipo "Preventivo" y rellenar el input de fecha
+  if(fechaPre) {
+    document.getElementById('f-tipo').value = 'Preventivo';
+    document.getElementById('f-fecha').value = fechaPre;
+  } else {
+    document.getElementById('f-fecha').value = '';
+  }
+  
   toggleFechaProg();
   openM('modal-ot');
 }
@@ -762,14 +831,7 @@ async function crearOT(){
   });
   if(error){toast('Error: '+error.message);return;}
   closeM('modal-ot');toast('✅ OT creada');
-  await loadOTs();
-  
-  if (['tecnico', 'supervisor_zona'].includes(curProf.rol)) {
-      setTab('ordenes');
-  } else {
-      renderDash(); renderCalendar();
-      if(document.getElementById('tab-ordenes').classList.contains('panel-visible')) renderOrdenes();
-  }
+  await loadAll(); // Carga y refresca todo globalmente
 }
 
 async function cambiarEst(otId){
@@ -779,8 +841,7 @@ async function cambiarEst(otId){
   const upd={estado:nuevo};
   if(nuevo==='Completada')upd.fecha_cierre=new Date().toISOString();
   await db.from('ordenes_trabajo').update(upd).eq('id',otId);
-  toast('Estado → '+nuevo);await loadOTs();renderDash();
-  if(document.getElementById('tab-ordenes').classList.contains('panel-visible'))renderOrdenes();
+  toast('Estado → '+nuevo);await loadAll();
 }
 
 async function eliminarOT(id){
@@ -863,7 +924,7 @@ async function guardarEquipo(){
     toast('✅ Equipo agregado');
   }
   
-  closeM('modal-equipo');await loadEqs();renderEquipos();renderDash();
+  closeM('modal-equipo');await loadAll();
 }
 
 async function eliminarEquipo(id){
@@ -871,7 +932,7 @@ async function eliminarEquipo(id){
   const {error} = await db.from('equipos').delete().eq('id', id);
   if (error) { toast("❌ No se puede borrar: El equipo tiene historial de órdenes."); return; }
   toast("✅ Equipo eliminado");
-  await loadEqs(); renderEquipos(); renderDash();
+  await loadAll();
 }
 
 function verQR(codigo, nombre) {
@@ -883,14 +944,15 @@ function verQR(codigo, nombre) {
   openM('modal-qr');
 }
 
-// ── USUARIOS (Admin Only) ──
+// ── USUARIOS ──
 function renderUsuarios(){
-  let html = `<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona (Sup.)</th><th>Especialidad</th><th></th></tr></thead><tbody>`;
+  let html = `<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona (Sup.)</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>`;
   html += allProfs.map(u=>`<tr>
     <td><strong>${u.nombre}</strong></td>
     <td>${rolBadge(u.rol)}</td>
     <td>${u.zona||'-'}</td>
     <td>${u.especialidad||'-'}</td>
+    <td>${u.turno||'-'}</td>
     <td style="display:flex;gap:4px;">
       ${curProf.rol==='admin'?`
         <button class="btn-sm" onclick="openModalUser('${u.id}')"><i class="ti ti-edit"></i></button>
@@ -911,7 +973,7 @@ function openModalUser(id = null){
     document.getElementById('inv-rol').value = u.rol;
     document.getElementById('inv-zona').value = u.zona || '';
     document.getElementById('inv-esp').value = u.especialidad || '';
-    document.getElementById('inv-tur').value = u.turno || 'Mañana'; // Carga el turno
+    document.getElementById('inv-tur').value = u.turno || 'Mañana';
     document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user" style="margin-right:6px;"></i>Editar Perfil';
     
     const hint = document.getElementById('usr-hint');
@@ -923,7 +985,7 @@ function openModalUser(id = null){
     document.getElementById('inv-uuid').readOnly = false;
     document.querySelectorAll('#modal-invite input').forEach(i => i.value = '');
     document.getElementById('inv-zona').value = '';
-    document.getElementById('inv-tur').value = 'Mañana'; // Resetea el turno
+    document.getElementById('inv-tur').value = 'Mañana';
     document.getElementById('usr-modal-title').innerHTML = '<i class="ti ti-user-plus" style="margin-right:6px;"></i>Configurar Perfil';
     
     const hint = document.getElementById('usr-hint');
@@ -945,11 +1007,11 @@ async function guardarPerfil(){
   const espAsignada = (rol === 'supervisor_zona' || rol === 'supervisor' || rol === 'gerencia') ? null : document.getElementById('inv-esp').value.trim();
   const turnoAsignado = document.getElementById('inv-tur').value;
 
-  const payload = {id:uuid, nombre:nom, rol:rol, zona:zonaAsignada, especialidad:espAsignada, turno:turnoAsignado};
+  const payload = {id:uuid,nombre:nom,rol:rol,zona:zonaAsignada,especialidad:espAsignada,turno:turnoAsignado};
   
   const{error}=await db.from('profiles').upsert(payload);
   if(error){toast('❌ Error: '+error.message);return;}
-  closeM('modal-invite');toast('✅ Perfil guardado');await loadProfs();renderTecnicos();
+  closeM('modal-invite');toast('✅ Perfil guardado');await loadAll();
 }
 
 async function delUsr(id){
@@ -958,7 +1020,7 @@ async function delUsr(id){
   const {error} = await db.from('profiles').delete().eq('id', id);
   if(error) { toast('❌ Error: ' + error.message); return; }
   toast('✅ Usuario eliminado');
-  await loadProfs(); renderTecnicos();
+  await loadAll();
 }
 
 // ── DOWNTIME LISTADO GLOBAL ──
@@ -1070,62 +1132,4 @@ function renderCLSel(){
 function abrirCL(otId){
   clOT=allOTs.find(o=>o.id===otId);if(!clOT)return;
   clR={};resetTimer();
-  document.getElementById('ref-in').value='';document.getElementById('ref-list').innerHTML='';document.getElementById('obs-txt').value='';
-  document.getElementById('cl-ttl').textContent=`#${clOT.id} – ${clOT.equipo_nombre||'–'}`;
-  document.getElementById('cl-meta').textContent=`${clOT.tipo} · ${clOT.tecnico_nombre||'–'} · ${fmt(clOT.fecha_creacion)}`;
-  document.getElementById('cl-sel').style.display='none';
-  document.getElementById('cl-form').style.display='';
-  const k=getCLKey(clOT.equipo_nombre||'');
-  if(!k){document.getElementById('cl-items').innerHTML='<div class="empty-state">Sin checklist para este equipo</div>';return;}
-  renderCLItems(CL[k]);setupFirma();resetFG();actualizaProg(CL[k]);
-}
-
-function renderCLItems(cl){
-  document.getElementById('cl-items').innerHTML=cl.items.map((item,idx)=>{
-    let inp='';
-    if(item.tipo==='bool'){
-      inp=`<div class="bool-btns"><button class="bool-btn" id="bok-${item.id}" onclick="setBool('${item.id}',true)">✓ Conforme</button><button class="bool-btn" id="bfail-${item.id}" onclick="setBool('${item.id}',false)">✗ No conforme</button></div>`;
-    }else if(item.tipo==='numero'){
-      inp=`<div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><input type="number" placeholder="–" min="${item.min}" max="${item.max}" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;" oninput="setNum('${item.id}',this.value,${item.min},${item.max},this)"><span style="font-size:12px;color:#888;">${item.unidad}</span><span id="rng-${item.id}" style="font-size:11px;color:#aaa;">rango: ${item.min}–${item.max}</span></div>`;
-    }else if(item.tipo==='seleccion'){
-      inp=`<select onchange="setSel('${item.id}',this.value)" style="margin-top:6px;border:1px solid #ddd;border-radius:6px;padding:5px 10px;font-size:13px;outline:none;"><option value="">Seleccionar...</option>${item.opciones.map(op=>`<option>${op}</option>`).join('')}</select>`;
-    }
-    return`<div class="chk-item" id="ci-${item.id}"><div class="chk-row"><div class="chk-dot" id="dot-${item.id}"></div><div style="flex:1;"><div style="font-size:13px;">${item.label}</div>${inp}</div></div></div>`;
-  }).join('');
-}
-
-function markD(id,ok){const d=document.getElementById('dot-'+id);if(!d)return;d.classList.remove('ok','fail');d.classList.add(ok?'ok':'fail');d.innerHTML=ok?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i>';}
-function setBool(id,v){clR[id]=v;const bo=document.getElementById('bok-'+id);const bf=document.getElementById('bfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markD(id,v);actualizaProg(getCurCL());}
-function setNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');const rng=document.getElementById('rng-'+id);if(rng)rng.style.color=ok?'#1f6130':(v?'#8a2020':'#aaa');if(v!==''){clR[id]=n;markD(id,ok);actualizaProg(getCurCL());}}
-function setSel(id,v){if(!v)return;clR[id]=v;markD(id,true);actualizaProg(getCurCL());}
-function getCurCL(){const k=getCLKey(clOT?.equipo_nombre||'');return k?CL[k]:null;}
-function actualizaProg(cl){if(!cl)return;const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;document.getElementById('cl-prog').style.width=Math.round(d/t*100)+'%';document.getElementById('cl-prog-lbl').textContent=`${d}/${t}`;}
-function addRef(){const v=document.getElementById('ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:16px;">×</button>`;document.getElementById('ref-list').appendChild(d);document.getElementById('ref-in').value='';}
-
-function pad(n){return String(n).padStart(2,'0');}
-function updT(){const h=Math.floor(tSec/3600),m=Math.floor((tSec%3600)/60),s=tSec%60;const el=document.getElementById('timer-d');if(el)el.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;}
-function toggleTimer(){tOn=!tOn;const b=document.getElementById('timer-btn');if(tOn){b.innerHTML='<i class="ti ti-player-pause"></i> Pausar';tInt=setInterval(()=>{tSec++;updT();},1000);}else{b.innerHTML='<i class="ti ti-player-play"></i> Reanudar';clearInterval(tInt);}}
-function resetTimer(){clearInterval(tInt);tOn=false;tSec=0;updT();const b=document.getElementById('timer-btn');if(b)b.innerHTML='<i class="ti ti-player-play"></i> Iniciar';}
-function setupFirma(){const c=document.getElementById('firma-c');if(!c)return;fCtx=c.getContext('2d');fCtx.clearRect(0,0,c.width,c.height);fCtx.strokeStyle='#1a2b4a';fCtx.lineWidth=2;fCtx.lineCap='round';fDraw=false;const pos=e=>{const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sx,y:(s.clientY-r.top)*sy};};c.onmousedown=c.ontouchstart=e=>{e.preventDefault();fDraw=true;const p=pos(e);fCtx.beginPath();fCtx.moveTo(p.x,p.y);};c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!fDraw)return;const p=pos(e);fCtx.lineTo(p.x,p.y);fCtx.stroke();};c.onmouseup=c.ontouchend=c.onmouseleave=()=>fDraw=false;}
-function clearFirma(){const c=document.getElementById('firma-c');if(fCtx)fCtx.clearRect(0,0,c.width,c.height);}
-const fE=['🔩','🔧','⚙️','🛠️','📐','🔌'];
-function resetFG(){document.getElementById('foto-grid').innerHTML=`<label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:#aaa;" onclick="simFoto(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>`;}
-function simFoto(btn){const g=document.getElementById('foto-grid');const d=document.createElement('div');const em=fE[Math.floor(Math.random()*fE.length)];d.style.cssText='height:70px;border-radius:8px;background:#f4f5f7;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;';d.innerHTML=`${em}<button onclick="this.parentElement.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.35);border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:10px;line-height:16px;padding:0;">×</button>`;g.insertBefore(d,btn);}
-
-async function cerrarOT(){
-  const cl=getCurCL();
-  if(cl){const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;if(d<t){toast(`Faltan ${t-d} ítem(s) por completar`);return;}}
-  clearInterval(tInt);tOn=false;
-  const min=Math.round(tSec/60);
-  const obs=document.getElementById('obs-txt').value.trim();
-  const{error}=await db.from('ordenes_trabajo').update({estado:'Completada',fecha_cierre:new Date().toISOString(),observaciones:obs,tiempo_minutos:min}).eq('id',clOT.id);
-  if(error){toast('Error: '+error.message);return;}
-  if(cl){const ra=cl.items.filter(i=>clR[i.id]!==undefined).map(i=>({orden_id:clOT.id,item_id:i.id,item_label:i.label,respuesta:String(clR[i.id])}));if(ra.length)await db.from('respuestas_checklist').insert(ra);}
-  await loadAll();
-  document.getElementById('cl-form').innerHTML=`<div style="text-align:center;padding:60px 20px;"><div style="font-size:56px;margin-bottom:16px;">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:8px;">OT #${clOT.id} cerrada</div><div style="font-size:13px;color:#888;margin-bottom:24px;">Tiempo: ${pad(Math.floor(min/60))}:${pad(min%60)} hrs · Checklist guardado en Supabase</div><button class="btn-sm btn-primary" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Ver otras órdenes</button></div>`;
-  toast('✅ OT cerrada y guardada en la base de datos');
-}
-function volverCL(){clearInterval(tInt);tOn=false;document.getElementById('cl-form').style.display='none';document.getElementById('cl-sel').style.display='';renderCLSel();}
-</script>
-</body>
-</html>
+  document.getElementById('ref-in').value='';document.getElementById('ref-list').
