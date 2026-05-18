@@ -278,7 +278,7 @@ tr:hover td{background:var(--bg3)}
       <div style="font-family:'Cormorant',serif;font-size:42px;font-weight:300;color:#111;letter-spacing:-1px;">Samara</div>
       <div style="font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Facilities Tracking</div>
     </div>
-    <div class="form-field"><label>Correo electrónico</label><input type="email" id="l-email" placeholder="usuario@empresa.com" autocomplete="email"></div>
+    <div class="form-field"><label>Usuario</label><input type="text" id="l-username" placeholder="jvazquez" autocomplete="username"></div>
     <div class="form-field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn-login" id="btn-login" onclick="doLogin()">Iniciar sesión</button>
     <div class="login-err" id="login-err"></div>
@@ -295,6 +295,7 @@ tr:hover td{background:var(--bg3)}
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--green-txt);"><div class="rt-dot"></div><span id="rt-st">En vivo</span></div>
+      <div id="live-clock" style="font-size:11px;color:var(--txt3);font-family:'DM Sans',sans-serif;letter-spacing:.3px;padding:4px 10px;background:#f5f5f5;border-radius:3px;border:1px solid var(--line);"></div>
       <button class="btn-sm" onclick="loadAll()" style="padding:4px;border:none;background:none;color:var(--txt3);" title="Refrescar"><i class="ti ti-refresh"></i></button>
       <div class="user-chip"><div class="av" id="u-av">??</div><span id="u-name" style="font-size:12px;color:var(--txt2);">–</span><span class="role-badge" id="u-rol">–</span></div>
       <button class="btn-logout" onclick="doLogout()" title="Salir"><i class="ti ti-logout"></i></button>
@@ -633,6 +634,48 @@ tr:hover td{background:var(--bg3)}
       <div id="dt-list-equipos"></div>
     </div><!-- /tab-downtime -->
 
+    <!-- TAB: REPORTES -->
+    <div id="tab-reportes" class="panel-hidden">
+
+      <!-- Filtros -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header" style="margin-bottom:12px;">
+          <div class="card-title"><i class="ti ti-report-analytics"></i> Reporte de Horas por Técnico</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <select id="rpt-tecnico" style="border:1px solid #ddd;border-radius:3px;padding:6px 10px;font-size:12px;background:#fff;color:#111;outline:none;" onchange="renderReportes()">
+              <option value="">Todos los técnicos</option>
+            </select>
+            <input type="date" id="rpt-desde" style="border:1px solid #ddd;border-radius:3px;padding:6px 10px;font-size:12px;background:#fff;color:#111;outline:none;" onchange="renderReportes()">
+            <input type="date" id="rpt-hasta" style="border:1px solid #ddd;border-radius:3px;padding:6px 10px;font-size:12px;background:#fff;color:#111;outline:none;" onchange="renderReportes()">
+            <button class="btn-sm btn-primary" onclick="exportarReporte()"><i class="ti ti-download"></i> Exportar CSV</button>
+          </div>
+        </div>
+        <!-- KPIs del reporte -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" id="rpt-kpis">
+          <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:14px;">
+            <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">OTs completadas</div>
+            <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;" id="rpt-k-ots">–</div>
+          </div>
+          <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:14px;">
+            <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Horas totales</div>
+            <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;" id="rpt-k-hrs">–</div>
+          </div>
+          <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:14px;">
+            <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Promedio por OT</div>
+            <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;" id="rpt-k-prom">–</div>
+          </div>
+          <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:14px;">
+            <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Técnicos activos</div>
+            <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;" id="rpt-k-tecs">–</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reporte por técnico -->
+      <div id="rpt-body"></div>
+
+    </div><!-- /tab-reportes -->
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -656,10 +699,12 @@ tr:hover td{background:var(--bg3)}
   <div class="modal" style="max-width:420px;">
     <div class="modal-title"><span id="usr-modal-title">Configurar Perfil</span><button class="close-btn" onclick="closeM('modal-invite')"><i class="ti ti-x"></i></button></div>
     <input type="hidden" id="inv-edit-id">
-    <p style="font-size:12px;color:var(--txt3);margin-bottom:14px;" id="usr-hint">Primero invita al usuario en Supabase → Authentication → Invite user. Pega su UUID aquí:</p>
+    <p style="font-size:12px;color:var(--txt3);margin-bottom:14px;" id="usr-hint">Invita al usuario en Supabase → Authentication → Invite user. Luego configura su perfil aquí.</p>
     <div class="form-grid" style="grid-template-columns:1fr;">
       <div class="form-group"><label>UUID del usuario</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
       <div class="form-group"><label>Nombre completo</label><input type="text" id="inv-nom" placeholder="Carlos Mendoza"></div>
+      <div class="form-group"><label>Usuario (para login)</label><input type="text" id="inv-username" placeholder="cmendoza" autocomplete="off"></div>
+      <div class="form-group"><label>Correo electrónico</label><input type="email" id="inv-email" placeholder="cmendoza@empresa.com"></div>
       <div class="form-group"><label>Rol</label>
         <select id="inv-rol" onchange="toggleUserFields()">
           <option value="tecnico">Técnico</option><option value="supervisor">Supervisor</option><option value="supervisor_zona">Supervisor de Zona</option><option value="admin">Administrador</option><option value="gerencia">Gerencia</option>
@@ -805,34 +850,40 @@ function setPasos(activo){
 
 // ── AUTH ──
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.addEventListener('DOMContentLoaded',()=>{const u=document.getElementById('l-username');if(u)u.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('l-pass').focus();});});
 async function doLogin(){
   if(!db){
     document.getElementById('login-err').textContent='Error: Supabase no inicializado.';
     document.getElementById('login-err').classList.add('show');
     return;
   }
-  const email=document.getElementById('l-email').value.trim();
+  const username=document.getElementById('l-username').value.trim().toLowerCase();
   const pass=document.getElementById('l-pass').value;
   const btn=document.getElementById('btn-login');
   const err=document.getElementById('login-err');
   err.classList.remove('show');
-  if(!email||!pass){err.textContent='Completa todos los campos.';err.classList.add('show');return;}
-  btn.disabled=true; btn.textContent='Conectando...';
+  if(!username||!pass){err.textContent='Completa usuario y contraseña.';err.classList.add('show');return;}
+  btn.disabled=true; btn.textContent='Buscando usuario...';
   try {
-    console.log('🔐 Login con:', email);
-    const {data, error} = await db.auth.signInWithPassword({email, password:pass});
-    console.log('📡 Auth result:', JSON.stringify({userId: data?.user?.id, error: error?.message}));
-    if(error){ err.textContent='❌ '+error.message; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
+    // Look up email by username in profiles
+    const {data:profData, error:profErr} = await db.from('profiles').select('email,id').eq('username', username).single();
+    if(profErr || !profData?.email){
+      err.textContent='Usuario no encontrado: '+username;
+      err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return;
+    }
+    btn.textContent='Verificando...';
+    console.log('🔐 Login usuario:', username, '→', profData.email);
+    const {data, error} = await db.auth.signInWithPassword({email: profData.email, password:pass});
+    if(error){ err.textContent='❌ Contraseña incorrecta'; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
     btn.textContent='Cargando perfil...';
     const {data:prof, error:pe} = await db.from('profiles').select('*').eq('id', data.user.id).single();
-    console.log('👤 Profile result:', JSON.stringify({prof, error: pe?.message, code: pe?.code}));
-    if(pe){ err.textContent='Perfil no encontrado: '+pe.message+' ['+pe.code+']'; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
+    if(pe){ err.textContent='Error de perfil: '+pe.message; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
     btn.disabled=false; btn.textContent='Iniciar sesión';
-    console.log('✅ Login OK, iniciando app...');
+    console.log('✅ Login OK:', prof.nombre, prof.rol);
     await bootApp(data.user);
   } catch(e) {
-    console.error('💥 Excepcion:', e);
-    err.textContent='Error inesperado: '+e.message;
+    console.error('💥', e);
+    err.textContent='Error: '+e.message;
     err.classList.add('show');
     btn.disabled=false; btn.textContent='Iniciar sesión';
   }
@@ -881,6 +932,9 @@ async function bootApp(user){
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
   }
+  if(curProf.rol==='admin'){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-reportes" onclick="setTab('reportes')"><i class="ti ti-report-analytics"></i> Reportes</button>`;
+  }
 
   document.querySelectorAll('.btn-admin-only').forEach(b=>b.style.display=curProf.rol==='admin'?'':'none');
 
@@ -899,6 +953,7 @@ async function bootApp(user){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   setupRT();
+  startLiveClock();
 
   if(['tecnico','supervisor_zona'].includes(curProf.rol)){
     setTab('escaner');
@@ -952,6 +1007,7 @@ async function loadAll(){
     try{renderCalendar();}catch(e){console.error('renderCalendar:',e);}
     try{renderUsuarios();}catch(e){console.error('renderUsuarios:',e);}
     try{renderCLSel();}catch(e){console.error('renderCLSel:',e);}
+    try{renderReportes();}catch(e){console.error('renderReportes:',e);}
     
     if(eqActual){
       const eq=allEqs.find(e=>e.id===eqActual.id);
@@ -975,7 +1031,7 @@ function setupRT(){
 }
 
 // ── NAVEGACIÓN ──
-const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime'];
+const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime','reportes'];
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -996,6 +1052,7 @@ function setTab(t){
   if(t==='checklist')renderCLSel();
   if(t==='downtime')renderDowntime();
   if(t==='calendario')renderCalendar();
+  if(t==='reportes')renderReportes();
   if(t!=='escaner')stopScanner();
 }
 
@@ -1638,9 +1695,10 @@ function verQR(codigo,nombre){
 // ── PERSONAL ──
 function renderUsuarios(){
   if(!document.getElementById('tec-wrap')) return;
-  let html=`<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>`;
+  let html=`<table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Zona</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>`;
   html+=allProfs.map(u=>`<tr>
     <td><strong>${u.nombre}</strong></td>
+    <td><span style="font-family:monospace;font-size:11px;color:var(--txt2);">${u.username||'–'}</span></td>
     <td>${rolBadge(u.rol)}</td>
     <td>${u.zona||'-'}</td>
     <td>${u.especialidad||'-'}</td>
@@ -1663,6 +1721,8 @@ function openModalUser(id=null){
     document.getElementById('inv-zona').value=u.zona||'';
     document.getElementById('inv-esp').value=u.especialidad||'';
     document.getElementById('inv-tur').value=u.turno||'Mañana';
+    if(document.getElementById('inv-username'))document.getElementById('inv-username').value=u.username||'';
+    if(document.getElementById('inv-email'))document.getElementById('inv-email').value=u.email||'';
     document.getElementById('usr-modal-title').innerHTML='<i class="ti ti-user" style="margin-right:6px;"></i>Editar Perfil';
     const hint=document.getElementById('usr-hint');if(hint)hint.style.display='none';
     toggleUserFields();
@@ -1684,10 +1744,14 @@ async function guardarPerfil(){
   const uuid=document.getElementById('inv-uuid').value.trim();
   const nom=document.getElementById('inv-nom').value.trim();
   const rol=document.getElementById('inv-rol').value;
+  const usrName=(document.getElementById('inv-username')?.value||'').trim().toLowerCase();
+  const emailVal=(document.getElementById('inv-email')?.value||'').trim().toLowerCase();
   if(!uuid||!nom){toast('UUID y nombre obligatorios');return;}
   const zonaAsignada=rol==='supervisor_zona'?document.getElementById('inv-zona').value:null;
   const espAsignada=['supervisor_zona','supervisor','gerencia'].includes(rol)?null:document.getElementById('inv-esp').value.trim();
   const payload={id:uuid,nombre:nom,rol,zona:zonaAsignada,especialidad:espAsignada,turno:document.getElementById('inv-tur').value};
+  if(usrName) payload.username=usrName;
+  if(emailVal) payload.email=emailVal;
   const{error}=await db.from('profiles').upsert(payload);
   if(error){toast('❌ Error: '+error.message);return;}
   closeM('modal-invite');toast('Perfil guardado');await loadAll();
@@ -2264,6 +2328,222 @@ function renderCLSel() {
 }
 
 // foto reset now handled inside abrirCL and abrirCLDirecto directly
+
+
+// ════════════════════════════════════════════════════════════════
+// TIEMPO REAL - Reloj en vivo en el header
+// ════════════════════════════════════════════════════════════════
+function startLiveClock(){
+  const tick = () => {
+    const now = new Date();
+    const hms = now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    const fecha = now.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'});
+    const el = document.getElementById('live-clock');
+    if(el) el.textContent = hms + ' · ' + fecha;
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ════════════════════════════════════════════════════════════════
+// REPORTES DE HORAS POR TÉCNICO
+// ════════════════════════════════════════════════════════════════
+function initReporteFiltros(){
+  // Populate tecnico dropdown
+  const sel = document.getElementById('rpt-tecnico');
+  if(!sel) return;
+  const tecns = allProfs.filter(p => ['tecnico','supervisor'].includes(p.rol));
+  sel.innerHTML = '<option value="">Todos los técnicos</option>' +
+    tecns.map(p => `<option value="${p.id}">${p.nombre} (${p.username||p.rol})</option>`).join('');
+
+  // Set default date range: current month
+  const now = new Date();
+  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
+  const desde = document.getElementById('rpt-desde');
+  const hasta = document.getElementById('rpt-hasta');
+  if(desde && !desde.value) desde.value = `${y}-${m}-01`;
+  if(hasta && !hasta.value) hasta.value = `${y}-${m}-${String(new Date(y,now.getMonth()+1,0).getDate()).padStart(2,'0')}`;
+}
+
+function renderReportes(){
+  if(!document.getElementById('rpt-body')) return;
+  initReporteFiltros();
+
+  const filtTec = document.getElementById('rpt-tecnico')?.value || '';
+  const desde = document.getElementById('rpt-desde')?.value;
+  const hasta = document.getElementById('rpt-hasta')?.value;
+
+  // Filter completed OTs in date range
+  let ots = allOTs.filter(o => o.estado === 'Completada' && o.fecha_cierre);
+  if(filtTec) ots = ots.filter(o => o.tecnico_id === filtTec);
+  if(desde) ots = ots.filter(o => new Date(o.fecha_cierre) >= new Date(desde));
+  if(hasta) ots = ots.filter(o => new Date(o.fecha_cierre) <= new Date(hasta + 'T23:59:59'));
+
+  // KPIs
+  const totalMin = ots.reduce((s,o) => s+(o.tiempo_minutos||0), 0);
+  const totalHrs = (totalMin/60).toFixed(1);
+  const promMin = ots.length ? Math.round(totalMin/ots.length) : 0;
+  const tecsActivos = new Set(ots.map(o=>o.tecnico_id).filter(Boolean)).size;
+
+  const kOts = document.getElementById('rpt-k-ots');
+  const kHrs = document.getElementById('rpt-k-hrs');
+  const kProm = document.getElementById('rpt-k-prom');
+  const kTecs = document.getElementById('rpt-k-tecs');
+  if(kOts) kOts.textContent = ots.length;
+  if(kHrs) kHrs.textContent = totalHrs + 'h';
+  if(kProm) kProm.textContent = promMin + 'm';
+  if(kTecs) kTecs.textContent = tecsActivos;
+
+  // Group by technician
+  const byTec = {};
+  ots.forEach(o => {
+    const tid = o.tecnico_id || '__none__';
+    const tnom = o.tecnico_nombre || 'Sin asignar';
+    if(!byTec[tid]) byTec[tid] = { nombre: tnom, ots: [], totalMin: 0 };
+    byTec[tid].ots.push(o);
+    byTec[tid].totalMin += (o.tiempo_minutos||0);
+  });
+
+  // Sort by totalMin desc
+  const sorted = Object.entries(byTec).sort((a,b) => b[1].totalMin - a[1].totalMin);
+  const JORNADA_MIN = 480; // 8 horas
+
+  if(!sorted.length){
+    document.getElementById('rpt-body').innerHTML = '<div class="empty-state"><i class="ti ti-report"></i><br>Sin actividades en el período seleccionado</div>';
+    return;
+  }
+
+  document.getElementById('rpt-body').innerHTML = sorted.map(([tid, tec]) => {
+    const hTot = Math.floor(tec.totalMin/60);
+    const mTot = tec.totalMin % 60;
+    const pctJornada = Math.min(Math.round((tec.totalMin/JORNADA_MIN)*100), 100);
+    const barColor = pctJornada>=90?'var(--green)':pctJornada>=50?'var(--amber)':'var(--red)';
+    const tProfile = allProfs.find(p=>p.id===tid);
+    const turno = tProfile?.turno || '–';
+    const username = tProfile?.username || '–';
+
+    // Group OTs by day
+    const byDay = {};
+    tec.ots.forEach(o => {
+      const day = new Date(o.fecha_cierre).toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      if(!byDay[day]) byDay[day] = [];
+      byDay[day].push(o);
+    });
+
+    return `
+    <div class="card" style="margin-bottom:14px;">
+      <!-- Técnico header -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant',serif;font-size:18px;font-weight:300;flex-shrink:0;">${ini(tec.nombre)}</div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:500;color:var(--txt);">${tec.nombre}</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:1px;">@${username} · ${turno}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Cormorant',serif;font-size:28px;font-weight:300;color:var(--txt);line-height:1;">${hTot}h ${mTot}m</div>
+          <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;">${tec.ots.length} actividades</div>
+        </div>
+      </div>
+
+      <!-- Barra de jornada -->
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt3);margin-bottom:4px;">
+          <span>Jornada laboral (8h = 100%)</span>
+          <span style="font-weight:600;color:${barColor};">${pctJornada}%</span>
+        </div>
+        <div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+          <div style="width:${pctJornada}%;height:100%;background:${barColor};border-radius:3px;transition:width .4s;"></div>
+        </div>
+        ${pctJornada<60?`<div style="font-size:10px;color:var(--amber-txt);margin-top:3px;">⚠️ Menos del 60% de la jornada registrada</div>`:''}
+      </div>
+
+      <!-- Actividades por día -->
+      ${Object.entries(byDay).map(([day, dayOts]) => {
+        const dayMin = dayOts.reduce((s,o)=>s+(o.tiempo_minutos||0),0);
+        const dayH = Math.floor(dayMin/60), dayM = dayMin%60;
+        return `
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f5f5f5;border-radius:3px;margin-bottom:4px;">
+            <span style="font-size:11px;font-weight:600;color:var(--txt2);text-transform:capitalize;">${day}</span>
+            <span style="font-size:11px;color:var(--txt3);">${dayH}h ${dayM}m del día</span>
+          </div>
+          <div style="border:1px solid var(--line);border-radius:3px;overflow:hidden;">
+            ${dayOts.map((o,i) => {
+              const oMin = o.tiempo_minutos||0;
+              const oH = Math.floor(oMin/60), oM = oMin%60;
+              const tipoBadge = badge(o.tipo);
+              const cierre = o.fecha_cierre ? new Date(o.fecha_cierre).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false}) : '–';
+              return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:${i<dayOts.length-1?'1px solid var(--line)':'none'};background:#fff;">
+                <div style="width:32px;height:32px;border-radius:3px;background:#f5f5f5;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <i class="ti ti-tool" style="font-size:14px;color:var(--txt2);"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:12px;font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.equipo_nombre||'–'}</div>
+                  <div style="font-size:11px;color:var(--txt3);margin-top:1px;">${o.descripcion||'–'}</div>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+                  ${tipoBadge}
+                  <span style="font-size:11px;color:var(--txt3);">⏱ ${oH>0?oH+'h ':''}${oM}m</span>
+                  <span style="font-size:10px;color:var(--txt3);">🕐 ${cierre}</span>
+                  <button class="btn-sm" onclick="verReporteCL(${o.id})" style="font-size:10px;padding:3px 8px;color:var(--green-txt);border-color:var(--green-bg);" title="Ver checklist">
+                    <i class="ti ti-clipboard-check"></i>
+                  </button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+
+    </div>`;
+  }).join('');
+}
+
+function exportarReporte(){
+  const filtTec = document.getElementById('rpt-tecnico')?.value || '';
+  const desde = document.getElementById('rpt-desde')?.value || '';
+  const hasta = document.getElementById('rpt-hasta')?.value || '';
+
+  let ots = allOTs.filter(o => o.estado==='Completada' && o.fecha_cierre);
+  if(filtTec) ots = ots.filter(o=>o.tecnico_id===filtTec);
+  if(desde) ots = ots.filter(o=>new Date(o.fecha_cierre)>=new Date(desde));
+  if(hasta) ots = ots.filter(o=>new Date(o.fecha_cierre)<=new Date(hasta+'T23:59:59'));
+
+  const rows = [['Técnico','Usuario','Fecha Cierre','Equipo','Tipo','Descripción','Minutos','Horas']];
+  ots.forEach(o=>{
+    const p = allProfs.find(x=>x.id===o.tecnico_id);
+    const min = o.tiempo_minutos||0;
+    rows.push([
+      o.tecnico_nombre||'–', p?.username||'–',
+      o.fecha_cierre ? new Date(o.fecha_cierre).toLocaleDateString('es-MX') : '–',
+      o.equipo_nombre||'–', o.tipo||'–',
+      (o.descripcion||'').replace(/,/g,';'),
+      min, (min/60).toFixed(2)
+    ]);
+  });
+
+  // Add summary row
+  rows.push([]);
+  rows.push(['RESUMEN']);
+  const byTec = {};
+  ots.forEach(o=>{
+    const k=o.tecnico_nombre||'Sin asignar';
+    if(!byTec[k])byTec[k]={ots:0,min:0};
+    byTec[k].ots++; byTec[k].min+=(o.tiempo_minutos||0);
+  });
+  rows.push(['Técnico','OTs','Total horas','% Jornada (8h)']);
+  Object.entries(byTec).forEach(([n,d])=>{
+    rows.push([n, d.ots, (d.min/60).toFixed(1), ((d.min/480)*100).toFixed(0)+'%']);
+  });
+
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`reporte_horas_${desde}_${hasta}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ CSV exportado');
+}
 
 </script>
 
