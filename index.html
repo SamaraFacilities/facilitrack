@@ -465,8 +465,9 @@ tr:hover td{background:var(--bg3)}
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-camera"></i> Evidencia fotográfica</div></div>
               <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cld-foto-grid">
-                <label style="border:1px dashed var(--line2);border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" onclick="simFotoD(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
+                <label style="border:1px dashed var(--line2);border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" for="foto-input-d"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
               </div>
+              <input type="file" id="foto-input-d" accept="image/*" capture="environment" multiple style="display:none;" onchange="addFotosD(this)">
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:14px;">
@@ -571,8 +572,9 @@ tr:hover td{background:var(--bg3)}
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-camera"></i> Evidencia fotográfica</div></div>
               <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="foto-grid">
-                <label style="border:1px dashed #ddd;border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" onclick="simFoto(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
+                <label style="border:1px dashed #ddd;border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" for="foto-input-cl"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
               </div>
+              <input type="file" id="foto-input-cl" accept="image/*" capture="environment" multiple style="display:none;" onchange="addFotosCL(this)">
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:14px;">
@@ -1469,6 +1471,7 @@ function renderOrdenes(){
     <td><span class="tech-av" title="${o.tecnico_nombre||''}">${ini(o.tecnico_nombre)}</span></td>
     <td style="display:flex;gap:4px;">
       ${o.estado!=='Completada'&&canDo('crear_ot')?`<button class="btn-sm" onclick="cambiarEst(${o.id})"><i class="ti ti-edit"></i></button>`:''}
+      ${o.estado==='Completada'?`<button class="btn-sm" onclick="verReporteCL(${o.id})" title="Ver reporte checklist" style="color:var(--green-txt);border-color:var(--green-bg);"><i class="ti ti-clipboard-check"></i></button>`:''}
       ${curProf.rol==='admin'?`<button class="btn-sm btn-danger" onclick="eliminarOT(${o.id})"><i class="ti ti-trash"></i></button>`:''}
     </td>
   </tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
@@ -1567,6 +1570,7 @@ function renderEquipos(){
       <td>${badge(e.estado)} ${reqPM?'<span class="badge badge-red" style="margin-left:4px;">PM Req.</span>':''}</td>
       <td style="display:flex;gap:6px;">
         <button class="btn-sm" title="Generar QR" onclick="verQR('${e.codigo}','${e.nombre}')"><i class="ti ti-qrcode"></i></button>
+        ${curProf.rol==='admin'?`<button class="btn-sm" title="Editar Checklist" onclick="openClBuilder(${e.id})" style="color:var(--blue-txt);"><i class="ti ti-list-check"></i></button>`:''}
         ${curProf.rol==='admin'?`
           <button class="btn-sm" title="Editar" onclick="openModalEq(${e.id})"><i class="ti ti-edit"></i></button>
           <button class="btn-sm btn-danger" title="Eliminar" onclick="eliminarEquipo(${e.id})"><i class="ti ti-trash"></i></button>
@@ -1885,6 +1889,445 @@ async function cerrarOT(){
 }
 function volverCL(){clearInterval(tInt);tOn=false;document.getElementById('cl-form').style.display='none';document.getElementById('cl-sel').style.display='';renderCLSel();}
 
+
+
+// ══════════════════════════════════════════════════════════
+// FOTOS REALES CON FileReader
+// ══════════════════════════════════════════════════════════
+
+// Almacenamiento de fotos en memoria (base64)
+let fotosD = [];  // checklist directo (escaner)
+let fotosCL = []; // checklist tab
+
+function addFotosD(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target.result;
+      fotosD.push(base64);
+      renderFotoGridD();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderFotoGridD() {
+  const grid = document.getElementById('cld-foto-grid');
+  if (!grid) return;
+  grid.innerHTML = fotosD.map((src, i) => `
+    <div style="position:relative;height:70px;border-radius:3px;overflow:hidden;border:1px solid var(--line);">
+      <img src="${src}" style="width:100%;height:100%;object-fit:cover;">
+      <button onclick="fotosD.splice(${i},1);renderFotoGridD()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px;line-height:18px;padding:0;">×</button>
+    </div>`).join('') +
+    `<label style="border:1px dashed var(--line2);border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" for="foto-input-d">
+      <i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto
+    </label>`;
+}
+
+function addFotosCL(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target.result;
+      fotosCL.push(base64);
+      renderFotoGridCL();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderFotoGridCL() {
+  const grid = document.getElementById('foto-grid');
+  if (!grid) return;
+  grid.innerHTML = fotosCL.map((src, i) => `
+    <div style="position:relative;height:70px;border-radius:3px;overflow:hidden;border:1px solid var(--line);">
+      <img src="${src}" style="width:100%;height:100%;object-fit:cover;">
+      <button onclick="fotosCL.splice(${i},1);renderFotoGridCL()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px;line-height:18px;padding:0;">×</button>
+    </div>`).join('') +
+    `<label style="border:1px dashed #ddd;border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" for="foto-input-cl">
+      <i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto
+    </label>`;
+}
+
+// Reset foto arrays when starting a new checklist
+function resetFotosD() { fotosD = []; renderFotoGridD(); }
+function resetFotosCL() { fotosCL = []; renderFotoGridCL(); }
+
+// ══════════════════════════════════════════════════════════
+// REPORTE DE CHECKLIST COMPLETADO
+// ══════════════════════════════════════════════════════════
+
+async function verReporteCL(otId) {
+  openM('modal-cl-reporte');
+  document.getElementById('cl-reporte-content').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando reporte...</div>';
+  
+  const ot = allOTs.find(o => o.id === otId);
+  if (!ot) { document.getElementById('cl-reporte-content').innerHTML = '<div class="empty-state">OT no encontrada</div>'; return; }
+
+  // Load respuestas from DB
+  const { data: respuestas, error } = await db.from('respuestas_checklist').select('*').eq('orden_id', otId).order('item_id');
+  
+  const duracion = ot.tiempo_minutos ? `${Math.floor(ot.tiempo_minutos/60)}h ${ot.tiempo_minutos%60}m` : '–';
+  const tecNom = ot.tecnico_nombre || '–';
+  const fechaCierre = ot.fecha_cierre ? new Date(ot.fecha_cierre).toLocaleDateString('es-MX', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '–';
+
+  const conformes = (respuestas||[]).filter(r => r.respuesta === 'true' || (r.respuesta !== 'false' && r.respuesta !== '')).length;
+  const noConformes = (respuestas||[]).filter(r => r.respuesta === 'false').length;
+
+  document.getElementById('cl-reporte-content').innerHTML = `
+    <!-- Cabecera del reporte -->
+    <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:4px;padding:16px;margin-bottom:16px;">
+      <div style="font-family:'Cormorant',serif;font-size:20px;font-weight:300;color:var(--txt);margin-bottom:4px;">${ot.equipo_nombre}</div>
+      <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;">OT #${ot.id} · ${ot.tipo}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;">
+        <div><div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Técnico</div><div style="font-size:13px;font-weight:500;">${tecNom}</div></div>
+        <div><div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Fecha cierre</div><div style="font-size:13px;font-weight:500;">${fechaCierre}</div></div>
+        <div><div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Tiempo trabajado</div><div style="font-size:13px;font-weight:500;">${duracion}</div></div>
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+      <div style="background:var(--green-bg);border:1px solid rgba(42,122,69,0.15);border-radius:4px;padding:12px;text-align:center;">
+        <div style="font-family:'Cormorant',serif;font-size:28px;font-weight:300;color:var(--green-txt);">${conformes}</div>
+        <div style="font-size:10px;color:var(--green-txt);text-transform:uppercase;letter-spacing:.5px;">Conformes</div>
+      </div>
+      <div style="background:var(--red-bg);border:1px solid rgba(192,53,42,0.15);border-radius:4px;padding:12px;text-align:center;">
+        <div style="font-family:'Cormorant',serif;font-size:28px;font-weight:300;color:var(--red-txt);">${noConformes}</div>
+        <div style="font-size:10px;color:var(--red-txt);text-transform:uppercase;letter-spacing:.5px;">No conformes</div>
+      </div>
+      <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:4px;padding:12px;text-align:center;">
+        <div style="font-family:'Cormorant',serif;font-size:28px;font-weight:300;color:var(--txt);">${(respuestas||[]).length}</div>
+        <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;">Total ítems</div>
+      </div>
+    </div>
+
+    <!-- Ítems del checklist -->
+    ${(respuestas||[]).length > 0 ? `
+    <div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Resultado por ítem</div>
+    <div style="border:1px solid var(--line);border-radius:4px;overflow:hidden;">
+      ${(respuestas||[]).map((r, i) => {
+        const isOk = r.respuesta === 'true';
+        const isFail = r.respuesta === 'false';
+        const bg = isFail ? 'var(--red-bg)' : isOk ? 'var(--green-bg)' : '#fafafa';
+        const icon = isFail ? '✗' : isOk ? '✓' : '—';
+        const col = isFail ? 'var(--red-txt)' : isOk ? 'var(--green-txt)' : 'var(--txt2)';
+        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:${bg};border-bottom:1px solid var(--line);">
+          <span style="width:20px;height:20px;border-radius:50%;background:${col};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${icon}</span>
+          <div style="flex:1;font-size:12px;color:var(--txt);">${r.item_label}</div>
+          <div style="font-size:12px;color:${col};font-weight:500;">${r.respuesta === 'true' ? 'Conforme' : r.respuesta === 'false' ? 'No conforme' : r.respuesta}</div>
+        </div>`;
+      }).join('')}
+    </div>` : '<div class="empty-state" style="padding:20px;">No hay respuestas registradas para esta OT.</div>'}
+
+    ${ot.observaciones ? `
+    <div style="margin-top:14px;padding:12px 14px;background:#fafafa;border:1px solid var(--line);border-radius:4px;">
+      <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Observaciones del técnico</div>
+      <div style="font-size:13px;color:var(--txt);line-height:1.5;">${ot.observaciones}</div>
+    </div>` : ''}
+  `;
+}
+
+// ══════════════════════════════════════════════════════════
+// CHECKLIST BUILDER POR EQUIPO (ADMIN)
+// ══════════════════════════════════════════════════════════
+
+// Storage de checklists personalizados: { equipo_id: { nombre, items:[...] } }
+let customCLs = {};
+
+// Load from localStorage (or Supabase column in future)
+function loadCustomCLs() {
+  try {
+    const saved = localStorage.getItem('samara_custom_cls');
+    if (saved) customCLs = JSON.parse(saved);
+  } catch(e) { customCLs = {}; }
+}
+
+function saveCustomCLs() {
+  try { localStorage.setItem('samara_custom_cls', JSON.stringify(customCLs)); } catch(e) {}
+  // Also save to Supabase notes column if available
+}
+
+loadCustomCLs();
+
+// Temp items while building
+let clbItems = [];
+
+function openClBuilder(eqId) {
+  const eq = allEqs.find(e => e.id === eqId);
+  if (!eq) return;
+  
+  document.getElementById('clb-eq-id').value = eqId;
+  document.getElementById('clb-eq-nombre').textContent = `${eq.codigo} — ${eq.nombre}`;
+  
+  // Load existing custom CL if any
+  clbItems = customCLs[eqId] ? JSON.parse(JSON.stringify(customCLs[eqId].items)) : [];
+  
+  clbRenderItems();
+  clbUpdateExtraFields();
+  openM('modal-cl-builder');
+}
+
+function clbRenderItems() {
+  const list = document.getElementById('clb-items-list');
+  if (!list) return;
+  
+  if (!clbItems.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--txt3);font-size:12px;">Sin ítems. Agrega el primero abajo.</div>';
+    return;
+  }
+  
+  list.innerHTML = clbItems.map((item, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);background:#fff;">
+      <div style="width:20px;height:20px;border-radius:50%;background:var(--bg3);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--txt3);flex-shrink:0;">${i+1}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;color:var(--txt);">${item.label}</div>
+        <div style="font-size:10px;color:var(--txt3);margin-top:2px;">${item.tipo === 'bool' ? '✓/✗ Conforme' : item.tipo === 'numero' ? `📏 Valor: ${item.min||0}–${item.max||100} ${item.unidad||''}` : `📋 Opciones: ${(item.opciones||[]).join(', ')}`}</div>
+      </div>
+      <button onclick="clbItems.splice(${i},1);clbRenderItems()" style="background:none;border:none;cursor:pointer;color:var(--txt3);font-size:16px;padding:2px 6px;" title="Eliminar">×</button>
+    </div>`).join('');
+}
+
+function clbUpdateExtraFields() {
+  const tipo = document.getElementById('clb-item-tipo')?.value;
+  const extra = document.getElementById('clb-extra-fields');
+  if (!extra) return;
+  
+  if (tipo === 'numero') {
+    extra.style.display = 'grid';
+    extra.innerHTML = `
+      <input type="number" id="clb-min" placeholder="Mín (ej: 0)" style="border:1px solid #ddd;border-radius:3px;padding:7px 10px;font-size:12px;outline:none;background:#fff;color:#111;">
+      <input type="number" id="clb-max" placeholder="Máx (ej: 100)" style="border:1px solid #ddd;border-radius:3px;padding:7px 10px;font-size:12px;outline:none;background:#fff;color:#111;">
+      <input type="text" id="clb-unidad" placeholder="Unidad (bar, °C, rpm...)" style="border:1px solid #ddd;border-radius:3px;padding:7px 10px;font-size:12px;outline:none;background:#fff;color:#111;">`;
+  } else if (tipo === 'seleccion') {
+    extra.style.display = 'grid';
+    extra.style.gridTemplateColumns = '1fr';
+    extra.innerHTML = `<input type="text" id="clb-opciones" placeholder="Opciones separadas por coma: Bueno, Regular, Malo" style="border:1px solid #ddd;border-radius:3px;padding:7px 10px;font-size:12px;outline:none;background:#fff;color:#111;">`;
+  } else {
+    extra.style.display = 'none';
+    extra.innerHTML = '';
+  }
+}
+
+// Hook tipo change
+document.addEventListener('change', e => {
+  if (e.target.id === 'clb-item-tipo') clbUpdateExtraFields();
+});
+
+function clbAddItem() {
+  const label = document.getElementById('clb-item-label')?.value.trim();
+  const tipo = document.getElementById('clb-item-tipo')?.value;
+  if (!label) { toast('Escribe el nombre del ítem'); return; }
+  
+  const item = { id: 'ci' + Date.now(), label, tipo };
+  
+  if (tipo === 'numero') {
+    item.min = parseFloat(document.getElementById('clb-min')?.value) || 0;
+    item.max = parseFloat(document.getElementById('clb-max')?.value) || 100;
+    item.unidad = document.getElementById('clb-unidad')?.value.trim() || '';
+  } else if (tipo === 'seleccion') {
+    const raw = document.getElementById('clb-opciones')?.value || '';
+    item.opciones = raw.split(',').map(s => s.trim()).filter(Boolean);
+    if (!item.opciones.length) { toast('Agrega al menos una opción'); return; }
+  }
+  
+  clbItems.push(item);
+  clbRenderItems();
+  document.getElementById('clb-item-label').value = '';
+  toast('✅ Ítem agregado');
+}
+
+function clbGuardar() {
+  const eqId = document.getElementById('clb-eq-id').value;
+  const eq = allEqs.find(e => String(e.id) === String(eqId));
+  if (!eq) return;
+  
+  customCLs[eqId] = {
+    nombre: `Checklist ${eq.nombre}`,
+    items: clbItems
+  };
+  saveCustomCLs();
+  closeM('modal-cl-builder');
+  toast(`✅ Checklist de ${eq.nombre} guardado (${clbItems.length} ítems)`);
+}
+
+// ══════════════════════════════════════════════════════════
+// OVERRIDE getCLKey para incluir checklists personalizados
+// ══════════════════════════════════════════════════════════
+
+// Override the original getCLKey to also check custom CLs
+const _origGetCLKey = getCLKey;
+function getCLKeyFull(equipo_id, equipo_nombre) {
+  // First check custom checklist for this specific equipment
+  if (equipo_id && customCLs[equipo_id]) {
+    return '__custom__' + equipo_id;
+  }
+  // Fall back to code-based matching
+  return _origGetCLKey(equipo_nombre || '');
+}
+
+// Override getCurCLD to use full key
+function getCurCLD() {
+  if (!otActual) return null;
+  const eqId = otActual.equipo_id;
+  if (eqId && customCLs[eqId]) return customCLs[eqId];
+  const k = getCLKey(otActual.equipo_nombre || '');
+  return k ? CL[k] : null;
+}
+
+// Override getCurCL (tab checklist)
+function getCurCL() {
+  if (!clOT) return null;
+  const eqId = clOT.equipo_id;
+  if (eqId && customCLs[eqId]) return customCLs[eqId];
+  const k = getCLKey(clOT.equipo_nombre || '');
+  return k ? CL[k] : null;
+}
+
+// ══════════════════════════════════════════════════════════
+// OTs ABIERTAS VISIBLES EN EL CHECKLIST (tab tecnico)
+// ══════════════════════════════════════════════════════════
+// renderCLSel already shows active OTs. Enhance to show equipment info and allow direct access.
+// Also show completed OTs with view report button.
+
+function renderCLSelEnhanced() {
+  if (!document.getElementById('cl-cards')) return;
+  
+  let act = allOTs.filter(o => o.estado !== 'Completada');
+  if (curProf.rol === 'tecnico') act = act.filter(o => o.tecnico_id === curUser.id);
+  
+  // Group: active + recently completed
+  let completed = allOTs.filter(o => o.estado === 'Completada');
+  if (curProf.rol === 'tecnico') completed = completed.filter(o => o.tecnico_id === curUser.id);
+  const recentCompleted = completed.slice(0, 5);
+  
+  const hasCL = (o) => {
+    if (o.equipo_id && customCLs[o.equipo_id]) return true;
+    return !!getCLKey(o.equipo_nombre || '');
+  };
+
+  let html = '';
+  
+  if (act.length) {
+    html += `<div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">Órdenes activas (${act.length})</div>`;
+    html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:20px;">` +
+      act.map(o => {
+        const h = hasCL(o);
+        const isMine = o.tecnico_id === curUser?.id;
+        return `<div class="card" style="cursor:${h?'pointer':'default'};opacity:${h?1:0.65};border-left:3px solid ${o.prioridad==='Urgente'?'var(--red)':o.prioridad==='Alta'?'#c07030':'var(--amber)'};" ${h ? `onclick="abrirCL(${o.id})"` : ''}>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <div>
+              <div style="font-size:10px;color:var(--txt3);font-family:monospace;">#${o.id}</div>
+              <div style="font-size:13px;font-weight:500;color:var(--txt);">${o.equipo_nombre||'–'}</div>
+            </div>
+            <div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end;">${badge(o.prioridad)}${badge(o.estado)}</div>
+          </div>
+          <div style="font-size:12px;color:var(--txt2);margin-bottom:8px;line-height:1.4;">${o.descripcion||'–'}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:11px;color:var(--txt3);"><i class="ti ti-user"></i> ${(o.tecnico_nombre||'Sin asignar').split(' ')[0]}</span>
+            ${h ? `<span style="font-size:10px;background:var(--green-bg);color:var(--green-txt);padding:2px 8px;border-radius:20px;border:1px solid rgba(42,122,69,.2);">✓ Checklist</span>` : `<span style="font-size:10px;color:var(--txt3);">Sin checklist</span>`}
+          </div>
+        </div>`;
+      }).join('') + '</div>';
+  } else {
+    html += `<div class="empty-state" style="margin-bottom:20px;"><i class="ti ti-clipboard-check"></i><br>No hay órdenes activas asignadas</div>`;
+  }
+  
+  if (recentCompleted.length) {
+    html += `<div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">Completadas recientemente</div>`;
+    html += `<div style="border:1px solid var(--line);border-radius:4px;overflow:hidden;">` +
+      recentCompleted.map(o => `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fafafa;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:500;color:var(--txt);">${o.equipo_nombre}</div>
+            <div style="font-size:11px;color:var(--txt3);">${o.tipo} · ${o.tiempo_minutos ? Math.round(o.tiempo_minutos) + 'm' : '–'}</div>
+          </div>
+          <button class="btn-sm" onclick="verReporteCL(${o.id})" style="color:var(--green-txt);border-color:var(--green-bg);font-size:11px;">
+            <i class="ti ti-clipboard-check"></i> Ver reporte
+          </button>
+        </div>`).join('') + '</div>';
+  }
+  
+  document.getElementById('cl-cards').innerHTML = html || '<div class="empty-state">Sin órdenes</div>';
+}
+
+// Override renderCLSel
+function renderCLSel() {
+  renderCLSelEnhanced();
+}
+
+// Also reset fotos when opening checklists
+const _origAbrirCL = abrirCL;
+function abrirCL(otId) {
+  resetFotosCL();
+  _origAbrirCL(otId);
+}
+
+// Also reset fotos when opening direct checklist (scanner)
+const _origAbrirCLDirecto = abrirCLDirecto;
+function abrirCLDirecto(ot) {
+  resetFotosD();
+  _origAbrirCLDirecto(ot);
+}
+
 </script>
+
+<!-- MODAL: VER REPORTE DE CHECKLIST -->
+<div class="modal-backdrop" id="modal-cl-reporte">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-title">
+      <span><i class="ti ti-clipboard-check" style="margin-right:6px;"></i>Reporte de Checklist</span>
+      <button class="close-btn" onclick="closeM('modal-cl-reporte')"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="cl-reporte-content">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: BUILDER DE CHECKLIST POR EQUIPO -->
+<div class="modal-backdrop" id="modal-cl-builder">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-title">
+      <span><i class="ti ti-list-check" style="margin-right:6px;"></i>Checklist del Equipo</span>
+      <button class="close-btn" onclick="closeM('modal-cl-builder')"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="font-size:12px;color:var(--txt2);margin-bottom:16px;">
+      Crea los ítems de inspección para este equipo. Se usarán al ejecutar el checklist. 
+      <strong>Puedes basarte en el manual del fabricante.</strong>
+    </div>
+    <input type="hidden" id="clb-eq-id">
+    <div id="clb-eq-nombre" style="font-family:'Cormorant',serif;font-size:18px;color:var(--txt);margin-bottom:16px;"></div>
+
+    <!-- Lista de ítems -->
+    <div id="clb-items-list" style="margin-bottom:14px;max-height:340px;overflow-y:auto;"></div>
+
+    <!-- Agregar ítem -->
+    <div style="border:1px solid var(--line);border-radius:4px;padding:14px;background:#fafafa;">
+      <div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">Agregar ítem de inspección</div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px;">
+        <input type="text" id="clb-item-label" placeholder="Ej: Verificar nivel de aceite hidráulico..." style="border:1px solid #ddd;border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:#fff;color:#111;font-family:'DM Sans',sans-serif;">
+        <select id="clb-item-tipo" style="border:1px solid #ddd;border-radius:3px;padding:8px 10px;font-size:12px;outline:none;background:#fff;color:#111;font-family:'DM Sans',sans-serif;">
+          <option value="bool">✓/✗ Conforme</option>
+          <option value="numero">📏 Valor numérico</option>
+          <option value="seleccion">📋 Selección</option>
+        </select>
+      </div>
+      <div id="clb-extra-fields" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;"></div>
+      <button class="btn-sm btn-primary" onclick="clbAddItem()" style="width:100%;justify-content:center;"><i class="ti ti-plus"></i> Agregar ítem</button>
+    </div>
+
+    <div class="form-actions" style="margin-top:14px;">
+      <button class="btn-sm" onclick="closeM('modal-cl-builder')">Cancelar</button>
+      <button class="btn-sm btn-primary" onclick="clbGuardar()"><i class="ti ti-check"></i> Guardar Checklist</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
