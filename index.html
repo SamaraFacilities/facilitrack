@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="FaciliTrack">
-<title>FaciliTrack</title>
+<meta name="apple-mobile-web-app-title" content="Samara">
+<title>Samara — Facilities</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -17,38 +17,38 @@
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0a0a0a;
-  --bg2:#111111;
-  --bg3:#1a1a1a;
-  --bg4:#222222;
-  --line:#2a2a2a;
-  --line2:#333333;
-  --txt:#f0ede8;
-  --txt2:#999;
-  --txt3:#666;
-  --accent:#e8e0d4;
-  --green:#4a9960;
-  --green-bg:rgba(74,153,96,0.12);
-  --green-txt:#6bbf84;
-  --amber:#c49a3c;
-  --amber-bg:rgba(196,154,60,0.12);
-  --amber-txt:#d4aa55;
-  --red:#c0453a;
-  --red-bg:rgba(192,69,58,0.12);
-  --red-txt:#d4655a;
-  --blue:#4a7fa8;
-  --blue-bg:rgba(74,127,168,0.12);
-  --blue-txt:#6fa0c4;
-  --navy:#f0ede8;
-  --navy2:#d4cfc8;
-  --border:#2a2a2a;
-  --r:8px;
+  --bg:#ffffff;
+  --bg2:#fafafa;
+  --bg3:#f5f5f5;
+  --bg4:#eeeeee;
+  --line:#e8e8e8;
+  --line2:#d8d8d8;
+  --txt:#111111;
+  --txt2:#555555;
+  --txt3:#999999;
+  --accent:#333333;
+  --green:#2a7a45;
+  --green-bg:#edf7f1;
+  --green-txt:#1f6135;
+  --amber:#8a6200;
+  --amber-bg:#fdf5e6;
+  --amber-txt:#7a5500;
+  --red:#c0352a;
+  --red-bg:#fdf0ef;
+  --red-txt:#a02820;
+  --blue:#1a5fa8;
+  --blue-bg:#eef4fc;
+  --blue-txt:#1045a0;
+  --navy:#111111;
+  --navy2:#333333;
+  --border:#e8e8e8;
+  --r:4px;
 }
 
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-weight:300}
+body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:var(--txt);min-height:100vh;font-weight:300}
 
 /* ── LOGIN ── */
-#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg)}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:#f5f5f5}
 .login-card{background:var(--bg2);border:1px solid var(--line);border-radius:4px;padding:48px 40px;width:100%;max-width:380px}
 .login-logo{width:44px;height:44px;border:1px solid var(--line2);border-radius:4px;display:flex;align-items:center;justify-content:center;margin:0 auto 32px}
 .login-logo i{color:var(--txt);font-size:20px}
@@ -56,7 +56,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .login-sub{font-size:12px;color:var(--txt3);text-align:center;margin-bottom:32px;letter-spacing:0.5px;text-transform:uppercase}
 .form-field{margin-bottom:16px}
 .form-field label{display:block;font-size:11px;color:var(--txt3);margin-bottom:6px;letter-spacing:0.8px;text-transform:uppercase}
-.form-field input,.form-field select{width:100%;border:1px solid var(--line2);border-radius:3px;padding:11px 14px;font-size:13px;outline:none;transition:border 0.2s;background:var(--bg3);color:var(--txt);font-family:'DM Sans',sans-serif;font-weight:300}
+.form-field input,.form-field select{width:100%;border:1px solid var(--line2);border-radius:3px;padding:11px 14px;font-size:13px;outline:none;transition:border 0.2s;background:#ffffff;color:#111;font-family:'DM Sans',sans-serif;font-weight:300}
 .form-field input:focus,.form-field select:focus{border-color:var(--txt3)}
 .form-field input::placeholder{color:var(--txt3)}
 .btn-login{width:100%;background:var(--txt);color:var(--bg);border:none;border-radius:3px;padding:13px;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.2s;font-family:'DM Sans',sans-serif}
@@ -66,8 +66,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .login-err.show{display:block}
 
 /* ── APP SHELL ── */
-#app{display:none;min-height:100vh;background:var(--bg)}
-.header{background:var(--bg);border-bottom:1px solid var(--line);padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;height:52px}
+#app{display:none;min-height:100vh;background:#f5f5f5}
+.header{background:#ffffff;border-bottom:1px solid var(--line);padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;height:52px}
 .header-left{display:flex;align-items:center;gap:12px}
 .logo{width:30px;height:30px;border:1px solid var(--line2);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo i{color:var(--txt);font-size:14px}
@@ -86,11 +86,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .btn-logout:hover{color:var(--txt)}
 
 /* ── NAV ── */
-.nav-wrap{background:var(--bg);border-bottom:1px solid var(--line);overflow-x:auto}
+.nav-wrap{background:#ffffff;border-bottom:1px solid var(--line);overflow-x:auto}
 .nav{display:flex;padding:0 20px;gap:0}
 .nav-btn{padding:12px 16px;font-size:11px;border:none;border-bottom:1px solid transparent;cursor:pointer;background:transparent;color:var(--txt3);white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:6px;letter-spacing:0.5px;text-transform:uppercase;font-family:'DM Sans',sans-serif;font-weight:400;margin-bottom:-1px}
 .nav-btn:hover{color:var(--txt)}
-.nav-btn.active{color:var(--txt);border-bottom-color:var(--txt);font-weight:500}
+.nav-btn.active{color:#111111;border-bottom-color:#111111;font-weight:500}
 .nav-badge{background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px}
 
 /* ── MAIN CONTENT ── */
@@ -99,7 +99,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 /* ── KPI CARDS ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-bottom:24px;border:1px solid var(--line);border-radius:4px;overflow:hidden}
 @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-.kpi-card{background:var(--bg2);padding:20px;border-right:1px solid var(--line)}
+.kpi-card{background:#ffffff;padding:20px;border-right:1px solid var(--line)}
 .kpi-card:last-child{border-right:none}
 .kpi-label{font-size:10px;color:var(--txt3);margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.8px}
 .kpi-value{font-family:'EB Garamond',serif;font-size:36px;font-weight:400;color:var(--txt);line-height:1;letter-spacing:-1px}
@@ -109,7 +109,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 /* ── CARDS ── */
 .two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:1px}
 @media(max-width:700px){.two-col{grid-template-columns:1fr}}
-.card{background:var(--bg2);border:1px solid var(--line);border-radius:4px;padding:20px}
+.card{background:#ffffff;border:1px solid var(--line);border-radius:4px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .card-title{font-size:11px;font-weight:500;color:var(--txt2);display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:0.8px}
 
@@ -142,9 +142,9 @@ tr:hover td{background:var(--bg3)}
 .panel-visible{display:block}
 
 /* ── MODALS ── */
-.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;padding:16px}
 .modal-backdrop.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--line2);border-radius:4px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal{background:#ffffff;border:1px solid var(--line);border-radius:4px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.12)}
 .modal-title{font-size:14px;font-weight:500;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;color:var(--txt);letter-spacing:-0.2px}
 .close-btn{background:none;border:none;cursor:pointer;color:var(--txt3);font-size:18px;transition:color 0.2s}
 .close-btn:hover{color:var(--txt)}
@@ -152,7 +152,7 @@ tr:hover td{background:var(--bg3)}
 @media(max-width:500px){.form-grid{grid-template-columns:1fr}}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group label{font-size:10px;color:var(--txt3);font-weight:500;text-transform:uppercase;letter-spacing:0.8px}
-.form-group input,.form-group select,.form-group textarea{border:1px solid var(--line2);border-radius:3px;padding:9px 12px;font-size:13px;outline:none;background:var(--bg3);color:var(--txt);font-family:'DM Sans',sans-serif;font-weight:300;transition:border 0.15s}
+.form-group input,.form-group select,.form-group textarea{border:1px solid var(--line2);border-radius:3px;padding:9px 12px;font-size:13px;outline:none;background:#ffffff;color:#111;font-family:'DM Sans',sans-serif;font-weight:300;transition:border 0.15s}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--txt3)}
 .form-group input::placeholder,.form-group textarea::placeholder{color:var(--txt3)}
 .form-group textarea{resize:vertical;min-height:70px}
@@ -181,7 +181,7 @@ tr:hover td{background:var(--bg3)}
 .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
 .cal-day-header{text-align:center;font-size:10px;font-weight:500;color:var(--txt3);padding:8px 0;text-transform:uppercase;letter-spacing:0.6px}
-.cal-cell{background:var(--bg2);border:1px solid var(--line);border-radius:3px;min-height:90px;padding:8px;display:flex;flex-direction:column;gap:3px;transition:all 0.15s;cursor:pointer}
+.cal-cell{background:#ffffff;border:1px solid var(--line);border-radius:3px;min-height:90px;padding:8px;display:flex;flex-direction:column;gap:3px;transition:all 0.15s;cursor:pointer}
 .cal-cell:hover{border-color:var(--line2);background:var(--bg3)}
 .cal-cell.drag-over{background:var(--blue-bg);border-color:var(--blue);border-style:dashed}
 .cal-cell.today{border-color:var(--txt3)}
@@ -194,25 +194,25 @@ tr:hover td{background:var(--bg3)}
 #equipo-panel{display:none;animation:slideUp 0.25s ease}
 @keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .scan-status{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;border-radius:3px;font-size:11px;font-weight:400;margin-bottom:4px;letter-spacing:0.3px}
-.scan-status.scanning{background:var(--blue-bg);color:var(--blue-txt)}
+.scan-status.scanning{background:var(--blue-bg);color:var(--blue-txt);border:1px solid rgba(26,95,168,0.15);}
 .scan-status.found{background:var(--green-bg);color:var(--green-txt)}
 .scan-status.error{background:var(--red-bg);color:var(--red-txt)}
 
-.equipo-header{background:var(--bg2);border:1px solid var(--line2);border-radius:4px;padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px}
-.equipo-icon{width:44px;height:44px;border-radius:3px;background:var(--bg3);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.equipo-icon i{font-size:20px;color:var(--txt2)}
+.equipo-header{background:#ffffff;border:1px solid var(--line);border-radius:4px;padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.equipo-icon{width:44px;height:44px;border-radius:3px;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.equipo-icon i{font-size:20px;color:#fff}
 .equipo-nombre{font-family:'EB Garamond',serif;font-size:20px;font-weight:400;color:var(--txt);margin-bottom:2px;letter-spacing:-0.3px}
 .equipo-codigo{font-size:11px;color:var(--txt3);font-family:monospace}
 .equipo-meta{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .equipo-chip{font-size:10px;background:var(--bg3);border:1px solid var(--line);color:var(--txt2);padding:2px 10px;border-radius:20px}
 
-.ot-card-tecnico{border:1px solid var(--line);border-radius:4px;padding:16px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;background:var(--bg2);position:relative;overflow:hidden}
+.ot-card-tecnico{border:1px solid var(--line);border-radius:4px;padding:16px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;background:#ffffff;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.04)}
 .ot-card-tecnico::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
 .ot-card-tecnico.urgente::before{background:var(--red)}
 .ot-card-tecnico.alta::before{background:#c07030}
 .ot-card-tecnico.media::before{background:var(--amber)}
 .ot-card-tecnico.baja::before{background:var(--line2)}
-.ot-card-tecnico:hover{border-color:var(--line2);background:var(--bg3)}
+.ot-card-tecnico:hover{border-color:#bbb;background:#fafafa;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 .ot-card-tecnico.mine{border-color:rgba(74,127,168,0.3);background:var(--blue-bg)}
 .ot-card-tecnico.mine::after{content:'Tú';position:absolute;top:10px;right:10px;background:var(--bg3);border:1px solid var(--line2);color:var(--txt2);font-size:9px;padding:1px 7px;border-radius:20px;letter-spacing:0.3px}
 .ot-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;padding-right:44px}
@@ -221,8 +221,8 @@ tr:hover td{background:var(--bg3)}
 .ot-desc{font-size:12px;color:var(--txt2);margin-bottom:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ot-footer{display:flex;align-items:center;justify-content:space-between}
 .ot-asignado{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:5px}
-.btn-tomar{background:var(--txt);color:var(--bg);border:none;border-radius:3px;padding:7px 16px;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;letter-spacing:0.3px;font-family:'DM Sans',sans-serif}
-.btn-tomar:hover{background:var(--accent)}
+.btn-tomar{background:#111111;color:#ffffff;border:none;border-radius:3px;padding:7px 16px;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;letter-spacing:0.3px;font-family:'DM Sans',sans-serif}
+.btn-tomar:hover{background:#333333}
 .btn-tomar.mine-btn{background:var(--green);color:#fff}
 .btn-tomar.mine-btn:hover{background:#3d8a52}
 .sin-ots{text-align:center;padding:32px 20px;color:var(--txt3)}
@@ -241,7 +241,7 @@ tr:hover td{background:var(--bg3)}
 .paso{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .paso-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;transition:all 0.3s;border:1px solid var(--line2)}
 .paso-num.done{background:var(--green);border-color:var(--green);color:#fff}
-.paso-num.active{background:var(--txt);border-color:var(--txt);color:var(--bg)}
+.paso-num.active{background:#111;border-color:#111;color:#fff}
 .paso-num.pending{background:transparent;color:var(--txt3)}
 .paso-label{font-size:10px;color:var(--txt3);font-weight:400;letter-spacing:0.3px;text-transform:uppercase}
 .paso-label.active{color:var(--txt);font-weight:500}
@@ -260,7 +260,7 @@ tr:hover td{background:var(--bg3)}
 .chk-dot.fail{background:var(--red);border-color:var(--red)}
 .chk-dot i{color:#fff;font-size:10px}
 .bool-btns{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
-.bool-btn{padding:5px 12px;font-size:11px;border:1px solid var(--line2);border-radius:3px;cursor:pointer;background:transparent;color:var(--txt2);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.bool-btn{padding:5px 12px;font-size:11px;border:1px solid var(--line2);border-radius:3px;cursor:pointer;background:#ffffff;color:var(--txt2);transition:all 0.15s;font-family:'DM Sans',sans-serif}
 .bool-btn:hover{border-color:var(--txt3);color:var(--txt)}
 .bool-btn.active-ok{background:var(--green-bg);border-color:var(--green);color:var(--green-txt)}
 .bool-btn.active-fail{background:var(--red-bg);border-color:var(--red);color:var(--red-txt)}
@@ -273,9 +273,7 @@ tr:hover td{background:var(--bg3)}
 
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo"><i class="ti ti-tool"></i></div>
-    <div class="login-title">FaciliTrack</div>
-    <div class="login-sub">Gestión de mantenimiento industrial</div>
+    <div style="text-align:center;margin-bottom:32px;"><div style="font-family:'EB Garamond',serif;font-size:38px;font-weight:400;color:#111;letter-spacing:-1px;">Samara</div><div style="font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Facilities Tracking</div></div>
     <div class="form-field"><label>Correo electrónico</label><input type="email" id="l-email" placeholder="tecnico@empresa.com" autocomplete="email"></div>
     <div class="form-field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn-login" id="btn-login" onclick="doLogin()">Iniciar sesión</button>
@@ -286,8 +284,7 @@ tr:hover td{background:var(--bg3)}
 <div id="app">
   <div class="header">
     <div class="header-left">
-      <div class="logo"><i class="ti ti-tool"></i></div>
-      <div><div class="app-title">FaciliTrack</div><div class="app-sub">Gestión de mantenimiento</div></div>
+      <div style="font-family:'EB Garamond',serif;font-size:20px;font-weight:400;color:#111;letter-spacing:-0.5px;">Samara</div>
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--green-txt);"><div class="rt-dot"></div><span id="rt-st">En vivo</span></div>
@@ -373,12 +370,12 @@ tr:hover td{background:var(--bg3)}
             <span id="sz-eq-est-badge"></span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-            <div style="background:var(--bg3);border:1px solid var(--line);border-radius:3px;padding:12px;">
+            <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
               <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Horas de uso</div>
               <div style="font-family:'EB Garamond',serif;font-size:28px;font-weight:400;color:var(--txt);" id="sz-stat-hrs">–</div>
               <div style="font-size:11px;color:var(--txt3);" id="sz-stat-frec">–</div>
             </div>
-            <div style="background:var(--bg3);border:1px solid var(--line);border-radius:3px;padding:12px;">
+            <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
               <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">OTs activas</div>
               <div style="font-family:'EB Garamond',serif;font-size:28px;font-weight:400;" id="sz-stat-ots" style="color:var(--txt);">–</div>
               <div style="font-size:11px;color:var(--txt3);" id="sz-stat-ots-sub">–</div>
@@ -394,12 +391,12 @@ tr:hover td{background:var(--bg3)}
 
           <!-- Datos técnicos del equipo -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-            <div style="background:var(--bg3);border:1px solid var(--line);border-radius:3px;padding:12px;">
+            <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
               <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Horas de uso</div>
               <div style="font-family:'EB Garamond',serif;font-size:28px;font-weight:400;color:var(--txt);" id="sz-stat-hrs">–</div>
               <div style="font-size:11px;color:var(--txt3);" id="sz-stat-frec">–</div>
             </div>
-            <div style="background:var(--bg3);border:1px solid var(--line);border-radius:3px;padding:12px;">
+            <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
               <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">OTs activas</div>
               <div style="font-family:'EB Garamond',serif;font-size:28px;font-weight:400;" id="sz-stat-ots">–</div>
               <div style="font-size:11px;color:var(--txt3);" id="sz-stat-ots-sub">–</div>
@@ -458,7 +455,7 @@ tr:hover td{background:var(--bg3)}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                   <div class="form-group">
                     <label>Tipo de trabajo</label>
-                    <select id="sz-f-tipo" style="border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:var(--bg3);color:var(--txt);font-family:'DM Sans',sans-serif;">
+                    <select id="sz-f-tipo" style="border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:#ffffff;color:#111;font-family:'DM Sans',sans-serif;">
                       <option value="Correctivo">Correctivo (falla)</option>
                       <option value="Preventivo">Preventivo</option>
                       <option value="Inspección">Inspección</option>
@@ -466,7 +463,7 @@ tr:hover td{background:var(--bg3)}
                   </div>
                   <div class="form-group">
                     <label>Urgencia</label>
-                    <select id="sz-f-pri" style="border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:var(--bg3);color:var(--txt);font-family:'DM Sans',sans-serif;">
+                    <select id="sz-f-pri" style="border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:#ffffff;color:#111;font-family:'DM Sans',sans-serif;">
                       <option value="Urgente">🔴 Urgente — parar equipo</option>
                       <option value="Alta">🟠 Alta — atender hoy</option>
                       <option value="Media" selected>🟡 Media — próxima guardia</option>
@@ -581,7 +578,7 @@ tr:hover td{background:var(--bg3)}
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-signature"></i> Firma del técnico</div></div>
-              <canvas id="cld-firma-c" width="300" height="90" style="border:1px solid var(--line2);border-radius:6px;width:100%;display:block;cursor:crosshair;background:var(--bg3);touch-action:none;"></canvas>
+              <canvas id="cld-firma-c" width="300" height="90" style="border:1px solid var(--line2);border-radius:6px;width:100%;display:block;cursor:crosshair;background:#fafafa;touch-action:none;"></canvas>
               <div style="display:flex;gap:6px;margin-top:8px;">
                 <button class="btn-sm" style="flex:1;justify-content:center;" onclick="clearFirmaD()">Borrar firma</button>
                 <button class="btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="cerrarOTDirecto()"><i class="ti ti-check"></i> Cerrar OT</button>
@@ -705,7 +702,7 @@ tr:hover td{background:var(--bg3)}
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-signature"></i> Firma del técnico</div></div>
-              <canvas id="firma-c" width="300" height="90" style="border:1px solid var(--line2);border-radius:6px;width:100%;display:block;cursor:crosshair;background:var(--bg3);touch-action:none;"></canvas>
+              <canvas id="firma-c" width="300" height="90" style="border:1px solid var(--line2);border-radius:6px;width:100%;display:block;cursor:crosshair;background:#fafafa;touch-action:none;"></canvas>
               <div style="display:flex;gap:6px;margin-top:8px;">
                 <button class="btn-sm" style="flex:1;justify-content:center;" onclick="clearFirma()">Borrar</button>
                 <button class="btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="cerrarOT()"><i class="ti ti-check"></i> Cerrar OT</button>
@@ -837,7 +834,13 @@ function rolBadge(r){const c={tecnico:'r-tecnico',supervisor:'r-supervisor',supe
 
 function canDo(a){
   const r=curProf?.rol;
-  const p={crear_ot:['tecnico','supervisor','supervisor_zona','admin'],ver_tecnicos:['gerencia','admin'],gestionar_usuarios:['admin'],gestionar_equipos:['admin','supervisor','gerencia'],ver_dashboard:['admin','gerencia','supervisor']};
+  if(r==='admin') return true; // admin can do everything
+  const p={
+    crear_ot:['tecnico','supervisor','supervisor_zona'],
+    ver_tecnicos:['gerencia'],
+    gestionar_equipos:['supervisor','gerencia'],
+    ver_dashboard:['gerencia','supervisor']
+  };
   return(p[a]||[]).includes(r);
 }
 
