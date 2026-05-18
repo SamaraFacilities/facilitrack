@@ -592,6 +592,9 @@ tr:hover td{background:var(--bg3)}
 
     <!-- RESTO DE TABS (sin cambios) -->
     <div id="tab-dashboard" class="panel-hidden">
+      <div id="debug-panel" style="background:#fff3cd;border:2px solid #f90;border-radius:6px;padding:12px;margin-bottom:14px;font-size:12px;font-family:monospace;">
+        <strong>🔍 DIAGNÓSTICO:</strong> <span id="debug-msg">Esperando datos...</span>
+      </div>
       <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--green-bg);border-radius:6px;font-size:11px;color:#1f6130;margin-bottom:12px;"><div class="rt-dot"></div>Datos en tiempo real — se actualizan automáticamente</div>
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b03030"></span>Urgentes</div><div class="kpi-value" id="k-urg">–</div><div class="kpi-sub">Atención inmediata</div></div>
@@ -1517,6 +1520,8 @@ async function cerrarOTDirecto(){
 
 // ── DASHBOARD ──
 function renderDash(){
+  const dbg=document.getElementById('debug-msg');
+  if(dbg) dbg.textContent=`OTs:${allOTs.length} | Equipos:${allEqs.length} | Perfiles:${allProfs.length} | Tab visible:${document.getElementById('tab-dashboard')?.className}`;
   if(!document.getElementById('k-urg')) return;
   const hoy=new Date();hoy.setHours(0,0,0,0);
   document.getElementById('k-urg').textContent=allOTs.filter(o=>o.estado==='Urgente').length;
