@@ -266,8 +266,22 @@ tr:hover td{background:var(--bg3)}
 
 /* SZ PANEL */
 #sz-panel{display:none;animation:slideUp 0.25s ease}
-
 </style>
+
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "49197a8a-bf30-44a2-b08c-40a995e7b4b9",
+      safari_web_id: "web.onesignal.auto.14469d21-a548-446f-9323-a0e21fc14d38",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+
 </head>
 <body>
 
@@ -995,6 +1009,10 @@ async function bootApp(user){
     setTab('dashboard');
     await loadAll();
   }
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.login(user.id);
+  });
+  
 }
 
 async function doLogout(){
