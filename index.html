@@ -1304,6 +1304,7 @@ function seleccionarOT(otId){
 // Abrir checklist en el tab escáner directamente
 function abrirCLDirecto(ot){
   otActual=ot;
+  fotosD=[];renderFotoGridD();
   const k=getCLKey(ot.equipo_nombre||'');
 
   document.getElementById('equipo-panel').style.display='none';
@@ -1838,6 +1839,7 @@ function renderCLSel(){
 
 function abrirCL(otId){
   clOT=allOTs.find(o=>o.id===otId);if(!clOT)return;
+  fotosCL=[];renderFotoGridCL();
   clR={};resetTimer();
   document.getElementById('ref-in').value='';document.getElementById('ref-list').innerHTML='';document.getElementById('obs-txt').value='';
   document.getElementById('cl-ttl').textContent=`#${clOT.id} – ${clOT.equipo_nombre||'–'}`;
@@ -2261,19 +2263,7 @@ function renderCLSel() {
   renderCLSelEnhanced();
 }
 
-// Also reset fotos when opening checklists
-const _origAbrirCL = abrirCL;
-function abrirCL(otId) {
-  resetFotosCL();
-  _origAbrirCL(otId);
-}
-
-// Also reset fotos when opening direct checklist (scanner)
-const _origAbrirCLDirecto = abrirCLDirecto;
-function abrirCLDirecto(ot) {
-  resetFotosD();
-  _origAbrirCLDirecto(ot);
-}
+// foto reset now handled inside abrirCL and abrirCLDirecto directly
 
 </script>
 
