@@ -808,13 +808,31 @@ tr:hover td{background:var(--bg3)}
 const SUPA_URL='https://knzelkthjzdtlghaizmr.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuemVsa3RoanpkdGxnaGFpem1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjY2NTQsImV4cCI6MjA5NDM0MjY1NH0.xL1cAwZ4kQ-u1bILLm-WMR-5j-PH_MJ8aVjBRCuhi6k';
 
+// Custom in-memory storage para evitar bloqueos de Tracking Prevention en file://
+const memStorage = {};
+const customStorage = {
+  getItem: (k) => memStorage[k] ?? null,
+  setItem: (k, v) => { memStorage[k] = v; try{sessionStorage.setItem(k,v);}catch(e){} },
+  removeItem: (k) => { delete memStorage[k]; try{sessionStorage.removeItem(k);}catch(e){} },
+};
+// Pre-load any existing session from sessionStorage
+try { Object.keys(sessionStorage).forEach(k => { memStorage[k] = sessionStorage.getItem(k); }); } catch(e){}
+
 let db;
 try {
   const {createClient} = supabase;
-  db = createClient(SUPA_URL, SUPA_KEY);
+  db = createClient(SUPA_URL, SUPA_KEY, {
+    auth: {
+      storage: customStorage,
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false,
+    }
+  });
+  console.log('✅ Supabase inicializado con storage personalizado');
 } catch(e) {
   console.error('Error al inicializar Supabase:', e);
-  document.getElementById('login-err').textContent = 'Error de configuración: verifica la API key en el código.';
+  document.getElementById('login-err').textContent = 'Error de configuración: ' + e.message;
   document.getElementById('login-err').classList.add('show');
 }
 
@@ -896,6 +914,7 @@ async function doLogin(){
     console.log('👤 Profile result:', JSON.stringify({prof, error: pe?.message, code: pe?.code}));
     if(pe){ err.textContent='Perfil no encontrado: '+pe.message+' ['+pe.code+']'; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
     btn.disabled=false; btn.textContent='Iniciar sesión';
+    console.log('✅ Login OK, iniciando app...');
     await bootApp(data.user);
   } catch(e) {
     console.error('💥 Excepcion:', e);
@@ -973,6 +992,12 @@ async function bootApp(user){
     startScanner();
   } else {
     setTab('dashboard');
+    // Force re-render after tab is visible
+    setTimeout(()=>{
+      console.log('🔄 Re-render forzado post-login');
+      renderDash();
+      renderOrdenes();
+    }, 100);
   }
 }
 
