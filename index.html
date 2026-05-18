@@ -266,22 +266,11 @@ tr:hover td{background:var(--bg3)}
 
 /* SZ PANEL */
 #sz-panel{display:none;animation:slideUp 0.25s ease}
+/* Compact calendar cells */
+#cal-tec-grid > div:hover{background:var(--bg3)!important;border-color:var(--line2)!important;}
+#cal-tec-grid > div{cursor:pointer;transition:all .15s;}
+
 </style>
-
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "49197a8a-bf30-44a2-b08c-40a995e7b4b9",
-      safari_web_id: "web.onesignal.auto.14469d21-a548-446f-9323-a0e21fc14d38",
-      notifyButton: {
-        enable: true,
-      },
-    });
-  });
-</script>
-
 </head>
 <body>
 
@@ -309,6 +298,17 @@ tr:hover td{background:var(--bg3)}
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--green-txt);"><div class="rt-dot"></div><span id="rt-st">En vivo</span></div>
+      <button id="notif-bell" onclick="toggleNotifPanel()" style="background:none;border:none;cursor:pointer;color:var(--txt3);font-size:18px;padding:4px;position:relative;transition:color .2s;" title="Notificaciones">
+        <i class="ti ti-bell"></i>
+        <span id="notif-badge" style="display:none;position:absolute;top:0;right:0;width:8px;height:8px;background:var(--red);border-radius:50%;"></span>
+      </button>
+      <div id="notif-panel" style="display:none;position:fixed;top:52px;right:16px;width:320px;background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:0 8px 32px rgba(0,0,0,0.12);z-index:100;max-height:400px;overflow-y:auto;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;font-weight:500;color:var(--txt);">Notificaciones</span>
+          <button onclick="clearNotifs()" style="font-size:10px;color:var(--txt3);background:none;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;">Limpiar</button>
+        </div>
+        <div id="notif-list" style="padding:8px 0;"><div style="padding:16px;text-align:center;font-size:12px;color:var(--txt3);">Sin notificaciones</div></div>
+      </div>
       <div id="live-clock" style="font-size:11px;color:var(--txt3);font-family:'DM Sans',sans-serif;letter-spacing:.3px;padding:4px 10px;background:#f5f5f5;border-radius:3px;border:1px solid var(--line);"></div>
       <button class="btn-sm" onclick="loadAll()" style="padding:4px;border:none;background:none;color:var(--txt3);" title="Refrescar"><i class="ti ti-refresh"></i></button>
       <div class="user-chip"><div class="av" id="u-av">??</div><span id="u-name" style="font-size:12px;color:var(--txt2);">–</span><span class="role-badge" id="u-rol">–</span></div>
@@ -690,6 +690,81 @@ tr:hover td{background:var(--bg3)}
 
     </div><!-- /tab-reportes -->
 
+
+    <!-- TAB: CALENDARIO TÉCNICO (Mi Agenda) -->
+    <div id="tab-cal-tecnico" class="panel-hidden">
+      <div style="display:grid;grid-template-columns:320px 1fr;gap:16px;" id="cal-tec-layout">
+        
+        <!-- Calendario compacto -->
+        <div class="card" style="align-self:start;position:sticky;top:76px;">
+          <div class="card-header" style="margin-bottom:12px;">
+            <div class="card-title"><i class="ti ti-calendar"></i> Agenda</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <button class="btn-sm" onclick="chgMonthTec(-1)" style="padding:4px 8px;"><i class="ti ti-chevron-left"></i></button>
+            <div id="cal-tec-label" style="font-family:'Cormorant',serif;font-size:16px;font-weight:300;color:var(--txt);text-align:center;"></div>
+            <button class="btn-sm" onclick="chgMonthTec(1)" style="padding:4px 8px;"><i class="ti ti-chevron-right"></i></button>
+          </div>
+          <!-- Grid compacto -->
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:12px;">
+            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">D</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">L</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">M</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">M</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">J</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">V</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">S</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;" id="cal-tec-grid"></div>
+          
+          <!-- Leyenda -->
+          <div style="display:flex;gap:10px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--txt3);">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--blue);"></div>Preventivo
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--txt3);">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--red);"></div>Urgente
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--txt3);">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--green);"></div>Completada
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de actividades del día seleccionado -->
+        <div>
+          <div class="card" style="margin-bottom:14px;" id="cal-tec-day-panel">
+            <div class="card-header" style="margin-bottom:12px;">
+              <div class="card-title"><i class="ti ti-calendar-event"></i> <span id="cal-tec-day-title">Selecciona un día</span></div>
+            </div>
+            <div id="cal-tec-day-content">
+              <div class="empty-state" style="padding:24px;">
+                <i class="ti ti-hand-click" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.4;"></i>
+                Toca un día en el calendario para ver las actividades programadas
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumen del mes -->
+          <div class="card" id="cal-tec-resumen">
+            <div class="card-header" style="margin-bottom:12px;">
+              <div class="card-title"><i class="ti ti-chart-bar"></i> Resumen del mes</div>
+            </div>
+            <div id="cal-tec-stats"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Mobile: stack vertically -->
+      <style>
+        @media(max-width:700px){
+          #cal-tec-layout{grid-template-columns:1fr!important;}
+          #tab-cal-tecnico .card[style*="position:sticky"]{position:relative!important;top:0!important;}
+        }
+      </style>
+    </div><!-- /tab-cal-tecnico -->
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -871,65 +946,33 @@ async function doLogin(){
     document.getElementById('login-err').classList.add('show');
     return;
   }
-  
-  const loginInput = document.getElementById('l-username').value.trim().toLowerCase();
-  const pass = document.getElementById('l-pass').value;
-  const btn = document.getElementById('btn-login');
-  const err = document.getElementById('login-err');
-  
+  const username=document.getElementById('l-username').value.trim().toLowerCase();
+  const pass=document.getElementById('l-pass').value;
+  const btn=document.getElementById('btn-login');
+  const err=document.getElementById('login-err');
   err.classList.remove('show');
-  
-  if(!loginInput || !pass){
-    err.textContent='Completa usuario y contraseña.';
-    err.classList.add('show');
-    return;
-  }
-  
-  btn.disabled=true; btn.textContent='Iniciando...';
-
+  if(!username||!pass){err.textContent='Completa usuario y contraseña.';err.classList.add('show');return;}
+  btn.disabled=true; btn.textContent='Buscando usuario...';
   try {
-    let authEmail = loginInput;
-
-    // Si el texto NO tiene '@', asumimos que es un "username" y buscamos su correo real
-    if (!loginInput.includes('@')) {
-      const {data:profData, error:profErr} = await db.from('profiles').select('email').eq('username', loginInput).maybeSingle();
-      
-      if (profErr || !profData || !profData.email) {
-        err.textContent='❌ Usuario no encontrado: ' + loginInput;
-        err.classList.add('show'); 
-        btn.disabled=false; btn.textContent='Iniciar sesión'; 
-        return;
-      }
-      authEmail = profData.email; // Si lo encuentra, usamos el correo asociado
+    // Look up email by username in profiles
+    const {data:profData, error:profErr} = await db.from('profiles').select('email,id').eq('username', username).single();
+    if(profErr || !profData?.email){
+      err.textContent='Usuario no encontrado: '+username;
+      err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return;
     }
-
-    console.log('🔐 Intentando login en Supabase Auth con:', authEmail);
-    const {data, error} = await db.auth.signInWithPassword({email: authEmail, password: pass});
-    
-    if (error) { 
-      err.textContent='❌ Credenciales incorrectas'; 
-      err.classList.add('show'); 
-      btn.disabled=false; btn.textContent='Iniciar sesión'; 
-      return; 
-    }
-    
+    btn.textContent='Verificando...';
+    console.log('🔐 Login usuario:', username, '→', profData.email);
+    const {data, error} = await db.auth.signInWithPassword({email: profData.email, password:pass});
+    if(error){ err.textContent='❌ Contraseña incorrecta'; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
     btn.textContent='Cargando perfil...';
     const {data:prof, error:pe} = await db.from('profiles').select('*').eq('id', data.user.id).single();
-    
-    if (pe) { 
-      err.textContent='Error al leer perfil: '+pe.message; 
-      err.classList.add('show'); 
-      btn.disabled=false; btn.textContent='Iniciar sesión'; 
-      return; 
-    }
-    
+    if(pe){ err.textContent='Error de perfil: '+pe.message; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
     btn.disabled=false; btn.textContent='Iniciar sesión';
     console.log('✅ Login OK:', prof.nombre, prof.rol);
     await bootApp(data.user);
-
   } catch(e) {
-    console.error('💥 Excepcion:', e);
-    err.textContent='Error inesperado: '+e.message;
+    console.error('💥', e);
+    err.textContent='Error: '+e.message;
     err.classList.add('show');
     btn.disabled=false; btn.textContent='Iniciar sesión';
   }
@@ -969,6 +1012,9 @@ async function bootApp(user){
   if(['tecnico','admin','supervisor'].includes(curProf.rol)){
     nav.innerHTML+=`<button class="nav-btn" id="nav-checklist" onclick="setTab('checklist')"><i class="ti ti-checklist"></i> Checklist</button>`;
   }
+  if(curProf.rol==='tecnico'){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico')"><i class="ti ti-calendar-event"></i> Mi Agenda</button>`;
+  }
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>`;
   }
@@ -1005,19 +1051,13 @@ async function bootApp(user){
     setTab('escaner');
     startScanner();
     await loadAll();
+    // Init cal-tecnico state
+    calTecYear = new Date().getFullYear();
+    calTecMonth = new Date().getMonth();
   } else {
     setTab('dashboard');
     await loadAll();
   }
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.login(user.id);
-  });
-  // Esto actualiza los datos en segundo plano sin interrumpir si el técnico está escribiendo
-  setInterval(() => {
-    console.log('🔄 Sincronizando datos en segundo plano...');
-    loadAll();
-  }, 60000);
-  
 }
 
 async function doLogout(){
@@ -1063,6 +1103,7 @@ async function loadAll(){
     try{renderUsuarios();}catch(e){console.error('renderUsuarios:',e);}
     try{renderCLSel();}catch(e){console.error('renderCLSel:',e);}
     try{renderReportes();}catch(e){console.error('renderReportes:',e);}
+    try{renderCalTecnico();}catch(e){console.error('renderCalTecnico:',e);}
     
     if(eqActual){
       const eq=allEqs.find(e=>e.id===eqActual.id);
@@ -1078,15 +1119,10 @@ async function loadAll(){
   }
 }
 
-function setupRT(){
-  if(rtCh)db.removeChannel(rtCh);
-  rtCh=db.channel('ft-rt')
-    .on('postgres_changes',{event:'*',schema:'public',table:'ordenes_trabajo'},async()=>{await loadAll();})
-    .subscribe(s=>{document.getElementById('rt-st').textContent=s==='SUBSCRIBED'?'En vivo':'Reconectando...';});
-}
+// setupRT redefined below with notifications
 
 // ── NAVEGACIÓN ──
-const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime','reportes'];
+const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico'];
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -1108,6 +1144,7 @@ function setTab(t){
   if(t==='downtime')renderDowntime();
   if(t==='calendario')renderCalendar();
   if(t==='reportes')renderReportes();
+  if(t==='cal-tecnico')renderCalTecnico();
   if(t!=='escaner')stopScanner();
 }
 
@@ -2599,6 +2636,324 @@ function exportarReporte(){
   URL.revokeObjectURL(url);
   toast('✅ CSV exportado');
 }
+
+
+
+// ══════════════════════════════════════════════════════════
+// NOTIFICACIONES IN-APP (sin OneSignal, usando Supabase RT)
+// ══════════════════════════════════════════════════════════
+
+let notifList = [];
+let notifOpen = false;
+
+function toggleNotifPanel(){
+  const panel = document.getElementById('notif-panel');
+  notifOpen = !notifOpen;
+  panel.style.display = notifOpen ? 'block' : 'none';
+  if(notifOpen){
+    // Mark as read
+    document.getElementById('notif-badge').style.display = 'none';
+    // Close on outside click
+    setTimeout(()=>{
+      document.addEventListener('click', closeNotifOnOutside, {once:true});
+    }, 100);
+  }
+}
+
+function closeNotifOnOutside(e){
+  const panel = document.getElementById('notif-panel');
+  const bell = document.getElementById('notif-bell');
+  if(panel && !panel.contains(e.target) && !bell.contains(e.target)){
+    panel.style.display = 'none';
+    notifOpen = false;
+  }
+}
+
+function clearNotifs(){
+  notifList = [];
+  renderNotifList();
+  document.getElementById('notif-badge').style.display = 'none';
+}
+
+function addNotif(msg, tipo='info'){
+  const n = {msg, tipo, ts: new Date(), id: Date.now()};
+  notifList.unshift(n);
+  if(notifList.length > 20) notifList.pop();
+  renderNotifList();
+  // Show badge
+  if(!notifOpen){
+    document.getElementById('notif-badge').style.display = 'block';
+  }
+  // Also show toast for urgent
+  if(tipo === 'urgente') toast('🔴 ' + msg, 5000);
+}
+
+function renderNotifList(){
+  const el = document.getElementById('notif-list');
+  if(!el) return;
+  if(!notifList.length){
+    el.innerHTML = '<div style="padding:16px;text-align:center;font-size:12px;color:var(--txt3);">Sin notificaciones</div>';
+    return;
+  }
+  const iconMap = {urgente:'🔴', info:'ℹ️', ok:'✅', warn:'⚠️'};
+  el.innerHTML = notifList.map(n => `
+    <div style="padding:10px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:14px;flex-shrink:0;">${iconMap[n.tipo]||'ℹ️'}</span>
+      <div style="flex:1;">
+        <div style="font-size:12px;color:var(--txt);line-height:1.4;">${n.msg}</div>
+        <div style="font-size:10px;color:var(--txt3);margin-top:2px;">${n.ts.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`).join('');
+}
+
+// Hook into setupRT to also generate notifications
+function setupRT(){
+  if(rtCh) db.removeChannel(rtCh);
+  rtCh = db.channel('ft-rt')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ordenes_trabajo'}, p=>{
+      const ot = p.new;
+      if(!ot) return;
+      const esParaMi = ot.tecnico_id === curUser?.id;
+      const tipo = ot.prioridad === 'Urgente' ? 'urgente' : 'info';
+      if(esParaMi || curProf?.rol === 'admin'){
+        addNotif(`Nueva OT: ${ot.equipo_nombre} — ${ot.tipo} (${ot.prioridad})`, tipo);
+      }
+      loadAll();
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'ordenes_trabajo'}, p=>{
+      const ot = p.new;
+      if(!ot) return;
+      const esParaMi = ot.tecnico_id === curUser?.id;
+      if(esParaMi && ot.estado === 'En progreso'){
+        addNotif(`OT asignada: ${ot.equipo_nombre}`, 'info');
+      }
+      if(curProf?.rol === 'admin' && ot.estado === 'Completada'){
+        addNotif(`OT completada: ${ot.equipo_nombre} por ${ot.tecnico_nombre||'–'}`, 'ok');
+      }
+      loadAll();
+    })
+    .subscribe(s=>{
+      const el = document.getElementById('rt-st');
+      if(el) el.textContent = s==='SUBSCRIBED' ? 'En vivo' : 'Reconectando...';
+    });
+}
+
+// ══════════════════════════════════════════════════════════
+// CALENDARIO COMPACTO PARA TÉCNICO (Mi Agenda)
+// ══════════════════════════════════════════════════════════
+
+let calTecYear = new Date().getFullYear();
+let calTecMonth = new Date().getMonth();
+let calTecSelDay = null; // selected date string YYYY-MM-DD
+
+function chgMonthTec(dir){
+  calTecMonth += dir;
+  if(calTecMonth < 0){ calTecMonth = 11; calTecYear--; }
+  else if(calTecMonth > 11){ calTecMonth = 0; calTecYear++; }
+  renderCalTecnico();
+}
+
+function renderCalTecnico(){
+  const grid = document.getElementById('cal-tec-grid');
+  const lbl  = document.getElementById('cal-tec-label');
+  if(!grid || !lbl) return;
+
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  lbl.textContent = months[calTecMonth] + ' ' + calTecYear;
+
+  const firstDay = new Date(calTecYear, calTecMonth, 1).getDay();
+  const daysInMonth = new Date(calTecYear, calTecMonth+1, 0).getDate();
+  const today = new Date();
+
+  // Get OTs for this technician in this month
+  const myOTs = curProf.rol === 'tecnico'
+    ? allOTs.filter(o => o.tecnico_id === curUser.id)
+    : allOTs;
+
+  // Build a map of date → OTs
+  const dateMap = {};
+  myOTs.forEach(o => {
+    // Check fecha_programada
+    if(o.fecha_programada){
+      const d = new Date(new Date(o.fecha_programada).getTime() + new Date().getTimezoneOffset()*60000);
+      if(d.getMonth()===calTecMonth && d.getFullYear()===calTecYear){
+        const k = d.getDate();
+        if(!dateMap[k]) dateMap[k] = [];
+        dateMap[k].push({...o, _dateType:'programada'});
+      }
+    }
+    // Check fecha_cierre (completed today)
+    if(o.fecha_cierre){
+      const d = new Date(o.fecha_cierre);
+      if(d.getMonth()===calTecMonth && d.getFullYear()===calTecYear){
+        const k = d.getDate();
+        if(!dateMap[k]) dateMap[k] = [];
+        // Avoid duplicates
+        if(!dateMap[k].find(x=>x.id===o.id)){
+          dateMap[k].push({...o, _dateType:'completada'});
+        }
+      }
+    }
+  });
+
+  let html = '';
+  // Empty cells before first day
+  for(let i=0; i<firstDay; i++) html += '<div></div>';
+
+  for(let d=1; d<=daysInMonth; d++){
+    const isToday = d===today.getDate() && calTecMonth===today.getMonth() && calTecYear===today.getFullYear();
+    const dateStr = `${calTecYear}-${String(calTecMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSelected = calTecSelDay === dateStr;
+    const dayOTs = dateMap[d] || [];
+    const hasUrgent = dayOTs.some(o=>o.prioridad==='Urgente' && o.estado!=='Completada');
+    const hasCompleted = dayOTs.some(o=>o.estado==='Completada');
+    const hasPending = dayOTs.some(o=>o.estado!=='Completada');
+
+    // Dot indicators
+    let dots = '';
+    if(hasUrgent)   dots += '<span style="width:5px;height:5px;border-radius:50%;background:var(--red);display:inline-block;"></span>';
+    if(hasPending && !hasUrgent) dots += '<span style="width:5px;height:5px;border-radius:50%;background:var(--blue);display:inline-block;"></span>';
+    if(hasCompleted) dots += '<span style="width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;"></span>';
+
+    const bg = isSelected ? '#111' : isToday ? '#f0f0f0' : dayOTs.length ? '#fafeff' : 'transparent';
+    const txtColor = isSelected ? '#fff' : isToday ? '#111' : '#333';
+    const border = isSelected ? '2px solid #111' : isToday ? '2px solid var(--txt2)' : '1px solid transparent';
+
+    html += `<div onclick="selectCalTecDay('${dateStr}')" style="
+      text-align:center;padding:5px 2px;border-radius:4px;cursor:pointer;
+      background:${bg};border:${border};transition:all .15s;
+      display:flex;flex-direction:column;align-items:center;gap:1px;">
+      <span style="font-size:12px;font-weight:${isToday||isSelected?600:400};color:${txtColor};line-height:1.2;">${d}</span>
+      <div style="display:flex;gap:1px;justify-content:center;min-height:6px;">${dots}</div>
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+  renderCalTecStats();
+
+  // Re-render selected day if still selected
+  if(calTecSelDay) renderCalTecDay(calTecSelDay);
+}
+
+function selectCalTecDay(dateStr){
+  calTecSelDay = dateStr;
+  renderCalTecnico(); // re-render to update selection highlight
+  renderCalTecDay(dateStr);
+}
+
+function renderCalTecDay(dateStr){
+  const titleEl = document.getElementById('cal-tec-day-title');
+  const contentEl = document.getElementById('cal-tec-day-content');
+  if(!titleEl || !contentEl) return;
+
+  const date = new Date(new Date(dateStr).getTime() + new Date().getTimezoneOffset()*60000);
+  const dayName = date.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+  titleEl.textContent = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+
+  const myOTs = curProf.rol === 'tecnico'
+    ? allOTs.filter(o => o.tecnico_id === curUser.id)
+    : allOTs;
+
+  // Find OTs for this day (programmed or closed)
+  const dayOTs = myOTs.filter(o => {
+    if(o.fecha_programada){
+      const d = new Date(new Date(o.fecha_programada).getTime() + new Date().getTimezoneOffset()*60000);
+      if(d.toDateString() === new Date(new Date(dateStr).getTime() + new Date().getTimezoneOffset()*60000).toDateString()) return true;
+    }
+    if(o.fecha_cierre){
+      const d = new Date(o.fecha_cierre);
+      if(d.toDateString() === new Date(new Date(dateStr).getTime() + new Date().getTimezoneOffset()*60000).toDateString()) return true;
+    }
+    return false;
+  });
+
+  if(!dayOTs.length){
+    contentEl.innerHTML = `
+      <div style="text-align:center;padding:20px;color:var(--txt3);">
+        <i class="ti ti-calendar-off" style="font-size:28px;display:block;margin-bottom:8px;opacity:.4;"></i>
+        Sin actividades programadas para este día
+      </div>`;
+    return;
+  }
+
+  contentEl.innerHTML = dayOTs.map(o => {
+    const isProg = o.fecha_programada && new Date(new Date(o.fecha_programada).getTime() + new Date().getTimezoneOffset()*60000).toDateString() === new Date(new Date(dateStr).getTime() + new Date().getTimezoneOffset()*60000).toDateString();
+    const isComp = o.estado === 'Completada';
+    const prioColor = o.prioridad==='Urgente'?'var(--red)':o.prioridad==='Alta'?'#c07030':o.prioridad==='Media'?'var(--amber)':'var(--line2)';
+    const canStart = !isComp && (o.tecnico_id===curUser?.id || curProf.rol==='admin');
+
+    return `
+    <div style="border:1px solid var(--line);border-left:3px solid ${prioColor};border-radius:4px;padding:14px;margin-bottom:10px;background:${isComp?'var(--green-bg)':'#fff'};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div>
+          <div style="font-size:10px;color:var(--txt3);font-family:monospace;margin-bottom:2px;">#${o.id} · ${o.tipo}</div>
+          <div style="font-size:14px;font-weight:500;color:var(--txt);">${o.equipo_nombre||'–'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end;">
+          ${badge(o.prioridad)}
+          ${badge(o.estado)}
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--txt2);margin-bottom:10px;line-height:1.5;">${o.descripcion||'Sin descripción'}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:5px;">
+          <div class="tech-av">${ini(o.tecnico_nombre)}</div>
+          ${o.tecnico_nombre||'Sin asignar'}
+          ${o.tiempo_minutos?`<span style="margin-left:6px;">⏱ ${o.tiempo_minutos}m</span>`:''}
+        </div>
+        <div style="display:flex;gap:6px;">
+          ${isComp ? `<button class="btn-sm" onclick="verReporteCL(${o.id})" style="color:var(--green-txt);border-color:var(--green-bg);font-size:11px;"><i class="ti ti-clipboard-check"></i> Ver reporte</button>` : ''}
+          ${canStart && !isComp ? `<button class="btn-tomar" style="font-size:11px;padding:5px 12px;" onclick="setTab('checklist');abrirCL(${o.id})"><i class="ti ti-player-play"></i> Iniciar</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCalTecStats(){
+  const statsEl = document.getElementById('cal-tec-stats');
+  if(!statsEl) return;
+
+  const myOTs = curProf.rol === 'tecnico'
+    ? allOTs.filter(o => o.tecnico_id === curUser.id)
+    : allOTs;
+
+  // Filter to current month
+  const monthOTs = myOTs.filter(o => {
+    const ref = o.fecha_programada || o.fecha_creacion;
+    if(!ref) return false;
+    const d = new Date(ref);
+    return d.getMonth()===calTecMonth && d.getFullYear()===calTecYear;
+  });
+
+  const completadas = monthOTs.filter(o=>o.estado==='Completada').length;
+  const pendientes = monthOTs.filter(o=>o.estado!=='Completada').length;
+  const totalMin = monthOTs.filter(o=>o.estado==='Completada').reduce((s,o)=>s+(o.tiempo_minutos||0),0);
+  const JORNADA_MIN = 480;
+  const pctJornada = monthOTs.length ? Math.min(Math.round((totalMin/(JORNADA_MIN*22))*100),100) : 0;
+
+  statsEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:var(--green-bg);border:1px solid rgba(42,122,69,.15);border-radius:3px;padding:12px;text-align:center;">
+        <div style="font-family:'Cormorant',serif;font-size:28px;font-weight:300;color:var(--green-txt);">${completadas}</div>
+        <div style="font-size:10px;color:var(--green-txt);text-transform:uppercase;letter-spacing:.4px;">Completadas</div>
+      </div>
+      <div style="background:var(--blue-bg);border:1px solid rgba(26,95,168,.15);border-radius:3px;padding:12px;text-align:center;">
+        <div style="font-family:'Cormorant',serif;font-size:28px;font-weight:300;color:var(--blue-txt);">${pendientes}</div>
+        <div style="font-size:10px;color:var(--blue-txt);text-transform:uppercase;letter-spacing:.4px;">Pendientes</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--txt3);margin-bottom:4px;display:flex;justify-content:space-between;">
+      <span>Horas registradas este mes</span>
+      <strong style="color:var(--txt);">${(totalMin/60).toFixed(1)}h</strong>
+    </div>
+    <div style="height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+      <div style="width:${Math.min(100,(totalMin/(JORNADA_MIN*22))*100)}%;height:100%;background:var(--green);border-radius:3px;transition:width .4s;"></div>
+    </div>
+    <div style="font-size:10px;color:var(--txt3);margin-top:3px;">Basado en jornada de 8h × 22 días hábiles</div>
+  `;
+}
+
 
 </script>
 
