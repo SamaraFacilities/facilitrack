@@ -984,20 +984,15 @@ async function bootApp(user){
   }
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
-  await loadAll();
   setupRT();
 
   if(['tecnico','supervisor_zona'].includes(curProf.rol)){
     setTab('escaner');
     startScanner();
+    await loadAll();
   } else {
     setTab('dashboard');
-    // Force re-render after tab is visible
-    setTimeout(()=>{
-      console.log('🔄 Re-render forzado post-login');
-      renderDash();
-      renderOrdenes();
-    }, 100);
+    await loadAll();
   }
 }
 
