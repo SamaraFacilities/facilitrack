@@ -817,7 +817,7 @@ function setPasos(activo){
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 async function doLogin(){
   if(!db){
-    document.getElementById('login-err').textContent='Error: Supabase no inicializado. Verifica la API key.';
+    document.getElementById('login-err').textContent='Error: Supabase no inicializado.';
     document.getElementById('login-err').classList.add('show');
     return;
   }
@@ -827,19 +827,35 @@ async function doLogin(){
   const err=document.getElementById('login-err');
   err.classList.remove('show');
   if(!email||!pass){err.textContent='Completa todos los campos.';err.classList.add('show');return;}
-  btn.disabled=true;btn.textContent='Iniciando...';
-  const{data,error}=await db.auth.signInWithPassword({email,password:pass});
-  btn.disabled=false;btn.textContent='Iniciar sesión';
-  if(error){err.textContent=error.message;err.classList.add('show');return;}
-  await bootApp(data.user);
+  btn.disabled=true; btn.textContent='Conectando...';
+  try {
+    console.log('🔐 Login con:', email);
+    const {data, error} = await db.auth.signInWithPassword({email, password:pass});
+    console.log('📡 Auth result:', JSON.stringify({userId: data?.user?.id, error: error?.message}));
+    if(error){ err.textContent='❌ '+error.message; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
+    btn.textContent='Cargando perfil...';
+    const {data:prof, error:pe} = await db.from('profiles').select('*').eq('id', data.user.id).single();
+    console.log('👤 Profile result:', JSON.stringify({prof, error: pe?.message, code: pe?.code}));
+    if(pe){ err.textContent='Perfil no encontrado: '+pe.message+' ['+pe.code+']'; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
+    btn.disabled=false; btn.textContent='Iniciar sesión';
+    await bootApp(data.user);
+  } catch(e) {
+    console.error('💥 Excepcion:', e);
+    err.textContent='Error inesperado: '+e.message;
+    err.classList.add('show');
+    btn.disabled=false; btn.textContent='Iniciar sesión';
+  }
 }
 
 async function bootApp(user){
   curUser=user;
-  const{data:prof}=await db.from('profiles').select('*').eq('id',user.id).single();
+  console.log('🚀 bootApp iniciado para:', user.id);
+  const{data:prof, error:pe}=await db.from('profiles').select('*').eq('id',user.id).single();
+  console.log('👤 bootApp perfil:', JSON.stringify({nombre: prof?.nombre, rol: prof?.rol, error: pe?.message}));
   curProf=prof;
   if(!prof){
-    document.getElementById('login-err').textContent='Tu perfil no está configurado. Contacta al administrador.';
+    const msg = pe ? 'Error RLS/perfil: '+pe.message+' ['+pe.code+']' : 'Tu perfil no está configurado. Contacta al administrador.';
+    document.getElementById('login-err').textContent=msg;
     document.getElementById('login-err').classList.add('show');
     await db.auth.signOut();return;
   }
@@ -1175,6 +1191,8 @@ async function crearOTSupervisorZona(){
     setTimeout(()=>conf.remove(),5000);
   }
 }
+
+function renderOTsEquipo(eq){
   const lista=document.getElementById('ots-equipo-lista');
   // OTs activas de este equipo
   let ots=allOTs.filter(o=>o.equipo_id===eq.id && o.estado!=='Completada');
