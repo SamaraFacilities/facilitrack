@@ -988,31 +988,48 @@ db.auth.getSession().then(async({data:{session}})=>{if(session)await bootApp(ses
 
 // ── DATA & REALTIME ──
 async function loadAll(){
-  const[otR,eqR,prR]=await Promise.all([
-    db.from('ordenes_trabajo').select('*').order('fecha_creacion',{ascending:false}),
-    db.from('equipos').select('*').order('codigo'),
-    canDo('ver_tecnicos')?db.from('profiles').select('*'):Promise.resolve({data:[]})
-  ]);
-  allOTs=otR.data||[];allEqs=eqR.data||[];allProfs=prR.data||[];
-  const urg=allOTs.filter(o=>o.estado==='Urgente').length;
-  const b=document.getElementById('badge-urg');
-  if(b){b.textContent=urg;b.style.display=urg?'inline':'none';}
-  // Render all sections (setTab controls visibility)
-  renderDash();
-  renderOrdenes();
-  renderEquipos();
-  renderDowntime();
-  renderCalendar();
-  renderUsuarios();
-  renderCLSel();
-  // Si hay equipo detectado, refrescar su panel
-  if(eqActual){
-    const eq=allEqs.find(e=>e.id===eqActual.id);
-    if(eq){
-      eqActual=eq;
-      if(curProf?.rol==='supervisor_zona'){renderOTsResumenSZ(eq);renderHistorialSZ(eq);}
-      else renderOTsEquipo(eq);
+  try {
+    const[otR,eqR,prR]=await Promise.all([
+      db.from('ordenes_trabajo').select('*').order('fecha_creacion',{ascending:false}),
+      db.from('equipos').select('*').order('codigo'),
+      db.from('profiles').select('*')
+    ]);
+    
+    // Log errors from each query
+    if(otR.error) console.error('OT error:',otR.error);
+    if(eqR.error) console.error('EQ error:',eqR.error);
+    if(prR.error) console.error('PR error:',prR.error);
+    
+    allOTs=otR.data||[];
+    allEqs=eqR.data||[];
+    allProfs=prR.data||[];
+    
+    console.log(`📊 Datos cargados: ${allOTs.length} OTs, ${allEqs.length} equipos, ${allProfs.length} perfiles`);
+    
+    const b=document.getElementById('badge-urg');
+    const urg=allOTs.filter(o=>o.estado==='Urgente').length;
+    if(b){b.textContent=urg;b.style.display=urg?'inline':'none';}
+    
+    // Render all sections safely
+    try{renderDash();}catch(e){console.error('renderDash:',e);}
+    try{renderOrdenes();}catch(e){console.error('renderOrdenes:',e);}
+    try{renderEquipos();}catch(e){console.error('renderEquipos:',e);}
+    try{renderDowntime();}catch(e){console.error('renderDowntime:',e);}
+    try{renderCalendar();}catch(e){console.error('renderCalendar:',e);}
+    try{renderUsuarios();}catch(e){console.error('renderUsuarios:',e);}
+    try{renderCLSel();}catch(e){console.error('renderCLSel:',e);}
+    
+    if(eqActual){
+      const eq=allEqs.find(e=>e.id===eqActual.id);
+      if(eq){
+        eqActual=eq;
+        if(curProf?.rol==='supervisor_zona'){renderOTsResumenSZ(eq);renderHistorialSZ(eq);}
+        else renderOTsEquipo(eq);
+      }
     }
+  } catch(e) {
+    console.error('💥 loadAll failed:',e);
+    toast('Error cargando datos: '+e.message);
   }
 }
 
@@ -1480,6 +1497,7 @@ async function cerrarOTDirecto(){
 
 // ── DASHBOARD ──
 function renderDash(){
+  if(!document.getElementById('k-urg')) return;
   const hoy=new Date();hoy.setHours(0,0,0,0);
   document.getElementById('k-urg').textContent=allOTs.filter(o=>o.estado==='Urgente').length;
   document.getElementById('k-prog').textContent=allOTs.filter(o=>o.estado==='En progreso').length;
@@ -1501,7 +1519,10 @@ function renderDash(){
 
 // ── ORDENES ──
 function renderOrdenes(){
-  const f=document.getElementById('f-est-fil').value;
+  const filEl=document.getElementById('f-est-fil');
+  const wrapEl=document.getElementById('ots-wrap');
+  if(!wrapEl) return;
+  const f=filEl?filEl.value:'';
   let lista=f?allOTs.filter(o=>o.estado===f):allOTs;
   if(curProf.rol==='tecnico')lista=lista.filter(o=>o.tecnico_id===curUser.id);
   document.getElementById('ots-wrap').innerHTML=lista.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Programado</th><th>Descripción</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th></th></tr></thead><tbody>${lista.map(o=>`<tr>
@@ -1598,6 +1619,7 @@ async function eliminarOT(id){
 
 // ── EQUIPOS ──
 function renderEquipos(){
+  if(!document.getElementById('eq-wrap')) return;
   let html=`<table><thead><tr><th>Código</th><th>Nombre</th><th>Zona Asignada</th><th>Uso (Hrs)</th><th>Frec. PM</th><th>Estado</th><th></th></tr></thead><tbody>`;
   html+=allEqs.map(e=>{
     const reqPM=(e.horas_actuales||0)>=(e.frec_pm_horas||999999)&&(e.horas_actuales||0)>0;
@@ -1675,6 +1697,7 @@ function verQR(codigo,nombre){
 
 // ── PERSONAL ──
 function renderUsuarios(){
+  if(!document.getElementById('tec-wrap')) return;
   let html=`<table><thead><tr><th>Nombre</th><th>Rol</th><th>Zona</th><th>Especialidad</th><th>Turno</th><th></th></tr></thead><tbody>`;
   html+=allProfs.map(u=>`<tr>
     <td><strong>${u.nombre}</strong></td>
@@ -1740,6 +1763,7 @@ async function delUsr(id){
 
 // ── DOWNTIME ──
 function renderDowntime(){
+  if(!document.getElementById('dt-list-equipos')) return;
   const fallas=allOTs.filter(o=>o.tipo==='Correctivo');
   let eqStats={};
   fallas.forEach(f=>{
@@ -1767,6 +1791,7 @@ function chgMonth(dir){
 }
 
 function renderCalendar(){
+  if(!document.getElementById('cal-grid')) return;
   const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const lbl=document.getElementById('cal-month-lbl');
   if(lbl)lbl.textContent=`${monthNames[currMonth]} ${currYear}`;
@@ -1859,6 +1884,7 @@ let fCtx=null,fDraw=false;
 function getCLKey(n){if(!n)return null;const m=(n.match(/^([A-Z]+)/)||[])[1];if(!m)return null;return Object.keys(CL).find(k=>m.startsWith(k))||null;}
 
 function renderCLSel(){
+  if(!document.getElementById('cl-cards')) return;
   let act=allOTs.filter(o=>o.estado!=='Completada');
   if(curProf.rol==='tecnico')act=act.filter(o=>o.tecnico_id===curUser.id);
   document.getElementById('cl-cards').innerHTML=act.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">${act.map(o=>{
