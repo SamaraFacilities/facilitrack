@@ -857,33 +857,65 @@ async function doLogin(){
     document.getElementById('login-err').classList.add('show');
     return;
   }
-  const username=document.getElementById('l-username').value.trim().toLowerCase();
-  const pass=document.getElementById('l-pass').value;
-  const btn=document.getElementById('btn-login');
-  const err=document.getElementById('login-err');
+  
+  const loginInput = document.getElementById('l-username').value.trim().toLowerCase();
+  const pass = document.getElementById('l-pass').value;
+  const btn = document.getElementById('btn-login');
+  const err = document.getElementById('login-err');
+  
   err.classList.remove('show');
-  if(!username||!pass){err.textContent='Completa usuario y contraseña.';err.classList.add('show');return;}
-  btn.disabled=true; btn.textContent='Buscando usuario...';
+  
+  if(!loginInput || !pass){
+    err.textContent='Completa usuario y contraseña.';
+    err.classList.add('show');
+    return;
+  }
+  
+  btn.disabled=true; btn.textContent='Iniciando...';
+
   try {
-    // Look up email by username in profiles
-    const {data:profData, error:profErr} = await db.from('profiles').select('email,id').eq('username', username).single();
-    if(profErr || !profData?.email){
-      err.textContent='Usuario no encontrado: '+username;
-      err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return;
+    let authEmail = loginInput;
+
+    // Si el texto NO tiene '@', asumimos que es un "username" y buscamos su correo real
+    if (!loginInput.includes('@')) {
+      const {data:profData, error:profErr} = await db.from('profiles').select('email').eq('username', loginInput).maybeSingle();
+      
+      if (profErr || !profData || !profData.email) {
+        err.textContent='❌ Usuario no encontrado: ' + loginInput;
+        err.classList.add('show'); 
+        btn.disabled=false; btn.textContent='Iniciar sesión'; 
+        return;
+      }
+      authEmail = profData.email; // Si lo encuentra, usamos el correo asociado
     }
-    btn.textContent='Verificando...';
-    console.log('🔐 Login usuario:', username, '→', profData.email);
-    const {data, error} = await db.auth.signInWithPassword({email: profData.email, password:pass});
-    if(error){ err.textContent='❌ Contraseña incorrecta'; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
+
+    console.log('🔐 Intentando login en Supabase Auth con:', authEmail);
+    const {data, error} = await db.auth.signInWithPassword({email: authEmail, password: pass});
+    
+    if (error) { 
+      err.textContent='❌ Credenciales incorrectas'; 
+      err.classList.add('show'); 
+      btn.disabled=false; btn.textContent='Iniciar sesión'; 
+      return; 
+    }
+    
     btn.textContent='Cargando perfil...';
     const {data:prof, error:pe} = await db.from('profiles').select('*').eq('id', data.user.id).single();
-    if(pe){ err.textContent='Error de perfil: '+pe.message; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
+    
+    if (pe) { 
+      err.textContent='Error al leer perfil: '+pe.message; 
+      err.classList.add('show'); 
+      btn.disabled=false; btn.textContent='Iniciar sesión'; 
+      return; 
+    }
+    
     btn.disabled=false; btn.textContent='Iniciar sesión';
     console.log('✅ Login OK:', prof.nombre, prof.rol);
     await bootApp(data.user);
+
   } catch(e) {
-    console.error('💥', e);
-    err.textContent='Error: '+e.message;
+    console.error('💥 Excepcion:', e);
+    err.textContent='Error inesperado: '+e.message;
     err.classList.add('show');
     btn.disabled=false; btn.textContent='Iniciar sesión';
   }
