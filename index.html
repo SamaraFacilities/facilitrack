@@ -1012,6 +1012,11 @@ async function bootApp(user){
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.login(user.id);
   });
+  // Esto actualiza los datos en segundo plano sin interrumpir si el técnico está escribiendo
+  setInterval(() => {
+    console.log('🔄 Sincronizando datos en segundo plano...');
+    loadAll();
+  }, 60000);
   
 }
 
