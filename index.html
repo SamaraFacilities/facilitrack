@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Samara">
 <title>Samara — Facilities</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -267,87 +266,80 @@ tr:hover td{background:var(--bg3)}
 
 /* SZ PANEL */
 #sz-panel{display:none;animation:slideUp 0.25s ease}
+
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
-    <div style="text-align:center;margin-bottom:32px;"><div style="font-family:'Cormorant',serif;font-size:42px;font-weight:300;letter-spacing:-1px;color:#111;letter-spacing:-1px;">Samara</div><div style="font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Facilities Tracking</div></div>
-    <div class="form-field"><label>Correo electrónico</label><input type="email" id="l-email" placeholder="tecnico@empresa.com" autocomplete="email"></div>
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-family:'Cormorant',serif;font-size:42px;font-weight:300;color:#111;letter-spacing:-1px;">Samara</div>
+      <div style="font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Facilities Tracking</div>
+    </div>
+    <div class="form-field"><label>Correo electrónico</label><input type="email" id="l-email" placeholder="usuario@empresa.com" autocomplete="email"></div>
     <div class="form-field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn-login" id="btn-login" onclick="doLogin()">Iniciar sesión</button>
     <div class="login-err" id="login-err"></div>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
+
+  <!-- HEADER -->
   <div class="header">
     <div class="header-left">
-      <div style="font-family:'Cormorant',serif;font-size:20px;font-weight:400;color:#111;letter-spacing:-0.5px;">Samara</div>
+      <div style="font-family:'Cormorant',serif;font-size:22px;font-weight:400;letter-spacing:-0.5px;color:#111;">Samara</div>
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--green-txt);"><div class="rt-dot"></div><span id="rt-st">En vivo</span></div>
-      <button class="btn-sm" onclick="loadAll()" style="padding:4px;border:none;background:none;color:var(--txt2);margin-right:4px;" title="Refrescar"><i class="ti ti-refresh"></i></button>
-      <div class="user-chip"><div class="av" id="u-av">??</div><span id="u-name" style="font-size:12px;color:#333;">–</span><span class="role-badge" id="u-rol">–</span></div>
+      <button class="btn-sm" onclick="loadAll()" style="padding:4px;border:none;background:none;color:var(--txt3);" title="Refrescar"><i class="ti ti-refresh"></i></button>
+      <div class="user-chip"><div class="av" id="u-av">??</div><span id="u-name" style="font-size:12px;color:var(--txt2);">–</span><span class="role-badge" id="u-rol">–</span></div>
       <button class="btn-logout" onclick="doLogout()" title="Salir"><i class="ti ti-logout"></i></button>
     </div>
   </div>
-  
+
+  <!-- NAV -->
   <div class="nav-wrap">
     <div class="nav" id="main-nav"></div>
   </div>
-  
+
+  <!-- MAIN -->
   <div class="main">
 
-    <!-- ══════════════════════════════════════════
-         TAB ESCÁNER — FLUJO COMPLETO DEL TÉCNICO
-    ══════════════════════════════════════════ -->
+    <!-- TAB: ESCANER -->
     <div id="tab-escaner" class="panel-hidden">
-
-      <!-- PASO A PASO VISUAL — se adapta por rol en JS -->
       <div class="pasos" id="pasos-indicator" style="margin-bottom:16px;">
-        <div class="paso">
-          <div class="paso-num active" id="paso1-num">1</div>
-          <span class="paso-label active" id="paso1-lbl">Escanear equipo</span>
-        </div>
+        <div class="paso"><div class="paso-num active" id="paso1-num">1</div><span class="paso-label active" id="paso1-lbl">Escanear equipo</span></div>
         <div class="paso-sep"></div>
-        <div class="paso">
-          <div class="paso-num pending" id="paso2-num">2</div>
-          <span class="paso-label" id="paso2-lbl">Seleccionar OT</span>
-        </div>
+        <div class="paso"><div class="paso-num pending" id="paso2-num">2</div><span class="paso-label" id="paso2-lbl">Seleccionar OT</span></div>
         <div class="paso-sep" id="paso-sep-3"></div>
-        <div class="paso" id="paso-3-wrap">
-          <div class="paso-num pending" id="paso3-num">3</div>
-          <span class="paso-label" id="paso3-lbl">Ejecutar checklist</span>
-        </div>
+        <div class="paso" id="paso-3-wrap"><div class="paso-num pending" id="paso3-num">3</div><span class="paso-label" id="paso3-lbl">Ejecutar checklist</span></div>
       </div>
 
-      <!-- PANEL 1: Escáner QR -->
+      <!-- Panel escaner -->
       <div id="scan-panel">
         <div class="card">
           <div class="card-header">
             <div class="card-title"><i class="ti ti-scan"></i> Identificar Equipo por QR</div>
-            <div id="scan-status-badge" class="scan-status scanning">
-              <div class="rt-dot"></div> Cámara activa
-            </div>
+            <div class="scan-status scanning"><div class="rt-dot"></div>&nbsp;Cámara activa</div>
           </div>
           <div style="max-width:420px;margin:0 auto;text-align:center;">
-            <p style="font-size:13px;color:var(--txt3);margin-bottom:14px;" id="scan-hint-txt">Apunta la cámara al código QR del equipo para ver sus órdenes de trabajo.</p>
+            <p style="font-size:13px;color:var(--txt2);margin-bottom:14px;" id="scan-hint-txt">Apunta la cámara al código QR del equipo para ver sus órdenes de trabajo.</p>
             <div id="reader"></div>
             <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
-              <button class="btn-sm" onclick="stopScanner()"><i class="ti ti-camera-off"></i> Detener cámara</button>
-              <button class="btn-sm btn-primary" onclick="startScanner()"><i class="ti ti-camera"></i> Reiniciar cámara</button>
+              <button class="btn-sm" onclick="stopScanner()"><i class="ti ti-camera-off"></i> Detener</button>
+              <button class="btn-sm btn-primary" onclick="startScanner()"><i class="ti ti-camera"></i> Reiniciar</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- PANEL 2A: Vista SUPERVISOR DE ZONA — status del equipo + levantar OT -->
-      <div id="sz-panel" style="display:none;animation:slideUp 0.3s ease;">
-
-        <!-- Cabecera del equipo (compartida) -->
-        <div class="equipo-header" id="sz-eq-header" style="">
+      <!-- Panel Supervisor de Zona -->
+      <div id="sz-panel" style="display:none;">
+        <div class="equipo-header" id="sz-eq-header">
           <div class="equipo-icon"><i class="ti ti-settings-2"></i></div>
           <div style="flex:1;">
             <div class="equipo-nombre" id="sz-eq-nombre">–</div>
@@ -358,135 +350,76 @@ tr:hover td{background:var(--bg3)}
               <span class="equipo-chip" id="sz-eq-hrs">–</span>
             </div>
           </div>
-          <button onclick="resetEscaner()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;">
-            <i class="ti ti-scan"></i> Nuevo scan
-          </button>
+          <button onclick="resetEscaner()" style="background:var(--bg3);border:1px solid var(--line2);color:var(--txt2);border-radius:3px;padding:6px 12px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;"><i class="ti ti-scan"></i> Nuevo scan</button>
         </div>
 
-        <!-- Status detallado del equipo -->
         <div class="card" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:12px;">
             <div class="card-title"><i class="ti ti-activity"></i> Estado actual del equipo</div>
             <span id="sz-eq-est-badge"></span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-            <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
-              <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Horas de uso</div>
-              <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;color:var(--txt);" id="sz-stat-hrs">–</div>
-              <div style="font-size:11px;color:var(--txt3);" id="sz-stat-frec">–</div>
-            </div>
-            <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
-              <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">OTs activas</div>
-              <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;" id="sz-stat-ots" style="color:var(--txt);">–</div>
-              <div style="font-size:11px;color:var(--txt3);" id="sz-stat-ots-sub">–</div>
-            </div>
-          </div>
-
-        <!-- Status detallado del equipo -->
-        <div class="card" style="margin-bottom:14px;">
-          <div class="card-header" style="margin-bottom:12px;">
-            <div class="card-title"><i class="ti ti-activity"></i> Estado actual del equipo</div>
-            <span id="sz-eq-est-badge"></span>
-          </div>
-
-          <!-- Datos técnicos del equipo -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
             <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
-              <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Horas de uso</div>
-              <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;color:var(--txt);" id="sz-stat-hrs">–</div>
+              <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Horas de uso</div>
+              <div style="font-family:'Cormorant',serif;font-size:28px;font-weight:300;color:var(--txt);" id="sz-stat-hrs">–</div>
               <div style="font-size:11px;color:var(--txt3);" id="sz-stat-frec">–</div>
             </div>
             <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
-              <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">OTs activas</div>
-              <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;" id="sz-stat-ots">–</div>
+              <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">OTs activas</div>
+              <div style="font-family:'Cormorant',serif;font-size:28px;font-weight:300;" id="sz-stat-ots">–</div>
               <div style="font-size:11px;color:var(--txt3);" id="sz-stat-ots-sub">–</div>
             </div>
           </div>
-
-          <!-- Modelo y serie -->
           <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-            <div style="font-size:12px;color:var(--txt3);background:var(--bg3);padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:5px;">
-              <i class="ti ti-cpu" style="font-size:13px;"></i> <span id="sz-eq-modelo">–</span>
-            </div>
-            <div style="font-size:12px;color:var(--txt3);background:var(--bg3);padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:5px;">
-              <i class="ti ti-barcode" style="font-size:13px;"></i> S/N: <span id="sz-eq-serie">–</span>
-            </div>
-            <div style="font-size:12px;color:var(--txt3);background:var(--bg3);padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:5px;">
-              <i class="ti ti-flame" style="font-size:13px;"></i> Criticidad: <strong id="sz-eq-criticidad">–</strong>
-            </div>
+            <div style="font-size:12px;color:var(--txt2);background:#f5f5f5;padding:5px 10px;border-radius:3px;border:1px solid var(--line);display:flex;align-items:center;gap:5px;"><i class="ti ti-cpu" style="font-size:13px;"></i><span id="sz-eq-modelo">–</span></div>
+            <div style="font-size:12px;color:var(--txt2);background:#f5f5f5;padding:5px 10px;border-radius:3px;border:1px solid var(--line);display:flex;align-items:center;gap:5px;"><i class="ti ti-barcode" style="font-size:13px;"></i>S/N: <span id="sz-eq-serie">–</span></div>
+            <div style="font-size:12px;color:var(--txt2);background:#f5f5f5;padding:5px 10px;border-radius:3px;border:1px solid var(--line);display:flex;align-items:center;gap:5px;"><i class="ti ti-flame" style="font-size:13px;"></i>Criticidad: <strong id="sz-eq-criticidad">–</strong></div>
           </div>
-
-          <!-- Barra de progreso PM -->
           <div id="sz-pm-wrap" style="margin-bottom:14px;display:none;">
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:5px;">
-              <span>Progreso hacia próximo mantenimiento preventivo</span>
-              <strong id="sz-pm-pct" style="color:var(--navy);">–</strong>
-            </div>
-            <div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;">
-              <div id="sz-pm-bar" style="height:100%;border-radius:4px;transition:width .4s;"></div>
-            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt3);margin-bottom:5px;"><span>Progreso hacia próximo PM</span><strong id="sz-pm-pct" style="color:var(--txt);">–</strong></div>
+            <div style="height:5px;background:#f5f5f5;border-radius:3px;overflow:hidden;"><div id="sz-pm-bar" style="height:100%;border-radius:3px;transition:width .4s;"></div></div>
             <div style="font-size:10px;color:var(--txt3);margin-top:4px;" id="sz-pm-hint">–</div>
           </div>
-
-          <!-- OTs activas resumen (solo lectura para supervisor) -->
           <div id="sz-ots-resumen"></div>
         </div>
 
-        <!-- OTs completadas recientes -->
-        <div class="card" style="margin-bottom:14px;" id="sz-historial-wrap">
-          <div class="card-header" style="margin-bottom:10px;">
-            <div class="card-title"><i class="ti ti-history"></i> Últimos trabajos realizados</div>
-          </div>
+        <div class="card" style="margin-bottom:14px;display:none;" id="sz-historial-wrap">
+          <div class="card-header" style="margin-bottom:10px;"><div class="card-title"><i class="ti ti-history"></i> Últimos trabajos realizados</div></div>
           <div id="sz-historial"></div>
         </div>
 
-        <!-- Botón principal: Levantar OT -->
         <div class="card" style="padding:24px;">
           <div style="display:flex;align-items:flex-start;gap:16px;">
-            <div style="width:44px;height:44px;background:var(--bg3);border:1px solid var(--line2);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="ti ti-clipboard-plus" style="font-size:20px;color:var(--txt2);"></i>
-            </div>
+            <div style="width:44px;height:44px;background:#111;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-clipboard-plus" style="font-size:20px;color:#fff;"></i></div>
             <div style="flex:1;">
-              <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Levantar Orden de Trabajo</div>
-              <div style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Si detectas una falla, anomalía o necesidad de mantenimiento, regístrala aquí. El administrador asignará al técnico.</div>
-
-              <!-- Formulario rápido inline para supervisor de zona -->
+              <div style="font-size:15px;font-weight:500;margin-bottom:4px;color:var(--txt);">Levantar Orden de Trabajo</div>
+              <div style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Si detectas una falla o anomalía, regístrala aquí. El administrador asignará al técnico.</div>
               <div style="display:flex;flex-direction:column;gap:10px;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                  <div class="form-group">
-                    <label>Tipo de trabajo</label>
-                    <select id="sz-f-tipo" style="border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:#ffffff;color:#111;font-family:'DM Sans',sans-serif;">
-                      <option value="Correctivo">Correctivo (falla)</option>
-                      <option value="Preventivo">Preventivo</option>
-                      <option value="Inspección">Inspección</option>
+                  <div class="form-group"><label>Tipo de trabajo</label>
+                    <select id="sz-f-tipo" style="border:1px solid #ddd;border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:#fff;color:#111;font-family:'DM Sans',sans-serif;">
+                      <option value="Correctivo">Correctivo (falla)</option><option value="Preventivo">Preventivo</option><option value="Inspección">Inspección</option>
                     </select>
                   </div>
-                  <div class="form-group">
-                    <label>Urgencia</label>
-                    <select id="sz-f-pri" style="border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:#ffffff;color:#111;font-family:'DM Sans',sans-serif;">
-                      <option value="Urgente">🔴 Urgente — parar equipo</option>
-                      <option value="Alta">🟠 Alta — atender hoy</option>
-                      <option value="Media" selected>🟡 Media — próxima guardia</option>
-                      <option value="Baja">⚪ Baja — programar</option>
+                  <div class="form-group"><label>Urgencia</label>
+                    <select id="sz-f-pri" style="border:1px solid #ddd;border-radius:3px;padding:8px 10px;font-size:13px;outline:none;background:#fff;color:#111;font-family:'DM Sans',sans-serif;">
+                      <option value="Urgente">🔴 Urgente</option><option value="Alta">🟠 Alta</option><option value="Media" selected>🟡 Media</option><option value="Baja">⚪ Baja</option>
                     </select>
                   </div>
                 </div>
-                <div class="form-group">
-                  <label>Descripción de la novedad o falla</label>
-                  <textarea id="sz-f-desc" placeholder="Ej: Ruido anormal en el cabezal, vibración excesiva al arrancar, fuga de aceite en el sello..." style="width:100%;border:1px solid var(--line2);border-radius:6px;padding:8px 10px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;outline:none;box-sizing:border-box;"></textarea>
+                <div class="form-group"><label>Descripción</label>
+                  <textarea id="sz-f-desc" placeholder="Ej: Ruido anormal, vibración excesiva, fuga de aceite..." style="width:100%;border:1px solid #ddd;border-radius:3px;padding:8px 10px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;outline:none;box-sizing:border-box;background:#fff;color:#111;"></textarea>
                 </div>
-                <button class="btn-tomar" style="justify-content:center;font-size:12px;padding:11px;width:100%;" onclick="crearOTSupervisorZona()">
-                  <i class="ti ti-send"></i> Enviar Orden de Trabajo
-                </button>
+                <button class="btn-tomar" style="justify-content:center;font-size:12px;padding:11px;width:100%;" onclick="crearOTSupervisorZona()"><i class="ti ti-send"></i> Enviar Orden de Trabajo</button>
               </div>
             </div>
           </div>
         </div>
         <input type="hidden" id="sz-eq-id">
       </div>
+
+      <!-- Panel Técnico: equipo detectado + OTs -->
       <div id="equipo-panel" style="display:none;">
-        
-        <!-- Cabecera del equipo -->
         <div class="equipo-header" id="eq-header">
           <div class="equipo-icon"><i class="ti ti-settings-2"></i></div>
           <div style="flex:1;">
@@ -498,74 +431,54 @@ tr:hover td{background:var(--bg3)}
               <span class="equipo-chip" id="eq-h-hrs">–</span>
             </div>
           </div>
-          <button onclick="resetEscaner()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;">
-            <i class="ti ti-scan"></i> Nuevo scan
-          </button>
+          <button onclick="resetEscaner()" style="background:var(--bg3);border:1px solid var(--line2);color:var(--txt2);border-radius:3px;padding:6px 12px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;"><i class="ti ti-scan"></i> Nuevo scan</button>
         </div>
 
-        <!-- OTs activas del equipo -->
         <div class="card" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:10px;">
-            <div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes de trabajo activas</div>
-            <span id="ots-count-badge" style="font-size:11px;background:var(--bg3);padding:3px 10px;border-radius:20px;color:var(--txt3);">0 OTs</span>
+            <div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes activas</div>
+            <span id="ots-count-badge" style="font-size:11px;background:var(--bg3);padding:3px 10px;border-radius:20px;color:var(--txt2);">0 OTs</span>
           </div>
-
-          <!-- Alerta auto-asignación -->
-          <div class="auto-assign-alert" id="auto-assign-info">
-            <i class="ti ti-info-circle"></i>
-            <span>Al seleccionar una OT sin asignar, quedarás asignado automáticamente. OTs ya asignadas a ti aparecen marcadas.</span>
-          </div>
-
-          <div id="ots-equipo-lista">
-            <div class="loading"><div class="spinner"></div></div>
-          </div>
-
-          <!-- Opción crear nueva OT si es admin -->
+          <div class="auto-assign-alert" id="auto-assign-info"><i class="ti ti-info-circle"></i><span>Al seleccionar una OT sin asignar, quedarás asignado automáticamente.</span></div>
+          <div id="ots-equipo-lista"><div class="loading"><div class="spinner"></div></div></div>
           <div id="nueva-ot-btn-wrap" style="display:none;margin-top:10px;">
-            <div class="nueva-ot-rapida" onclick="openNuevaOT(document.getElementById('eq-id-actual').value)">
-              <i class="ti ti-plus"></i>
-              Levantar nueva OT para este equipo
-            </div>
+            <div class="nueva-ot-rapida" onclick="openNuevaOT(document.getElementById('eq-id-actual').value)"><i class="ti ti-plus"></i>Levantar nueva OT para este equipo</div>
           </div>
           <input type="hidden" id="eq-id-actual">
         </div>
       </div>
 
-      <!-- PANEL 3: Checklist directo (post-selección de OT) -->
-      <div id="cl-directo">
+      <!-- Panel Checklist directo -->
+      <div id="cl-directo" style="display:none;">
         <div class="cl-directo-header">
           <i class="ti ti-clipboard-check"></i>
-          <div style="flex:1;">
-            <div style="font-size:16px;font-weight:700;" id="cld-titulo">–</div>
-            <div style="font-size:12px;opacity:0.8;margin-top:2px;" id="cld-meta">–</div>
-          </div>
+          <div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--green-txt);" id="cld-titulo">–</div><div style="font-size:12px;color:var(--txt2);margin-top:2px;" id="cld-meta">–</div></div>
           <button class="cl-back-btn" onclick="volverAOTs()"><i class="ti ti-arrow-left"></i> Volver</button>
         </div>
-
         <div class="two-col">
           <div>
             <div class="card" style="margin-bottom:14px;">
               <div class="card-header"><div class="card-title"><i class="ti ti-checklist"></i> Inspección</div><span id="cld-prog-lbl" style="font-size:12px;color:var(--txt2);"></span></div>
-              <div style="height:4px;background:#f0f0f0;border-radius:2px;margin-bottom:14px;overflow:hidden;"><div id="cld-prog" style="height:100%;background:#2d7a3a;border-radius:2px;width:0%;transition:width .3s;"></div></div>
+              <div style="height:4px;background:#f5f5f5;border-radius:2px;margin-bottom:14px;overflow:hidden;"><div id="cld-prog" style="height:100%;background:var(--green);border-radius:2px;width:0%;transition:width .3s;"></div></div>
               <div id="cld-items"></div>
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-camera"></i> Evidencia fotográfica</div></div>
               <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cld-foto-grid">
-                <label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" onclick="simFotoD(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
+                <label style="border:1px dashed var(--line2);border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" onclick="simFotoD(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
               </div>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:14px;">
             <div class="card">
-              <div class="card-header"><div class="card-title"><i class="ti ti-tools"></i> Refacciones usadas</div></div>
+              <div class="card-header"><div class="card-title"><i class="ti ti-tools"></i> Refacciones</div></div>
               <div id="cld-ref-list" style="margin-bottom:10px;min-height:10px;"></div>
-              <div style="display:flex;gap:6px;"><input id="cld-ref-in" type="text" placeholder="Nombre de refacción..." style="flex:1;border:1px solid var(--line2);border-radius:6px;padding:6px 10px;font-size:12px;"><button class="btn-sm" onclick="addRefD()"><i class="ti ti-plus"></i></button></div>
+              <div style="display:flex;gap:6px;"><input id="cld-ref-in" type="text" placeholder="Refacción usada..." style="flex:1;border:1px solid #ddd;border-radius:3px;padding:6px 10px;font-size:12px;background:#fff;color:#111;outline:none;"><button class="btn-sm" onclick="addRefD()"><i class="ti ti-plus"></i></button></div>
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-clock"></i> Tiempo trabajado</div></div>
               <div style="display:flex;align-items:center;gap:10px;">
-                <div style="font-size:28px;font-weight:300;font-variant-numeric:tabular-nums;" id="cld-timer-d">00:00:00</div>
+                <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;font-variant-numeric:tabular-nums;" id="cld-timer-d">00:00:00</div>
                 <div style="display:flex;flex-direction:column;gap:4px;">
                   <button class="btn-sm btn-primary" id="cld-timer-btn" onclick="toggleTimerD()"><i class="ti ti-player-play"></i> Iniciar</button>
                   <button class="btn-sm" onclick="resetTimerD()"><i class="ti ti-rotate"></i> Reset</button>
@@ -574,11 +487,11 @@ tr:hover td{background:var(--bg3)}
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-notes"></i> Observaciones</div></div>
-              <textarea id="cld-obs-txt" placeholder="Notas del técnico..." style="width:100%;border:1px solid var(--line2);border-radius:6px;padding:8px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;box-sizing:border-box;"></textarea>
+              <textarea id="cld-obs-txt" placeholder="Notas del técnico..." style="width:100%;border:1px solid #ddd;border-radius:3px;padding:8px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;box-sizing:border-box;background:#fff;color:#111;outline:none;"></textarea>
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-signature"></i> Firma del técnico</div></div>
-              <canvas id="cld-firma-c" width="300" height="90" style="border:1px solid var(--line2);border-radius:6px;width:100%;display:block;cursor:crosshair;background:#fafafa;touch-action:none;"></canvas>
+              <canvas id="cld-firma-c" width="300" height="90" style="border:1px solid #ddd;border-radius:3px;width:100%;display:block;cursor:crosshair;background:#fafafa;touch-action:none;"></canvas>
               <div style="display:flex;gap:6px;margin-top:8px;">
                 <button class="btn-sm" style="flex:1;justify-content:center;" onclick="clearFirmaD()">Borrar firma</button>
                 <button class="btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="cerrarOTDirecto()"><i class="ti ti-check"></i> Cerrar OT</button>
@@ -587,20 +500,16 @@ tr:hover td{background:var(--bg3)}
           </div>
         </div>
       </div>
-
     </div><!-- /tab-escaner -->
 
-    <!-- RESTO DE TABS (sin cambios) -->
+    <!-- TAB: DASHBOARD -->
     <div id="tab-dashboard" class="panel-hidden">
-      <div id="debug-panel" style="background:#fff3cd;border:2px solid #f90;border-radius:6px;padding:12px;margin-bottom:14px;font-size:12px;font-family:monospace;">
-        <strong>🔍 DIAGNÓSTICO:</strong> <span id="debug-msg">Esperando datos...</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--green-bg);border-radius:6px;font-size:11px;color:#1f6130;margin-bottom:12px;"><div class="rt-dot"></div>Datos en tiempo real — se actualizan automáticamente</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--green-bg);border:1px solid rgba(42,122,69,0.15);border-radius:3px;font-size:11px;color:var(--green-txt);margin-bottom:16px;"><div class="rt-dot"></div>Datos en tiempo real</div>
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b03030"></span>Urgentes</div><div class="kpi-value" id="k-urg">–</div><div class="kpi-sub">Atención inmediata</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#b87a00"></span>En progreso</div><div class="kpi-value" id="k-prog">–</div><div class="kpi-sub">Asignadas</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#2d7a3a"></span>Completadas</div><div class="kpi-value" id="k-hoy">–</div><div class="kpi-sub">Histórico</div></div>
-        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:#1a5fa8"></span>Equipos</div><div class="kpi-value" id="k-eq">–</div><div class="kpi-sub">Registrados</div></div>
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--red)"></span>Urgentes</div><div class="kpi-value" id="k-urg">–</div><div class="kpi-sub">Atención inmediata</div></div>
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--amber)"></span>En progreso</div><div class="kpi-value" id="k-prog">–</div><div class="kpi-sub">Asignadas</div></div>
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--green)"></span>Completadas hoy</div><div class="kpi-value" id="k-hoy">–</div><div class="kpi-sub">Histórico</div></div>
+        <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--blue)"></span>Equipos</div><div class="kpi-value" id="k-eq">–</div><div class="kpi-sub">Registrados</div></div>
       </div>
       <div class="two-col">
         <div class="card">
@@ -612,24 +521,26 @@ tr:hover td{background:var(--bg3)}
           <div id="dash-res"></div>
         </div>
       </div>
-    </div>
-    
+    </div><!-- /tab-dashboard -->
+
+    <!-- TAB: CALENDARIO -->
     <div id="tab-calendario" class="panel-hidden card">
       <div class="cal-header">
         <button class="btn-sm" onclick="chgMonth(-1)"><i class="ti ti-chevron-left"></i></button>
-        <div id="cal-month-lbl" style="font-size:16px;font-weight:600;color:var(--navy);text-align:center;min-width:180px;">Mes Año</div>
+        <div id="cal-month-lbl" style="font-family:'Cormorant',serif;font-size:20px;font-weight:300;color:var(--txt);text-align:center;min-width:180px;">Mes Año</div>
         <button class="btn-sm" onclick="chgMonth(1)"><i class="ti ti-chevron-right"></i></button>
       </div>
-      <div style="font-size:11px;color:var(--txt3);margin-bottom:12px;display:flex;align-items:center;gap:4px;"><i class="ti ti-info-circle"></i><strong>Modo Interactivo:</strong> Haz clic en cualquier día para programar un Preventivo. Arrastra para reprogramar.</div>
+      <div style="font-size:11px;color:var(--txt2);margin-bottom:12px;display:flex;align-items:center;gap:4px;"><i class="ti ti-info-circle"></i> Clic en un día para programar un Preventivo. Arrastra para reprogramar.</div>
       <div class="cal-grid" id="cal-grid"></div>
-    </div>
+    </div><!-- /tab-calendario -->
 
+    <!-- TAB: ORDENES -->
     <div id="tab-ordenes" class="panel-hidden">
       <div class="card">
         <div class="card-header">
           <div class="card-title"><i class="ti ti-clipboard-list"></i> Directorio de Órdenes</div>
           <div style="display:flex;gap:8px;">
-            <select id="f-est-fil" style="border:1px solid var(--line2);border-radius:6px;padding:5px 10px;font-size:12px;" onchange="renderOrdenes()">
+            <select id="f-est-fil" style="border:1px solid #ddd;border-radius:3px;padding:5px 10px;font-size:12px;background:#fff;color:#111;outline:none;" onchange="renderOrdenes()">
               <option value="">Todos</option><option>Urgente</option><option>En progreso</option><option>Pendiente</option><option>Completada</option>
             </select>
             <button class="btn-sm btn-primary btn-admin-only" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button>
@@ -637,49 +548,30 @@ tr:hover td{background:var(--bg3)}
         </div>
         <div id="ots-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
-    </div>
+    </div><!-- /tab-ordenes -->
 
-    <div id="tab-equipos" class="panel-hidden">
-      <div class="card">
-        <div class="card-header"><div class="card-title"><i class="ti ti-settings-2"></i> Inventario de equipos</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalEq()"><i class="ti ti-plus"></i> Agregar</button></div>
-        <div id="eq-wrap"><div class="loading"><div class="spinner"></div></div></div>
-      </div>
-    </div>
-
-    <div id="tab-tecnicos" class="panel-hidden">
-      <div class="card">
-        <div class="card-header"><div class="card-title"><i class="ti ti-users"></i> Equipo de trabajo</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalUser()"><i class="ti ti-user-plus"></i> Agregar Personal</button></div>
-        <div id="tec-wrap"><div class="loading"><div class="spinner"></div></div></div>
-      </div>
-    </div>
-    
-    <div id="tab-downtime" class="panel-hidden card">
-      <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-activity"></i> Análisis de Downtime General</div></div>
-      <p style="font-size:12px;color:var(--txt3);margin-bottom:16px;">Listado global de equipos con fallas registradas (Correctivos). Clic en "Ver Detalle" para analizar el equipo.</p>
-      <div id="dt-list-equipos"></div>
-    </div>
-
+    <!-- TAB: CHECKLIST -->
     <div id="tab-checklist" class="panel-hidden">
       <div id="cl-sel">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="font-size:15px;font-weight:500;">Ejecutar checklist de OT</div></div>
+        <div style="font-size:15px;font-weight:500;margin-bottom:14px;color:var(--txt);">Ejecutar checklist de OT</div>
         <div id="cl-cards"><div class="loading"><div class="spinner"></div></div></div>
       </div>
       <div id="cl-form" style="display:none;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
           <button class="btn-sm" onclick="volverCL()"><i class="ti ti-arrow-left"></i> Volver</button>
-          <div><div style="font-size:14px;font-weight:500;" id="cl-ttl">–</div><div style="font-size:12px;color:var(--txt2);" id="cl-meta">–</div></div>
+          <div><div style="font-size:14px;font-weight:500;color:var(--txt);" id="cl-ttl">–</div><div style="font-size:12px;color:var(--txt2);" id="cl-meta">–</div></div>
         </div>
         <div class="two-col">
           <div>
             <div class="card" style="margin-bottom:14px;">
               <div class="card-header"><div class="card-title"><i class="ti ti-clipboard-check"></i> Inspección</div><span id="cl-prog-lbl" style="font-size:12px;color:var(--txt2);"></span></div>
-              <div style="height:4px;background:#f0f0f0;border-radius:2px;margin-bottom:14px;overflow:hidden;"><div id="cl-prog" style="height:100%;background:#2d7a3a;border-radius:2px;width:0%;transition:width .3s;"></div></div>
+              <div style="height:4px;background:#f5f5f5;border-radius:2px;margin-bottom:14px;overflow:hidden;"><div id="cl-prog" style="height:100%;background:var(--green);border-radius:2px;width:0%;transition:width .3s;"></div></div>
               <div id="cl-items"></div>
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-camera"></i> Evidencia fotográfica</div></div>
               <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="foto-grid">
-                <label style="border:1px dashed #ddd;border-radius:8px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" onclick="simFoto(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
+                <label style="border:1px dashed #ddd;border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);" onclick="simFoto(this)"><i class="ti ti-camera-plus" style="font-size:20px;"></i>Foto</label>
               </div>
             </div>
           </div>
@@ -687,12 +579,12 @@ tr:hover td{background:var(--bg3)}
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-tools"></i> Refacciones</div></div>
               <div id="ref-list" style="margin-bottom:10px;min-height:10px;"></div>
-              <div style="display:flex;gap:6px;"><input id="ref-in" type="text" placeholder="Nombre de refacción..." style="flex:1;border:1px solid var(--line2);border-radius:6px;padding:6px 10px;font-size:12px;"><button class="btn-sm" onclick="addRef()"><i class="ti ti-plus"></i></button></div>
+              <div style="display:flex;gap:6px;"><input id="ref-in" type="text" placeholder="Refacción..." style="flex:1;border:1px solid #ddd;border-radius:3px;padding:6px 10px;font-size:12px;background:#fff;color:#111;outline:none;"><button class="btn-sm" onclick="addRef()"><i class="ti ti-plus"></i></button></div>
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-clock"></i> Tiempo trabajado</div></div>
               <div style="display:flex;align-items:center;gap:10px;">
-                <div style="font-size:28px;font-weight:300;font-variant-numeric:tabular-nums;" id="timer-d">00:00:00</div>
+                <div style="font-family:'Cormorant',serif;font-size:32px;font-weight:300;font-variant-numeric:tabular-nums;" id="timer-d">00:00:00</div>
                 <div style="display:flex;flex-direction:column;gap:4px;">
                   <button class="btn-sm btn-primary" id="timer-btn" onclick="toggleTimer()"><i class="ti ti-player-play"></i> Iniciar</button>
                   <button class="btn-sm" onclick="resetTimer()"><i class="ti ti-rotate"></i> Reset</button>
@@ -701,11 +593,11 @@ tr:hover td{background:var(--bg3)}
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-notes"></i> Observaciones</div></div>
-              <textarea id="obs-txt" placeholder="Notas del técnico..." style="width:100%;border:1px solid var(--line2);border-radius:6px;padding:8px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;box-sizing:border-box;"></textarea>
+              <textarea id="obs-txt" placeholder="Notas del técnico..." style="width:100%;border:1px solid #ddd;border-radius:3px;padding:8px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;box-sizing:border-box;background:#fff;color:#111;outline:none;"></textarea>
             </div>
             <div class="card">
               <div class="card-header"><div class="card-title"><i class="ti ti-signature"></i> Firma del técnico</div></div>
-              <canvas id="firma-c" width="300" height="90" style="border:1px solid var(--line2);border-radius:6px;width:100%;display:block;cursor:crosshair;background:#fafafa;touch-action:none;"></canvas>
+              <canvas id="firma-c" width="300" height="90" style="border:1px solid #ddd;border-radius:3px;width:100%;display:block;cursor:crosshair;background:#fafafa;touch-action:none;"></canvas>
               <div style="display:flex;gap:6px;margin-top:8px;">
                 <button class="btn-sm" style="flex:1;justify-content:center;" onclick="clearFirma()">Borrar</button>
                 <button class="btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="cerrarOT()"><i class="ti ti-check"></i> Cerrar OT</button>
@@ -714,12 +606,35 @@ tr:hover td{background:var(--bg3)}
           </div>
         </div>
       </div>
-    </div>
+    </div><!-- /tab-checklist -->
+
+    <!-- TAB: EQUIPOS -->
+    <div id="tab-equipos" class="panel-hidden">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="ti ti-settings-2"></i> Inventario de equipos</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalEq()"><i class="ti ti-plus"></i> Agregar</button></div>
+        <div id="eq-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div><!-- /tab-equipos -->
+
+    <!-- TAB: TECNICOS/PERSONAL -->
+    <div id="tab-tecnicos" class="panel-hidden">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="ti ti-users"></i> Equipo de trabajo</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalUser()"><i class="ti ti-user-plus"></i> Agregar Personal</button></div>
+        <div id="tec-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div><!-- /tab-tecnicos -->
+
+    <!-- TAB: DOWNTIME -->
+    <div id="tab-downtime" class="panel-hidden card">
+      <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-activity"></i> Análisis de Downtime</div></div>
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Equipos con fallas registradas (Correctivos). Clic en "Ver Detalle" para analizar.</p>
+      <div id="dt-list-equipos"></div>
+    </div><!-- /tab-downtime -->
 
   </div><!-- /main -->
 </div><!-- /app -->
 
-<!-- MODALES SIN CAMBIOS -->
+<!-- MODALES -->
 <div class="modal-backdrop" id="modal-ot">
   <div class="modal">
     <div class="modal-title"><span><i class="ti ti-clipboard-plus" style="margin-right:6px;"></i>Nueva orden de trabajo</span><button class="close-btn" onclick="closeM('modal-ot')"><i class="ti ti-x"></i></button></div>
@@ -739,17 +654,16 @@ tr:hover td{background:var(--bg3)}
   <div class="modal" style="max-width:420px;">
     <div class="modal-title"><span id="usr-modal-title">Configurar Perfil</span><button class="close-btn" onclick="closeM('modal-invite')"><i class="ti ti-x"></i></button></div>
     <input type="hidden" id="inv-edit-id">
-    <p style="font-size:12px;color:var(--txt2);margin-bottom:14px;" id="usr-hint">Primero invita al usuario en Supabase → Authentication → Invite user. Luego pega su UUID aquí:</p>
+    <p style="font-size:12px;color:var(--txt3);margin-bottom:14px;" id="usr-hint">Primero invita al usuario en Supabase → Authentication → Invite user. Pega su UUID aquí:</p>
     <div class="form-grid" style="grid-template-columns:1fr;">
       <div class="form-group"><label>UUID del usuario</label><input type="text" id="inv-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
       <div class="form-group"><label>Nombre completo</label><input type="text" id="inv-nom" placeholder="Carlos Mendoza"></div>
       <div class="form-group"><label>Rol</label>
         <select id="inv-rol" onchange="toggleUserFields()">
-          <option value="tecnico">Técnico</option><option value="supervisor">Supervisor</option>
-          <option value="supervisor_zona">Supervisor de Zona</option><option value="admin">Administrador</option><option value="gerencia">Gerencia</option>
+          <option value="tecnico">Técnico</option><option value="supervisor">Supervisor</option><option value="supervisor_zona">Supervisor de Zona</option><option value="admin">Administrador</option><option value="gerencia">Gerencia</option>
         </select>
       </div>
-      <div class="form-group" id="grp-zona" style="display:none;"><label>Asignación de Zona</label>
+      <div class="form-group" id="grp-zona" style="display:none;"><label>Zona</label>
         <select id="inv-zona"><option value="">Seleccione...</option><option>Zona 1</option><option>Zona 2</option><option>Zona 3</option><option>Zona 4</option><option>Zona 5</option><option>Zona 6</option><option>Zona 7</option></select>
       </div>
       <div class="form-group" id="grp-esp"><label>Especialidad</label><input type="text" id="inv-esp" placeholder="Mecánico CNC..."></div>
@@ -766,16 +680,12 @@ tr:hover td{background:var(--bg3)}
     <div class="form-grid">
       <div class="form-group"><label>Código</label><input type="text" id="eq-cod" placeholder="CNC-03"></div>
       <div class="form-group"><label>Nombre</label><input type="text" id="eq-nom" placeholder="Torno CNC 3"></div>
-      <div class="form-group"><label>Zona Asignada</label>
-        <select id="eq-zona"><option value="">Seleccione...</option><option>Zona 1</option><option>Zona 2</option><option>Zona 3</option><option>Zona 4</option><option>Zona 5</option><option>Zona 6</option><option>Zona 7</option></select>
-      </div>
-      <div class="form-group"><label>Estado Actual</label>
-        <select id="eq-est"><option>Operativo</option><option>En mantenimiento</option><option>Fuera de servicio</option></select>
-      </div>
+      <div class="form-group"><label>Zona</label><select id="eq-zona"><option value="">Seleccione...</option><option>Zona 1</option><option>Zona 2</option><option>Zona 3</option><option>Zona 4</option><option>Zona 5</option><option>Zona 6</option><option>Zona 7</option></select></div>
+      <div class="form-group"><label>Estado</label><select id="eq-est"><option>Operativo</option><option>En mantenimiento</option><option>Fuera de servicio</option></select></div>
       <div class="form-group"><label>Modelo</label><input type="text" id="eq-mod" placeholder="Mazak QTN-200"></div>
       <div class="form-group"><label>N° de serie</label><input type="text" id="eq-ser" placeholder="SN-2024-001"></div>
-      <div class="form-group"><label>Horas de uso actual</label><input type="number" id="eq-hrs" value="0"></div>
-      <div class="form-group"><label>Frecuencia PM (Horas)</label><input type="number" id="eq-frec" value="1000"></div>
+      <div class="form-group"><label>Horas de uso</label><input type="number" id="eq-hrs" value="0"></div>
+      <div class="form-group"><label>Frecuencia PM (Hrs)</label><input type="number" id="eq-frec" value="1000"></div>
       <div class="form-group" style="grid-column:1/-1;"><label>Criticidad</label><select id="eq-cri"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></div>
     </div>
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-equipo')">Cancelar</button><button class="btn-sm btn-primary" onclick="guardarEquipo()"><i class="ti ti-check"></i> Guardar</button></div>
@@ -785,29 +695,28 @@ tr:hover td{background:var(--bg3)}
 <div class="modal-backdrop" id="modal-dt-detalle">
   <div class="modal" style="max-width:600px;">
     <div class="modal-title">Detalle de Fallas<button class="close-btn" onclick="closeM('modal-dt-detalle')"><i class="ti ti-x"></i></button></div>
-    <h3 id="dt-det-nom" style="font-size:15px;margin-bottom:16px;">-</h3>
+    <h3 id="dt-det-nom" style="font-size:15px;margin-bottom:16px;color:var(--txt);">-</h3>
     <div id="dt-det-lista"></div>
   </div>
 </div>
 
 <div class="modal-backdrop" id="modal-qr">
   <div class="modal" style="text-align:center;max-width:320px;">
-    <div class="modal-title" style="justify-content:center;">Etiqueta QR <button class="close-btn" style="position:absolute;right:24px;" onclick="closeM('modal-qr')"><i class="ti ti-x"></i></button></div>
-    <div id="print-area" style="padding:20px;background:var(--bg2);border:1px dashed #ccc;border-radius:8px;display:inline-block;">
-      <h3 id="qr-eq-nom" style="margin-bottom:4px;font-size:16px;">-</h3>
-      <p id="qr-eq-cod" style="font-family:monospace;color:var(--txt3);font-size:12px;margin-bottom:16px;">-</p>
+    <div class="modal-title" style="justify-content:center;">Etiqueta QR<button class="close-btn" style="position:absolute;right:24px;" onclick="closeM('modal-qr')"><i class="ti ti-x"></i></button></div>
+    <div id="print-area" style="padding:20px;background:#fff;border:1px dashed #ccc;border-radius:4px;display:inline-block;">
+      <h3 id="qr-eq-nom" style="margin-bottom:4px;font-size:16px;color:#111;">-</h3>
+      <p id="qr-eq-cod" style="font-family:monospace;color:#666;font-size:12px;margin-bottom:16px;">-</p>
       <div id="qr-code-canvas" style="display:flex;justify-content:center;margin-bottom:12px;"></div>
-      <p style="font-size:10px;color:#999;">Propiedad de la Empresa</p>
+      <p style="font-size:10px;color:#999;">Samara Facilities</p>
     </div>
-    <div style="margin-top:24px;">
-      <button class="btn-sm btn-primary" style="justify-content:center;width:100%;" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir Etiqueta</button>
-    </div>
+    <div style="margin-top:24px;"><button class="btn-sm btn-primary" style="justify-content:center;width:100%;" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir Etiqueta</button></div>
   </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
+
 const SUPA_URL='https://knzelkthjzdtlghaizmr.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuemVsa3RoanpkdGxnaGFpem1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjY2NTQsImV4cCI6MjA5NDM0MjY1NH0.xL1cAwZ4kQ-u1bILLm-WMR-5j-PH_MJ8aVjBRCuhi6k';
 
@@ -1068,7 +977,10 @@ const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
-    if(el)el.className=x===t?'panel-visible':'panel-hidden';
+    if(el){
+      const extraClasses = el.className.replace('panel-hidden','').replace('panel-visible','').trim();
+      el.className = (x===t ? 'panel-visible' : 'panel-hidden') + (extraClasses ? ' '+extraClasses : '');
+    }
   });
   document.querySelectorAll('.nav-btn').forEach(b=>{
     b.classList.remove('active');
@@ -1520,8 +1432,6 @@ async function cerrarOTDirecto(){
 
 // ── DASHBOARD ──
 function renderDash(){
-  const dbg=document.getElementById('debug-msg');
-  if(dbg) dbg.textContent=`OTs:${allOTs.length} | Equipos:${allEqs.length} | Perfiles:${allProfs.length} | Tab visible:${document.getElementById('tab-dashboard')?.className}`;
   if(!document.getElementById('k-urg')) return;
   const hoy=new Date();hoy.setHours(0,0,0,0);
   document.getElementById('k-urg').textContent=allOTs.filter(o=>o.estado==='Urgente').length;
@@ -1974,6 +1884,7 @@ async function cerrarOT(){
   toast('✅ OT cerrada y guardada');
 }
 function volverCL(){clearInterval(tInt);tOn=false;document.getElementById('cl-form').style.display='none';document.getElementById('cl-sel').style.display='';renderCLSel();}
+
 </script>
 </body>
 </html>
