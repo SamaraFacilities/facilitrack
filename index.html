@@ -2293,8 +2293,16 @@ async function guardarPerfil(){
     payload.email = emailInput || (usrName + '@samara.com');
   }
   if(emailInput) payload.email=emailInput;
-  const{error}=await db.from('profiles').upsert(payload);
-  if(error){toast('❌ Error: '+error.message);return;}
+  let _pErr;
+  if(id){
+    // Editing existing profile — use UPDATE
+    const{id:_pid,...updatePayload}=payload;
+    ({error:_pErr}=await db.from('profiles').update(updatePayload).eq('id',uuid));
+  } else {
+    // New profile — use UPSERT with explicit conflict resolution
+    ({error:_pErr}=await db.from('profiles').upsert(payload,{onConflict:'id'}));
+  }
+  if(_pErr){toast('❌ Error: '+_pErr.message);return;}
   closeM('modal-invite');toast('Perfil guardado');await forceLoadAll();
 }
 
