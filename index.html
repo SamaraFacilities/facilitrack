@@ -187,6 +187,9 @@ tr:hover td{background:var(--bg3)}
 .form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 
 /* ── MISC ── */
+.otl-chip{padding:8px 16px;font-size:12px;border:1.5px solid var(--line2);border-radius:20px;cursor:pointer;background:#fff;color:var(--txt2);transition:all .15s;font-family:'DM Sans',sans-serif;}
+.otl-chip:hover{border-color:var(--txt2);color:var(--txt);}
+.otl-chip-active{border-color:#111!important;background:#111!important;color:#fff!important;}
 /* iOS scroll and touch improvements */
 .main{-webkit-overflow-scrolling:touch;}
 .nav-wrap{-webkit-overflow-scrolling:touch;}
@@ -859,6 +862,87 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
       <div id="analisis-body"></div>
     </div><!-- /tab-analisis -->
 
+
+    <!-- TAB: OT LIBRE (Ingeniería / EHS) -->
+    <div id="tab-ot-libre" class="panel-hidden">
+      <div style="max-width:600px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:28px;">
+          <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:400;color:var(--txt);margin-bottom:6px;">Nueva Solicitud</div>
+          <div style="font-size:13px;color:var(--txt3);">Levanta una solicitud de trabajo sin necesidad de seleccionar un equipo</div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header" style="margin-bottom:16px;">
+            <div class="card-title"><i class="ti ti-clipboard-plus"></i> Detalle de la solicitud</div>
+          </div>
+          <div style="margin-bottom:18px;">
+            <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">Tipo de trabajo</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="otl-chip otl-chip-active" onclick="setOTLTipo('Instalación',this)">📦 Instalación</button>
+              <button class="otl-chip" onclick="setOTLTipo('Reparación civil',this)">🔨 Reparación civil</button>
+              <button class="otl-chip" onclick="setOTLTipo('Eléctrico',this)">⚡ Eléctrico</button>
+              <button class="otl-chip" onclick="setOTLTipo('Inspección EHS',this)">🦺 Inspección EHS</button>
+              <button class="otl-chip" onclick="setOTLTipo('Limpieza especial',this)">🧹 Limpieza especial</button>
+              <button class="otl-chip" onclick="setOTLTipo('Otro',this)">📋 Otro</button>
+            </div>
+            <input type="hidden" id="otl-tipo" value="Instalación">
+          </div>
+          <div class="form-grid" style="margin-bottom:14px;">
+            <div class="form-group"><label>Área / Zona</label><select id="otl-zona"><option value="">Selecciona el área...</option></select></div>
+            <div class="form-group"><label>Ubicación específica</label><input type="text" id="otl-ubicacion" placeholder="Oficina 3B, pasillo norte..."></div>
+          </div>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label>Descripción de la solicitud</label>
+            <textarea id="otl-desc" placeholder="Describe lo que necesitas..." style="min-height:100px;resize:vertical;"></textarea>
+          </div>
+          <div style="margin-bottom:18px;">
+            <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">Urgencia</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:8px 14px;border:1px solid var(--line2);border-radius:3px;background:#fff;"><input type="radio" name="otl-pri" value="Baja" checked> Normal</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:8px 14px;border:1px solid var(--amber);border-radius:3px;background:var(--amber-bg);"><input type="radio" name="otl-pri" value="Alta"> Alta prioridad</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:8px 14px;border:1px solid var(--red);border-radius:3px;background:var(--red-bg);"><input type="radio" name="otl-pri" value="Urgente"> Urgente</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:18px;">
+            <label>Fecha deseada <span style="color:var(--txt3);font-weight:300;">(opcional)</span></label>
+            <input type="date" id="otl-fecha">
+          </div>
+          <button onclick="crearOTLibre()" style="width:100%;background:#111;color:#fff;border:none;border-radius:3px;padding:14px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'DM Sans',sans-serif;">
+            <i class="ti ti-send"></i> Enviar solicitud
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-header" style="margin-bottom:12px;"><div class="card-title"><i class="ti ti-history"></i> Mis solicitudes recientes</div></div>
+          <div id="otl-mis-solicitudes"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div><!-- /tab-ot-libre -->
+
+    <!-- TAB: CONFIGURACIÓN (Admin) -->
+    <div id="tab-configuracion" class="panel-hidden">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="card">
+          <div class="card-header" style="margin-bottom:14px;">
+            <div class="card-title"><i class="ti ti-map-pin"></i> Áreas / Zonas</div>
+            <button class="btn-sm btn-primary" onclick="agregarZona()"><i class="ti ti-plus"></i> Agregar</button>
+          </div>
+          <div id="zonas-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header" style="margin-bottom:14px;">
+            <div class="card-title"><i class="ti ti-shield-lock"></i> Roles y permisos</div>
+          </div>
+          <div id="permisos-list"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" style="margin-bottom:14px;">
+          <div class="card-title"><i class="ti ti-users"></i> Usuarios y accesos</div>
+          <button class="btn-sm btn-primary" onclick="openModalUser()"><i class="ti ti-user-plus"></i> Agregar</button>
+        </div>
+        <div id="config-usuarios-list"></div>
+      </div>
+    </div><!-- /tab-configuracion -->
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -1290,6 +1374,10 @@ async function bootApp(user){
   if(curProf.rol==='supervisor_zona'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico')"><i class="ti ti-calendar-event"></i> Agenda de Zona</button>`;
   }
+  if(['ingeniero','ehs'].includes(curProf.rol)){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-ot-libre" onclick="setTab('ot-libre')"><i class="ti ti-clipboard-plus"></i> Nueva Solicitud</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Mis Solicitudes</button>`;
+  }
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>`;
   }
@@ -1304,6 +1392,7 @@ async function bootApp(user){
     nav.innerHTML+=`<button class="nav-btn" id="nav-inventario" onclick="setTab('inventario')"><i class="ti ti-package"></i> Inventario</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-compras" onclick="setTab('compras')"><i class="ti ti-shopping-cart"></i> Compras</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-analisis" onclick="setTab('analisis')"><i class="ti ti-chart-dots"></i> Análisis</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-configuracion" onclick="setTab('configuracion')"><i class="ti ti-settings-2"></i> Configuración</button>`;
   }
 
   document.querySelectorAll('.btn-admin-only').forEach(b=>b.style.display=curProf.rol==='admin'?'':'none');
@@ -1326,7 +1415,10 @@ async function bootApp(user){
   startLiveClock();
   subscribeToPush(); // Request push permission
 
-  if(['tecnico','supervisor_zona'].includes(curProf.rol)){
+  if(['ingeniero','ehs'].includes(curProf.rol)){
+    await loadAll();
+    setTab('ot-libre');
+  } else if(['tecnico','supervisor_zona'].includes(curProf.rol)){
     setTab('escaner');
     startScanner();
     await loadAll();
@@ -1414,7 +1506,7 @@ async function forceLoadAll(){ return loadAll(); }
 // setupRT redefined below with notifications
 
 // ── NAVEGACIÓN ──
-const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico','inventario','compras','analisis'];
+const TABS=['escaner','dashboard','calendario','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -1440,6 +1532,8 @@ function setTab(t){
   if(t==='inventario')renderInventario();
   if(t==='compras')renderCompras();
   if(t==='analisis')renderAnalisis();
+  if(t==='configuracion')renderConfiguracion();
+  if(t==='ot-libre')renderOTLibre();
   if(t!=='escaner')stopScanner();
 }
 
@@ -4770,6 +4864,167 @@ async function subirADrive(pdfBlob, fileName, fotos, ot){
 
 function getZonaOptions(blank=true){ return (blank?'<option value="">Seleccione...</option>':'')+allZonas.map(z=>`<option value="${z}">${z}</option>`).join(''); }
 function populateZonaSelects(){['inv-zona','eq-zona'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const p=el.value;el.innerHTML=getZonaOptions(true);if(p)el.value=p;});}
+
+
+// ══════════════════════════════════════════════════════════
+// OT LIBRE
+// ══════════════════════════════════════════════════════════
+let otlTipoActual = 'Instalación';
+
+function setOTLTipo(tipo, btn){
+  otlTipoActual = tipo;
+  document.getElementById('otl-tipo').value = tipo;
+  document.querySelectorAll('.otl-chip').forEach(b=>b.classList.remove('otl-chip-active'));
+  if(btn) btn.classList.add('otl-chip-active');
+}
+
+function renderOTLibre(){
+  const zonaEl = document.getElementById('otl-zona');
+  if(zonaEl){
+    zonaEl.innerHTML = '<option value="">Selecciona el área...</option>' +
+      allZonas.map(z=>`<option value="${z}">${z}</option>`).join('') +
+      '<option value="Oficinas">Oficinas generales</option>' +
+      '<option value="Exteriores">Exteriores / Patio</option>' +
+      '<option value="Comedor">Comedor</option>' +
+      '<option value="Almacén">Almacén</option>';
+  }
+  renderMisSolicitudes();
+}
+
+function renderMisSolicitudes(){
+  const el = document.getElementById('otl-mis-solicitudes');
+  if(!el) return;
+  let mias = allOTs.filter(o => o.creado_por === curUser?.id);
+  if(!mias.length){ el.innerHTML='<div class="empty-state" style="padding:20px;">No has levantado solicitudes aún</div>'; return; }
+  el.innerHTML = mias.slice(0,10).map(o=>`
+    <div style="padding:12px 0;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;background:${o.estado==='Completada'?'var(--green)':o.prioridad==='Urgente'?'var(--red)':'var(--amber)'};"></div>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;">
+          <div style="font-size:13px;font-weight:500;">${o.tipo||'Solicitud'} — ${o.equipo_nombre||'Sin área'}</div>
+          <div style="display:flex;gap:4px;">${badge(o.estado)}${badge(o.prioridad)}</div>
+        </div>
+        <div style="font-size:12px;color:var(--txt2);">${o.descripcion||'–'}</div>
+        <div style="font-size:11px;color:var(--txt3);margin-top:4px;"><i class="ti ti-user" style="font-size:10px;"></i> ${o.tecnico_nombre||'Pendiente de asignar'}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function crearOTLibre(){
+  const tipo  = otlTipoActual;
+  const zona  = document.getElementById('otl-zona')?.value||'';
+  const ubic  = document.getElementById('otl-ubicacion')?.value.trim()||'';
+  const desc  = document.getElementById('otl-desc')?.value.trim()||'';
+  const pri   = document.querySelector('input[name="otl-pri"]:checked')?.value||'Baja';
+  const fecha = document.getElementById('otl-fecha')?.value||null;
+  if(!desc){ toast('Describe lo que necesitas'); return; }
+  if(!zona){ toast('Selecciona el área'); return; }
+  const areaRef = zona + (ubic?' — '+ubic:'');
+  const{error}=await db.from('ordenes_trabajo').insert({
+    equipo_id:null, equipo_nombre:areaRef, tipo, prioridad:pri,
+    estado:pri==='Urgente'?'Urgente':'Pendiente',
+    tecnico_id:null, tecnico_nombre:null,
+    descripcion:desc, fecha_programada:fecha||null,
+    creado_por:curUser?.id,
+    observaciones:'[Servicio General] Área: '+areaRef+' | Solicitado por: '+curProf?.nombre,
+  });
+  if(error){ toast('❌ Error: '+error.message); return; }
+  document.getElementById('otl-desc').value='';
+  document.getElementById('otl-ubicacion').value='';
+  document.getElementById('otl-zona').value='';
+  document.getElementById('otl-fecha').value='';
+  await forceLoadAll();
+  renderMisSolicitudes();
+  toast('✅ Solicitud enviada');
+}
+
+// ══════════════════════════════════════════════════════════
+// CONFIGURACIÓN — Zonas, Roles, Usuarios
+// ══════════════════════════════════════════════════════════
+const PERMISOS_CONFIG = {
+  admin:          {label:'Administrador', color:'var(--green-txt)', bg:'var(--green-bg)', perms:['Todo'], editable:false},
+  supervisor:     {label:'Supervisor',    color:'var(--amber-txt)', bg:'var(--amber-bg)', perms:['Dashboard','Calendario','Órdenes','Checklist','Equipos','Downtime','Crear OT'], editable:true},
+  supervisor_zona:{label:'Sup. de Zona',  color:'var(--amber-txt)', bg:'var(--amber-bg)', perms:['Escáner QR','Agenda de Zona','Crear OT','Ver status equipos'], editable:true},
+  tecnico:        {label:'Técnico',       color:'var(--blue-txt)',  bg:'var(--blue-bg)',  perms:['Escáner QR','Mi Agenda','Checklist','Cerrar OT'], editable:true},
+  ingeniero:      {label:'Ingeniería',    color:'var(--blue-txt)',  bg:'var(--blue-bg)',  perms:['Nueva Solicitud','Mis Solicitudes'], editable:true},
+  ehs:            {label:'EHS',           color:'var(--amber-txt)', bg:'var(--amber-bg)', perms:['Nueva Solicitud','Mis Solicitudes','Inspección EHS'], editable:true},
+  gerencia:       {label:'Gerencia',      color:'rgba(150,100,200,.8)', bg:'rgba(150,100,200,.1)', perms:['Dashboard','Calendario','Análisis','Reportes'], editable:true},
+};
+
+function loadPermisosConfig(){ try{ const s=localStorage.getItem('samara_permisos'); if(s){ const d=JSON.parse(s); Object.keys(d).forEach(r=>{ if(PERMISOS_CONFIG[r]?.editable) PERMISOS_CONFIG[r].perms=d[r]; }); } }catch(e){} }
+function savePermisosConfig(){ const d={}; Object.keys(PERMISOS_CONFIG).forEach(r=>{ if(PERMISOS_CONFIG[r].editable) d[r]=PERMISOS_CONFIG[r].perms; }); try{localStorage.setItem('samara_permisos',JSON.stringify(d));}catch(e){} }
+function loadZonasConfig(){ try{ const s=localStorage.getItem('samara_zonas'); if(s) allZonas=JSON.parse(s); }catch(e){} }
+function saveZonasConfig(){ try{localStorage.setItem('samara_zonas',JSON.stringify(allZonas));}catch(e){} }
+loadPermisosConfig(); loadZonasConfig();
+
+function renderConfiguracion(){
+  populateZonaSelects();
+  renderZonasList();
+  renderPermisosList();
+  renderConfigUsuarios();
+}
+
+function renderZonasList(){
+  const el=document.getElementById('zonas-list'); if(!el) return;
+  if(!allZonas.length){ el.innerHTML='<div class="empty-state" style="padding:20px;">Sin zonas</div>'; return; }
+  el.innerHTML=allZonas.map((z,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <input type="text" value="${z}" onchange="editarZona(${i},this.value)"
+          style="border:1px solid transparent;border-radius:3px;padding:4px 8px;font-size:13px;background:transparent;color:var(--txt);width:100%;outline:none;font-family:'DM Sans',sans-serif;"
+          onfocus="this.style.borderColor='var(--line2)';this.style.background='#fff'"
+          onblur="this.style.borderColor='transparent';this.style.background='transparent'">
+      </div>
+      <div style="font-size:11px;color:var(--txt3);">${allEqs.filter(e=>e.area===z).length} equipo(s)</div>
+      <button onclick="eliminarZona(${i})" style="background:none;border:none;cursor:pointer;color:var(--txt3);font-size:18px;padding:2px 6px;">×</button>
+    </div>`).join('');
+}
+
+function renderPermisosList(){
+  const el=document.getElementById('permisos-list'); if(!el) return;
+  el.innerHTML=Object.entries(PERMISOS_CONFIG).map(([rol,cfg])=>`
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:${cfg.bg};color:${cfg.color};">${cfg.label}</span>
+        ${!cfg.editable?'<span style="font-size:10px;color:var(--txt3);">No editable</span>':''}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;">
+        ${cfg.perms.map(p=>`<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:#f5f5f5;border:1px solid var(--line);color:var(--txt2);display:inline-flex;align-items:center;gap:4px;">
+          <i class="ti ti-check" style="font-size:10px;color:var(--green);"></i>${p}
+          ${cfg.editable?`<button onclick="quitarPermiso('${rol}','${p}')" style="background:none;border:none;cursor:pointer;color:var(--txt3);font-size:12px;padding:0 0 0 2px;">×</button>`:''}
+        </span>`).join('')}
+        ${cfg.editable?`<button onclick="agregarPermiso('${rol}')" style="font-size:10px;padding:2px 8px;border-radius:20px;border:1px dashed var(--line2);background:transparent;color:var(--txt3);cursor:pointer;">+ Agregar</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function renderConfigUsuarios(){
+  const el=document.getElementById('config-usuarios-list'); if(!el) return;
+  if(!allProfs.length){ el.innerHTML='<div class="empty-state">Sin usuarios</div>'; return; }
+  el.innerHTML=`<div style="overflow-x:auto;"><table>
+    <thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Zona</th><th>Turno</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${allProfs.map(u=>`<tr>
+      <td><strong style="font-weight:500;">${u.nombre}</strong></td>
+      <td style="font-family:monospace;font-size:11px;color:var(--txt2);">@${u.username||'–'}</td>
+      <td>${rolBadge(u.rol)}</td>
+      <td style="font-size:12px;">${u.zona||'–'}</td>
+      <td style="font-size:11px;color:var(--txt3);">${u.turno||'–'}</td>
+      <td><span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${u.activo!==false?'var(--green-bg)':'var(--red-bg)'};color:${u.activo!==false?'var(--green-txt)':'var(--red-txt)'};">${u.activo!==false?'Activo':'Pendiente'}</span></td>
+      <td style="display:flex;gap:4px;">
+        ${u.activo===false?`<button class="btn-sm" onclick="aprobarUsuario('${u.id}')" style="color:var(--green-txt);border-color:var(--green-bg);font-size:10px;"><i class="ti ti-check"></i> Aprobar</button>`:''}
+        <button class="btn-sm" onclick="openModalUser('${u.id}')"><i class="ti ti-edit"></i></button>
+        <button class="btn-sm btn-danger" onclick="delUsr('${u.id}')"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function agregarZona(){ const n=prompt('Nombre de la nueva área/zona:','Zona '+(allZonas.length+1)); if(!n?.trim()) return; if(allZonas.includes(n.trim())){toast('Esa zona ya existe');return;} allZonas.push(n.trim()); saveZonasConfig(); populateZonaSelects(); renderZonasList(); toast('✅ Zona "'+n.trim()+'" agregada'); }
+function editarZona(i,v){ if(!v.trim()){renderZonasList();return;} allZonas[i]=v.trim(); saveZonasConfig(); populateZonaSelects(); toast('✅ Renombrada'); }
+function eliminarZona(i){ if(!confirm('¿Eliminar zona "'+allZonas[i]+'"?')) return; allZonas.splice(i,1); saveZonasConfig(); populateZonaSelects(); renderZonasList(); toast('✅ Zona eliminada'); }
+function agregarPermiso(rol){ const cfg=PERMISOS_CONFIG[rol]; if(!cfg?.editable) return; const p=prompt('Nombre del permiso:'); if(!p?.trim()) return; cfg.perms.push(p.trim()); savePermisosConfig(); renderPermisosList(); toast('✅ Permiso agregado'); }
+function quitarPermiso(rol,p){ const cfg=PERMISOS_CONFIG[rol]; if(!cfg?.editable) return; cfg.perms=cfg.perms.filter(x=>x!==p); savePermisosConfig(); renderPermisosList(); toast('✅ Permiso quitado'); }
 
 </script>
 
