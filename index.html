@@ -10,13 +10,20 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="Samara Facilities Tracking — Gestión de mantenimiento industrial">
 <script>
+const _origin = location.origin + location.pathname.replace(/\/[^\/]*$/, '/');
 const _manifest = {
   "name":"Samara Facilities","short_name":"Samara",
   "description":"Gestión de mantenimiento industrial",
-  "start_url":"https://samara-facilities.netlify.app/","display":"standalone","orientation":"portrait",
+  "start_url": _origin,"display":"standalone","orientation":"portrait",
   "theme_color":"#ffffff","background_color":"#f5f5f5","lang":"es",
-  "icons":[{"src":"https://samara-facilities.netlify.app/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://samara-facilities.netlify.app/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}],
-  "shortcuts":[{"name":"Escáner QR","short_name":"Escáner","url":"https://samara-facilities.netlify.app/?tab=escaner"},{"name":"Órdenes","short_name":"Órdenes","url":"https://samara-facilities.netlify.app/?tab=ordenes"}]
+  "icons":[
+    {"src": _origin+"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src": _origin+"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ],
+  "shortcuts":[
+    {"name":"Escáner QR","short_name":"Escáner","url": _origin},
+    {"name":"Órdenes","short_name":"Órdenes","url": _origin}
+  ]
 };
 const _mBlob = new Blob([JSON.stringify(_manifest)],{type:'application/manifest+json'});
 const _mUrl = URL.createObjectURL(_mBlob);
@@ -1126,9 +1133,11 @@ if('serviceWorker' in navigator){
   window.addEventListener('load', async () => {
     try {
       // Check if sw.js exists before registering
-      const swResp = await fetch('sw.js', {method:'HEAD'}).catch(()=>null);
+      const swPath = location.pathname.replace(/\/[^\/]*$/, '/') + 'sw.js';
+      const swScope = location.pathname.replace(/\/[^\/]*$/, '/');
+      const swResp = await fetch(swPath, {method:'HEAD'}).catch(()=>null);
       if(swResp && swResp.ok){
-        const reg = await navigator.serviceWorker.register('sw.js', {scope:'/'});
+        const reg = await navigator.serviceWorker.register(swPath, {scope: swScope});
         console.log('✅ SW registered:', reg.scope);
         reg.addEventListener('updatefound', () => console.log('🔄 SW update found'));
       } else {
