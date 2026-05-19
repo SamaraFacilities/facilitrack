@@ -2281,28 +2281,37 @@ async function guardarPerfil(){
   const uuid=document.getElementById('inv-uuid').value.trim();
   const nom=document.getElementById('inv-nom').value.trim();
   const rol=document.getElementById('inv-rol').value;
-  const usrName=(document.getElementById('inv-username')?.value||'').trim().toLowerCase();
-  const emailInput=(document.getElementById('inv-email')?.value||'').trim().toLowerCase();
   if(!uuid||!nom){toast('UUID y nombre obligatorios');return;}
-  const zonaAsignada=rol==='supervisor_zona'?document.getElementById('inv-zona').value:null;
-  const espAsignada=['supervisor_zona','supervisor','gerencia'].includes(rol)?null:document.getElementById('inv-esp').value.trim();
-  const payload={id:uuid,nombre:nom,rol,zona:zonaAsignada,especialidad:espAsignada,turno:document.getElementById('inv-tur').value};
-  if(usrName){
-    payload.username=usrName;
-    // Auto-generate @samara.com email if no custom email provided
-    payload.email = emailInput || (usrName + '@samara.com');
-  }
+
+  // Build payload with only core columns that always exist
+  const payload={nombre:nom, rol};
+
+  // Add optional columns only if the element exists in DOM
+  const addIfExists=(key,elemId,transform=v=>v)=>{
+    const el=document.getElementById(elemId);
+    if(el){ const v=el.value; if(v!==undefined) payload[key]=transform(v); }
+  };
+
+  addIfExists('zona','inv-zona');
+  addIfExists('especialidad','inv-esp');
+  addIfExists('turno','inv-tur');
+
+  const usrEl=document.getElementById('inv-username');
+  const emailEl=document.getElementById('inv-email');
+  const usrName=(usrEl?.value||'').trim().toLowerCase();
+  const emailInput=(emailEl?.value||'').trim().toLowerCase();
+
+  if(usrName){ payload.username=usrName; payload.email=emailInput||(usrName+'@samara.com'); }
   if(emailInput) payload.email=emailInput;
+
   let _pErr;
   if(id){
-    // Editing existing profile — use UPDATE
-    const{id:_pid,...updatePayload}=payload;
-    ({error:_pErr}=await db.from('profiles').update(updatePayload).eq('id',uuid));
+    ({error:_pErr}=await db.from('profiles').update(payload).eq('id',uuid));
   } else {
-    // New profile — use UPSERT with explicit conflict resolution
+    payload.id=uuid;
     ({error:_pErr}=await db.from('profiles').upsert(payload,{onConflict:'id'}));
   }
-  if(_pErr){toast('❌ Error: '+_pErr.message);return;}
+  if(_pErr){toast('❌ Error: '+_pErr.message);console.error('guardarPerfil error:',_pErr);return;}
   closeM('modal-invite');toast('Perfil guardado');await forceLoadAll();
 }
 
