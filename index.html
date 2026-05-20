@@ -599,7 +599,10 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
         <div id="cal-month-lbl" style="font-family:'Playfair Display',serif;font-size:20px;font-weight:300;color:var(--txt);text-align:center;min-width:180px;">Mes Año</div>
         <button class="btn-sm" onclick="chgMonth(1)"><i class="ti ti-chevron-right"></i></button>
       </div>
-      <div style="font-size:11px;color:var(--txt2);margin-bottom:12px;display:flex;align-items:center;gap:4px;"><i class="ti ti-info-circle"></i> Clic en un día para programar un Preventivo. Arrastra para reprogramar.</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:4px;"><i class="ti ti-info-circle"></i> Clic en un día para programar. Arrastra para reprogramar.</div>
+        <button class="btn-sm btn-primary" onclick="autoProgramarPMs()" title="Calcular y programar automáticamente los próximos PMs basado en horas de uso"><i class="ti ti-calendar-plus"></i> Auto-programar PMs</button>
+      </div>
       <div class="cal-grid" id="cal-grid"></div>
     </div><!-- /tab-calendario -->
 
@@ -958,13 +961,14 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
   <div class="modal">
     <div class="modal-title"><span><i class="ti ti-clipboard-plus" style="margin-right:6px;"></i>Nueva orden de trabajo</span><button class="close-btn" onclick="closeM('modal-ot')"><i class="ti ti-x"></i></button></div>
     <div class="form-grid">
-      <div class="form-group"><label>Equipo</label><select id="f-equipo"></select></div>
+      <div class="form-group"><label>Equipo</label><select id="f-equipo" onchange="toggleUbicacion();toggleFechaProg()"></select></div>
       <div class="form-group"><label>Tipo</label><select id="f-tipo" onchange="toggleFechaProg()"><option>Correctivo</option><option>Preventivo</option><option>Predictivo</option><option>Inspección</option></select></div>
       <div class="form-group"><label>Prioridad</label><select id="f-pri"><option>Urgente</option><option>Alta</option><option>Media</option><option>Baja</option></select></div>
       <div class="form-group" id="grp-fecha-prog" style="display:none;"><label>Fecha Programada</label><input type="date" id="f-fecha"></div>
       <div class="form-group" id="group-tec"><label>Asignar a técnico</label><select id="f-tec"></select></div>
-      <div class="form-group" style="grid-column:1/-1;"><label>Descripción</label><textarea id="f-desc" placeholder="Describe el problema..."></textarea></div>
+      <div class="form-group" style="grid-column:1/-1;"><label>Descripción</label><textarea id="f-desc" placeholder="Describe el problema o la solicitud de servicio..."></textarea></div>
     </div>
+    <div id="grp-ubicacion" class="form-group" style="grid-column:1/-1;display:none;"><label>Ubicación / Área</label><input type="text" id="f-ubicacion" placeholder="Ej: Oficina 3B, pasillo norte..."></div>
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-ot')">Cancelar</button><button class="btn-sm btn-primary" onclick="crearOT()"><i class="ti ti-check"></i> Crear OT</button></div>
   </div>
 </div>
@@ -1276,6 +1280,11 @@ function toggleUserFields(){
 function toggleFechaProg(){
   document.getElementById('grp-fecha-prog').style.display=document.getElementById('f-tipo').value==='Preventivo'?'flex':'none';
 }
+function toggleUbicacion(){
+  const eqId=document.getElementById('f-equipo')?.value;
+  const grp=document.getElementById('grp-ubicacion');
+  if(grp) grp.style.display=(!eqId)?'flex':'none';
+}
 
 // ── PASO A PASO VISUAL ──
 function setPasos(activo){
@@ -1454,26 +1463,19 @@ db.auth.getSession().then(async({data:{session}})=>{if(session)await bootApp(ses
 // ── DATA & REALTIME ──
 async function loadAll(){
   try {
-    const[otR,eqR,prR,refR,ocR,plR]=await Promise.all([
-      db.from('ordenes_trabajo').select('*').order('fecha_creacion',{ascending:false}),
-      db.from('equipos').select('*').order('codigo'),
-      db.from('profiles').select('*'),
-      db.from('refacciones').select('*').order('nombre'),
-      db.from('ordenes_compra').select('*').order('fecha_solicitud',{ascending:false}),
-      db.from('checklist_plantillas').select('*'),
+    // Each table loads independently — one failure never blocks others
+    const safeQ=async fn=>{try{const r=await fn();if(r.error){console.warn('DB warn:',r.error.message);return[];}return r.data||[];}catch(e){console.warn('DB err:',e.message);return[];}};
+    const[_ots,_eqs,_prfs,_refs,_ocs,_pls]=await Promise.all([
+      safeQ(()=>db.from('ordenes_trabajo').select('*').order('fecha_creacion',{ascending:false})),
+      safeQ(()=>db.from('equipos').select('*').order('codigo')),
+      safeQ(()=>db.from('profiles').select('*')),
+      safeQ(()=>db.from('refacciones').select('*').order('nombre')),
+      safeQ(()=>db.from('ordenes_compra').select('*').order('fecha_solicitud',{ascending:false})),
+      safeQ(()=>db.from('checklist_plantillas').select('*')),
     ]);
-    
-    if(otR.error) console.error('OT error:',otR.error);
-    if(eqR.error) console.error('EQ error:',eqR.error);
-    if(prR.error) console.error('PR error:',prR.error);
-    
-    allOTs=otR.data||[];
-    allEqs=eqR.data||[];
-    allProfs=prR.data||[];
-    allRefacciones=refR.data||[];
-    allOrdenesCompra=ocR.data||[];
-    allPlantillas=plR.data||[];
-    loadCustomCLsFromDB(); // Build in-memory index from DB plantillas
+    allOTs=_ots; allEqs=_eqs; allProfs=_prfs;
+    allRefacciones=_refs; allOrdenesCompra=_ocs; allPlantillas=_pls;
+    loadCustomCLsFromDB();
     
     console.log(`📊 Datos cargados: ${allOTs.length} OTs, ${allEqs.length} equipos, ${allProfs.length} perfiles`);
     
@@ -2067,7 +2069,11 @@ function renderOrdenes(){
 
 function openNuevaOT(eqIdPre=null,fechaPre=null){
   document.getElementById('f-equipo').disabled=false;
-  document.getElementById('f-equipo').innerHTML='<option value="">Selecciona equipo...</option>'+allEqs.map(e=>`<option value="${e.id}">${e.codigo} – ${e.nombre}</option>`).join('');
+  document.getElementById('f-equipo').innerHTML=
+    '<option value="">— Sin equipo (servicio general) —</option>'+
+    '<optgroup label="Equipos registrados">'+
+    allEqs.map(e=>`<option value="${e.id}">${e.codigo} – ${e.nombre}</option>`).join('')+
+    '</optgroup>';
   if(eqIdPre){document.getElementById('f-equipo').value=eqIdPre;document.getElementById('f-equipo').disabled=true;}
   if(curProf.rol==='supervisor_zona'){document.getElementById('group-tec').style.display='none';}
   else{document.getElementById('group-tec').style.display='flex';document.getElementById('f-tec').innerHTML='<option value="">Sin asignar</option>'+allProfs.filter(p=>p.rol==='tecnico').map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');}
@@ -2080,15 +2086,17 @@ function openNuevaOT(eqIdPre=null,fechaPre=null){
 
 async function crearOT(){
   const eqId=document.getElementById('f-equipo').value;
-  if(!eqId){toast('Selecciona un equipo');return;}
-  const eq=allEqs.find(e=>e.id==eqId);
+  const eq=eqId?allEqs.find(e=>e.id==eqId):null;
   const tId=curProf.rol==='supervisor_zona'?null:document.getElementById('f-tec').value;
   const tec=allProfs.find(p=>p.id===tId);
   const tipo=document.getElementById('f-tipo').value;
   const fechaP=document.getElementById('f-fecha').value;
   const desc=document.getElementById('f-desc').value.trim()||'Sin descripción';
+  // Build equipo display name — use "Servicio General" if no equipo
+  const eqNombre = eq ? `${eq.codigo} – ${eq.nombre}` : 'Servicio General';
   const{error}=await db.from('ordenes_trabajo').insert({
-    equipo_id:eq.id,equipo_nombre:`${eq.codigo} – ${eq.nombre}`,
+    equipo_id:eq?eq.id:null,
+    equipo_nombre:eq?eqNombre:((document.getElementById('f-ubicacion')?.value.trim()||'Servicio General')),
     tipo,prioridad:document.getElementById('f-pri').value,
     estado:document.getElementById('f-pri').value==='Urgente'?'Urgente':'Pendiente',
     tecnico_id:tId||null,tecnico_nombre:tec?tec.nombre:null,
@@ -3323,7 +3331,7 @@ function setupRT(){
   if(window._pollTimer) clearInterval(window._pollTimer);
   window._pollTimer = setInterval(()=>{
     if(document.visibilityState === 'visible') loadAll();
-  }, 30000);
+  }, 120000); // poll every 2 min
 }
 
 // ══════════════════════════════════════════════════════════
@@ -5051,6 +5059,167 @@ function editarZona(i,v){ if(!v.trim()){renderZonasList();return;} allZonas[i]=v
 function eliminarZona(i){ if(!confirm('¿Eliminar zona "'+allZonas[i]+'"?')) return; allZonas.splice(i,1); saveZonasConfig(); populateZonaSelects(); renderZonasList(); toast('✅ Zona eliminada'); }
 function agregarPermiso(rol){ const cfg=PERMISOS_CONFIG[rol]; if(!cfg?.editable) return; const p=prompt('Nombre del permiso:'); if(!p?.trim()) return; cfg.perms.push(p.trim()); savePermisosConfig(); renderPermisosList(); toast('✅ Permiso agregado'); }
 function quitarPermiso(rol,p){ const cfg=PERMISOS_CONFIG[rol]; if(!cfg?.editable) return; cfg.perms=cfg.perms.filter(x=>x!==p); savePermisosConfig(); renderPermisosList(); toast('✅ Permiso quitado'); }
+
+
+async function generarYVerPDF(otId){
+  const ot=allOTs.find(o=>o.id===otId);
+  if(!ot){toast('OT no encontrada');return;}
+  toast('⏳ Generando PDF...');
+  try{
+    const{data:resp}=await db.from('respuestas_checklist').select('*').eq('orden_id',otId).order('item_id');
+    const ra=(resp||[]).map(r=>({item_label:r.item_label,respuesta:r.respuesta}));
+    const blob=await generarPDFChecklist(ot,ra,[]);
+    const url=URL.createObjectURL(blob);
+    window.open(url,'_blank');
+    setTimeout(()=>{
+      const a=document.createElement('a');
+      a.href=url;
+      a.download='OT-'+ot.id+'_'+(ot.equipo_nombre||'').replace(/[^a-z0-9]/gi,'_').slice(0,30)+'_'+(ot.fecha_cierre||'').slice(0,10)+'.pdf';
+      a.click();
+    },800);
+    toast('✅ PDF abierto');
+  }catch(e){
+    console.error('PDF error:',e);
+    toast('❌ Error al generar PDF: '+e.message);
+  }
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+// AUTO-PROGRAMAR PMs EN CALENDARIO
+// Calcula la fecha del próximo PM basado en horas de uso
+// ══════════════════════════════════════════════════════════
+
+async function autoProgramarPMs(){
+  if(!allEqs.length){ toast('No hay equipos registrados'); return; }
+  
+  let programados = 0;
+  let omitidos = 0;
+  const resultados = [];
+
+  for(const eq of allEqs){
+    if(!eq.frec_pm_horas || eq.frec_pm_horas <= 0) continue;
+
+    // Buscar el último PM completado de este equipo
+    const pmsCompletados = allOTs.filter(o =>
+      o.equipo_id === eq.id &&
+      o.tipo === 'Preventivo' &&
+      o.estado === 'Completada' &&
+      o.fecha_cierre
+    ).sort((a,b) => new Date(b.fecha_cierre) - new Date(a.fecha_cierre));
+
+    // Verificar si ya hay un PM futuro programado para este equipo
+    const pmFuturo = allOTs.find(o =>
+      o.equipo_id === eq.id &&
+      o.tipo === 'Preventivo' &&
+      o.estado !== 'Completada' &&
+      o.fecha_programada &&
+      new Date(o.fecha_programada) > new Date()
+    );
+
+    if(pmFuturo){
+      omitidos++;
+      resultados.push({eq: eq.nombre, status: 'Ya tiene PM programado', fecha: pmFuturo.fecha_programada, color: 'var(--amber-txt)'});
+      continue;
+    }
+
+    // Calcular fecha del próximo PM
+    let fechaBase = null;
+    let horasBase = 0;
+
+    if(pmsCompletados.length > 0){
+      // Partir desde el último PM realizado
+      fechaBase = new Date(pmsCompletados[0].fecha_cierre);
+      horasBase = eq.horas_actuales || 0;
+    } else {
+      // Sin historial — partir desde hoy con las horas actuales
+      fechaBase = new Date();
+      horasBase = eq.horas_actuales || 0;
+    }
+
+    // Calcular horas restantes hasta el próximo PM
+    const horasRestantes = Math.max(0, eq.frec_pm_horas - (horasBase % eq.frec_pm_horas));
+
+    // Estimar uso diario basado en OTs completadas (tiempo_minutos)
+    const otsConTiempo = allOTs.filter(o => o.equipo_id === eq.id && o.tiempo_minutos > 0);
+    let horasDiariasEstimadas = 8; // default 8h/día
+    if(otsConTiempo.length >= 2){
+      const totalHoras = otsConTiempo.reduce((s,o)=>s+(o.tiempo_minutos||0),0) / 60;
+      const fechaPrimera = new Date(otsConTiempo[otsConTiempo.length-1].fecha_creacion);
+      const diasTranscurridos = Math.max(1, (new Date()-fechaPrimera)/(1000*60*60*24));
+      horasDiariasEstimadas = Math.max(1, totalHoras/diasTranscurridos);
+    }
+
+    // Calcular días hasta el próximo PM
+    const diasHastaProximoPM = Math.ceil(horasRestantes / horasDiariasEstimadas);
+    const fechaProximoPM = new Date(fechaBase);
+    fechaProximoPM.setDate(fechaProximoPM.getDate() + diasHastaProximoPM);
+
+    // No programar en el pasado
+    if(fechaProximoPM < new Date()){
+      fechaProximoPM.setDate(new Date().getDate() + 7); // Urgente: en 1 semana
+    }
+
+    const fechaStr = fechaProximoPM.toISOString().slice(0,10);
+
+    // Crear la OT de PM en Supabase
+    const{error} = await db.from('ordenes_trabajo').insert({
+      equipo_id: eq.id,
+      equipo_nombre: `${eq.codigo} – ${eq.nombre}`,
+      tipo: 'Preventivo',
+      prioridad: diasHastaProximoPM <= 7 ? 'Urgente' : diasHastaProximoPM <= 30 ? 'Alta' : 'Media',
+      estado: 'Pendiente',
+      descripcion: `PM programado automáticamente. Frecuencia: cada ${eq.frec_pm_horas}h. Horas actuales: ${eq.horas_actuales||0}h.`,
+      fecha_programada: fechaStr,
+      tecnico_id: null,
+      tecnico_nombre: null,
+      creado_por: curUser?.id,
+    });
+
+    if(!error){
+      programados++;
+      resultados.push({
+        eq: eq.nombre,
+        status: 'PM programado',
+        fecha: fechaStr,
+        dias: diasHastaProximoPM,
+        color: 'var(--green-txt)'
+      });
+    } else {
+      resultados.push({eq: eq.nombre, status: 'Error: '+error.message, fecha: '–', color: 'var(--red-txt)'});
+    }
+  }
+
+  await forceLoadAll();
+
+  // Mostrar resultados en un modal/toast
+  if(programados === 0 && omitidos === allEqs.filter(e=>e.frec_pm_horas>0).length){
+    toast('ℹ️ Todos los equipos ya tienen PM programado');
+  } else {
+    toast(`✅ ${programados} PM(s) programados automáticamente`);
+  }
+
+  // Mostrar detalle en el calendario
+  const det = document.createElement('div');
+  det.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid var(--line);border-radius:4px;padding:24px;max-width:500px;width:90%;z-index:300;box-shadow:0 8px 40px rgba(0,0,0,.15);max-height:80vh;overflow-y:auto;';
+  det.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;">PMs Auto-programados</div>
+      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--txt3);">×</button>
+    </div>
+    ${resultados.length ? resultados.map(r=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:500;">${r.eq}</div>
+          <div style="font-size:11px;color:var(--txt3);">Fecha: ${r.fecha}${r.dias?' · en '+r.dias+' días':''}</div>
+        </div>
+        <span style="font-size:11px;color:${r.color};font-weight:500;">${r.status}</span>
+      </div>`).join('') : '<div style="color:var(--txt3);text-align:center;padding:20px;">Sin equipos con frecuencia PM configurada</div>'}
+  `;
+  document.body.appendChild(det);
+}
+
 
 </script>
 
