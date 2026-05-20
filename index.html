@@ -1492,7 +1492,7 @@ async function loadAll(){
       safeQ(()=>db.from('profiles').select('*')),
       safeQ(()=>db.from('refacciones').select('*').order('nombre')),
       safeQ(()=>db.from('ordenes_compra').select('*').order('fecha_solicitud',{ascending:false})),
-      safeQ(()=>db.from('checklist_plantillas').select('id,equipo_id,items,version,creado_por,created_at,updated_at').then(r=>r)),
+      safeQ(()=>db.from('checklist_plantillas').select('*')),
     ]);
     allOTs=_ots; allEqs=_eqs; allProfs=_prfs;
     allRefacciones=_refs; allOrdenesCompra=_ocs; allPlantillas=_pls;
@@ -1894,20 +1894,22 @@ function abrirCLDirecto(ot){
   document.getElementById('cld-obs-txt').value='';
   resetFGD();
 
-  if(!k){
+  const cl = getCurCLD();
+  if(!cl){
     document.getElementById('cld-items').innerHTML=`
       <div style="text-align:center;padding:32px;color:var(--txt3);">
         <i class="ti ti-clipboard-x" style="font-size:36px;display:block;margin-bottom:8px;opacity:0.5;"></i>
-        No hay checklist configurado para este tipo de equipo.
+        No hay checklist configurado para este tipo de equipo.<br>
+        <span style="font-size:11px;margin-top:8px;display:block;">El admin puede crearlo desde Equipos → icono de lista</span>
       </div>`;
     document.getElementById('cld-prog').style.width='0%';
     document.getElementById('cld-prog-lbl').textContent='';
     return;
   }
 
-  renderCLDItems(CL[k]);
+  renderCLDItems(cl);
   setupFirmaD();
-  actualizaProgD(CL[k]);
+  actualizaProgD(cl);
 }
 
 function volverAOTs(){
@@ -1938,7 +1940,15 @@ function markDD(id,ok){const d=document.getElementById('ddot-'+id);if(!d)return;
 function setDBool(id,v){cldR[id]=v;const bo=document.getElementById('dbok-'+id);const bf=document.getElementById('dbfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markDD(id,v);actualizaProgD(getCurCLD());}
 function setDNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');if(v!==''){cldR[id]=n;markDD(id,ok);actualizaProgD(getCurCLD());}}
 function setDSel(id,v){if(!v)return;cldR[id]=v;markDD(id,true);actualizaProgD(getCurCLD());}
-function getCurCLD(){const k=getCLKey(otActual?.equipo_nombre||'');return k?CL[k]:null;}
+function getCurCLD(){
+  if(!otActual) return null;
+  // 1. Check Supabase custom checklist by equipo_id + tipo
+  const custom = getCustomCL(otActual.equipo_id, otActual.tipo);
+  if(custom && custom.length) return {nombre: otActual.tipo, items: custom};
+  // 2. Fallback to built-in generic CL by equipment code
+  const k = getCLKey(otActual.equipo_nombre||'');
+  return k ? CL[k] : null;
+}
 function actualizaProgD(cl){if(!cl)return;const t=cl.items.length,d=cl.items.filter(i=>cldR[i.id]!==undefined).length;document.getElementById('cld-prog').style.width=Math.round(d/t*100)+'%';document.getElementById('cld-prog-lbl').textContent=`${d}/${t} items`;}
 
 // Timer del checklist directo
@@ -2520,7 +2530,13 @@ function markD(id,ok){const d=document.getElementById('dot-'+id);if(!d)return;d.
 function setBool(id,v){clR[id]=v;const bo=document.getElementById('bok-'+id);const bf=document.getElementById('bfail-'+id);if(bo)bo.className='bool-btn'+(v?' active-ok':'');if(bf)bf.className='bool-btn'+(!v?' active-fail':'');markD(id,v);actualizaProg(getCurCL());}
 function setNum(id,v,min,max,el){const n=parseFloat(v);const ok=!isNaN(n)&&n>=min&&n<=max;el.style.borderColor=v===''?'#ddd':(ok?'#2d7a3a':'#b03030');if(v!==''){clR[id]=n;markD(id,ok);actualizaProg(getCurCL());}}
 function setSel(id,v){if(!v)return;clR[id]=v;markD(id,true);actualizaProg(getCurCL());}
-function getCurCL(){const k=getCLKey(clOT?.equipo_nombre||'');return k?CL[k]:null;}
+function getCurCL(){
+  if(!clOT) return null;
+  const custom = getCustomCL(clOT.equipo_id, clOT.tipo);
+  if(custom && custom.length) return {nombre: clOT.tipo, items: custom};
+  const k = getCLKey(clOT.equipo_nombre||'');
+  return k ? CL[k] : null;
+}
 function actualizaProg(cl){if(!cl)return;const t=cl.items.length,d=cl.items.filter(i=>clR[i.id]!==undefined).length;document.getElementById('cl-prog').style.width=Math.round(d/t*100)+'%';document.getElementById('cl-prog-lbl').textContent=`${d}/${t}`;}
 function addRef(){const v=document.getElementById('ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--txt3);font-size:16px;">×</button>`;document.getElementById('ref-list').appendChild(d);document.getElementById('ref-in').value='';}
 function updT(){const h=Math.floor(tSec/3600),m=Math.floor((tSec%3600)/60),s=tSec%60;const el=document.getElementById('timer-d');if(el)el.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;}
