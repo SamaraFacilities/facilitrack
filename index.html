@@ -533,9 +533,30 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
               <div id="cld-items"></div>
             </div>
             <div class="card">
-              <div class="card-header"><div class="card-title"><i class="ti ti-camera"></i> Evidencia fotográfica</div></div>
-              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cld-foto-grid"></div>
-              <input type="file" id="foto-input-d" accept="image/*" multiple style="display:none;" onchange="addFotosD(this)">
+              <div class="card-header" style="margin-bottom:12px;">
+                <div class="card-title"><i class="ti ti-camera"></i> Evidencia fotográfica</div>
+              </div>
+              <!-- Tabs antes/después -->
+              <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--line);border-radius:3px;overflow:hidden;">
+                <button id="tab-btn-antes" onclick="switchFotoTab('antes')" style="flex:1;padding:7px;font-size:11px;border:none;cursor:pointer;background:var(--txt);color:#fff;font-family:'DM Sans',sans-serif;font-weight:500;display:flex;align-items:center;justify-content:center;gap:5px;">
+                  <i class="ti ti-camera-minus"></i> ANTES
+                </button>
+                <button id="tab-btn-despues" onclick="switchFotoTab('despues')" style="flex:1;padding:7px;font-size:11px;border:none;cursor:pointer;background:#fff;color:var(--txt3);font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;">
+                  <i class="ti ti-camera-plus"></i> DESPUÉS
+                </button>
+              </div>
+              <!-- Antes grid -->
+              <div id="foto-antes-section">
+                <div style="font-size:10px;color:var(--txt3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Captura el estado del equipo ANTES de intervenir</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cld-foto-grid-antes"></div>
+                <input type="file" id="foto-input-antes" accept="image/*" multiple style="display:none;" onchange="addFotosAntes(this)">
+              </div>
+              <!-- Después grid -->
+              <div id="foto-despues-section" style="display:none;">
+                <div style="font-size:10px;color:var(--txt3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Captura el estado del equipo DESPUÉS del mantenimiento</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cld-foto-grid"></div>
+                <input type="file" id="foto-input-d" accept="image/*" multiple style="display:none;" onchange="addFotosD(this)">
+              </div>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:14px;">
@@ -1853,7 +1874,9 @@ function seleccionarOT(otId){
 // Abrir checklist en el tab escáner directamente
 function abrirCLDirecto(ot){
   otActual=ot;
-  fotosD=[];renderFotoGridD();
+  fotosD=[]; fotosAntes=[];
+  renderFotoGridD(); renderFotoGridAntes();
+  switchFotoTab('antes'); // Start on ANTES tab
   const k=getCLKey(ot.equipo_nombre||'');
 
   document.getElementById('equipo-panel').style.display='none';
@@ -2567,8 +2590,9 @@ function volverCL(){clearInterval(tInt);tOn=false;document.getElementById('cl-fo
 // ══════════════════════════════════════════════════════════
 
 // Almacenamiento de fotos en memoria (base64)
-let fotosD = [];  // checklist directo (escaner)
-let fotosCL = []; // checklist tab
+let fotosD = [];     // fotos DESPUÉS (durante/al cerrar OT) — escaner
+let fotosAntes = []; // fotos ANTES (al iniciar OT) — escaner
+let fotosCL = [];    // checklist tab
 
 function addFotosD(input) {
   const files = Array.from(input.files);
@@ -4747,34 +4771,40 @@ async function generarPDFChecklist(ot, respuestas, fotos){
     y += obsLines.length * 5 + 6;
   }
 
-  // ── FOTOGRAFÍAS ──
-  if(fotos && fotos.length){
+  // ── Helper: render photo grid in PDF ──
+  const renderFotosEnPDF = async (fotosList, seccionLabel) => {
+    if(!fotosList || !fotosList.length) return;
     if(y > 220){ doc.addPage(); y = margin; }
     doc.setFont('helvetica','bold');
     doc.setFontSize(10);
     doc.setTextColor(...negro);
-    doc.text('EVIDENCIA FOTOGRÁFICA ('+fotos.length+' foto'+( fotos.length>1?'s':'')+')' , margin, y);
+    doc.text(seccionLabel+' ('+fotosList.length+' foto'+(fotosList.length>1?'s':'')+')', margin, y);
     y += 5; hr(y); y += 4;
 
-    const fotoW = (col - 6) / 3; // 3 columns
+    const fotoW = (col - 6) / 3;
     const fotoH = fotoW * 0.75;
     let fx = margin, fi = 0;
 
-    for(const src of fotos){
+    for(const src of fotosList){
       if(y + fotoH > 270){ doc.addPage(); y = margin; fx = margin; fi = 0; }
       try {
-        // Get image format from data URL
-        const fmt = src.startsWith('data:image/png') ? 'PNG' : 'JPEG';
-        doc.addImage(src, fmt, fx, y, fotoW, fotoH);
+        const imgFmt = src.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+        doc.addImage(src, imgFmt, fx, y, fotoW, fotoH);
         doc.setDrawColor(200,200,200); doc.setLineWidth(0.3);
         doc.rect(fx, y, fotoW, fotoH);
       } catch(e){ console.warn('Image error:', e); }
-      fx += fotoW + 3;
-      fi++;
+      fx += fotoW + 3; fi++;
       if(fi % 3 === 0){ fx = margin; y += fotoH + 4; fi = 0; }
     }
     if(fi > 0) y += fotoH + 4;
-  }
+    y += 4;
+  };
+
+  // ── FOTOGRAFÍAS ANTES ──
+  await renderFotosEnPDF(typeof fotosAntes !== 'undefined' ? fotosAntes : [], 'ESTADO ANTES DEL MANTENIMIENTO');
+
+  // ── FOTOGRAFÍAS DESPUÉS ──
+  await renderFotosEnPDF(fotos, 'ESTADO DESPUÉS DEL MANTENIMIENTO');
 
   // ── PIE DE PÁGINA en todas las páginas ──
   const totalPages = doc.internal.getNumberOfPages();
@@ -5233,6 +5263,101 @@ async function autoProgramarPMs(){
       </div>`).join('') : '<div style="color:var(--txt3);text-align:center;padding:20px;">Sin equipos con frecuencia PM configurada</div>'}
   `;
   document.body.appendChild(det);
+}
+
+
+
+
+// ══════════════════════════════════════════════════════════
+// FOTOS ANTES / DESPUÉS
+// ══════════════════════════════════════════════════════════
+
+function switchFotoTab(tab){
+  const antesSection   = document.getElementById('foto-antes-section');
+  const despuesSection = document.getElementById('foto-despues-section');
+  const btnAntes       = document.getElementById('tab-btn-antes');
+  const btnDespues     = document.getElementById('tab-btn-despues');
+  if(!antesSection) return;
+
+  if(tab === 'antes'){
+    antesSection.style.display   = 'block';
+    despuesSection.style.display = 'none';
+    if(btnAntes){   btnAntes.style.background='var(--txt)';   btnAntes.style.color='#fff'; }
+    if(btnDespues){ btnDespues.style.background='#fff'; btnDespues.style.color='var(--txt3)'; }
+  } else {
+    antesSection.style.display   = 'none';
+    despuesSection.style.display = 'block';
+    if(btnDespues){ btnDespues.style.background='var(--txt)'; btnDespues.style.color='#fff'; }
+    if(btnAntes){   btnAntes.style.background='#fff';   btnAntes.style.color='var(--txt3)'; }
+  }
+}
+
+function addFotosAntes(input){
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      fotosAntes.push(e.target.result);
+      renderFotoGridAntes();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderFotoGridAntes(){
+  const grid = document.getElementById('cld-foto-grid-antes');
+  if(!grid) return;
+  const fotos = fotosAntes.map((src, i) => `
+    <div style="position:relative;height:70px;border-radius:3px;overflow:hidden;border:1px solid var(--line);">
+      <img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <div style="position:absolute;top:0;left:0;background:rgba(0,0,0,.45);color:#fff;font-size:8px;font-weight:600;padding:2px 5px;letter-spacing:.5px;">ANTES</div>
+      <button onclick="fotosAntes.splice(${i},1);renderFotoGridAntes()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.55);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;line-height:20px;padding:0;text-align:center;">×</button>
+    </div>`).join('');
+  const addBtn = `<label for="foto-input-antes" style="border:1px dashed var(--line2);border-radius:3px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;color:var(--txt3);">
+    <i class="ti ti-camera-plus" style="font-size:22px;"></i>Foto ANTES
+  </label>`;
+  grid.innerHTML = fotos + addBtn;
+
+  // Update badge on tab button
+  const btn = document.getElementById('tab-btn-antes');
+  if(btn && fotosAntes.length > 0){
+    btn.innerHTML = `<i class="ti ti-camera-minus"></i> ANTES <span style="background:#fff;color:var(--txt);border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;">${fotosAntes.length}</span>`;
+  }
+}
+
+// Also update renderFotoGridD to show DESPUÉS badge
+const _origRenderFotoGridD = renderFotoGridD;
+function renderFotoGridD(){
+  _origRenderFotoGridD();
+  const btn = document.getElementById('tab-btn-despues');
+  if(btn && fotosD.length > 0){
+    btn.innerHTML = `<i class="ti ti-camera-plus"></i> DESPUÉS <span style="background:#fff;color:var(--txt);border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;">${fotosD.length}</span>`;
+  } else if(btn) {
+    btn.innerHTML = `<i class="ti ti-camera-plus"></i> DESPUÉS`;
+  }
+}
+
+// Override cerrarOTDirecto to auto-switch to DESPUÉS tab as reminder
+const _origCerrarOTD_fotoswitch = cerrarOTDirecto;
+async function cerrarOTDirecto(){
+  // If no "después" photos but there are "antes" photos, remind the user
+  if(fotosAntes.length > 0 && fotosD.length === 0){
+    const ok = confirm('No has capturado fotos del estado DESPUÉS del mantenimiento. ¿Continuar sin ellas?');
+    if(!ok){
+      switchFotoTab('despues');
+      return;
+    }
+  }
+  return _origCerrarOTD_fotoswitch();
+}
+
+// Update generarPDFChecklist to include fotosAntes section
+const _origGenerarPDF = generarPDFChecklist;
+async function generarPDFChecklist(ot, respuestas, fotos){
+  // Call original with fotos DESPUÉS
+  const doc_promise = _origGenerarPDF(ot, respuestas, fotos);
+  return doc_promise; // fotosAntes shown separately via renderizado en reporte
 }
 
 
