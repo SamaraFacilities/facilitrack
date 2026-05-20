@@ -1496,7 +1496,10 @@ async function loadAll(){
     ]);
     allOTs=_ots; allEqs=_eqs; allProfs=_prfs;
     allRefacciones=_refs; allOrdenesCompra=_ocs; allPlantillas=_pls;
+    console.log('📋 Plantillas cargadas:', allPlantillas.length, allPlantillas);
+    console.log('🗂 CustomCLs antes:', JSON.stringify(Object.keys(customCLs||{})));
     loadCustomCLsFromDB();
+    console.log('🗂 CustomCLs después:', JSON.stringify(Object.keys(customCLs||{})));
     
     console.log(`📊 Datos cargados: ${allOTs.length} OTs, ${allEqs.length} equipos, ${allProfs.length} perfiles`);
     
@@ -2094,6 +2097,7 @@ function renderOrdenes(){
     <td>${badge(o.tipo)}</td><td>${badge(o.prioridad)}</td><td>${badge(o.estado)}</td>
     <td><span class="tech-av" title="${o.tecnico_nombre||''}">${ini(o.tecnico_nombre)}</span></td>
     <td style="display:flex;gap:4px;">
+      ${o.estado!=='Completada'&&(o.tecnico_id===curUser?.id||curProf.rol==='admin')?`<button class="btn-sm btn-primary" onclick="iniciarOTDesdeOrdenes(${o.id})" title="Iniciar checklist" style="font-size:11px;"><i class="ti ti-player-play"></i> Iniciar</button>`:''}
       ${o.estado!=='Completada'&&canDo('crear_ot')?`<button class="btn-sm" onclick="cambiarEst(${o.id})"><i class="ti ti-edit"></i></button>`:''}
       ${o.estado==='Completada'?`<button class="btn-sm" onclick="verReporteCL(${o.id})" title="Ver checklist" style="color:var(--green-txt);border-color:var(--green-bg);"><i class="ti ti-clipboard-check"></i></button>`:''}
       ${o.estado==='Completada'&&curProf.rol==='admin'?`<button class="btn-sm" onclick="generarYVerPDF(${o.id})" title="Ver PDF" style="color:var(--red-txt);border-color:var(--red-bg);"><i class="ti ti-file-type-pdf"></i></button>`:''}
@@ -5368,6 +5372,85 @@ function checkFotosDespues(){
 
 // PDF already handles fotosAntes directly in generarPDFChecklist
 
+
+
+// ══════════════════════════════════════════════════════════
+// INICIAR OT DESDE PESTAÑA ORDENES (sin escanear QR)
+// ══════════════════════════════════════════════════════════
+async function iniciarOTDesdeOrdenes(otId){
+  const ot = allOTs.find(o => o.id === otId);
+  if(!ot){ toast('OT no encontrada'); return; }
+
+  // Si no está asignada al técnico actual y es técnico, asignársela
+  if(curProf.rol === 'tecnico' && !ot.tecnico_id){
+    const{error} = await db.from('ordenes_trabajo').update({
+      tecnico_id: curUser.id,
+      tecnico_nombre: curProf.nombre,
+      estado: 'En progreso'
+    }).eq('id', otId);
+    if(error){ toast('❌ Error al asignarte: '+error.message); return; }
+    await forceLoadAll();
+    const otActualizada = allOTs.find(o => o.id === otId);
+    if(otActualizada) _abrirChecklistDirecto(otActualizada);
+    return;
+  }
+
+  // Cambiar a En progreso si está Pendiente
+  if(ot.estado === 'Pendiente' || ot.estado === 'Urgente'){
+    await db.from('ordenes_trabajo').update({estado:'En progreso'}).eq('id', otId);
+  }
+
+  // Ir al tab escaner y abrir checklist
+  _abrirChecklistDirecto(ot);
+}
+
+function _abrirChecklistDirecto(ot){
+  // Set up escaner state
+  eqActual = allEqs.find(e => e.id === ot.equipo_id) || null;
+  otActual = ot;
+
+  // Navigate to escaner tab and show checklist
+  setTab('escaner');
+  document.getElementById('scan-panel').style.display = 'none';
+  document.getElementById('equipo-panel').style.display = 'none';
+  document.getElementById('sz-panel') && (document.getElementById('sz-panel').style.display = 'none');
+  document.getElementById('cl-directo').style.display = 'block';
+  setPasos(3);
+
+  // Reset checklist state
+  fotosD = []; fotosAntes = [];
+  renderFotoGridD(); renderFotoGridAntes();
+  switchFotoTab('antes');
+  cldR = {};
+  resetTimerD();
+  const refIn = document.getElementById('cld-ref-in');
+  if(refIn) refIn.value = '';
+  document.getElementById('cld-ref-list').innerHTML = '';
+  const obsEl = document.getElementById('cld-obs-txt');
+  if(obsEl) obsEl.value = '';
+
+  // Set titles
+  document.getElementById('cld-titulo').textContent = '#'+ot.id+' – '+(ot.equipo_nombre||'–');
+  document.getElementById('cld-meta').textContent = (ot.tipo||'–')+' · '+(ot.tecnico_nombre||curProf.nombre)+' · '+fmt(ot.fecha_creacion);
+
+  // Load checklist items
+  const cl = getCurCLD();
+  if(!cl){
+    document.getElementById('cld-items').innerHTML = `
+      <div style="text-align:center;padding:32px;color:var(--txt3);">
+        <i class="ti ti-clipboard-x" style="font-size:36px;display:block;margin-bottom:8px;opacity:0.5;"></i>
+        No hay checklist configurado para este tipo de equipo.
+        <span style="font-size:11px;margin-top:8px;display:block;">El admin puede crearlo desde Equipos → icono de lista</span>
+      </div>`;
+    document.getElementById('cld-prog').style.width = '0%';
+    document.getElementById('cld-prog-lbl').textContent = '';
+  } else {
+    renderCLDItems(cl);
+    actualizaProgD(cl);
+  }
+  setupFirmaD();
+  toast('▶ Checklist abierto — OT #'+ot.id);
+}
 
 </script>
 
