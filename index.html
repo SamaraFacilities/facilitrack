@@ -2775,17 +2775,24 @@ function getCustomCL(equipo_id, tipo){
 function loadCustomCLsFromDB(){
   customCLs = {};
   allPlantillas.forEach(p => {
-    // Use tipo_ot if available, otherwise use empty string key
-    const tipo = p.tipo_ot || '';
-    const key = p.equipo_id + ':' + tipo;
     try {
-      const items = typeof p.items === 'string' ? JSON.parse(p.items) : (p.items||[]);
+      const raw = typeof p.items === 'string' ? JSON.parse(p.items) : (p.items||[]);
+      // Items can be: array (old format) or {tipo_ot, items} (new format)
+      let tipo = p.tipo_ot || '';
+      let items = raw;
+      if(raw && !Array.isArray(raw) && raw.items){
+        // New format: {tipo_ot, items}
+        tipo = raw.tipo_ot || tipo || '';
+        items = raw.items || [];
+      }
+      const key = p.equipo_id + ':' + tipo;
       customCLs[key] = items;
       // Also store without tipo as fallback
       const keyFallback = p.equipo_id + ':';
       if(!customCLs[keyFallback]) customCLs[keyFallback] = items;
-    } catch(e) { customCLs[key] = []; }
+    } catch(e) { console.warn('loadCustomCLsFromDB error:', e); }
   });
+  console.log('📋 CustomCLs loaded:', Object.keys(customCLs));
 }
 
 // Temp items while building
@@ -2894,33 +2901,42 @@ async function clbGuardar() {
   if (!clbItems.length){ toast('Agrega al menos un ítem'); return; }
 
   // Upsert into checklist_plantillas
-  const existing = allPlantillas.find(p => p.equipo_id == eqId && p.tipo_ot === tipo);
+  // Check existing by equipo_id only (tipo_ot is stored inside items JSON)
+  const {data: existingRows} = await db.from('checklist_plantillas')
+    .select('id,items').eq('equipo_id', parseInt(eqId));
+  // Find matching tipo within items JSON
+  const existing = (existingRows||[]).find(r => {
+    try { const d = typeof r.items==='string'?JSON.parse(r.items):r.items; return d.tipo_ot===tipo; } catch(e){ return false; }
+  }) || null;
   let error;
   if(existing){
+    const itemsPayload = { tipo_ot: tipo, items: clbItems };
     ({error} = await db.from('checklist_plantillas').update({
-      items: JSON.stringify(clbItems),
+      items: JSON.stringify(itemsPayload),
       updated_at: new Date().toISOString()
     }).eq('id', existing.id));
   } else {
-    // Try with tipo_ot first, fall back without it if column doesn't exist
+    // Store tipo_ot embedded in items wrapper to avoid schema cache issues
+    const itemsPayload = { tipo_ot: tipo, items: clbItems };
     const insertPayload = {
       equipo_id: parseInt(eqId),
-      items: JSON.stringify(clbItems),
+      items: JSON.stringify(itemsPayload),
       creado_por: curProf?.nombre || 'Admin'
     };
-    try{ insertPayload.tipo_ot = tipo; }catch(e){}
+    console.log('Inserting checklist:', insertPayload);
     ({error} = await db.from('checklist_plantillas').insert(insertPayload));
-    if(error && error.message.includes('tipo_ot')){
-      delete insertPayload.tipo_ot;
-      ({error} = await db.from('checklist_plantillas').insert(insertPayload));
-    }
   }
-  if(error){ toast('❌ ' + error.message); return; }
+  if(error){ 
+    console.error('clbGuardar error:', error);
+    toast('❌ ' + error.message); 
+    return; 
+  }
 
   closeM('modal-cl-builder');
   toast(`✅ Checklist ${tipo} de ${eq.nombre} guardado (${clbItems.length} ítems)`);
-  await loadAll();
+  await forceLoadAll();  // force reload to pick up new plantilla
   loadCustomCLsFromDB();
+  console.log('📋 Plantillas after save:', allPlantillas.length, Object.keys(customCLs));
 }
 
 // ══════════════════════════════════════════════════════════
