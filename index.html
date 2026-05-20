@@ -1496,10 +1496,7 @@ async function loadAll(){
     ]);
     allOTs=_ots; allEqs=_eqs; allProfs=_prfs;
     allRefacciones=_refs; allOrdenesCompra=_ocs; allPlantillas=_pls;
-    console.log('📋 Plantillas cargadas:', allPlantillas.length, allPlantillas);
-    console.log('🗂 CustomCLs antes:', JSON.stringify(Object.keys(customCLs||{})));
     loadCustomCLsFromDB();
-    console.log('🗂 CustomCLs después:', JSON.stringify(Object.keys(customCLs||{})));
     
     console.log(`📊 Datos cargados: ${allOTs.length} OTs, ${allEqs.length} equipos, ${allProfs.length} perfiles`);
     
@@ -2792,7 +2789,6 @@ function loadCustomCLsFromDB(){
       if(!customCLs[keyFallback]) customCLs[keyFallback] = items;
     } catch(e) { console.warn('loadCustomCLsFromDB error:', e); }
   });
-  console.log('📋 CustomCLs loaded:', Object.keys(customCLs));
 }
 
 // Temp items while building
@@ -2923,7 +2919,6 @@ async function clbGuardar() {
       items: JSON.stringify(itemsPayload),
       creado_por: curProf?.nombre || 'Admin'
     };
-    console.log('Inserting checklist:', insertPayload);
     ({error} = await db.from('checklist_plantillas').insert(insertPayload));
   }
   if(error){ 
@@ -2936,7 +2931,6 @@ async function clbGuardar() {
   toast(`✅ Checklist ${tipo} de ${eq.nombre} guardado (${clbItems.length} ítems)`);
   await forceLoadAll();  // force reload to pick up new plantilla
   loadCustomCLsFromDB();
-  console.log('📋 Plantillas after save:', allPlantillas.length, Object.keys(customCLs));
 }
 
 // ══════════════════════════════════════════════════════════
