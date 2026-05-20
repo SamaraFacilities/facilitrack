@@ -1970,6 +1970,8 @@ function resetFGD(){
 function addRefD(){const v=document.getElementById('cld-ref-in').value.trim();if(!v)return;const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f0f0f0;font-size:12px;';d.innerHTML=`<span><i class="ti ti-package" style="margin-right:4px;"></i>${v}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--txt3);font-size:16px;">×</button>`;document.getElementById('cld-ref-list').appendChild(d);document.getElementById('cld-ref-in').value='';}
 
 async function cerrarOTDirecto(){
+  // Check if DESPUÉS photos are needed
+  if(!checkFotosDespues()) return;
   const cl=getCurCLD();
   if(cl){
     const t=cl.items.length,d=cl.items.filter(i=>cldR[i.id]!==undefined).length;
@@ -2611,6 +2613,7 @@ function addFotosD(input) {
 function renderFotoGridD() {
   const grid = document.getElementById('cld-foto-grid');
   if (!grid) return;
+  setTimeout(updateDespuesBadge, 0); // update badge without recursion
   const fotos = fotosD.map((src, i) => `
     <div style="position:relative;height:70px;border-radius:3px;overflow:hidden;border:1px solid var(--line);">
       <img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block;">
@@ -5326,39 +5329,28 @@ function renderFotoGridAntes(){
   }
 }
 
-// Also update renderFotoGridD to show DESPUÉS badge
-const _origRenderFotoGridD = renderFotoGridD;
-function renderFotoGridD(){
-  _origRenderFotoGridD();
+// Badge update for DESPUÉS tab — called directly after renderFotoGridD
+function updateDespuesBadge(){
   const btn = document.getElementById('tab-btn-despues');
-  if(btn && fotosD.length > 0){
+  if(!btn) return;
+  if(fotosD.length > 0){
     btn.innerHTML = `<i class="ti ti-camera-plus"></i> DESPUÉS <span style="background:#fff;color:var(--txt);border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;">${fotosD.length}</span>`;
-  } else if(btn) {
+  } else {
     btn.innerHTML = `<i class="ti ti-camera-plus"></i> DESPUÉS`;
   }
 }
 
-// Override cerrarOTDirecto to auto-switch to DESPUÉS tab as reminder
-const _origCerrarOTD_fotoswitch = cerrarOTDirecto;
-async function cerrarOTDirecto(){
-  // If no "después" photos but there are "antes" photos, remind the user
+// Reminder check for DESPUÉS photos — called before closing OT
+// Injected directly into cerrarOTDirecto via checkFotosDespues()
+function checkFotosDespues(){
   if(fotosAntes.length > 0 && fotosD.length === 0){
     const ok = confirm('No has capturado fotos del estado DESPUÉS del mantenimiento. ¿Continuar sin ellas?');
-    if(!ok){
-      switchFotoTab('despues');
-      return;
-    }
+    if(!ok){ switchFotoTab('despues'); return false; }
   }
-  return _origCerrarOTD_fotoswitch();
+  return true;
 }
 
-// Update generarPDFChecklist to include fotosAntes section
-const _origGenerarPDF = generarPDFChecklist;
-async function generarPDFChecklist(ot, respuestas, fotos){
-  // Call original with fotos DESPUÉS
-  const doc_promise = _origGenerarPDF(ot, respuestas, fotos);
-  return doc_promise; // fotosAntes shown separately via renderizado en reporte
-}
+// PDF already handles fotosAntes directly in generarPDFChecklist
 
 
 </script>
