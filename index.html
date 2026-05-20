@@ -1471,7 +1471,7 @@ async function loadAll(){
       safeQ(()=>db.from('profiles').select('*')),
       safeQ(()=>db.from('refacciones').select('*').order('nombre')),
       safeQ(()=>db.from('ordenes_compra').select('*').order('fecha_solicitud',{ascending:false})),
-      safeQ(()=>db.from('checklist_plantillas').select('*')),
+      safeQ(()=>db.from('checklist_plantillas').select('id,equipo_id,items,version,creado_por,created_at,updated_at').then(r=>r)),
     ]);
     allOTs=_ots; allEqs=_eqs; allProfs=_prfs;
     allRefacciones=_refs; allOrdenesCompra=_ocs; allPlantillas=_pls;
@@ -2714,20 +2714,29 @@ async function verReporteCL(otId) {
 let customCLs = {};
 
 function getCustomCL(equipo_id, tipo){
+  // Try exact match first
   const key = equipo_id + ':' + (tipo||'');
   if(customCLs[key]) return customCLs[key];
-  // Fallback: buscar sin tipo
+  // Fallback: any checklist for this equipment regardless of tipo
   const keyGeneral = equipo_id + ':';
-  return customCLs[keyGeneral] || null;
+  if(customCLs[keyGeneral]) return customCLs[keyGeneral];
+  // Fallback: search all keys for this equipo_id
+  const anyKey = Object.keys(customCLs).find(k => k.startsWith(equipo_id + ':'));
+  return anyKey ? customCLs[anyKey] : null;
 }
 
 function loadCustomCLsFromDB(){
-  // allPlantillas ya está cargado en loadAll
   customCLs = {};
   allPlantillas.forEach(p => {
-    const key = p.equipo_id + ':' + (p.tipo_ot||'');
+    // Use tipo_ot if available, otherwise use empty string key
+    const tipo = p.tipo_ot || '';
+    const key = p.equipo_id + ':' + tipo;
     try {
-      customCLs[key] = typeof p.items === 'string' ? JSON.parse(p.items) : (p.items||[]);
+      const items = typeof p.items === 'string' ? JSON.parse(p.items) : (p.items||[]);
+      customCLs[key] = items;
+      // Also store without tipo as fallback
+      const keyFallback = p.equipo_id + ':';
+      if(!customCLs[keyFallback]) customCLs[keyFallback] = items;
     } catch(e) { customCLs[key] = []; }
   });
 }
@@ -2846,12 +2855,18 @@ async function clbGuardar() {
       updated_at: new Date().toISOString()
     }).eq('id', existing.id));
   } else {
-    ({error} = await db.from('checklist_plantillas').insert({
+    // Try with tipo_ot first, fall back without it if column doesn't exist
+    const insertPayload = {
       equipo_id: parseInt(eqId),
-      tipo_ot: tipo,
       items: JSON.stringify(clbItems),
       creado_por: curProf?.nombre || 'Admin'
-    }));
+    };
+    try{ insertPayload.tipo_ot = tipo; }catch(e){}
+    ({error} = await db.from('checklist_plantillas').insert(insertPayload));
+    if(error && error.message.includes('tipo_ot')){
+      delete insertPayload.tipo_ot;
+      ({error} = await db.from('checklist_plantillas').insert(insertPayload));
+    }
   }
   if(error){ toast('❌ ' + error.message); return; }
 
