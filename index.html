@@ -547,13 +547,13 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
               </div>
               <!-- Antes grid -->
               <div id="foto-antes-section">
-                <div style="font-size:10px;color:var(--txt3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Captura el estado del equipo ANTES de intervenir</div>
+                <div data-i18n="captura_antes" style="font-size:10px;color:var(--txt3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Captura el estado del equipo ANTES de intervenir</div>
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cld-foto-grid-antes"></div>
                 <input type="file" id="foto-input-antes" accept="image/*" multiple style="display:none;" onchange="addFotosAntes(this)">
               </div>
               <!-- Después grid -->
               <div id="foto-despues-section" style="display:none;">
-                <div style="font-size:10px;color:var(--txt3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Captura el estado del equipo DESPUÉS del mantenimiento</div>
+                <div data-i18n="captura_despues" style="font-size:10px;color:var(--txt3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Captura el estado del equipo DESPUÉS del mantenimiento</div>
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cld-foto-grid"></div>
                 <input type="file" id="foto-input-d" accept="image/*" multiple style="display:none;" onchange="addFotosD(this)">
               </div>
@@ -1022,6 +1022,7 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
       </div>
       <div class="form-group" id="grp-esp"><label>Especialidad</label><input type="text" id="inv-esp" placeholder="Mecánico CNC..."></div>
       <div class="form-group"><label>Turno</label><select id="inv-tur"><option>Mañana</option><option>Tarde</option><option>Nocturno</option></select></div>
+      <div class="form-group"><label>Idioma / Language</label><select id="inv-lang"><option value="es">🇲🇽 Español</option><option value="en">🇺🇸 English</option></select></div>
     </div>
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-invite')">Cancelar</button><button class="btn-sm btn-primary" onclick="guardarPerfil()"><i class="ti ti-check"></i> Guardar</button></div>
   </div>
@@ -1452,6 +1453,9 @@ async function bootApp(user){
   document.getElementById('app').style.display='block';
   setupRT();
   startLiveClock();
+  // Apply language from profile
+  setLang(prof?.lang || 'es');
+  addLangToggle();
   subscribeToPush(); // Request push permission
 
   if(['ingeniero','ehs'].includes(curProf.rol)){
@@ -2303,6 +2307,7 @@ function openModalUser(id=null){
     document.getElementById('inv-tur').value=u.turno||'Mañana';
     if(document.getElementById('inv-username'))document.getElementById('inv-username').value=u.username||'';
     if(document.getElementById('inv-email'))document.getElementById('inv-email').value=u.email||'';
+    if(document.getElementById('inv-lang'))document.getElementById('inv-lang').value=u.lang||'es';
     updateEmailPreview();
     document.getElementById('usr-modal-title').innerHTML='<i class="ti ti-user" style="margin-right:6px;"></i>Editar Perfil';
     const hint=document.getElementById('usr-hint');if(hint)hint.style.display='none';
@@ -2339,6 +2344,7 @@ async function guardarPerfil(){
   addIfExists('zona','inv-zona');
   addIfExists('especialidad','inv-esp');
   addIfExists('turno','inv-tur');
+  addIfExists('lang','inv-lang');
 
   const usrEl=document.getElementById('inv-username');
   const emailEl=document.getElementById('inv-email');
@@ -4687,6 +4693,8 @@ async function generarPDFChecklist(ot, respuestas, fotos){
   function safeText(txt){ return (txt||'').toString().replace(/[^\x00-\x7F]/g, c=>c); }
 
   // ── ENCABEZADO ──
+  const pdfLang = currentLang || 'es';
+  const pdfLocale = pdfLang === 'en' ? 'en-US' : 'es-MX';
   doc.setFillColor(...negro);
   doc.rect(0, 0, W, 28, 'F');
   doc.setTextColor(255,255,255);
@@ -4695,10 +4703,10 @@ async function generarPDFChecklist(ot, respuestas, fotos){
   doc.text('Samara Facilities', margin, 12);
   doc.setFont('helvetica','normal');
   doc.setFontSize(9);
-  doc.text('Reporte de Orden de Trabajo', margin, 18);
+  doc.text(t('pdf_reporte'), margin, 18);
   doc.setFontSize(8);
-  doc.text('OT #'+ot.id+' \u2022 '+ot.tipo, margin, 23);
-  const fecha = new Date(ot.fecha_cierre||Date.now()).toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  doc.text('WO #'+ot.id+' \u2022 '+ot.tipo, margin, 23);
+  const fecha = new Date(ot.fecha_cierre||Date.now()).toLocaleDateString(pdfLocale,{day:'numeric',month:'long',year:'numeric'});
   doc.text(fecha, W-margin, 23, {align:'right'});
   y = 36;
 
@@ -4716,10 +4724,10 @@ async function generarPDFChecklist(ot, respuestas, fotos){
   const durMin = ot.tiempo_minutos||0;
   const durTxt = Math.floor(durMin/60)+'h '+( durMin%60)+'m';
   const campos = [
-    ['Técnico:', ot.tecnico_nombre||'–'],
-    ['Tipo:', ot.tipo||'–'],
-    ['Duración:', durTxt],
-    ['Estado:', ot.estado||'–'],
+    [t('pdf_tecnico')+':', ot.tecnico_nombre||'–'],
+    [t('pdf_tipo')+':', ot.tipo||'–'],
+    [t('pdf_duracion')+':', durTxt],
+    [t('pdf_estado')+':', ot.estado||'–'],
   ];
   let cx = margin+4;
   campos.forEach(([label, val])=>{
@@ -4736,7 +4744,7 @@ async function generarPDFChecklist(ot, respuestas, fotos){
     doc.setFont('helvetica','bold');
     doc.setFontSize(10);
     doc.setTextColor(...negro);
-    doc.text('INSPECCIÓN — RESULTADOS', margin, y);
+    doc.text(t('pdf_inspeccion'), margin, y);
     y += 5; hr(y); y += 4;
 
     const conformes   = respuestas.filter(r=>r.respuesta==='true').length;
@@ -4795,7 +4803,7 @@ async function generarPDFChecklist(ot, respuestas, fotos){
     doc.setFont('helvetica','bold');
     doc.setFontSize(10);
     doc.setTextColor(...negro);
-    doc.text('OBSERVACIONES', margin, y); y+=5; hr(y); y+=4;
+    doc.text(t('pdf_observaciones'), margin, y); y+=5; hr(y); y+=4;
     doc.setFont('helvetica','normal');
     doc.setFontSize(9);
     doc.setTextColor(60,60,60);
@@ -4811,7 +4819,7 @@ async function generarPDFChecklist(ot, respuestas, fotos){
     doc.setFont('helvetica','bold');
     doc.setFontSize(10);
     doc.setTextColor(...negro);
-    doc.text(seccionLabel+' ('+fotosList.length+' foto'+(fotosList.length>1?'s':'')+')', margin, y);
+    doc.text(t(seccionLabel)+' ('+fotosList.length+' photo'+(fotosList.length>1?'s':'')+')', margin, y);
     y += 5; hr(y); y += 4;
 
     const fotoW = (col - 6) / 3;
@@ -4834,10 +4842,10 @@ async function generarPDFChecklist(ot, respuestas, fotos){
   };
 
   // ── FOTOGRAFÍAS ANTES ──
-  await renderFotosEnPDF(typeof fotosAntes !== 'undefined' ? fotosAntes : [], 'ESTADO ANTES DEL MANTENIMIENTO');
+  await renderFotosEnPDF(typeof fotosAntes !== 'undefined' ? fotosAntes : [], 'pdf_fotos_antes');
 
   // ── FOTOGRAFÍAS DESPUÉS ──
-  await renderFotosEnPDF(fotos, 'ESTADO DESPUÉS DEL MANTENIMIENTO');
+  await renderFotosEnPDF(fotos, 'pdf_fotos_despues');
 
   // ── PIE DE PÁGINA en todas las páginas ──
   const totalPages = doc.internal.getNumberOfPages();
@@ -4848,8 +4856,9 @@ async function generarPDFChecklist(ot, respuestas, fotos){
     doc.setFont('helvetica','normal');
     doc.setFontSize(7);
     doc.setTextColor(...gris);
-    doc.text('Samara Facilities Tracking \u2022 Generado el '+new Date().toLocaleDateString('es-MX'), margin, 290);
-    doc.text('Página '+p+' de '+totalPages, W-margin, 290, {align:'right'});
+    const footerLocale = (currentLang==='en')?'en-US':'es-MX';
+    doc.text('Samara Facilities Tracking \u2022 '+t('pdf_generado')+' '+new Date().toLocaleDateString(footerLocale), margin, 290);
+    doc.text(t('pdf_pagina')+' '+p+' '+t('pdf_de')+' '+totalPages, W-margin, 290, {align:'right'});
   }
 
   return doc.output('blob');
@@ -5461,6 +5470,214 @@ function _abrirChecklistDirecto(ot){
   setupFirmaD();
   toast('▶ Checklist abierto — OT #'+ot.id);
 }
+
+
+// ══════════════════════════════════════════════════════════
+// SISTEMA DE TRADUCCIÓN — ES / EN
+// ══════════════════════════════════════════════════════════
+
+let currentLang = 'es';
+
+const T = {
+  es: {
+    // Nav
+    escaner: 'Escáner QR', dashboard: 'Dashboard', calendario: 'Calendario PM',
+    ordenes: 'Órdenes', checklist: 'Checklist', equipos: 'Equipos',
+    personal: 'Personal', downtime: 'Downtime', reportes: 'Reportes',
+    inventario: 'Inventario', compras: 'Compras', analisis: 'Análisis',
+    configuracion: 'Configuración', mi_agenda: 'Mi Agenda',
+    agenda_zona: 'Agenda de Zona', nueva_solicitud: 'Nueva Solicitud',
+    mis_solicitudes: 'Mis Solicitudes',
+    // Header
+    en_vivo: 'En vivo', reconectando: 'Reconectando...',
+    // OT states
+    pendiente: 'Pendiente', en_progreso: 'En progreso',
+    completada: 'Completada', urgente: 'Urgente',
+    // OT types
+    correctivo: 'Correctivo', preventivo: 'Preventivo',
+    predictivo: 'Predictivo', inspeccion: 'Inspección',
+    // Priority
+    alta: 'Alta', media: 'Media', baja: 'Baja',
+    // Actions
+    guardar: 'Guardar', cancelar: 'Cancelar', agregar: 'Agregar',
+    editar: 'Editar', eliminar: 'Eliminar', cerrar: 'Cerrar',
+    iniciar: 'Iniciar', pausar: 'Pausar', reanudar: 'Reanudar',
+    nueva_ot: 'Nueva OT', crear_ot: 'Crear OT',
+    cerrar_ot: 'Cerrar OT', ver_checklist: 'Ver Checklist',
+    ver_pdf: 'Ver PDF', exportar: 'Exportar',
+    // Checklist
+    inspeccion_titulo: 'Inspección', conforme: 'Conforme',
+    no_conforme: 'No conforme', observaciones: 'Observaciones',
+    tiempo_trabajado: 'Tiempo trabajado', refacciones: 'Refacciones',
+    firma_tecnico: 'Firma del técnico', evidencia: 'Evidencia fotográfica',
+    antes: 'ANTES', despues: 'DESPUÉS',
+    foto_antes: 'Foto ANTES', foto_despues: 'Foto DESPUÉS',
+    captura_antes: 'Captura el estado del equipo ANTES de intervenir',
+    captura_despues: 'Captura el estado del equipo DESPUÉS del mantenimiento',
+    sin_checklist: 'No hay checklist configurado para este tipo de equipo.',
+    // Dashboard
+    urgentes: 'Urgentes', atencion_inmediata: 'Atención inmediata',
+    en_progreso_kpi: 'En progreso', asignadas: 'Asignadas',
+    completadas_hoy: 'Completadas hoy', historico: 'Histórico',
+    ordenes_recientes: 'Órdenes recientes', resumen: 'Resumen',
+    // Equipment
+    codigo: 'Código', nombre: 'Nombre', zona_asignada: 'Zona Asignada',
+    uso_hrs: 'Uso (Hrs)', frec_pm: 'Frec. PM', estado: 'Estado',
+    operativo: 'Operativo', en_mantenimiento: 'En mantenimiento',
+    fuera_servicio: 'Fuera de servicio', sin_equipos: 'Sin equipos registrados',
+    // Errors / Messages
+    sin_conexion: '⚠️ Sin conexión', en_linea: 'En línea',
+    // PDF Report
+    pdf_reporte: 'Reporte de Orden de Trabajo',
+    pdf_tecnico: 'Técnico', pdf_tipo: 'Tipo',
+    pdf_duracion: 'Duración', pdf_estado: 'Estado',
+    pdf_inspeccion: 'INSPECCIÓN — RESULTADOS',
+    pdf_observaciones: 'OBSERVACIONES',
+    pdf_fotos_antes: 'ESTADO ANTES DEL MANTENIMIENTO',
+    pdf_fotos_despues: 'ESTADO DESPUÉS DEL MANTENIMIENTO',
+    pdf_pagina: 'Página', pdf_de: 'de',
+    pdf_generado: 'Generado el',
+  },
+  en: {
+    // Nav
+    escaner: 'QR Scanner', dashboard: 'Dashboard', calendario: 'PM Calendar',
+    ordenes: 'Work Orders', checklist: 'Checklist', equipos: 'Equipment',
+    personal: 'Personnel', downtime: 'Downtime', reportes: 'Reports',
+    inventario: 'Inventory', compras: 'Purchases', analisis: 'Analysis',
+    configuracion: 'Settings', mi_agenda: 'My Schedule',
+    agenda_zona: 'Zone Schedule', nueva_solicitud: 'New Request',
+    mis_solicitudes: 'My Requests',
+    // Header
+    en_vivo: 'Live', reconectando: 'Reconnecting...',
+    // OT states
+    pendiente: 'Pending', en_progreso: 'In Progress',
+    completada: 'Completed', urgente: 'Urgent',
+    // OT types
+    correctivo: 'Corrective', preventivo: 'Preventive',
+    predictivo: 'Predictive', inspeccion: 'Inspection',
+    // Priority
+    alta: 'High', media: 'Medium', baja: 'Low',
+    // Actions
+    guardar: 'Save', cancelar: 'Cancel', agregar: 'Add',
+    editar: 'Edit', eliminar: 'Delete', cerrar: 'Close',
+    iniciar: 'Start', pausar: 'Pause', reanudar: 'Resume',
+    nueva_ot: 'New WO', crear_ot: 'Create WO',
+    cerrar_ot: 'Close WO', ver_checklist: 'View Checklist',
+    ver_pdf: 'View PDF', exportar: 'Export',
+    // Checklist
+    inspeccion_titulo: 'Inspection', conforme: 'Compliant',
+    no_conforme: 'Non-compliant', observaciones: 'Observations',
+    tiempo_trabajado: 'Time worked', refacciones: 'Parts used',
+    firma_tecnico: 'Technician signature', evidencia: 'Photo evidence',
+    antes: 'BEFORE', despues: 'AFTER',
+    foto_antes: 'Photo BEFORE', foto_despues: 'Photo AFTER',
+    captura_antes: 'Capture equipment state BEFORE intervening',
+    captura_despues: 'Capture equipment state AFTER maintenance',
+    sin_checklist: 'No checklist configured for this equipment type.',
+    // Dashboard
+    urgentes: 'Urgent', atencion_inmediata: 'Immediate attention',
+    en_progreso_kpi: 'In progress', asignadas: 'Assigned',
+    completadas_hoy: 'Completed today', historico: 'Historical',
+    ordenes_recientes: 'Recent work orders', resumen: 'Summary',
+    // Equipment
+    codigo: 'Code', nombre: 'Name', zona_asignada: 'Assigned Zone',
+    uso_hrs: 'Usage (Hrs)', frec_pm: 'PM Freq.', estado: 'Status',
+    operativo: 'Operational', en_mantenimiento: 'Under maintenance',
+    fuera_servicio: 'Out of service', sin_equipos: 'No equipment registered',
+    // Errors / Messages
+    sin_conexion: '⚠️ Offline', en_linea: 'Online',
+    // PDF Report
+    pdf_reporte: 'Work Order Report',
+    pdf_tecnico: 'Technician', pdf_tipo: 'Type',
+    pdf_duracion: 'Duration', pdf_estado: 'Status',
+    pdf_inspeccion: 'INSPECTION — RESULTS',
+    pdf_observaciones: 'OBSERVATIONS',
+    pdf_fotos_antes: 'EQUIPMENT STATE BEFORE MAINTENANCE',
+    pdf_fotos_despues: 'EQUIPMENT STATE AFTER MAINTENANCE',
+    pdf_pagina: 'Page', pdf_de: 'of',
+    pdf_generado: 'Generated on',
+  }
+};
+
+// Translation helper
+function t(key){ return (T[currentLang]||T.es)[key] || (T.es)[key] || key; }
+
+// Set language from profile
+function setLang(lang){
+  currentLang = (lang === 'en') ? 'en' : 'es';
+  applyLang();
+}
+
+// Apply language to all elements with data-i18n attribute
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'){
+      el.placeholder = t(key);
+    } else {
+      el.textContent = t(key);
+    }
+  });
+
+  // Nav buttons
+  const navMap = {
+    'nav-escaner': 'escaner', 'nav-dashboard': 'dashboard',
+    'nav-calendario': 'calendario', 'nav-ordenes': 'ordenes',
+    'nav-checklist': 'checklist', 'nav-equipos': 'equipos',
+    'nav-tecnicos': 'personal', 'nav-downtime': 'downtime',
+    'nav-reportes': 'reportes', 'nav-inventario': 'inventario',
+    'nav-compras': 'compras', 'nav-analisis': 'analisis',
+    'nav-configuracion': 'configuracion', 'nav-cal-tecnico': 'mi_agenda',
+    'nav-ot-libre': 'nueva_solicitud',
+  };
+  Object.entries(navMap).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if(el){ el.innerHTML = el.innerHTML.replace(/(?<=>)[^<]+/, ' '+t(key)); }
+  });
+
+  // RT indicator
+  const rtEl = document.getElementById('rt-st');
+  if(rtEl && rtEl.textContent.includes('vivo') || rtEl?.textContent.includes('Live')){
+    rtEl.textContent = t('en_vivo');
+  }
+
+  // Checklist labels
+  const antes = document.getElementById('tab-btn-antes');
+  const despues = document.getElementById('tab-btn-despues');
+  if(antes && !antes.querySelector('span')) antes.innerHTML = `<i class="ti ti-camera-minus"></i> ${t('antes')}`;
+  if(despues && !despues.querySelector('span')) despues.innerHTML = `<i class="ti ti-camera-plus"></i> ${t('despues')}`;
+
+  // Captura hints
+  const hintAntes = document.querySelector('[data-i18n="captura_antes"]');
+  if(hintAntes) hintAntes.textContent = t('captura_antes');
+  const hintDespues = document.querySelector('[data-i18n="captura_despues"]');
+  if(hintDespues) hintDespues.textContent = t('captura_despues');
+}
+
+// Language toggle button in header
+function addLangToggle(){
+  const headerRight = document.querySelector('.header-right');
+  if(!headerRight || document.getElementById('lang-toggle')) return;
+  const btn = document.createElement('button');
+  btn.id = 'lang-toggle';
+  btn.style.cssText = 'background:none;border:1px solid var(--line2);border-radius:3px;cursor:pointer;font-size:11px;padding:4px 10px;color:var(--txt2);font-family:"DM Sans",sans-serif;transition:all .15s;';
+  btn.onclick = async () => {
+    const newLang = currentLang === 'es' ? 'en' : 'es';
+    setLang(newLang);
+    btn.textContent = newLang === 'es' ? '🇺🇸 EN' : '🇲🇽 ES';
+    // Save to profile
+    if(curUser){
+      await db.from('profiles').update({lang: newLang}).eq('id', curUser.id);
+      if(curProf) curProf.lang = newLang;
+    }
+  };
+  btn.textContent = currentLang === 'es' ? '🇺🇸 EN' : '🇲🇽 ES';
+  // Insert before notification bell
+  const bell = document.getElementById('notif-bell');
+  if(bell) headerRight.insertBefore(btn, bell);
+  else headerRight.appendChild(btn);
+}
+
 
 </script>
 
