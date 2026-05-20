@@ -1370,7 +1370,7 @@ tr:hover td { background: var(--bg3) !important; }
         <div id="inv-email-auto" style="font-size:11px;color:var(--green-txt);margin-top:3px;display:none;font-family:monospace;"></div>
       </div>
       <div class="form-group">
-        <label>Correo <span style="color:var(--txt3);font-weight:300;">(opcional — si no pones uno se usa <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="add8ded8ccdfc4c2eddeccc0ccdfcc83cec2c0">[email&#160;protected]</a>)</span></label>
+        <label>Correo <span style="color:var(--txt3);font-weight:300;">(opcional — si no pones uno se usa <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="99eceaecf8ebf0f6d9eaf8f4f8ebf8b7faf6f4">[email&#160;protected]</a>)</span></label>
         <input type="email" id="inv-email" placeholder="Se generará automáticamente">
         <div id="inv-email-preview" style="font-size:11px;color:var(--txt3);margin-top:3px;"></div>
       </div>
@@ -1468,7 +1468,7 @@ tr:hover td { background: var(--bg3) !important; }
     </div>
     <div style="background:var(--blue-bg);border:1px solid rgba(26,95,168,.15);border-radius:3px;padding:10px 14px;font-size:12px;color:var(--blue-txt);margin-bottom:16px;display:flex;gap:8px;">
       <i class="ti ti-info-circle" style="flex-shrink:0;font-size:14px;"></i>
-      Tu correo será <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2e5b5d5b4f5c47416e5d4f434f5c4f004d4143">[email&#160;protected]</a></strong> — generado automáticamente. Solo necesitas elegir tu usuario y contraseña.
+      Tu correo será <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4732343226352e280734262a2635266924282a">[email&#160;protected]</a></strong> — generado automáticamente. Solo necesitas elegir tu usuario y contraseña.
     </div>
     <div class="form-grid" style="grid-template-columns:1fr;">
       <div class="form-group">
@@ -6791,18 +6791,34 @@ async function crearOCDesdeEquipo(){
   }
 
   // ── DATA ──────────────────────────────────────────────────
+  // The user's app declares `let db = ...` which is script-scoped, so window.db
+  // is undefined. We create our own Supabase client using the same credentials
+  // extracted from the page source. It reuses the same JWT/session in localStorage.
+  let _fdyDb = null;
+  function ensureDb() {
+    if (_fdyDb) return _fdyDb;
+    if (!window.supabase) return null;
+    try {
+      const html = document.documentElement.outerHTML;
+      const urlMatch = html.match(/SUPA_URL\s*=\s*['"]([^'"]+)['"]/);
+      const keyMatch = html.match(/SUPA_KEY\s*=\s*['"]([^'"]+)['"]/);
+      if (urlMatch && keyMatch) {
+        _fdyDb = window.supabase.createClient(urlMatch[1], keyMatch[1]);
+      }
+    } catch(e){ console.warn('[Foundry layout] could not init db', e); }
+    return _fdyDb;
+  }
   async function fetchData(force) {
     if (!force && Date.now() - S.lastFetch < S.cache) return;
-    if (!window.db) return;
+    const db = ensureDb();
+    if (!db) return;
     try {
-      if (window.allOTs && window.allOTs.length) S.ots = window.allOTs;
-      else { const r = await window.db.from('ordenes_trabajo').select('*').order('created_at',{ascending:false}).limit(500); S.ots = r.data||[]; }
-      if (window.allEqs && window.allEqs.length) S.eqs = window.allEqs;
-      else { const r = await window.db.from('equipos').select('*'); S.eqs = r.data||[]; }
-      if (window.allProfs && window.allProfs.length) S.profs = window.allProfs;
-      else { try { const r = await window.db.from('profiles').select('*'); S.profs = r.data||[]; } catch(e){ S.profs=[]; } }
-      if (window.allRefacciones && window.allRefacciones.length) S.refs = window.allRefacciones;
-      else { try { const r = await window.db.from('refacciones').select('*'); S.refs = r.data||[]; } catch(e){ S.refs=[]; } }
+      const r1 = await db.from('ordenes_trabajo').select('*').order('created_at',{ascending:false}).limit(500);
+      S.ots = r1.data || [];
+      const r2 = await db.from('equipos').select('*');
+      S.eqs = r2.data || [];
+      try { const r3 = await db.from('profiles').select('*'); S.profs = r3.data || []; } catch(e){ S.profs=[]; }
+      try { const r4 = await db.from('refacciones').select('*'); S.refs = r4.data || []; } catch(e){ S.refs=[]; }
       S.lastFetch = Date.now();
     } catch(e) { console.warn('[Foundry layout] fetch failed', e); }
   }
@@ -7384,7 +7400,7 @@ async function crearOCDesdeEquipo(){
     const appEl = $('#app');
     const appVisible = appEl && getComputedStyle(appEl).display !== 'none';
     const navReady = $('.nav .nav-btn');
-    if (window.db && appEl && appVisible && $('#tab-dashboard') && navReady) {
+    if (typeof window.setTab === 'function' && appEl && appVisible && $('#tab-dashboard') && navReady) {
       init();
     } else {
       setTimeout(waitForReady, 500);
