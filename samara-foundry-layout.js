@@ -19,9 +19,11 @@
 
   // ── ESTILOS ───────────────────────────────────────────────
   const css = `
-    /* Hide original top-bar nav and old "real-time" banner */
+    /* Hide original top-bar nav and the "real-time" banner (matched by inline style, not :first-child, to avoid hiding our injected #fdy-dash) */
     .nav-wrap { display: none !important; }
-    #tab-dashboard > div:first-child { display: none !important; }
+    #tab-dashboard > div[style*="rt-dot"],
+    #tab-dashboard > div[style*="Datos en tiempo real"],
+    #tab-dashboard > div[style*="green-bg"][style*="margin-bottom"] { display: none !important; }
 
     /* HEADER restructured */
     .header {
@@ -366,18 +368,34 @@
   }
 
   // ── DATA ──────────────────────────────────────────────────
+  // The user's app declares `let db = ...` which is script-scoped, so window.db
+  // is undefined. We create our own Supabase client using the same credentials
+  // extracted from the page source. It reuses the same JWT/session in localStorage.
+  let _fdyDb = null;
+  function ensureDb() {
+    if (_fdyDb) return _fdyDb;
+    if (!window.supabase) return null;
+    try {
+      const html = document.documentElement.outerHTML;
+      const urlMatch = html.match(/SUPA_URL\s*=\s*['"]([^'"]+)['"]/);
+      const keyMatch = html.match(/SUPA_KEY\s*=\s*['"]([^'"]+)['"]/);
+      if (urlMatch && keyMatch) {
+        _fdyDb = window.supabase.createClient(urlMatch[1], keyMatch[1]);
+      }
+    } catch(e){ console.warn('[Foundry layout] could not init db', e); }
+    return _fdyDb;
+  }
   async function fetchData(force) {
     if (!force && Date.now() - S.lastFetch < S.cache) return;
-    if (!window.db) return;
+    const db = ensureDb();
+    if (!db) return;
     try {
-      if (window.allOTs && window.allOTs.length) S.ots = window.allOTs;
-      else { const r = await window.db.from('ordenes_trabajo').select('*').order('created_at',{ascending:false}).limit(500); S.ots = r.data||[]; }
-      if (window.allEqs && window.allEqs.length) S.eqs = window.allEqs;
-      else { const r = await window.db.from('equipos').select('*'); S.eqs = r.data||[]; }
-      if (window.allProfs && window.allProfs.length) S.profs = window.allProfs;
-      else { try { const r = await window.db.from('profiles').select('*'); S.profs = r.data||[]; } catch(e){ S.profs=[]; } }
-      if (window.allRefacciones && window.allRefacciones.length) S.refs = window.allRefacciones;
-      else { try { const r = await window.db.from('refacciones').select('*'); S.refs = r.data||[]; } catch(e){ S.refs=[]; } }
+      const r1 = await db.from('ordenes_trabajo').select('*').order('created_at',{ascending:false}).limit(500);
+      S.ots = r1.data || [];
+      const r2 = await db.from('equipos').select('*');
+      S.eqs = r2.data || [];
+      try { const r3 = await db.from('profiles').select('*'); S.profs = r3.data || []; } catch(e){ S.profs=[]; }
+      try { const r4 = await db.from('refacciones').select('*'); S.refs = r4.data || []; } catch(e){ S.refs=[]; }
       S.lastFetch = Date.now();
     } catch(e) { console.warn('[Foundry layout] fetch failed', e); }
   }
@@ -556,8 +574,16 @@
     if (!wrap) {
       wrap = document.createElement('div');
       wrap.id = 'fdy-dash';
-      // Hide originals
-      $$('#tab-dashboard > .kpi-grid, #tab-dashboard > .two-col').forEach(el => el.style.display='none');
+      // Hide originals: banner (first div with rt-dot), kpi-grid, two-col
+      $$('#tab-dashboard > div').forEach(el => {
+        if (el.id === 'fdy-dash') return;
+        if (el.classList.contains('kpi-grid') || el.classList.contains('two-col')) {
+          el.style.display = 'none';
+        } else if (el.querySelector && el.querySelector('.rt-dot')) {
+          // It's the "Datos en tiempo real" banner
+          el.style.display = 'none';
+        }
+      });
       tab.insertBefore(wrap, tab.firstChild);
     }
 
@@ -906,10 +932,22 @@
       if (isDashboardVisible()) tick(false);
     }).observe($('#app'), { attributes:true, subtree:true, attributeFilter:['class','style'] });
 
+    // Observe nav repopulation — rebuild sidebar if their renderNav() re-runs
+    const navEl = $('.nav');
+    if (navEl) {
+      new MutationObserver(() => {
+        const existing = $('.fdy-side');
+        if (existing) {
+          const fresh = buildSidebar();
+          if (fresh) existing.replaceWith(fresh);
+        }
+      }).observe(navEl, { childList: true });
+    }
+
     // Periodic refresh
     setInterval(() => tick(true), 60000);
 
-    // Patch setTab to refresh
+    // Patch setTab
     if (typeof window.setTab === 'function' && !window.setTab.__fdyPatched) {
       const orig = window.setTab;
       window.setTab = function(...args){
@@ -921,11 +959,25 @@
       window.setTab.__fdyPatched = true;
     }
 
-    console.log('[Foundry layout] inicializado ✓');
+    // Patch loadAll so widgets refresh after data refreshes
+    if (typeof window.loadAll === 'function' && !window.loadAll.__fdyPatched) {
+      const orig = window.loadAll;
+      window.loadAll = async function(...args){
+        const r = await orig.apply(this,args);
+        setTimeout(()=>tick(true),200);
+        return r;
+      };
+      window.loadAll.__fdyPatched = true;
+    }
+
+    console.log('[Foundry layout] inicializado \u2713');
   }
 
   function waitForReady() {
-    if (window.db && $('#app') && $('#app').style.display !== 'none' && $('#tab-dashboard') && $('.nav .nav-btn')) {
+    const appEl = $('#app');
+    const appVisible = appEl && getComputedStyle(appEl).display !== 'none';
+    const navReady = $('.nav .nav-btn');
+    if (typeof window.setTab === 'function' && appEl && appVisible && $('#tab-dashboard') && navReady) {
       init();
     } else {
       setTimeout(waitForReady, 500);
