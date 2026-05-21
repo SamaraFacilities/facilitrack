@@ -8288,8 +8288,9 @@ function renderAgendaZona(){
     zonOTs = allOTs.filter(o => eqIds.includes(o.equipo_id));
   }
 
-  // Render calendar
-  _renderSzCal(zonOTs, eqIds, zona);
+  // Render calendar (zona scoped safely)
+  const _zona = curProf?.zona || '';
+  _renderSzCal(zonOTs, eqIds);
 
   // Render próximos PMs (next 30 days)
   _renderProximosPMs(eqsZona, zonOTs);
@@ -8298,7 +8299,8 @@ function renderAgendaZona(){
   _renderEquiposZona(eqsZona, zonOTs);
 }
 
-function _renderSzCal(zonOTs, eqIds, zona){
+function _renderSzCal(zonOTs, eqIds){
+  const zona = curProf?.zona || '';
   const lbl = document.getElementById('sz-cal-label');
   const grid = document.getElementById('sz-cal-grid');
   if(!lbl || !grid) return;
