@@ -2105,7 +2105,9 @@ function setTab(t){
   if(t==='analisis')renderAnalisis();
   if(t==='configuracion')renderConfiguracion();
   if(t==='cal-tecnico')renderAgendaTecnico();
+  if(t==='programar'&&typeof renderProgramar==='function')renderProgramar();
   if(t==='cal-tecnico')renderAgendaTecnico();
+  if(t==='programar'&&typeof renderProgramar==='function')renderProgramar();
   if(t==='ot-libre')renderOTLibre();
   if(t!=='escaner')stopScanner();
 }
@@ -3973,7 +3975,7 @@ function chgMonthTec(dir){
   renderCalTecnico();
 }
 
-function renderCalTecnico(){ renderAgendaTecnico(); return; }
+function renderCalTecnico(){ renderAgendaTecnico(); }
 function _renderCalTecnicoOld(){
   const grid = document.getElementById('cal-tec-grid');
   const lbl  = document.getElementById('cal-tec-label');
@@ -8521,10 +8523,8 @@ function _renderEquiposZona(eqsZona, zonOTs){
   }).join('');
 }
 
-// renderAgendaTecnico: show calendar view for all roles (tecnico + supervisor)
-const _origRenderAgendaTecnico = renderAgendaTecnico;
+// renderAgendaTecnico: all roles use the zone calendar view
 function renderAgendaTecnico(){
-  // Both tecnico and supervisor_zona use the calendar view
   renderAgendaZona();
 }
 
@@ -8816,12 +8816,7 @@ function exportarProgramacion(){
   toast('✅ CSV exportado');
 }
 
-// setTab trigger for programar
-const _origSetTab = setTab;
-function setTab(t){
-  _origSetTab(t);
-  if(t === 'programar'){ renderProgramar(); }
-}
+// renderProgramar is called directly by setTab via its own if block
 
 
 // ══════════════════════════════════════════════════════════
