@@ -1121,77 +1121,50 @@ tr:hover td { background: var(--bg3) !important; }
 
 
     <!-- TAB: CALENDARIO TÉCNICO (Mi Agenda) -->
+    <!-- TAB: MI AGENDA -->
     <div id="tab-cal-tecnico" class="panel-hidden">
-      <div style="display:grid;grid-template-columns:320px 1fr;gap:16px;" id="cal-tec-layout">
-        
-        <!-- Calendario compacto -->
-        <div class="card" style="align-self:start;position:sticky;top:76px;">
-          <div class="card-header" style="margin-bottom:12px;">
-            <div class="card-title"><i class="ti ti-calendar"></i> <span id="cal-tec-panel-title">Agenda</span></div>
+      <div style="max-width:700px;margin:0 auto;padding:0 4px;">
+
+        <!-- Greeting -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;" id="tec-fecha-hoy"></div>
+          <div style="line-height:1.15;">
+            <span style="font-size:36px;font-weight:700;color:var(--txt);" id="tec-count-num">–</span>
+            <span style="font-size:36px;font-weight:700;color:var(--txt);"> órdenes</span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <button class="btn-sm" onclick="chgMonthTec(-1)" style="padding:4px 8px;"><i class="ti ti-chevron-left"></i></button>
-            <div id="cal-tec-label" style="font-family:'Playfair Display',serif;font-size:16px;font-weight:300;color:var(--txt);text-align:center;"></div>
-            <button class="btn-sm" onclick="chgMonthTec(1)" style="padding:4px 8px;"><i class="ti ti-chevron-right"></i></button>
+          <div style="font-size:36px;font-weight:700;color:var(--txt);line-height:1.15;" id="tec-greeting-sub">te esperan hoy</div>
+        </div>
+
+        <!-- KPI strip -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+          <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Paros</div>
+            <div style="font-size:30px;font-weight:700;color:var(--red);" id="tec-kpi-urgentes">0</div>
           </div>
-          <!-- Grid compacto -->
-          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:12px;">
-            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">D</div>
-            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">L</div>
-            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">M</div>
-            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">M</div>
-            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">J</div>
-            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">V</div>
-            <div style="text-align:center;font-size:9px;color:var(--txt3);padding:4px 0;text-transform:uppercase;letter-spacing:.5px;">S</div>
+          <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">SLA Risk</div>
+            <div style="font-size:30px;font-weight:700;color:var(--amber);" id="tec-kpi-progreso">0</div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;" id="cal-tec-grid"></div>
-          
-          <!-- Leyenda -->
-          <div style="display:flex;gap:10px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);flex-wrap:wrap;">
-            <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--txt3);">
-              <div style="width:8px;height:8px;border-radius:50%;background:var(--blue);"></div>Preventivo
-            </div>
-            <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--txt3);">
-              <div style="width:8px;height:8px;border-radius:50%;background:var(--red);"></div>Urgente
-            </div>
-            <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--txt3);">
-              <div style="width:8px;height:8px;border-radius:50%;background:var(--green);"></div>Completada
-            </div>
+          <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Completas</div>
+            <div style="font-size:30px;font-weight:700;color:var(--green);" id="tec-kpi-completas">0</div>
           </div>
         </div>
 
-        <!-- Panel de actividades del día seleccionado -->
-        <div>
-          <div class="card" style="margin-bottom:14px;" id="cal-tec-day-panel">
-            <div class="card-header" style="margin-bottom:12px;">
-              <div class="card-title"><i class="ti ti-calendar-event"></i> <span id="cal-tec-day-title">Selecciona un día</span></div>
-            </div>
-            <div id="cal-tec-day-content">
-              <div class="empty-state" style="padding:24px;">
-                <i class="ti ti-hand-click" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.4;"></i>
-                Toca un día en el calendario para ver las actividades programadas
-              </div>
-            </div>
-          </div>
-
-          <!-- Resumen del mes -->
-          <div class="card" id="cal-tec-resumen">
-            <div class="card-header" style="margin-bottom:12px;">
-              <div class="card-title"><i class="ti ti-chart-bar"></i> Resumen del mes</div>
-            </div>
-            <div id="cal-tec-stats"></div>
-          </div>
+        <!-- Filter chips -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;">
+          <button onclick="setTecFilter('todas')"     id="chip-todas"     class="tec-chip tec-chip-active">Todas</button>
+          <button onclick="setTecFilter('paro')"      id="chip-paro"      class="tec-chip">Paro</button>
+          <button onclick="setTecFilter('sla')"       id="chip-sla"       class="tec-chip">SLA</button>
+          <button onclick="setTecFilter('hoy')"       id="chip-hoy"       class="tec-chip">Hoy</button>
+          <button onclick="setTecFilter('pendiente')" id="chip-pendiente" class="tec-chip">Pendiente</button>
+          <button onclick="setTecFilter('completada')"id="chip-completada"class="tec-chip">Completada</button>
         </div>
+
+        <!-- OT Cards -->
+        <div id="tec-ot-cards" style="display:flex;flex-direction:column;gap:10px;"></div>
 
       </div>
-
-      <!-- Mobile: stack vertically -->
-      <style>
-        @media(max-width:700px){
-          #cal-tec-layout{grid-template-columns:1fr!important;}
-          #tab-cal-tecnico .card[style*="position:sticky"]{position:relative!important;top:0!important;}
-        }
-      </style>
     </div><!-- /tab-cal-tecnico -->
 
 
@@ -1915,6 +1888,7 @@ function setTab(t){
   if(t==='compras')renderCompras();
   if(t==='analisis')renderAnalisis();
   if(t==='configuracion')renderConfiguracion();
+  if(t==='cal-tecnico')renderAgendaTecnico();
   if(t==='cal-tecnico')renderAgendaTecnico();
   if(t==='ot-libre')renderOTLibre();
   if(t!=='escaner')stopScanner();
@@ -3783,7 +3757,8 @@ function chgMonthTec(dir){
   renderCalTecnico();
 }
 
-function renderCalTecnico(){
+function renderCalTecnico(){ renderAgendaTecnico(); return; }
+function _renderCalTecnicoOld(){
   const grid = document.getElementById('cal-tec-grid');
   const lbl  = document.getElementById('cal-tec-label');
   if(!grid || !lbl) return;
