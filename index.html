@@ -2676,7 +2676,8 @@ function openModalUser(id=null){
     toggleUserFields();
   } else {
     document.getElementById('inv-edit-id').value='';
-    document.getElementById('inv-uuid').readOnly=false;
+    document.getElementById('inv-uuid').readOnly=true;
+    document.getElementById('inv-uuid').value='Generado por Auth';
     document.querySelectorAll('#modal-invite input').forEach(i=>i.value='');
     document.getElementById('inv-zona').value='';
     document.getElementById('inv-tur').value='Mañana';
@@ -2724,15 +2725,39 @@ async function guardarPerfil(){
       ({error:_pErr}=await db.from('profiles').update(p2).eq('id',uuid));
     }
   } else {
-    payload.id=uuid;
-    ({error:_pErr}=await db.from('profiles').upsert(payload,{onConflict:'id'}));
-    if(_pErr && (_pErr.message||'').includes('lang')){
+    const uuidRegex =
+ /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+if(!uuidRegex.test(uuid)){
+   toast("UUID inválido");
+   return;
+}
+
+payload.id = uuid;
+    const {error:pErr}=await db.from('profiles').upsert({
+   id:userId,
+   nombre,
+   username,
+   email:internalEmail,
+   rol:'tecnico',
+   turno,
+   activo:false
+});
+
+if(pErr){
+   console.error("profile create:",pErr);
+}
       const p2={...payload}; delete p2.lang;
       ({error:_pErr}=await db.from('profiles').upsert(p2,{onConflict:'id'}));
     }
   }
-  if(_pErr){toast('❌ Error: '+_pErr.message);console.error('guardarPerfil error:',_pErr);return;}
-  closeM('modal-invite');toast('Perfil guardado');await forceLoadAll();
+ console.log("payload:",payload);
+
+if(_pErr){
+   console.error("codigo:",_pErr.code);
+   console.error("mensaje:",_pErr.message);
+   console.error("detalle:",_pErr.details);
+   console.error("hint:",_pErr.hint);
 }
 
 async function delUsr(id){
