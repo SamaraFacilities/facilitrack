@@ -2691,7 +2691,7 @@ function openModalUser(id=null){
 
 async function guardarPerfil(){
   const id=document.getElementById('inv-edit-id').value;
-  const uuid=document.getElementById('inv-uuid').value.trim();
+  //const uuid=document.getElementById('inv-uuid').value.trim();
   const nom=document.getElementById('inv-nom').value.trim();
   const rol=document.getElementById('inv-rol').value;
   if(!nom){
@@ -2728,7 +2728,7 @@ if(id){
     ({error:_pErr}=await db
         .from('profiles')
         .update(payload)
-        .eq('id',uuid));
+        .eq('id',id));
 
     if(_pErr && (_pErr.message||'').includes('lang')){
         const p2={...payload};
@@ -2737,29 +2737,28 @@ if(id){
         ({error:_pErr}=await db
             .from('profiles')
             .update(p2)
-            .eq('id',uuid));
+            .eq('id',id));
     }
 
 } else {
 
-    const {data:authData,error:authErr} =
-        await db.auth.admin.createUser({
-            email: payload.email,
-            password:"Temp123456",
-            email_confirm:true
-        });
+const {data:authData,error:authErr} =
+    await db.auth.signUp({
+        email: payload.email,
+        password:"Temp123456"
+    });
 
-    if(authErr){
-        console.error("Auth:",authErr);
-        toast(authErr.message);
-        return;
-    }
+if(authErr){
+    console.error("Auth:",authErr);
+    toast(authErr.message);
+    return;
+}
 
-    payload.id=authData.user.id;
+payload.id=authData.user.id;
 
-    ({error:_pErr}=await db
-        .from('profiles')
-        .upsert(payload,{onConflict:'id'}));
+({error:_pErr}=await db
+    .from('profiles')
+    .upsert(payload,{onConflict:'id'}));
 
 }
 
@@ -2773,6 +2772,13 @@ if(_pErr){
 
     toast(_pErr.message);
     return;
+}
+toast('Perfil guardado');
+
+closeM('modal-invite');
+
+await forceLoadAll();
+
 }
 
 payload.id = uuid;
