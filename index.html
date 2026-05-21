@@ -2721,21 +2721,33 @@ async function guardarPerfil(){
   if(usrName){ payload.username=usrName; payload.email=emailInput||(usrName+'@samara.com'); }
   if(emailInput) payload.email=emailInput;
 
-  let _pErr;
-  if(id){
-    ({error:_pErr}=await db.from('profiles').update(payload).eq('id',uuid));
-    if(_pErr && (_pErr.message||'').includes('lang')){
-      const p2={...payload}; delete p2.lang;
-      ({error:_pErr}=await db.from('profiles').update(p2).eq('id',uuid));
-    }
-  } else {
-    } else {
+let _pErr;
 
-    const {data:authData,error:authErr}=await db.auth.admin.createUser({
-        email: payload.email,
-        password:"Temp123456",
-        email_confirm:true
-    });
+if(id){
+
+    ({error:_pErr}=await db
+        .from('profiles')
+        .update(payload)
+        .eq('id',uuid));
+
+    if(_pErr && (_pErr.message||'').includes('lang')){
+        const p2={...payload};
+        delete p2.lang;
+
+        ({error:_pErr}=await db
+            .from('profiles')
+            .update(p2)
+            .eq('id',uuid));
+    }
+
+} else {
+
+    const {data:authData,error:authErr} =
+        await db.auth.admin.createUser({
+            email: payload.email,
+            password:"Temp123456",
+            email_confirm:true
+        });
 
     if(authErr){
         console.error("Auth:",authErr);
@@ -2749,17 +2761,18 @@ async function guardarPerfil(){
         .from('profiles')
         .upsert(payload,{onConflict:'id'}));
 
-    if(_pErr){
-        console.error("payload:",payload);
-        console.error("code:",_pErr.code);
-        console.error("message:",_pErr.message);
-        console.error("details:",_pErr.details);
-        console.error("hint:",_pErr.hint);
-
-        toast(_pErr.message);
-        return;
-    }
 }
+
+if(_pErr){
+
+    console.error("payload:",payload);
+    console.error("code:",_pErr.code);
+    console.error("message:",_pErr.message);
+    console.error("details:",_pErr.details);
+    console.error("hint:",_pErr.hint);
+
+    toast(_pErr.message);
+    return;
 }
 
 payload.id = uuid;
