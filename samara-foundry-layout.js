@@ -990,3 +990,8 @@
     waitForReady();
   }
 })();
+
+// Expose as callable for device detection
+window._initFoundryLayout = function(){
+  console.log('[Foundry layout] ya inicializado via IIFE');
+};
