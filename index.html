@@ -693,7 +693,7 @@ tr:hover td { background: var(--bg3) !important; }
       <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:300;color:#111;letter-spacing:-1px;">Samara</div>
       <div style="font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Facilities Tracking</div>
     </div>
-    <div class="form-field"><label>Usuario</label><input type="text" id="l-username" placeholder="usuario" autocomplete="username"></div>
+    <div class="form-field"><label>Usuario</label><input type="text" id="l-username" placeholder="jvazquez" autocomplete="username"></div>
     <div class="form-field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn-login" id="btn-login" onclick="doLogin()">Iniciar sesión</button>
     <div class="login-err" id="login-err"></div>
@@ -2662,7 +2662,6 @@ function openModalUser(id=null){
     document.getElementById('inv-edit-id').value=u.id;
     document.getElementById('inv-uuid').value=u.id;
     document.getElementById('inv-uuid').readOnly=true;
-    document.getElementById('inv-uuid').value='Se genera automáticamente';
     document.getElementById('inv-nom').value=u.nombre;
     document.getElementById('inv-rol').value=u.rol;
     document.getElementById('inv-zona').value=u.zona||'';
@@ -2677,8 +2676,7 @@ function openModalUser(id=null){
     toggleUserFields();
   } else {
     document.getElementById('inv-edit-id').value='';
-    document.getElementById('inv-uuid').readOnly=true;
-    document.getElementById('inv-uuid').value='Generado por Auth';
+    document.getElementById('inv-uuid').readOnly=false;
     document.querySelectorAll('#modal-invite input').forEach(i=>i.value='');
     document.getElementById('inv-zona').value='';
     document.getElementById('inv-tur').value='Mañana';
@@ -2691,13 +2689,10 @@ function openModalUser(id=null){
 
 async function guardarPerfil(){
   const id=document.getElementById('inv-edit-id').value;
-  //const uuid=document.getElementById('inv-uuid').value.trim();
+  const uuid=document.getElementById('inv-uuid').value.trim();
   const nom=document.getElementById('inv-nom').value.trim();
   const rol=document.getElementById('inv-rol').value;
-  if(!nom){
-   toast('Nombre obligatorio');
-   return;
-}
+  if(!uuid||!nom){toast('UUID y nombre obligatorios');return;}
 
   // Build payload with only core columns that always exist
   const payload={nombre:nom, rol};
@@ -2721,99 +2716,23 @@ async function guardarPerfil(){
   if(usrName){ payload.username=usrName; payload.email=emailInput||(usrName+'@samara.com'); }
   if(emailInput) payload.email=emailInput;
 
-let _pErr;
-
-if(id){
-
-    ({error:_pErr}=await db
-        .from('profiles')
-        .update(payload)
-        .eq('id',id));
-
+  let _pErr;
+  if(id){
+    ({error:_pErr}=await db.from('profiles').update(payload).eq('id',uuid));
     if(_pErr && (_pErr.message||'').includes('lang')){
-        const p2={...payload};
-        delete p2.lang;
-
-        ({error:_pErr}=await db
-            .from('profiles')
-            .update(p2)
-            .eq('id',id));
+      const p2={...payload}; delete p2.lang;
+      ({error:_pErr}=await db.from('profiles').update(p2).eq('id',uuid));
     }
-
-} else {
-
-const {data:authData,error:authErr} =
-    await db.auth.signUp({
-        email: payload.email,
-        password:"Temp123456"
-    });
-
-if(authErr){
-    console.error("Auth:",authErr);
-    toast(authErr.message);
-    return;
-}
-
-payload.id=authData.user.id;
-
-({error:_pErr}=await db
-    .from('profiles')
-    .upsert(payload,{onConflict:'id'}));
-
-}
-
-if(_pErr){
-
-    console.error("payload:",payload);
-    console.error("code:",_pErr.code);
-    console.error("message:",_pErr.message);
-    console.error("details:",_pErr.details);
-    console.error("hint:",_pErr.hint);
-
-    toast(_pErr.message);
-    return;
-}
-toast('Perfil guardado');
-
-closeM('modal-invite');
-
-await forceLoadAll();
-
-}
-
-payload.id = uuid;
-  const {data:authData,error:authErr}=await db.auth.admin.createUser({
-   email: payload.email,
-   password:"Temp123456",
-   email_confirm:true
-});
-
-if(authErr){
-   console.error(authErr);
-   toast(authErr.message);
-   return;
-}
-
-payload.id=authData.user.id;
-
-const {error:_pErr}=await db
-.from('profiles')
-.upsert(payload,{onConflict:'id'});
-
-if(pErr){
-   console.error("profile create:",pErr);
-}
+  } else {
+    payload.id=uuid;
+    ({error:_pErr}=await db.from('profiles').upsert(payload,{onConflict:'id'}));
+    if(_pErr && (_pErr.message||'').includes('lang')){
       const p2={...payload}; delete p2.lang;
       ({error:_pErr}=await db.from('profiles').upsert(p2,{onConflict:'id'}));
     }
   }
- console.log("payload:",payload);
-
-if(_pErr){
-   console.error("codigo:",_pErr.code);
-   console.error("mensaje:",_pErr.message);
-   console.error("detalle:",_pErr.details);
-   console.error("hint:",_pErr.hint);
+  if(_pErr){toast('❌ Error: '+_pErr.message);console.error('guardarPerfil error:',_pErr);return;}
+  closeM('modal-invite');toast('Perfil guardado');await forceLoadAll();
 }
 
 async function delUsr(id){
