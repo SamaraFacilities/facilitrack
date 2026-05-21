@@ -2035,6 +2035,11 @@ async function loadAll(){
     ]);
     allOTs=_ots; allEqs=_eqs; allProfs=_prfs;
     allRefacciones=_refs; allOrdenesCompra=_ocs; allPlantillas=_pls;
+    // Load equipo_refacciones silently (table may not exist yet)
+    try{
+      const {data:_eqr, error:_eqrErr} = await db.from('equipo_refacciones').select('*');
+      window.allEqRefacciones = _eqrErr ? [] : (_eqr||[]);
+    }catch(e){ window.allEqRefacciones = []; }
     loadCustomCLsFromDB();
     
     console.log(`📊 Datos cargados: ${allOTs.length} OTs, ${allEqs.length} equipos, ${allProfs.length} perfiles`);
@@ -6255,9 +6260,17 @@ async function openRefaccionesEquipo(eqId){
 async function cargarRefEq(eqId){
   const el = document.getElementById('ref-eq-lista');
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  // Guard: table may not exist — show create-table hint
   const {data, error} = await db.from('equipo_refacciones')
     .select('*').eq('equipo_id', eqId).order('nombre');
-  if(error){ el.innerHTML='<div class="empty-state" style="padding:16px;">Error: '+error.message+'</div>'; return; }
+  if(error){
+    const missingTable = String(error.message).includes('does not exist') || 
+                         String(error.code) === '42P01' || error.status === 404;
+    el.innerHTML = missingTable
+      ? `<div style="padding:16px;font-size:12px;color:var(--amber-txt);background:var(--amber-bg);border-radius:4px;"><b>Tabla equipo_refacciones no creada.</b><br>Ejecuta este SQL en Supabase SQL Editor y recarga.</div>`
+      : `<div class="empty-state" style="padding:16px;">Error: ${error.message}</div>`;
+    return;
+  }
   refEqActual = data || [];
   renderRefEqLista();
 }
@@ -6357,7 +6370,11 @@ async function agregarRefDeInventario(refId){
     cantidad_sugerida: 1,
     unidad: ref.unidad || 'pza',
   });
-  if(error){ toast('❌ '+error.message); return; }
+  if(error){
+    const missingTable = String(error.message).includes('does not exist') || error.status === 404;
+    toast(missingTable ? '❌ Crea la tabla equipo_refacciones en Supabase primero' : '❌ '+error.message);
+    return;
+  }
   toast('✅ '+ref.nombre+' agregada');
   await cargarRefEq(refEqEquipoId);
 }
@@ -8862,13 +8879,33 @@ async function _procesarArchivoRefacciones(file){
 
     // Detect header row
     const header = rows[0].map(h => String(h).toLowerCase().trim());
+    // Normalize header: remove accents, lowercase for fuzzy matching
+    const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    const normHeader = rows[0].map(h => norm(String(h||'')));
+    console.log('Headers normalizados:', normHeader);
     const colMap = {
-      categoria:    header.findIndex(h => h.includes('categor')),
-      nombre:       header.findIndex(h => h.includes('nombre') || h.includes('pieza') || h.includes('part name')),
-      numeroParte:  header.findIndex(h => h.includes('número') || h.includes('numero') || h.includes('part') || h.includes('n°') || h.includes('no.')),
-      criticidad:   header.findIndex(h => h.includes('criticid')),
-      stock:        header.findIndex(h => h.includes('stock')),
+      // Categoría / Sistema / Category
+      categoria:   normHeader.findIndex(h => h.includes('categor') || h.includes('sistema') || h.includes('system') || h.includes('grupo') || h.includes('group')),
+      // Nombre / Refacción / Description / Part Name
+      nombre:      normHeader.findIndex(h => h.includes('refacc') || h.includes('nombre') || h.includes('pieza') || h.includes('descripcion') || h.includes('description') || h.includes('part name') || h.includes('item')),
+      // No. Parte / Número de Parte / Part Number / Código
+      numeroParte: normHeader.findIndex(h => h.includes('no. parte') || h.includes('no.parte') || h.includes('num') || h.includes('parte') || h.includes('part') || h.includes('codigo') || h.includes('code') || h.includes('n°') || h.includes('sku')),
+      // Criticidad / Prioridad / Priority
+      criticidad:  normHeader.findIndex(h => h.includes('criticid') || h.includes('prioridad') || h.includes('priority') || h.includes('importan')),
+      // Stock / Cantidad / Qty / Existencia
+      stock:       normHeader.findIndex(h => h.includes('stock') || h.includes('cantidad') || h.includes('qty') || h.includes('existencia') || h.includes('sugerido') || h.includes('suggested')),
     };
+    // Fallback: if nombre still not found, pick first unassigned non-empty column
+    if(colMap.nombre < 0){
+      const used = new Set(Object.values(colMap).filter(v => v >= 0));
+      colMap.nombre = normHeader.findIndex((h,i) => !used.has(i) && h.length > 0);
+    }
+    // Fallback: if categoria still not found, pick next unassigned column
+    if(colMap.categoria < 0){
+      const used = new Set(Object.values(colMap).filter(v => v >= 0));
+      colMap.categoria = normHeader.findIndex((h,i) => !used.has(i) && h.length > 0);
+    }
+    console.log('Columnas detectadas:', colMap);
 
     console.log('Columnas detectadas:', colMap);
     const dataRows = rows.slice(1).filter(r => r.some(v => String(v).trim()));
@@ -8956,7 +8993,18 @@ async function _importarRefaccionesConfirmar(dataRows, colMap, btn){
     const categoria = colMap.categoria >= 0 ? String(r[colMap.categoria]||'General').trim() : 'General';
     const codigo = colMap.numeroParte >= 0 ? String(r[colMap.numeroParte]||'').trim() : null;
     const criticidad = colMap.criticidad >= 0 ? String(r[colMap.criticidad]||'Media').trim() : 'Media';
-    const stock = colMap.stock >= 0 ? parseFloat(r[colMap.stock]) || 0 : 0;
+    // Extra columns: justificacion / notas (any unmapped column after stock)
+    const usedCols = new Set(Object.values(colMap).filter(v=>v>=0));
+    const extraCol = r.findIndex ? r.findIndex((_,i) => !usedCols.has(i) && String(r[i]||'').trim()) : -1;
+    const justificacion = extraCol >= 0 ? String(r[extraCol]||'').trim() : null;
+    const descripcionFinal = [criticidad ? 'Criticidad: '+criticidad : null, justificacion].filter(Boolean).join(' | ');
+    // Stock: parse first number from value (handles '2-4 juegos', '10', etc.)
+    let stock = 0;
+    if(colMap.stock >= 0){
+      const rawStock = String(r[colMap.stock]||'');
+      const numMatch = rawStock.match(/\d+/);
+      stock = numMatch ? parseInt(numMatch[0]) : 0;
+    }
 
     // Check if already exists by nombre or codigo
     const existe = allRefacciones.find(x =>
@@ -8983,7 +9031,7 @@ async function _importarRefaccionesConfirmar(dataRows, colMap, btn){
         stock_actual: stock,
         stock_minimo: Math.max(1, Math.floor(stock * 0.2)),
         stock_maximo: Math.max(stock * 2, 10),
-        descripcion: criticidad ? 'Criticidad: ' + criticidad : null,
+        descripcion: descripcionFinal || null,
       });
       if(error) errors++;
       else ok++;
