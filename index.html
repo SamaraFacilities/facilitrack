@@ -693,7 +693,7 @@ tr:hover td { background: var(--bg3) !important; }
       <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:300;color:#111;letter-spacing:-1px;">Samara</div>
       <div style="font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Facilities Tracking</div>
     </div>
-    <div class="form-field"><label>Usuario</label><input type="text" id="l-username" placeholder="jvazquez" autocomplete="username"></div>
+    <div class="form-field"><label>Usuario</label><input type="text" id="l-username" placeholder="usuario" autocomplete="username"></div>
     <div class="form-field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn-login" id="btn-login" onclick="doLogin()">Iniciar sesión</button>
     <div class="login-err" id="login-err"></div>
@@ -2662,6 +2662,7 @@ function openModalUser(id=null){
     document.getElementById('inv-edit-id').value=u.id;
     document.getElementById('inv-uuid').value=u.id;
     document.getElementById('inv-uuid').readOnly=true;
+    document.getElementById('inv-uuid').value='Se genera automáticamente';
     document.getElementById('inv-nom').value=u.nombre;
     document.getElementById('inv-rol').value=u.rol;
     document.getElementById('inv-zona').value=u.zona||'';
@@ -2693,7 +2694,10 @@ async function guardarPerfil(){
   const uuid=document.getElementById('inv-uuid').value.trim();
   const nom=document.getElementById('inv-nom').value.trim();
   const rol=document.getElementById('inv-rol').value;
-  if(!uuid||!nom){toast('UUID y nombre obligatorios');return;}
+  if(!nom){
+   toast('Nombre obligatorio');
+   return;
+}
 
   // Build payload with only core columns that always exist
   const payload={nombre:nom, rol};
@@ -2725,24 +2729,57 @@ async function guardarPerfil(){
       ({error:_pErr}=await db.from('profiles').update(p2).eq('id',uuid));
     }
   } else {
-    const uuidRegex =
- /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    } else {
 
-if(!uuidRegex.test(uuid)){
-   toast("UUID inválido");
-   return;
+    const {data:authData,error:authErr}=await db.auth.admin.createUser({
+        email: payload.email,
+        password:"Temp123456",
+        email_confirm:true
+    });
+
+    if(authErr){
+        console.error("Auth:",authErr);
+        toast(authErr.message);
+        return;
+    }
+
+    payload.id=authData.user.id;
+
+    ({error:_pErr}=await db
+        .from('profiles')
+        .upsert(payload,{onConflict:'id'}));
+
+    if(_pErr){
+        console.error("payload:",payload);
+        console.error("code:",_pErr.code);
+        console.error("message:",_pErr.message);
+        console.error("details:",_pErr.details);
+        console.error("hint:",_pErr.hint);
+
+        toast(_pErr.message);
+        return;
+    }
+}
 }
 
 payload.id = uuid;
-    const {error:pErr}=await db.from('profiles').upsert({
-   id:userId,
-   nombre,
-   username,
-   email:internalEmail,
-   rol:'tecnico',
-   turno,
-   activo:false
+  const {data:authData,error:authErr}=await db.auth.admin.createUser({
+   email: payload.email,
+   password:"Temp123456",
+   email_confirm:true
 });
+
+if(authErr){
+   console.error(authErr);
+   toast(authErr.message);
+   return;
+}
+
+payload.id=authData.user.id;
+
+const {error:_pErr}=await db
+.from('profiles')
+.upsert(payload,{onConflict:'id'});
 
 if(pErr){
    console.error("profile create:",pErr);
