@@ -1371,7 +1371,7 @@ tr:hover td { background: var(--bg3) !important; }
         <div id="inv-email-auto" style="font-size:11px;color:var(--green-txt);margin-top:3px;display:none;font-family:monospace;"></div>
       </div>
       <div class="form-group">
-        <label>Correo <span style="color:var(--txt3);font-weight:300;">(opcional — si no pones uno se usa usuario@samara.com)</span></label>
+        <label>Correo <span style="color:var(--txt3);font-weight:300;">(opcional — si no pones uno se usa usuario@intsamara.com)</span></label>
         <input type="email" id="inv-email" placeholder="Se generará automáticamente">
         <div id="inv-email-preview" style="font-size:11px;color:var(--txt3);margin-top:3px;"></div>
       </div>
@@ -1469,7 +1469,7 @@ tr:hover td { background: var(--bg3) !important; }
     </div>
     <div style="background:var(--blue-bg);border:1px solid rgba(26,95,168,.15);border-radius:3px;padding:10px 14px;font-size:12px;color:var(--blue-txt);margin-bottom:16px;display:flex;gap:8px;">
       <i class="ti ti-info-circle" style="flex-shrink:0;font-size:14px;"></i>
-      Tu correo será <strong>usuario@samara.com</strong> — generado automáticamente. Solo necesitas elegir tu usuario y contraseña.
+      Tu correo será <strong>usuario@intsamara.com</strong> — generado automáticamente. Solo necesitas elegir tu usuario y contraseña.
     </div>
     <div class="form-grid" style="grid-template-columns:1fr;">
       <div class="form-group">
@@ -1710,7 +1710,7 @@ async function doLogin(){
       let {data:profData} = await db.from('profiles').select('email').eq('username', input).maybeSingle();
       // 2. Si no tiene email real, usar email ficticio interno
       if(!profData?.email){
-        authEmail = input + '@samara.com';
+        authEmail = input + '@intsamara.com';
       } else {
         authEmail = profData.email;
       }
@@ -2713,7 +2713,7 @@ async function guardarPerfil(){
   const usrName=(usrEl?.value||'').trim().toLowerCase();
   const emailInput=(emailEl?.value||'').trim().toLowerCase();
 
-  if(usrName){ payload.username=usrName; payload.email=emailInput||(usrName+'@samara.com'); }
+  if(usrName){ payload.username=usrName; payload.email=emailInput||(usrName+'@intsamara.com'); }
   if(emailInput) payload.email=emailInput;
 
   let _pErr;
@@ -4512,7 +4512,7 @@ function previewEmail(username){
   if(!el) return;
   if(username.length < 2){ el.style.display='none'; el.textContent=''; return; }
   el.style.display = 'block';
-  el.innerHTML = '<i class="ti ti-mail" style="font-size:12px;margin-right:4px;"></i>' + username + '@samara.com';
+  el.innerHTML = '<i class="ti ti-mail" style="font-size:12px;margin-right:4px;"></i>' + username + '@intsamara.com';
 }
 
 function checkPassStrength(pass){
@@ -4584,7 +4584,7 @@ async function autoRegistro(){
     }
 
     // Crear usuario en Supabase Auth con email ficticio interno
-    const internalEmail = username + '@samara.com';
+    const internalEmail = username + '@intsamara.com';
     const {data: authData, error: authErr} = await db.auth.signUp({
       email: internalEmail,
       password: pass,
@@ -4679,7 +4679,7 @@ function updateEmailPreview(){
   const customEmail = emailEl?.value.trim();
   if(username.length >= 2 && !customEmail){
     autoEl.style.display = 'block';
-    autoEl.innerHTML = '<i class="ti ti-mail" style="font-size:11px;margin-right:3px;"></i>' + username + '@samara.com';
+    autoEl.innerHTML = '<i class="ti ti-mail" style="font-size:11px;margin-right:3px;"></i>' + username + '@intsamara.com';
   } else if(username.length >= 2 && customEmail){
     autoEl.style.display = 'block';
     autoEl.innerHTML = '<i class="ti ti-mail" style="font-size:11px;margin-right:3px;"></i>' + customEmail;
