@@ -6896,12 +6896,6 @@ function isToday(dateStr){
 </div>
 
 
-   Pega esto JUSTO ANTES de </body>.
-   ============================================================ */
-
-(function(){
-  'use strict';
-
   const S = { ots:[], eqs:[], profs:[], refs:[], lastFetch:0, cache:30000 };
 
   // ── ESTILOS ───────────────────────────────────────────────
@@ -7297,7 +7291,7 @@ function isToday(dateStr){
     const t = today();
     const last7 = Array.from({length:7},(_,i)=>addDays(t,-6+i));
     const completadas7d = last7.map(d => S.ots.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co,d) && isCompletada(o);
     }).length);
     const creadas7d = last7.map(d => S.ots.filter(o => {
@@ -7307,7 +7301,7 @@ function isToday(dateStr){
     const urgentes = S.ots.filter(o => isUrgente(o) && isAbierta(o)).length;
     const progreso = S.ots.filter(o => String(o.estado||'').toLowerCase().includes('progreso')).length;
     const completadasHoy = S.ots.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co,t) && isCompletada(o);
     }).length;
     const backlog = S.ots.filter(o => String(o.estado||'').toLowerCase().includes('pendiente')).length;
@@ -7882,12 +7876,6 @@ function isToday(dateStr){
 
 
 
-   Pega esto JUSTO ANTES de </body>.
-   ============================================================ */
-
-(function(){
-  'use strict';
-
   const S = { ots:[], eqs:[], profs:[], refs:[], lastFetch:0, cache:30000 };
 
   // ── ESTILOS ───────────────────────────────────────────────
@@ -8283,7 +8271,7 @@ function isToday(dateStr){
     const t = today();
     const last7 = Array.from({length:7},(_,i)=>addDays(t,-6+i));
     const completadas7d = last7.map(d => S.ots.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co,d) && isCompletada(o);
     }).length);
     const creadas7d = last7.map(d => S.ots.filter(o => {
@@ -8293,7 +8281,7 @@ function isToday(dateStr){
     const urgentes = S.ots.filter(o => isUrgente(o) && isAbierta(o)).length;
     const progreso = S.ots.filter(o => String(o.estado||'').toLowerCase().includes('progreso')).length;
     const completadasHoy = S.ots.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co,t) && isCompletada(o);
     }).length;
     const backlog = S.ots.filter(o => String(o.estado||'').toLowerCase().includes('pendiente')).length;
@@ -8870,12 +8858,6 @@ function isToday(dateStr){
 
 
 
-   Pega esto JUSTO ANTES de </body>.
-   ============================================================ */
-
-(function(){
-  'use strict';
-
   const S = { ots:[], eqs:[], profs:[], refs:[], lastFetch:0, cache:30000 };
 
   // ── ESTILOS ───────────────────────────────────────────────
@@ -9271,7 +9253,7 @@ function isToday(dateStr){
     const t = today();
     const last7 = Array.from({length:7},(_,i)=>addDays(t,-6+i));
     const completadas7d = last7.map(d => S.ots.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co,d) && isCompletada(o);
     }).length);
     const creadas7d = last7.map(d => S.ots.filter(o => {
@@ -9281,7 +9263,7 @@ function isToday(dateStr){
     const urgentes = S.ots.filter(o => isUrgente(o) && isAbierta(o)).length;
     const progreso = S.ots.filter(o => String(o.estado||'').toLowerCase().includes('progreso')).length;
     const completadasHoy = S.ots.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co,t) && isCompletada(o);
     }).length;
     const backlog = S.ots.filter(o => String(o.estado||'').toLowerCase().includes('pendiente')).length;
@@ -10262,7 +10244,7 @@ function _initFoundryLayout(){
     const t = today();
     const last7 = Array.from({length:7},(_,i)=>addDays(t,-6+i));
     const completadas7d = last7.map(d => S.ots.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co,d) && isCompletada(o);
     }).length);
     const creadas7d = last7.map(d => S.ots.filter(o => {
@@ -10272,7 +10254,7 @@ function _initFoundryLayout(){
     const urgentes = S.ots.filter(o => isUrgente(o) && isAbierta(o)).length;
     const progreso = S.ots.filter(o => String(o.estado||'').toLowerCase().includes('progreso')).length;
     const completadasHoy = S.ots.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co,t) && isCompletada(o);
     }).length;
     const backlog = S.ots.filter(o => String(o.estado||'').toLowerCase().includes('pendiente')).length;
@@ -11087,8 +11069,8 @@ function _initFoundryMobile(){
   function initials(n){ if(!n) return '?'; const p=String(n).trim().split(/\s+/); return ((p[0]||'')[0]||'')+((p[1]||'')[0]||''); }
   function priClass(p){ const x=String(p||'').toLowerCase(); if(x.includes('urgent')||x.includes('crít'))return'red'; if(x.includes('alta'))return'amb'; if(x.includes('media'))return'blu'; return'gray'; }
   function estClass(e){ const x=String(e||'').toLowerCase(); if(['completad','cerrad','verificad'].some(k=>x.includes(k)))return'grn'; if(x.includes('progreso'))return'amb'; if(x.includes('asignad'))return'blu'; if(x.includes('pausa')||x.includes('urgent'))return'red'; return'gray'; }
-  function isAbierta(o){ return ['pendiente','asignad','progreso','urgente','pausa','abiert'].some(k=>String(o.estado||'').toLowerCase().includes(k)); }
-  function isCompletada(o){ return ['completad','cerrad','verificad'].some(k=>String(o.estado||'').toLowerCase().includes(k)); }
+  function isAbierta(o){ return ['Pendiente','En progreso','Urgente'].includes(o.estado); }
+  function isCompletada(o){ return String(o.estado||'').toLowerCase().includes('completada'); }
 
   // ── STATE ─────────────────────────────────────────────────
   const S = { filter: 'todas' };
@@ -11105,7 +11087,7 @@ function _initFoundryMobile(){
     }
     const meId = window.curUser?.id;
     if (!meId) return [];
-    return ots.filter(o => String(o.asignado_a) === String(meId));
+    return ots.filter(o => String(o.tecnico_id) === String(meId) || o.tecnico_nombre === window.curProf?.nombre);
   }
 
   // ── RENDER PIECES ─────────────────────────────────────────
@@ -11141,7 +11123,7 @@ function _initFoundryMobile(){
     }).length;
     const enProg = active.filter(o => String(o.estado||'').toLowerCase().includes('progreso')).length;
     const compHoy = my.filter(o => {
-      const co = parseDate(o.completado_en||o.fecha_completada||o.updated_at);
+      const co = parseDate(o.fecha_cierre||o.updated_at);
       return co && sameDay(co, today()) && isCompletada(o);
     }).length;
     return { active: active.length, paros, enProg, compHoy };
@@ -11245,8 +11227,7 @@ function _initFoundryMobile(){
     $$('.fdym-card', wrap).forEach(c => {
       c.addEventListener('click', () => {
         const id = parseInt(c.dataset.otid);
-        if (typeof window.verOT === 'function') window.verOT(id);
-        else if (typeof window.abrirCL === 'function') window.abrirCL(id);
+        if (typeof window.iniciarOTDesdeOrdenes === 'function') window.iniciarOTDesdeOrdenes(id);
         else if (typeof window.setTab === 'function') window.setTab('ordenes');
       });
     });
@@ -11341,14 +11322,13 @@ function _initFoundryMobile(){
     if (window.curProf && window.allOTs !== undefined) {
       tick();
       // Patch loadAll to refresh
-      if (typeof window.loadAll === 'function' && !window.loadAll.__fdymPatched) {
-        const orig = window.loadAll;
-        window.loadAll = async function(...args){
-          const r = await orig.apply(this, args);
-          setTimeout(tick, 100);
-          return r;
-        };
-        window.loadAll.__fdymPatched = true;
+      // Refresh UI when data loads — use polling instead of patching loadAll
+      if(!window._fdymRefreshInterval){
+        window._fdymRefreshInterval = setInterval(function(){
+          if(window.curProf && document.body.classList.contains('fdym')){
+            tick();
+          }
+        }, 5000);
       }
       // Refresh every 60s
       setInterval(tick, 60000);
