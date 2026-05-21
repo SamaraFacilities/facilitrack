@@ -1121,11 +1121,11 @@ tr:hover td { background: var(--bg3) !important; }
 
 
     <!-- TAB: CALENDARIO TÉCNICO (Mi Agenda) -->
-    <!-- TAB: MI AGENDA -->
+    <!-- TAB: AGENDA (Técnico) / AGENDA DE ZONA (Supervisor de Zona) -->
     <div id="tab-cal-tecnico" class="panel-hidden">
-      <div style="max-width:700px;margin:0 auto;padding:0 4px;">
 
-        <!-- Greeting -->
+      <!-- ── VISTA TÉCNICO: tarjetas de OT ── -->
+      <div id="agenda-tecnico-view" style="max-width:700px;margin:0 auto;padding:0 4px;">
         <div style="margin-bottom:20px;">
           <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;" id="tec-fecha-hoy"></div>
           <div style="line-height:1.15;">
@@ -1134,8 +1134,6 @@ tr:hover td { background: var(--bg3) !important; }
           </div>
           <div style="font-size:36px;font-weight:700;color:var(--txt);line-height:1.15;" id="tec-greeting-sub">te esperan hoy</div>
         </div>
-
-        <!-- KPI strip -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
           <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 12px;">
             <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Paros</div>
@@ -1150,8 +1148,6 @@ tr:hover td { background: var(--bg3) !important; }
             <div style="font-size:30px;font-weight:700;color:var(--green);" id="tec-kpi-completas">0</div>
           </div>
         </div>
-
-        <!-- Filter chips -->
         <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;">
           <button onclick="setTecFilter('todas')"     id="chip-todas"     class="tec-chip tec-chip-active">Todas</button>
           <button onclick="setTecFilter('paro')"      id="chip-paro"      class="tec-chip">Paro</button>
@@ -1160,11 +1156,86 @@ tr:hover td { background: var(--bg3) !important; }
           <button onclick="setTecFilter('pendiente')" id="chip-pendiente" class="tec-chip">Pendiente</button>
           <button onclick="setTecFilter('completada')"id="chip-completada"class="tec-chip">Completada</button>
         </div>
-
-        <!-- OT Cards -->
         <div id="tec-ot-cards" style="display:flex;flex-direction:column;gap:10px;"></div>
-
       </div>
+
+      <!-- ── VISTA SUPERVISOR DE ZONA: calendario de PMs ── -->
+      <div id="agenda-zona-view" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1100px;margin:0 auto;">
+
+          <!-- Columna izquierda: calendario -->
+          <div class="card" style="align-self:start;">
+            <div class="card-header" style="margin-bottom:16px;">
+              <div class="card-title"><i class="ti ti-calendar"></i> Mantenimientos de la Zona</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <button class="btn-sm" onclick="chgMonthZona(-1)"><i class="ti ti-chevron-left"></i></button>
+                <span id="sz-cal-label" style="font-weight:600;font-size:13px;min-width:110px;text-align:center;"></span>
+                <button class="btn-sm" onclick="chgMonthZona(1)"><i class="ti ti-chevron-right"></i></button>
+              </div>
+            </div>
+
+            <!-- Day headers -->
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">D</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">L</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">M</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">M</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">J</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">V</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">S</div>
+            </div>
+            <div id="sz-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
+
+            <!-- Leyenda -->
+            <div style="display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block;"></span> Preventivo
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block;"></span> Urgente / Paro
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;"></span> Completada
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna derecha: detalle del día + próximos PMs -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+
+            <!-- Detalle del día seleccionado -->
+            <div class="card" id="sz-day-detail">
+              <div class="card-header" style="margin-bottom:12px;">
+                <div class="card-title"><i class="ti ti-calendar-event"></i> <span id="sz-day-title">Selecciona un día</span></div>
+              </div>
+              <div id="sz-day-content">
+                <div style="text-align:center;padding:32px;color:var(--txt3);">
+                  <i class="ti ti-hand-click" style="font-size:32px;display:block;margin-bottom:8px;opacity:.4;"></i>
+                  <div style="font-size:13px;">Toca un día en el calendario para ver los mantenimientos programados</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Próximos PMs -->
+            <div class="card">
+              <div class="card-header" style="margin-bottom:12px;">
+                <div class="card-title"><i class="ti ti-clock-hour-4"></i> Próximos PMs — 30 días</div>
+              </div>
+              <div id="sz-proximos-pms"></div>
+            </div>
+
+            <!-- Resumen de equipos de la zona -->
+            <div class="card">
+              <div class="card-header" style="margin-bottom:12px;">
+                <div class="card-title"><i class="ti ti-settings-2"></i> Equipos de la zona</div>
+              </div>
+              <div id="sz-equipos-zona"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
     </div><!-- /tab-cal-tecnico -->
 
 
@@ -1722,8 +1793,15 @@ async function bootApp(user){
   const nav=document.getElementById('main-nav');
   nav.innerHTML='';
   if(['tecnico','supervisor_zona'].includes(curProf.rol)){
-    nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaTecnico();"><i class="ti ti-layout-list"></i> ${curProf.rol==='supervisor_zona'?'Agenda de Zona':'Mi Agenda'}</button>`;
-    nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
+    if(curProf.rol === 'supervisor_zona'){
+      // Supervisor de zona: escaner primero, luego agenda de zona
+      nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
+      nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaZona();"><i class="ti ti-calendar"></i> Agenda de Zona</button>`;
+    } else {
+      // Tecnico: agenda primero, luego escaner
+      nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaTecnico();"><i class="ti ti-layout-list"></i> Mi Agenda</button>`;
+      nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
+    }
   }
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
@@ -1786,8 +1864,13 @@ async function bootApp(user){
     setTab('ot-libre');
   } else if(['tecnico','supervisor_zona'].includes(curProf.rol)){
     await loadAll();
-    setTab('cal-tecnico');
-    renderAgendaTecnico();
+    if(curProf.rol === 'supervisor_zona'){
+      setTab('escaner');
+      startScanner();
+    } else {
+      setTab('cal-tecnico');
+      renderAgendaTecnico();
+    }
   } else {
     setTab('dashboard');
     await loadAll();
@@ -8030,6 +8113,287 @@ const _devPoller = setInterval(function(){
     }
   }
 }, 400);
+
+
+
+// ══════════════════════════════════════════════════════════
+// AGENDA DE ZONA — Supervisor de Zona
+// Muestra calendario de PMs + próximos vencimientos
+// ══════════════════════════════════════════════════════════
+
+let szCalYear = new Date().getFullYear();
+let szCalMonth = new Date().getMonth();
+let szSelDay = null;
+
+function chgMonthZona(dir){
+  szCalMonth += dir;
+  if(szCalMonth < 0){ szCalMonth = 11; szCalYear--; }
+  else if(szCalMonth > 11){ szCalMonth = 0; szCalYear++; }
+  renderAgendaZona();
+}
+
+function renderAgendaZona(){
+  // Show/hide correct view panels
+  const vTec = document.getElementById('agenda-tecnico-view');
+  const vZona = document.getElementById('agenda-zona-view');
+  if(vTec) vTec.style.display = 'none';
+  if(vZona) vZona.style.display = '';
+
+  const zona = curProf?.zona || '';
+  const eqsZona = allEqs.filter(e => e.area === zona);
+  const eqIds = eqsZona.map(e => e.id);
+
+  // OTs relevantes para la zona (PMs + correctivos activos)
+  const zonOTs = allOTs.filter(o => eqIds.includes(o.equipo_id));
+
+  // Render calendar
+  _renderSzCal(zonOTs, eqIds, zona);
+
+  // Render próximos PMs (next 30 days)
+  _renderProximosPMs(eqsZona, zonOTs);
+
+  // Render equipos de la zona
+  _renderEquiposZona(eqsZona, zonOTs);
+}
+
+function _renderSzCal(zonOTs, eqIds, zona){
+  const lbl = document.getElementById('sz-cal-label');
+  const grid = document.getElementById('sz-cal-grid');
+  if(!lbl || !grid) return;
+
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  lbl.textContent = months[szCalMonth] + ' ' + szCalYear;
+
+  const firstDay = new Date(szCalYear, szCalMonth, 1).getDay();
+  const daysInMonth = new Date(szCalYear, szCalMonth + 1, 0).getDate();
+  const today = new Date();
+
+  // Build date → OTs map
+  const dateMap = {};
+  zonOTs.forEach(o => {
+    const checkDates = [];
+    if(o.fecha_programada) checkDates.push({date: o.fecha_programada, type: 'programada'});
+    if(o.fecha_cierre)     checkDates.push({date: o.fecha_cierre, type: 'cierre'});
+
+    checkDates.forEach(({date, type}) => {
+      const d = new Date(date);
+      if(d.getMonth() === szCalMonth && d.getFullYear() === szCalYear){
+        const k = d.getDate();
+        if(!dateMap[k]) dateMap[k] = [];
+        if(!dateMap[k].find(x => x.id === o.id)){
+          dateMap[k].push({...o, _dateType: type});
+        }
+      }
+    });
+  });
+
+  let html = '';
+  // Empty cells
+  for(let i = 0; i < firstDay; i++) html += '<div></div>';
+
+  for(let d = 1; d <= daysInMonth; d++){
+    const isToday = d === today.getDate() && szCalMonth === today.getMonth() && szCalYear === today.getFullYear();
+    const dateStr = `${szCalYear}-${String(szCalMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSelected = szSelDay === dateStr;
+    const dayOTs = dateMap[d] || [];
+    const hasUrgent   = dayOTs.some(o => o.prioridad === 'Urgente' && o.estado !== 'Completada');
+    const hasCompleted = dayOTs.some(o => o.estado === 'Completada');
+    const hasPending   = dayOTs.some(o => o.estado !== 'Completada') && !hasUrgent;
+
+    // Dot indicators
+    let dots = '';
+    if(hasUrgent)   dots += '<span style="width:5px;height:5px;border-radius:50%;background:var(--red);display:inline-block;flex-shrink:0;"></span>';
+    if(hasPending)  dots += '<span style="width:5px;height:5px;border-radius:50%;background:var(--blue);display:inline-block;flex-shrink:0;"></span>';
+    if(hasCompleted) dots += '<span style="width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;flex-shrink:0;"></span>';
+
+    const bg = isSelected ? 'var(--txt)' : isToday ? 'var(--bg3)' : dayOTs.length ? 'var(--bg2)' : 'transparent';
+    const txtColor = isSelected ? '#fff' : '#0a0a0a';
+    const border = isSelected ? '2px solid var(--txt)' : isToday ? '2px solid var(--txt2)' : '1px solid transparent';
+
+    html += `<div onclick="szSelectDay('${dateStr}')" style="
+      text-align:center;padding:5px 2px;border-radius:5px;cursor:pointer;
+      background:${bg};border:${border};transition:all .12s;
+      display:flex;flex-direction:column;align-items:center;gap:1px;min-height:36px;justify-content:center;">
+      <span style="font-size:12px;font-weight:${isToday||isSelected?600:400};color:${txtColor};line-height:1.2;">${d}</span>
+      <div style="display:flex;gap:2px;justify-content:center;min-height:6px;">${dots}</div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function szSelectDay(dateStr){
+  szSelDay = dateStr;
+  renderAgendaZona();  // re-render to update selection
+  _renderSzDayDetail(dateStr);
+}
+
+function _renderSzDayDetail(dateStr){
+  const titleEl = document.getElementById('sz-day-title');
+  const contentEl = document.getElementById('sz-day-content');
+  if(!titleEl || !contentEl) return;
+
+  const d = new Date(dateStr + 'T00:00:00');
+  const dias = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  titleEl.textContent = dias[d.getDay()] + ' ' + d.getDate() + ' ' + meses[d.getMonth()];
+
+  const zona = curProf?.zona || '';
+  const eqIds = allEqs.filter(e => e.area === zona).map(e => e.id);
+  const dayOTs = allOTs.filter(o => {
+    if(!eqIds.includes(o.equipo_id)) return false;
+    const checkFP = o.fecha_programada ? new Date(o.fecha_programada).toDateString() === d.toDateString() : false;
+    const checkFC = o.fecha_cierre ? new Date(o.fecha_cierre).toDateString() === d.toDateString() : false;
+    return checkFP || checkFC;
+  });
+
+  if(!dayOTs.length){
+    contentEl.innerHTML = `<div style="text-align:center;padding:24px;color:var(--txt3);">
+      <i class="ti ti-calendar-off" style="font-size:28px;display:block;margin-bottom:8px;opacity:.4;"></i>
+      <div style="font-size:13px;">Sin mantenimientos este día</div>
+    </div>`;
+    return;
+  }
+
+  contentEl.innerHTML = dayOTs.map(o => {
+    const eq = allEqs.find(e => e.id === o.equipo_id);
+    const isComp = o.estado === 'Completada';
+    const isUrg  = o.prioridad === 'Urgente';
+    const borderColor = isUrg ? 'var(--red)' : isComp ? 'var(--green)' : 'var(--blue)';
+    return `<div style="border:1px solid var(--line);border-left:3px solid ${borderColor};border-radius:6px;padding:10px 12px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;">
+        <div style="font-size:12px;font-weight:600;color:var(--txt);">${eq ? eq.nombre : (o.equipo_nombre || '–')}</div>
+        <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${isComp?'var(--green-bg)':isUrg?'var(--red-bg)':'var(--blue-bg)'};color:${isComp?'var(--green-txt)':isUrg?'var(--red-txt)':'var(--blue-txt)'};">${o.estado}</span>
+      </div>
+      <div style="font-size:11px;color:var(--txt3);">OT-${o.id} · ${o.tipo} · ${o.prioridad}</div>
+      ${o.descripcion ? `<div style="font-size:11px;color:var(--txt2);margin-top:3px;">${o.descripcion.slice(0,60)}</div>` : ''}
+      ${o.tecnico_nombre ? `<div style="font-size:11px;color:var(--txt3);margin-top:4px;"><i class="ti ti-user" style="font-size:10px;"></i> ${o.tecnico_nombre}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function _renderProximosPMs(eqsZona, zonOTs){
+  const el = document.getElementById('sz-proximos-pms');
+  if(!el) return;
+
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const en30 = new Date(hoy); en30.setDate(en30.getDate() + 30);
+
+  // PMs programados en los próximos 30 días
+  const proximos = zonOTs
+    .filter(o => {
+      if(!o.fecha_programada) return false;
+      if(o.estado === 'Completada') return false;
+      const fp = new Date(o.fecha_programada);
+      return fp >= hoy && fp <= en30;
+    })
+    .sort((a, b) => new Date(a.fecha_programada) - new Date(b.fecha_programada));
+
+  // También calcular PMs por horas (equipos que se acercan a su frecuencia PM)
+  const pmPorHoras = eqsZona
+    .filter(e => e.frec_pm_horas > 0 && e.horas_actuales > 0)
+    .map(e => {
+      const restantes = e.frec_pm_horas - (e.horas_actuales % e.frec_pm_horas);
+      const pct = Math.round(((e.horas_actuales % e.frec_pm_horas) / e.frec_pm_horas) * 100);
+      return {...e, horasRestantes: restantes, pctUso: pct};
+    })
+    .filter(e => e.pctUso >= 70)  // 70% o más → mostrar alerta
+    .sort((a, b) => b.pctUso - a.pctUso);
+
+  let html = '';
+
+  if(proximos.length){
+    html += proximos.map(o => {
+      const eq = allEqs.find(e => e.id === o.equipo_id);
+      const fp = new Date(o.fecha_programada);
+      const dias = Math.ceil((fp - hoy) / (1000*60*60*24));
+      const urgColor = dias <= 3 ? 'var(--red-txt)' : dias <= 7 ? 'var(--amber-txt)' : 'var(--txt2)';
+      const diasText = dias === 0 ? 'HOY' : dias === 1 ? 'Mañana' : `En ${dias} días`;
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);">
+        <div style="width:40px;text-align:center;flex-shrink:0;">
+          <div style="font-size:18px;font-weight:700;color:${urgColor};">${fp.getDate()}</div>
+          <div style="font-size:9px;color:var(--txt3);text-transform:uppercase;">${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][fp.getMonth()]}</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;color:var(--txt);">${eq ? eq.nombre : o.equipo_nombre}</div>
+          <div style="font-size:11px;color:var(--txt3);">${o.tipo}${o.tecnico_nombre ? ' · ' + o.tecnico_nombre : ''}</div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:${urgColor};flex-shrink:0;">${diasText}</div>
+      </div>`;
+    }).join('');
+  }
+
+  if(pmPorHoras.length){
+    if(proximos.length) html += `<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;">Por horas de uso</div>`;
+    html += pmPorHoras.slice(0, 5).map(e => {
+      const barColor = e.pctUso >= 95 ? 'var(--red)' : e.pctUso >= 85 ? 'var(--amber)' : 'var(--blue)';
+      return `<div style="padding:8px 0;border-bottom:1px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+          <div style="font-size:12px;font-weight:500;color:var(--txt);">${e.nombre}</div>
+          <div style="font-size:11px;font-weight:600;color:${barColor};">${e.pctUso}%</div>
+        </div>
+        <div style="height:4px;background:var(--line);border-radius:2px;overflow:hidden;">
+          <div style="width:${e.pctUso}%;height:100%;background:${barColor};border-radius:2px;transition:width .3s;"></div>
+        </div>
+        <div style="font-size:10px;color:var(--txt3);margin-top:3px;">${e.horas_actuales}h uso · faltan ~${e.horasRestantes}h para PM</div>
+      </div>`;
+    }).join('');
+  }
+
+  if(!proximos.length && !pmPorHoras.length){
+    html = `<div style="text-align:center;padding:20px;color:var(--txt3);">
+      <i class="ti ti-circle-check" style="font-size:28px;display:block;margin-bottom:8px;opacity:.5;"></i>
+      <div style="font-size:13px;">Sin PMs próximos en los siguientes 30 días</div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function _renderEquiposZona(eqsZona, zonOTs){
+  const el = document.getElementById('sz-equipos-zona');
+  if(!el) return;
+
+  if(!eqsZona.length){
+    el.innerHTML = `<div style="text-align:center;padding:16px;color:var(--txt3);font-size:13px;">No hay equipos asignados a tu zona</div>`;
+    return;
+  }
+
+  el.innerHTML = eqsZona.map(e => {
+    const otsActivas = zonOTs.filter(o => o.equipo_id === e.id && o.estado !== 'Completada').length;
+    const estColor = e.estado === 'Operativo' ? 'var(--green)' : e.estado === 'En mantenimiento' ? 'var(--amber)' : 'var(--red)';
+    const pct = e.frec_pm_horas > 0 ? Math.min(100, Math.round((e.horas_actuales % e.frec_pm_horas) / e.frec_pm_horas * 100)) : 0;
+    const barColor = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--green)';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
+      <div style="width:8px;height:8px;border-radius:50%;background:${estColor};flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;color:var(--txt);">${e.nombre}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
+          <div style="flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden;max-width:80px;">
+            <div style="width:${pct}%;height:100%;background:${barColor};border-radius:2px;"></div>
+          </div>
+          <span style="font-size:10px;color:var(--txt3);">${e.horas_actuales||0}h</span>
+        </div>
+      </div>
+      ${otsActivas ? `<span style="font-size:10px;background:var(--red-bg);color:var(--red-txt);padding:2px 7px;border-radius:20px;">${otsActivas} OT${otsActivas>1?'s':''}</span>` : ''}
+      <span style="font-size:10px;color:var(--txt3);">${e.codigo}</span>
+    </div>`;
+  }).join('');
+}
+
+// Override renderAgendaTecnico to show correct view per role
+const _origRenderAgendaTecnico = renderAgendaTecnico;
+function renderAgendaTecnico(){
+  if(curProf?.rol === 'supervisor_zona'){
+    renderAgendaZona();
+  } else {
+    const vTec = document.getElementById('agenda-tecnico-view');
+    const vZona = document.getElementById('agenda-zona-view');
+    if(vTec) vTec.style.display = '';
+    if(vZona) vZona.style.display = 'none';
+    _origRenderAgendaTecnico();
+  }
+}
 
 </script>
 </body>
