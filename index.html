@@ -6551,17 +6551,17 @@ function isToday(dateStr){
 function _initFoundryLayout(){
   'use strict';
 
-  const S = { ots:[], eqs:[], profs:[], refs:[], lastFetch:0, cache:30000 };
+   const S = { ots:[], eqs:[], profs:[], refs:[], lastFetch:0, cache:30000 };
 
   // ── ESTILOS ───────────────────────────────────────────────
   const css = `
-     
+    /* Hide original top-bar nav and the "real-time" banner (matched by inline style, not :first-child, to avoid hiding our injected #fdy-dash) */
     .nav-wrap { display: none !important; }
     #tab-dashboard > div[style*="rt-dot"],
     #tab-dashboard > div[style*="Datos en tiempo real"],
     #tab-dashboard > div[style*="green-bg"][style*="margin-bottom"] { display: none !important; }
 
-     
+    /* HEADER restructured */
     .header {
       height: 56px !important; padding: 0 !important;
       border-bottom: 1.5px solid var(--txt) !important;
@@ -6610,7 +6610,7 @@ function _initFoundryLayout(){
     .fdy-stats .val.grn { color: var(--green); }
     .fdy-stats .val.amb { color: var(--amber); }
 
-     
+    /* APP shell becomes flex with sidebar */
     #app { display: block !important; }
     .fdy-shell { display: flex; min-height: calc(100vh - 56px); }
     .fdy-side {
@@ -6641,14 +6641,14 @@ function _initFoundryLayout(){
       font-variant-numeric: tabular-nums;
     }
 
-     
+    /* Main pushed right */
     .fdy-main-wrap { flex: 1; min-width: 0; }
     .main {
       max-width: none !important; padding: 22px 26px !important;
       margin: 0 !important;
     }
 
-     
+    /* Page header */
     .fdy-page-head {
       display: flex; align-items: flex-end; justify-content: space-between;
       margin-bottom: 22px; gap: 20px; flex-wrap: wrap;
@@ -6665,7 +6665,7 @@ function _initFoundryLayout(){
     .fdy-page-head .desc { font-size: 13px; color: var(--txt2); margin-top: 4px; max-width: 520px; }
     .fdy-page-head .actions { display: flex; gap: 8px; align-items: center; }
 
-     
+    /* Big KPI cards */
     .fdy-kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
     @media (max-width: 1000px) { .fdy-kpis { grid-template-columns: repeat(2,1fr); } }
     .fdy-kpi {
@@ -6692,7 +6692,7 @@ function _initFoundryLayout(){
     .fdy-kpi .delta.up { color: var(--green); }
     .fdy-kpi .delta.dn { color: var(--red); }
 
-     
+    /* Foundry grid rows */
     .fdy-row { display: grid; gap: 14px; margin-bottom: 14px; }
     .fdy-row.r-2-1 { grid-template-columns: 2fr 1fr; }
     .fdy-row.r-3   { grid-template-columns: 1fr 1fr 1fr; }
@@ -6700,7 +6700,7 @@ function _initFoundryLayout(){
       .fdy-row.r-2-1, .fdy-row.r-3 { grid-template-columns: 1fr; }
     }
 
-     
+    /* Foundry card */
     .fdy-card { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
     .fdy-card .hd { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
     .fdy-card .hd .ttl { font-family: 'Inter Tight', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
@@ -6708,12 +6708,12 @@ function _initFoundryLayout(){
     .fdy-card .bd { padding: 14px 18px; }
     .fdy-card .bd.no-pad { padding: 0; }
 
-     
+    /* Seg toggle */
     .fdy-seg { display: inline-flex; background: var(--bg3); padding: 2px; border-radius: 4px; }
     .fdy-seg button { padding: 5px 11px; font-size: 11.5px; font-weight: 500; background: transparent; border: none; cursor: pointer; color: var(--txt3); border-radius: 3px; font-family: 'Inter', sans-serif; }
     .fdy-seg button.act { background: var(--bg); color: var(--txt); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
 
-     
+    /* Cola en vivo table */
     .fdy-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     .fdy-tbl th {
       text-align: left; font-weight: 500; font-size: 10.5px;
@@ -6745,7 +6745,7 @@ function _initFoundryLayout(){
       font-size: 11px; font-weight: 600; color: #fff;
     }
 
-     
+    /* Sparkline + cal + donut shared */
     .fdy-cal14 { display: grid; grid-template-columns: repeat(14,1fr); gap: 4px; }
     .fdy-cal14 .d {
       aspect-ratio: 1; background: var(--bg3); border-radius: 3px;
@@ -6773,7 +6773,7 @@ function _initFoundryLayout(){
     .fdy-oee-num { font-family: 'Inter Tight', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
     .fdy-oee-lab { font-size: 9px; color: var(--txt3); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 2px; font-weight: 500; }
 
-     
+    /* Critical equipment rows */
     .fdy-eqrow {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 0; border-bottom: 1px solid var(--line);
@@ -6782,13 +6782,13 @@ function _initFoundryLayout(){
     .fdy-eqrow .nm { font-size: 13px; font-weight: 500; }
     .fdy-eqrow .sub { font-size: 10.5px; color: var(--txt3); margin-top: 2px; }
 
-     
+    /* Bar list (failures) */
     .fdy-barlist .it { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
     .fdy-barlist .it:last-child { margin-bottom: 0; }
     .fdy-barlist .it .top { display: flex; justify-content: space-between; font-size: 12.5px; }
     .fdy-barlist .it .top .v { font-family: 'Inter Tight', sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 13px; }
 
-     
+    /* Personnel */
     .fdy-prow {
       display: flex; align-items: center; gap: 10px;
       padding: 9px 0; border-bottom: 1px solid var(--line);
@@ -6799,7 +6799,7 @@ function _initFoundryLayout(){
     .fdy-prow .ct { font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; }
     .fdy-prow .barwrap { flex: 1; max-width: 80px; }
 
-     
+    /* Stock */
     .fdy-stock .it {
       display: grid; grid-template-columns: 1fr auto; gap: 10px;
       align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line);
@@ -6811,7 +6811,7 @@ function _initFoundryLayout(){
     .fdy-stock .qty.danger { color: var(--red); }
     .fdy-stock .qty .min { font-size: 10px; color: var(--txt3); font-weight: 400; }
 
-     
+    /* Mobile: sidebar becomes horizontal scroller */
     @media (max-width: 800px) {
       .fdy-brand { width: auto; }
       .fdy-sitepicker { display: none; }
@@ -7508,6 +7508,29 @@ function _initFoundryLayout(){
 
     console.log('[Foundry layout] inicializado \u2713');
   }
+
+  function waitForReady() {
+    const appEl = $('#app');
+    const appVisible = appEl && getComputedStyle(appEl).display !== 'none';
+    const navReady = $('.nav .nav-btn');
+    if (typeof window.setTab === 'function' && appEl && appVisible && $('#tab-dashboard') && navReady) {
+      init();
+    } else {
+      setTimeout(waitForReady, 500);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', waitForReady);
+  } else {
+    waitForReady();
+  }
+})();
+
+// Expose as callable for device detection
+window._initFoundryLayout = function(){
+  console.log('[Foundry layout] ya inicializado via IIFE');
+};
 
   function waitForReady() {
     const appEl = $('#app');
