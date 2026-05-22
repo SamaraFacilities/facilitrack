@@ -2751,7 +2751,7 @@ function renderEquipos(){
       <td style="font-size:12px;color:var(--txt2);">cada ${e.frec_pm_horas||0}h</td>
       <td>${badge(e.estado)} ${reqPM?'<span class="badge badge-red" style="margin-left:4px;">PM Req.</span>':''}</td>
       <td style="display:flex;gap:6px;">
-        <button class="btn-sm" title="Generar QR" onclick="verQR('${e.codigo}','${e.nombre}')"><i class="ti ti-qrcode"></i></button>
+        <button class="btn-sm" title="Generar QR" onclick="verQRById(${e.id})"><i class="ti ti-qrcode"></i></button>
         ${curProf.rol==='admin'?`<button class="btn-sm" title="Refacciones del equipo" onclick="openRefaccionesEquipo(${e.id})"><i class="ti ti-package"></i></button>`:''}
         ${curProf.rol==='admin'?`<button class="btn-sm" title="Editar Checklist" onclick="openClBuilder(${e.id})" style="color:var(--blue-txt);"><i class="ti ti-list-check"></i></button>`:''}
         ${curProf.rol==='admin'?`
@@ -2809,6 +2809,11 @@ async function eliminarEquipo(id){
   toast("✅ Equipo eliminado");await forceLoadAll();
 }
 
+function verQRById(eqId){
+  const eq = allEqs.find(e => e.id === eqId);
+  if(!eq){ toast('Equipo no encontrado'); return; }
+  verQR(eq.codigo, eq.nombre);
+}
 function verQR(codigo,nombre){
   document.getElementById('qr-eq-nom').textContent=nombre;
   document.getElementById('qr-eq-cod').textContent=codigo;
@@ -5628,7 +5633,17 @@ const PERMISOS_CONFIG = {
 
 function loadPermisosConfig(){ try{ const s=localStorage.getItem('samara_permisos'); if(s){ const d=JSON.parse(s); Object.keys(d).forEach(r=>{ if(PERMISOS_CONFIG[r]?.editable) PERMISOS_CONFIG[r].perms=d[r]; }); } }catch(e){} }
 function savePermisosConfig(){ const d={}; Object.keys(PERMISOS_CONFIG).forEach(r=>{ if(PERMISOS_CONFIG[r].editable) d[r]=PERMISOS_CONFIG[r].perms; }); try{localStorage.setItem('samara_permisos',JSON.stringify(d));}catch(e){} }
-function loadZonasConfig(){ try{ const s=localStorage.getItem('samara_zonas'); if(s) allZonas=JSON.parse(s); }catch(e){} }
+function loadZonasConfig(){
+  try{
+    const s=localStorage.getItem('samara_zonas');
+    if(s) allZonas=JSON.parse(s);
+    // Ensure standard zones always present (migration for existing users)
+    const defaults=['Millwork','Zona 1','Zona 2','Zona 3','Zona 4','Zona 5','Zona 6','Zona 7'];
+    let changed=false;
+    defaults.forEach(z=>{ if(!allZonas.includes(z)){ allZonas.unshift(z); changed=true; } });
+    if(changed) saveZonasConfig();
+  }catch(e){}
+}
 function saveZonasConfig(){ try{localStorage.setItem('samara_zonas',JSON.stringify(allZonas));}catch(e){} }
 loadPermisosConfig(); loadZonasConfig();
 
