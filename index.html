@@ -8928,27 +8928,36 @@ function _loadScript(src){
   });
 }
 
+// Global staging area for import — avoids passing large JSON through onclick attributes
+window._importStagingData = null;
+window._importStagingColMap = null;
+
 function _mostrarPreviewImport(dataRows, colMap, fileName){
-  // Build preview HTML
+  // Store in global so onclick doesn't need to serialize large JSON
+  window._importStagingData = dataRows;
+  window._importStagingColMap = colMap;
+
   const preview = dataRows.slice(0, 10).map(r => ({
-    categoria:   colMap.categoria >= 0 ? r[colMap.categoria] : '–',
-    nombre:      colMap.nombre >= 0 ? r[colMap.nombre] : '–',
-    numeroParte: colMap.numeroParte >= 0 ? r[colMap.numeroParte] : '–',
-    criticidad:  colMap.criticidad >= 0 ? r[colMap.criticidad] : '–',
-    stock:       colMap.stock >= 0 ? r[colMap.stock] : 0,
+    categoria:   colMap.categoria >= 0 ? String(r[colMap.categoria]||'–') : '–',
+    nombre:      colMap.nombre >= 0 ? String(r[colMap.nombre]||'–') : '–',
+    numeroParte: colMap.numeroParte >= 0 ? String(r[colMap.numeroParte]||'–') : '–',
+    criticidad:  colMap.criticidad >= 0 ? String(r[colMap.criticidad]||'–') : '–',
+    stock:       colMap.stock >= 0 ? String(r[colMap.stock]||'0') : '0',
   })).filter(r => r.nombre && r.nombre !== '–');
 
   if(!preview.length){ toast('❌ No se encontraron datos válidos. Verifica los encabezados.'); return; }
 
-  // Create and show preview modal
+  const escape = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
   const el = document.createElement('div');
+  el.id = 'import-preview-modal';
   el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;';
-  el.innerHTML = `<div style="background:#fff;border-radius:6px;padding:24px;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 12px 60px rgba(0,0,0,.15);">
+  el.innerHTML = `<div style="background:#fff;border-radius:6px;padding:24px;max-width:720px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 12px 60px rgba(0,0,0,.15);">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-family:'Inter Tight',sans-serif;font-size:18px;font-weight:600;">Vista previa — ${fileName}</div>
-      <button onclick="this.closest('[style*=position:fixed]').remove()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--txt3);">×</button>
+      <div style="font-family:'Inter Tight',sans-serif;font-size:18px;font-weight:700;">Vista previa — ${escape(fileName)}</div>
+      <button onclick="document.getElementById('import-preview-modal')?.remove()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--txt3);line-height:1;">×</button>
     </div>
-    <div style="font-size:12px;color:var(--txt3);margin-bottom:12px;">Mostrando ${Math.min(10,preview.length)} de ${dataRows.length} filas. Se importarán todas.</div>
+    <div style="font-size:12px;color:var(--txt3);margin-bottom:12px;">Mostrando ${preview.length} de ${dataRows.length} filas. Se importarán todas.</div>
     <div style="overflow-x:auto;margin-bottom:16px;">
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="background:var(--bg3);">
@@ -8959,17 +8968,17 @@ function _mostrarPreviewImport(dataRows, colMap, fileName){
           <th style="padding:8px 10px;text-align:center;border-bottom:1px solid var(--line);">Stock</th>
         </tr></thead>
         <tbody>${preview.map(r => `<tr style="border-bottom:1px solid var(--line);">
-          <td style="padding:8px 10px;">${r.categoria}</td>
-          <td style="padding:8px 10px;font-weight:500;">${r.nombre}</td>
-          <td style="padding:8px 10px;font-family:monospace;font-size:11px;">${r.numeroParte}</td>
-          <td style="padding:8px 10px;">${r.criticidad}</td>
-          <td style="padding:8px 10px;text-align:center;">${r.stock}</td>
+          <td style="padding:8px 10px;">${escape(r.categoria)}</td>
+          <td style="padding:8px 10px;font-weight:500;">${escape(r.nombre)}</td>
+          <td style="padding:8px 10px;font-family:monospace;font-size:11px;">${escape(r.numeroParte)}</td>
+          <td style="padding:8px 10px;">${escape(r.criticidad)}</td>
+          <td style="padding:8px 10px;text-align:center;">${escape(r.stock)}</td>
         </tr>`).join('')}</tbody>
       </table>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn-sm" onclick="this.closest('[style*=position:fixed]').remove()">Cancelar</button>
-      <button class="btn-sm btn-primary" onclick="_importarRefaccionesConfirmar(${JSON.stringify(dataRows)},${JSON.stringify(colMap)},this)">
+      <button class="btn-sm" onclick="document.getElementById('import-preview-modal')?.remove()">Cancelar</button>
+      <button class="btn-sm btn-primary" id="btn-confirmar-import" onclick="_importarRefaccionesConfirmar(this)">
         <i class="ti ti-upload"></i> Importar ${dataRows.length} refacciones
       </button>
     </div>
@@ -8977,9 +8986,12 @@ function _mostrarPreviewImport(dataRows, colMap, fileName){
   document.body.appendChild(el);
 }
 
-async function _importarRefaccionesConfirmar(dataRows, colMap, btn){
+async function _importarRefaccionesConfirmar(btn){
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader"></i> Importando...';
+
+  const dataRows = window._importStagingData || [];
+  const colMap   = window._importStagingColMap || {};
 
   const rows = dataRows.filter(r => {
     const nombre = colMap.nombre >= 0 ? String(r[colMap.nombre]||'').trim() : '';
@@ -9039,7 +9051,9 @@ async function _importarRefaccionesConfirmar(dataRows, colMap, btn){
   }
 
   // Close preview modal
-  btn.closest('[style*="position:fixed"]')?.remove();
+  document.getElementById('import-preview-modal')?.remove();
+  window._importStagingData = null;
+  window._importStagingColMap = null;
   await forceLoadAll();
   toast(`✅ ${ok} refacciones importadas${errors ? ' · ' + errors + ' errores' : ''}`);
   if(document.getElementById('tab-inventario')?.classList.contains('panel-visible')) renderInventario();
