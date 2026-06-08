@@ -1990,16 +1990,7 @@ async function bootApp(user){
   // Apply language from profile
   setLang(prof?.lang || 'es');
   addLangToggle();
-  // Solicitar permiso de notificaciones inmediatamente al login
-  // El gesto del usuario (login) permite que iOS/iPadOS muestre el diálogo
-  if('Notification' in window && Notification.permission === 'default'){
-    Notification.requestPermission().then(result => {
-      console.log('🔔 Permiso notificaciones:', result);
-      if(result === 'granted') subscribeToPush();
-    });
-  } else if(Notification.permission === 'granted'){
-    subscribeToPush();
-  }
+  subscribeToPush(); // Request push permission
 
   if(['ingeniero','ehs'].includes(curProf.rol)){
     await loadAll();
@@ -2325,6 +2316,8 @@ async function crearOTSupervisorZona(){
   
   await loadAll();
   toast('✅ Orden de trabajo creada — pendiente de asignación');
+  // Notificar in-app: OT sin asignar esperando técnico
+  addNotif(`📋 OT creada sin asignar: ${eq.codigo} – ${eq.nombre} · ${tipo} · ${pri}`, pri==='Urgente'?'urgente':'info');
 
   // Mostrar confirmación visual inline
   const card=document.querySelector('#sz-panel .card:last-of-type');
@@ -2411,6 +2404,8 @@ async function tomarYEjecutar(otId){
 
   if(error){toast('❌ Error al asignarte: '+error.message);return;}
   toast('✅ OT asignada — iniciando checklist');
+  // Notificar in-app que esta OT ya está siendo atendida
+  addNotif(`👷 Tomaste la OT: ${ot.equipo_nombre} — iniciando ahora`, 'info');
   await forceLoadAll();
   // Obtener la OT actualizada
   const otActualizada=allOTs.find(o=>o.id===otId);
@@ -2700,6 +2695,16 @@ async function crearOT(){
   if(error){toast('Error: '+error.message);return;}
   closeM('modal-ot');
   await forceLoadAll();
+  // Notificar in-app de la OT recién creada
+  {
+    const _fTId = document.getElementById('f-tec')?.value;
+    const _fTec = allProfs.find(p=>p.id===_fTId);
+    const _fPri = document.getElementById('f-pri')?.value || '';
+    const _fEqNom = document.getElementById('f-equipo')?.options[document.getElementById('f-equipo')?.selectedIndex]?.text || 'Equipo';
+    const _newOTMsg = (_fPri==='Urgente'?'🔴 OT Urgente creada':'📋 OT creada')
+      + `: ${_fEqNom}` + (_fTec ? ` → asignada a ${_fTec.nombre}` : ' → sin asignar');
+    addNotif(_newOTMsg, _fPri==='Urgente'?'urgente':'info');
+  }
 
   // Feedback especial para supervisor de zona: confirmar y ofrecer nuevo scan
   if(curProf.rol==='supervisor_zona' && eqActual){
@@ -3858,8 +3863,9 @@ function toggleNotifPanel(){
   notifOpen = !notifOpen;
   panel.style.display = notifOpen ? 'block' : 'none';
   if(notifOpen){
-    // Mark as read
-    document.getElementById('notif-badge').style.display = 'none';
+    // Mark as read — limpiar badge
+    const _nb = document.getElementById('notif-badge');
+    if(_nb){ _nb.style.display = 'none'; _nb.textContent = ''; }
     // Close on outside click
     setTimeout(()=>{
       document.addEventListener('click', closeNotifOnOutside, {once:true});
@@ -3879,24 +3885,26 @@ function closeNotifOnOutside(e){
 function clearNotifs(){
   notifList = [];
   renderNotifList();
-  document.getElementById('notif-badge').style.display = 'none';
+  const _b = document.getElementById('notif-badge');
+  if(_b){ _b.style.display = 'none'; _b.textContent = ''; }
 }
 
 function addNotif(msg, tipo='info'){
   const n = {msg, tipo, ts: new Date(), id: Date.now()};
   notifList.unshift(n);
-  if(notifList.length > 20) notifList.pop();
+  if(notifList.length > 30) notifList.pop();
   renderNotifList();
-  // Show badge
+  // Actualizar badge con conteo
   if(!notifOpen){
     const badge = document.getElementById('notif-badge');
-    if(badge) badge.style.display = 'block';
+    if(badge){
+      const count = notifList.length;
+      badge.textContent = count > 9 ? '9+' : String(count);
+      badge.style.cssText = 'display:flex;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:var(--red);color:#fff;border-radius:999px;font-size:9px;font-weight:700;align-items:center;justify-content:center;padding:0 3px;';
+    }
   }
-  // Native push notification
-  const titles = {urgente:'🔴 Urgente', info:'📋 Samara', ok:'✅ Completado', warn:'⚠️ Aviso'};
-  sendNativePush(titles[tipo] || 'Samara', msg, {tag: tipo + '-' + Date.now()});
-  // Also show toast for urgent
-  if(tipo === 'urgente') toast('🔴 ' + msg, 5000);
+  // Urgente: toast automático siempre
+  if(tipo === 'urgente') toast('🔴 ' + msg, 6000);
 }
 
 function renderNotifList(){
@@ -3925,26 +3933,27 @@ function setupRT(){
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'ordenes_trabajo'}, payload=>{
       const ot = payload.new;
       if(!ot) return;
-      const esUrgente = ot.prioridad === 'Urgente';
-      const tipo = esUrgente ? 'urgente' : 'info';
-      const esTecnico = curProf?.rol === 'tecnico' || curProf?.rol === 'supervisor_zona';
+      const _esUrgente = ot.prioridad === 'Urgente';
+      const _tipo = _esUrgente ? 'urgente' : 'info';
+      const _eqNombre = ot.equipo_nombre || 'Equipo';
+      const _otTipo = ot.tipo || '';
+      const _esTecnico = ['tecnico','supervisor_zona'].includes(curProf?.rol);
 
-      // ── TÉCNICO: notificar de TODA OT nueva, asignada o no ──
-      if(esTecnico){
-        const title = esUrgente ? '🔴 OT Urgente — requiere atención' : '📋 Nueva orden de trabajo';
-        const asignacionTxt = ot.tecnico_id && String(ot.tecnico_id) !== String(curUser?.id)
-          ? ' (asignada a otro técnico)'
-          : String(ot.tecnico_id) === String(curUser?.id)
-            ? ' (asignada a ti)'
-            : ' (sin asignar — puedes tomarla)';
-        const body = `${ot.equipo_nombre || 'Equipo'} · ${ot.tipo || ''}${asignacionTxt}`;
-        addNotif(title + ': ' + body, tipo);
-        sendNativePush(title, body, {tag: 'new-ot-' + ot.id});
+      // ── Admin: notificación in-app de toda OT nueva ──
+      if(curProf?.rol === 'admin'){
+        const _admMsg = (_esUrgente ? '🔴 URGENTE' : '📋 Nueva OT') + ` — ${_eqNombre} · ${_otTipo}`;
+        addNotif(_admMsg, _tipo);
+        toast(_admMsg, _esUrgente ? 6000 : 3500);
       }
 
-      // ── ADMIN: notificar de cualquier OT nueva ──
-      if(curProf?.rol === 'admin'){
-        addNotif(`Nueva OT: ${ot.equipo_nombre} — ${ot.tipo} (${ot.prioridad})`, tipo);
+      // ── Técnico / Supervisor zona: notificación in-app de toda OT nueva ──
+      if(_esTecnico){
+        const _asigTxt = ot.tecnico_id && String(ot.tecnico_id) === String(curUser?.id)
+          ? ' — asignada a ti'
+          : ot.tecnico_id ? '' : ' — sin asignar, puedes tomarla';
+        const _tecMsg = (_esUrgente ? '🔴 OT Urgente' : '📋 Nueva OT') + `: ${_eqNombre}${_asigTxt}`;
+        addNotif(_tecMsg, _tipo);
+        if(_esUrgente || !ot.tecnico_id) toast(_tecMsg, _esUrgente ? 6000 : 4000);
       }
       loadAll();
     })
@@ -3952,24 +3961,38 @@ function setupRT(){
       const ot = payload.new;
       const prev = payload.old;
       if(!ot) return;
-      // Técnico: el admin acaba de asignarle esta OT (antes sin asignar o era de otro)
-      const meAcabanDeAsignar = curUser && String(ot.tecnico_id) === String(curUser.id)
-                                && (!prev?.tecnico_id || String(prev.tecnico_id) !== String(curUser.id));
-      if(meAcabanDeAsignar){
-        const esUrgenteUpd = ot.prioridad === 'Urgente';
-        const titleUpd = esUrgenteUpd ? '🔴 OT Urgente asignada a ti' : '📋 OT asignada a ti';
-        const bodyUpd = `${ot.equipo_nombre} · ${ot.tipo} · ${ot.prioridad}`;
-        addNotif(titleUpd + ': ' + bodyUpd, esUrgenteUpd ? 'urgente' : 'info');
-        sendNativePush(titleUpd, bodyUpd, {tag: 'assigned-' + ot.id});
+      const esParaMi = ot.tecnico_id === curUser?.id;
+      const _eqN = ot.equipo_nombre || '–';
+      const _tecN = ot.tecnico_nombre || '–';
+
+      // ── Técnico: le acaban de asignar esta OT (admin la asignó) ──
+      const _meAsignaron = curUser && String(ot.tecnico_id) === String(curUser.id)
+                           && (!prev?.tecnico_id || String(prev.tecnico_id) !== String(curUser.id));
+      if(_meAsignaron){
+        const _msg = (ot.prioridad === 'Urgente' ? '🔴 OT Urgente asignada a ti' : '📋 OT asignada a ti') + `: ${_eqN} · ${ot.tipo}`;
+        addNotif(_msg, ot.prioridad === 'Urgente' ? 'urgente' : 'info');
+        toast(_msg, 5000);
       }
-      // Admin: OT completada
+
+      // ── Admin: un técnico TOMÓ la OT (antes sin asignar, ahora En progreso) ──
+      if(curProf?.rol === 'admin' && ot.estado === 'En progreso'
+         && prev?.estado !== 'En progreso' && ot.tecnico_id){
+        const _tomMsg = `👷 ${_tecN} tomó la OT: ${_eqN}`;
+        addNotif(_tomMsg, 'info');
+        toast(_tomMsg, 4000);
+      }
+
+      // ── Admin: OT completada ──
       if(curProf?.rol === 'admin' && ot.estado === 'Completada' && prev?.estado !== 'Completada'){
-        addNotif(`✅ OT completada: ${ot.equipo_nombre} por ${ot.tecnico_nombre||'–'}`, 'ok');
-        sendNativePush('✅ OT Completada', `${ot.equipo_nombre} · ${ot.tecnico_nombre||'–'}`, {tag:'done-'+ot.id});
+        const _doneMsg = `✅ OT completada: ${_eqN} por ${_tecN}`;
+        addNotif(_doneMsg, 'ok');
+        toast(_doneMsg, 4000);
       }
-      // Admin: nueva OT urgente
-      if(curProf?.rol === 'admin' && ot.prioridad === 'Urgente' && prev?.prioridad !== 'Urgente'){
-        addNotif(`🔴 OT Urgente: ${ot.equipo_nombre}`, 'urgente');
+
+      // ── Admin / técnicos: OT se volvió Urgente ──
+      if(ot.prioridad === 'Urgente' && prev?.prioridad !== 'Urgente'){
+        addNotif(`🔴 OT Urgente: ${_eqN}`, 'urgente');
+        toast(`🔴 URGENTE: ${_eqN}`, 6000);
       }
       loadAll();
     })
