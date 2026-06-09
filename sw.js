@@ -30,6 +30,9 @@ self.addEventListener('activate', e => {
   );
 });
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false  # ← esto evita el error de cancelación
 // ── FETCH ─────────────────────────────────────────────────────
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
