@@ -1985,6 +1985,9 @@ async function bootApp(user){
   }
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
+  // Resetear timestamp de notificaciones al entrar (no notificar OTs ya existentes)
+  window._lastKnownOTTime = new Date().toISOString();
+  window._rtRetries = 0;
   setupRT();
   startLiveClock();
   // Apply language from profile
@@ -2318,14 +2321,7 @@ async function crearOTSupervisorZona(){
   toast('✅ Orden de trabajo creada — pendiente de asignación');
   // Notificar in-app: OT sin asignar esperando técnico
   addNotif(`📋 OT creada sin asignar: ${eq.codigo} – ${eq.nombre} · ${tipo} · ${pri}`, pri==='Urgente'?'urgente':'info');
-  // Broadcast a técnicos conectados
-  if(db){
-    const _sCh = window._broadcastCh || db.channel('samara-broadcast');
-    _sCh.send({type:'broadcast', event:'nueva-ot', payload:{
-      equipo_nombre: `${eq.codigo} – ${eq.nombre}`, tipo, prioridad: pri,
-      tecnico_id: null, tecnico_nombre: null
-    }}).catch(()=>{});
-  }
+  // El poll de notificaciones (cada 10s) detectará esta OT automáticamente
 
   // Mostrar confirmación visual inline
   const card=document.querySelector('#sz-panel .card:last-of-type');
@@ -2714,14 +2710,7 @@ async function crearOT(){
     const _newOTMsg = (_fPri==='Urgente'?'🔴 OT Urgente creada':'📋 OT creada')
       + `: ${_fEqNom}` + (_fTec ? ` → asignada a ${_fTec.nombre}` : ' → sin asignar');
     addNotif(_newOTMsg, _fPri==='Urgente'?'urgente':'info');
-    // Broadcast a técnicos conectados
-    if(window._broadcastCh || db){
-      const _ch = window._broadcastCh || db.channel('samara-broadcast');
-      _ch.send({type:'broadcast', event:'nueva-ot', payload:{
-        equipo_nombre: _fEqNom, tipo: _fTipo, prioridad: _fPri,
-        tecnico_id: _fTId || null, tecnico_nombre: _fTec?.nombre || null
-      }}).catch(()=>{});
-    }
+    // El poll de notificaciones (cada 10s) detectará esta OT automáticamente
   }
 
   // Feedback especial para supervisor de zona: confirmar y ofrecer nuevo scan
@@ -3654,6 +3643,7 @@ document.addEventListener('visibilitychange', ()=>{
     // Reconectar el canal realtime (puede haberse caído en background/sleep de iPad)
     setupRT();
     loadAll();
+    // El poll de notificaciones continuará automáticamente al estar visible
   }
 });
 
@@ -4081,49 +4071,82 @@ function setupRT(){
       }
     });
 
-  // ── Canal de broadcast: técnicos reciben aviso cuando se crea una OT ──
-  // Esto bypassa el problema de RLS en postgres_changes para técnicos
-  if(window._broadcastCh){ try{ db.removeChannel(window._broadcastCh); }catch(e){} }
-  window._broadcastCh = db.channel('samara-broadcast')
-    .on('broadcast', {event:'nueva-ot'}, ({payload}) => {
-      if(!payload) return;
-      const _esTec = ['tecnico','supervisor_zona'].includes(curProf?.rol);
-      if(!_esTec) return;
-      const _esUrg = payload.prioridad === 'Urgente';
-      const _asigTxt = payload.tecnico_id && String(payload.tecnico_id) === String(curUser?.id)
-        ? ' — asignada a ti'
-        : payload.tecnico_id ? '' : ' — sin asignar, puedes tomarla';
-      const _msg = (_esUrg ? '🔴 OT Urgente' : '📋 Nueva OT') + `: ${payload.equipo_nombre || 'Equipo'}${_asigTxt}`;
-      addNotif(_msg, _esUrg ? 'urgente' : 'info');
-      // Recargar datos para que aparezca en la lista
-      loadAll();
-    })
-    .subscribe();
-  console.log('📡 Broadcast channel subscribed');
-
-  // Polling agresivo — especialmente para técnicos en iPad donde el realtime
-  // puede no recibir eventos por RLS o por reconexión tras sleep
+  // ── Polling de notificaciones: consulta directa a Supabase cada 10s ──
+  // Funciona para todos los roles sin depender de RLS en realtime
   if(window._pollTimer) clearInterval(window._pollTimer);
-  window._pollTimer = setInterval(async ()=>{
+  if(window._notifPollTimer) clearInterval(window._notifPollTimer);
+
+  // Inicializar el timestamp de última OT conocida
+  if(!window._lastKnownOTTime){
+    // Usar el timestamp del OT más reciente ya cargado, o ahora
+    const _latest = (window.allOTs || [])
+      .map(o => o.fecha_creacion || o.created_at)
+      .filter(Boolean)
+      .sort()
+      .pop();
+    window._lastKnownOTTime = _latest || new Date().toISOString();
+  }
+
+  // Poll de datos generales cada 30s
+  window._pollTimer = setInterval(()=>{
+    if(document.visibilityState === 'visible') loadAll();
+  }, 30000);
+
+  // Poll de notificaciones cada 10s — consulta directa, sin RLS issues
+  window._notifPollTimer = setInterval(async ()=>{
     if(document.visibilityState !== 'visible') return;
-    // Guardar snapshot de OTs antes de recargar
-    const _prevOTCount = (window.allOTs || []).length;
-    const _prevOTIds = new Set((window.allOTs || []).map(o => o.id));
-    await loadAll();
-    // Detectar OTs nuevas y notificar al técnico (por si el realtime falló)
-    const _esTecnico = ['tecnico','supervisor_zona'].includes(curProf?.rol);
-    if(_esTecnico){
-      const _nuevas = (window.allOTs || []).filter(o => !_prevOTIds.has(o.id));
-      _nuevas.forEach(ot => {
+    if(!curUser || !db) return;
+    try {
+      // Buscar OTs creadas DESPUÉS del último timestamp conocido
+      const { data: _nuevasOTs, error: _nErr } = await db
+        .from('ordenes_trabajo')
+        .select('id, equipo_nombre, tipo, prioridad, estado, tecnico_id, tecnico_nombre, fecha_creacion, created_at')
+        .gt('created_at', window._lastKnownOTTime)
+        .order('created_at', { ascending: true });
+
+      if(_nErr || !_nuevasOTs || !_nuevasOTs.length) return;
+
+      // Hay OTs nuevas — notificar
+      _nuevasOTs.forEach(ot => {
         const _esUrg = ot.prioridad === 'Urgente';
-        const _asigTxt = ot.tecnico_id && String(ot.tecnico_id) === String(curUser?.id)
-          ? ' — asignada a ti'
-          : ot.tecnico_id ? '' : ' — sin asignar, puedes tomarla';
-        const _msg = (_esUrg ? '🔴 OT Urgente' : '📋 Nueva OT') + `: ${ot.equipo_nombre || 'Equipo'}${_asigTxt}`;
-        addNotif(_msg, _esUrg ? 'urgente' : 'info');
+        const _esMia = ot.tecnico_id && String(ot.tecnico_id) === String(curUser.id);
+        const _sinAsignar = !ot.tecnico_id;
+
+        // Técnico: notificar de toda OT nueva
+        if(['tecnico','supervisor_zona'].includes(curProf?.rol)){
+          const _asigTxt = _esMia
+            ? ' — asignada a ti ✓'
+            : _sinAsignar
+              ? ' — sin asignar, puedes tomarla'
+              : '';
+          const _msg = (_esUrg ? '🔴 OT Urgente' : '📋 Nueva OT')
+            + `: ${ot.equipo_nombre || 'Equipo'} · ${ot.tipo || ''}${_asigTxt}`;
+          addNotif(_msg, _esUrg ? 'urgente' : 'info');
+        }
+
+        // Admin: notificar de toda OT nueva
+        if(curProf?.rol === 'admin'){
+          const _msg = (_esUrg ? '🔴 URGENTE' : '📋 Nueva OT')
+            + `: ${ot.equipo_nombre || 'Equipo'} · ${ot.tipo || ''}`;
+          addNotif(_msg, _esUrg ? 'urgente' : 'info');
+        }
       });
+
+      // Actualizar el timestamp al más reciente procesado
+      const _maxTime = _nuevasOTs
+        .map(o => o.created_at || o.fecha_creacion)
+        .filter(Boolean)
+        .sort()
+        .pop();
+      if(_maxTime) window._lastKnownOTTime = _maxTime;
+
+      // Recargar datos para que aparezcan en la lista
+      loadAll();
+
+    } catch(e) {
+      console.warn('Notif poll error:', e);
     }
-  }, 15000); // cada 15 segundos
+  }, 10000); // cada 10 segundos
 }
 
 // ══════════════════════════════════════════════════════════
