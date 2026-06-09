@@ -1689,31 +1689,27 @@ tr:hover td { background: var(--bg3) !important; }
 if('serviceWorker' in navigator){
   window.addEventListener('load', async () => {
     try {
+      // Check if sw.js exists before registering
       const swPath = location.pathname.replace(/\/[^\/]*$/, '/') + 'sw.js';
       const swScope = location.pathname.replace(/\/[^\/]*$/, '/');
-      const reg = await navigator.serviceWorker.register(swPath, {scope: swScope});
-      window._swReg = reg;
-      console.log('✅ SW registered:', reg.scope);
-
-      // Escuchar mensajes del SW (nuevas OTs detectadas en background)
-      navigator.serviceWorker.addEventListener('message', e => {
-        if(e.data?.type === 'NEW_OTS'){
-          console.log('[SW→App] nuevas OTs detectadas, recargando...');
-          if(typeof loadAll === 'function') loadAll();
-        }
-      });
-
-      // Registrar periodic background sync si el navegador lo soporta
-      if('periodicSync' in reg){
-        try{
-          await reg.periodicSync.register('samara-check-ots', { minInterval: 30 * 1000 });
-          console.log('✅ Periodic background sync registrado');
-        }catch(psErr){
-          console.log('ℹ️ Periodic sync no disponible:', psErr.message);
-        }
+      const swResp = await fetch(swPath, {method:'HEAD'}).catch(()=>null);
+      if(swResp && swResp.ok){
+        const reg = await navigator.serviceWorker.register(swPath, {scope: swScope});
+        console.log('✅ SW registered:', reg.scope);
+        window._swReg = reg;
+        reg.addEventListener('updatefound', () => console.log('🔄 SW update found'));
+        // Escuchar mensajes del SW (nuevas OTs en background)
+        navigator.serviceWorker.addEventListener('message', e => {
+          if(e.data?.type==='PUSH_NOTIF' && typeof addNotif==='function'){
+            addNotif(e.data.body||'Nueva actualización', e.data.urgente?'urgente':'info');
+          }
+          if(e.data?.type==='NEW_OTS' && typeof loadAll==='function') loadAll();
+        });
+      } else {
+        console.log('ℹ️ sw.js not found — PWA offline mode disabled');
       }
     } catch(e) {
-      console.log('ℹ️ SW no disponible:', e.message);
+      console.log('ℹ️ SW not available:', e.message);
     }
   });
 }
@@ -2003,8 +1999,8 @@ async function bootApp(user){
   // Apply language from profile
   setLang(prof?.lang || 'es');
   addLangToggle();
-  // Solicitar permiso de notificaciones y registrar contexto en SW
-  _initPushNotifications();
+  // Pedir permiso de notificaciones al login (gesto del usuario = iOS lo permite)
+  _initNotificaciones();
 
   if(['ingeniero','ehs'].includes(curProf.rol)){
     await loadAll();
@@ -2095,54 +2091,25 @@ async function forceLoadAll(){ return loadAll(); }
 
 // setupRT redefined below with notifications
 
-// ── PUSH NOTIFICATIONS + SW CONTEXT ───────────────────────────
-async function _initPushNotifications(){
-  // 1. Pedir permiso de notificaciones
-  if(!('Notification' in window)) return;
-  let perm = Notification.permission;
-  if(perm === 'default'){
-    perm = await Notification.requestPermission();
-    console.log('🔔 Permiso notificaciones:', perm);
+// ── NOTIFICACIONES: init al login ────────────────────────────
+async function _initNotificaciones(){
+  // 1. Pedir permiso (el gesto de login lo permite en iOS)
+  if('Notification' in window && Notification.permission==='default'){
+    await Notification.requestPermission();
   }
-  if(perm !== 'granted'){
-    console.log('ℹ️ Notificaciones no permitidas');
-    return;
-  }
-
-  // 2. Enviar contexto del usuario al SW para que sepa qué notificar
-  await _enviarContextoAlSW();
-
-  // 3. Pedir al SW que haga un check inmediato
-  if(window._swReg?.active){
-    window._swReg.active.postMessage({
-      type: 'CHECK_NOW'
-    });
-  }
+  // 2. Enviar contexto al SW para background sync
+  _enviarContextoSW();
 }
 
-// Enviar contexto al Service Worker
-async function _enviarContextoAlSW(){
-  if(!navigator.serviceWorker?.controller && !window._swReg?.active) return;
-  const target = navigator.serviceWorker.controller || window._swReg?.active;
+function _enviarContextoSW(){
+  const target = navigator.serviceWorker?.controller || window._swReg?.active;
   if(!target) return;
   target.postMessage({
     type: 'INIT_USER',
-    payload: {
-      userId:    curUser?.id,
-      rol:       curProf?.rol,
-      zona:      curProf?.zona || null,
-      lastCheck: new Date().toISOString(),
-    }
-  });
-  console.log('✅ Contexto enviado al SW:', curProf?.rol);
-}
-
-// Cuando el admin crea una OT, pedir al SW que notifique a técnicos
-// (útil cuando la app del técnico está en background)
-function _swNotificarNuevaOT(ot){
-  if(!navigator.serviceWorker?.controller) return;
-  navigator.serviceWorker.controller.postMessage({
-    type: 'CHECK_NOW'
+    userId: curUser?.id,
+    rol:    curProf?.rol,
+    zona:   curProf?.zona||null,
+    lastCheck: new Date().toISOString(),
   });
 }
 
@@ -2699,9 +2666,7 @@ function renderOrdenes(){
   const f=filEl?filEl.value:'';
   let lista=f?allOTs.filter(o=>o.estado===f):allOTs;
   if(curProf.rol==='tecnico')lista=lista.filter(o=>
-    o.tecnico_id===curUser.id ||
-    (!o.tecnico_id && o.estado!=='Completada')
-  );
+    o.tecnico_id===curUser.id||(!o.tecnico_id&&o.estado!=='Completada'));
   document.getElementById('ots-wrap').innerHTML=lista.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Programado</th><th>Descripción</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th></th></tr></thead><tbody>${lista.map(o=>`<tr>
     <td style="font-size:11px;color:var(--txt3);">#${o.id}</td>
     <td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td>
@@ -3686,13 +3651,13 @@ function renderCLSel() {
 // Refresh when app comes back to foreground (PWA/mobile)
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible' && curUser){
-    // Limpiar sessionStorage de OTs del técnico para re-notificar al volver
+    // Limpiar sessionStorage del técnico para re-notificar OTs nuevas al volver
     try{
       Object.keys(sessionStorage)
         .filter(k=>k.startsWith('tec-libre-')||k.startsWith('tec-mia-')||k.startsWith('tec-pm-'))
         .forEach(k=>sessionStorage.removeItem(k));
     }catch(e){}
-    setupRT();
+    setupRT(); // reconectar canal (puede haberse caído en sleep de iPad)
     loadAll();
   }
 });
@@ -3952,7 +3917,7 @@ function addNotif(msg, tipo='info'){
   notifList.unshift(n);
   if(notifList.length > 30) notifList.pop();
   renderNotifList();
-  // Badge con número (igual que el punto rojo, pero con conteo)
+  // Badge con número (mismo punto rojo, pero con conteo)
   if(!notifOpen){
     const badge = document.getElementById('notif-badge');
     if(badge){
@@ -3961,9 +3926,13 @@ function addNotif(msg, tipo='info'){
       badge.style.cssText = 'display:flex;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:var(--red);color:#fff;border-radius:999px;font-size:9px;font-weight:700;align-items:center;justify-content:center;padding:0 3px;';
     }
   }
-  // Toast visible para todos los tipos — crítico para técnico en iPad
-  const pfx = {urgente:'🔴',info:'📋',ok:'✅',warn:'⚠️'};
+  // Toast para todos los tipos — el técnico lo ve aunque no abra la campana
+  const pfx={urgente:'🔴',info:'📋',ok:'✅',warn:'⚠️'};
   toast((pfx[tipo]||'📋')+' '+msg, tipo==='urgente'?6000:4000);
+  // Notificar al Service Worker para que haga push nativo si app está en background
+  if(navigator.serviceWorker?.controller){
+    navigator.serviceWorker.controller.postMessage({type:'IN_APP_NOTIF',title:(pfx[tipo]||'📋')+' Samara',body:msg,tag:tipo+'-'+Date.now(),urgent:tipo==='urgente'});
+  }
 }
 
 function renderNotifList(){
@@ -4031,22 +4000,19 @@ function setupRT(){
     .on('postgres_changes',{event:'*',schema:'public',table:'equipos'}, ()=>{ loadAll(); })
     .subscribe(status=>{
       const el = document.getElementById('rt-st');
-      if(el) el.textContent = status==='SUBSCRIBED' ? 'En vivo' : 'Reconectando...';
       console.log('RT status:', status);
+      if(el) el.textContent = status==='SUBSCRIBED' ? 'En vivo' : 'Reconectando...';
       if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
-        const delay=Math.min(3000*Math.pow(2,window._rtRetries||0),30000);
+        const d=Math.min(3000*Math.pow(2,window._rtRetries||0),30000);
         window._rtRetries=(window._rtRetries||0)+1;
-        setTimeout(()=>{window._rtRetries=0;setupRT();},delay);
-      } else if(status==='SUBSCRIBED'){
-        window._rtRetries=0;
-      }
+        setTimeout(()=>{window._rtRetries=0;setupRT();},d);
+      }else if(status==='SUBSCRIBED'){window._rtRetries=0;}
     });
 
-  // Polling cada 30s — garantiza que checkAlertas corra frecuentemente
   if(window._pollTimer) clearInterval(window._pollTimer);
   window._pollTimer = setInterval(()=>{
     if(document.visibilityState==='visible') loadAll();
-  }, 30000);
+  }, 30000); // cada 30s — garantiza que checkAlertas corra frecuentemente
 }
 
 // ══════════════════════════════════════════════════════════
@@ -4698,10 +4664,10 @@ function checkAlertas(){
   if(!curProf) return;
   const rol = curProf.rol;
 
-  // ── ADMIN / GERENCIA / SUPERVISOR ──────────────────────────────────────
+  // ── ADMIN / GERENCIA / SUPERVISOR ──────────────────────────────
   if(['admin','gerencia','supervisor'].includes(rol)){
     allEqs.forEach(eq=>{
-      if(eq.horas_actuales>=eq.frec_pm_horas && eq.frec_pm_horas>0){
+      if(eq.horas_actuales>=eq.frec_pm_horas&&eq.frec_pm_horas>0){
         const key='pm-vencido-'+eq.id;
         if(!sessionStorage.getItem(key)){
           addNotif(`⚠️ PM vencido: ${eq.nombre} (${eq.horas_actuales}h / ${eq.frec_pm_horas}h)`,'warn');
@@ -4727,17 +4693,17 @@ function checkAlertas(){
     });
   }
 
-  // ── TÉCNICO / SUPERVISOR_ZONA ───────────────────────────────────────────
-  // Exactamente el mismo patrón que stock crítico: recorre datos en memoria,
-  // sessionStorage anti-spam, addNotif dispara badge + toast
+  // ── TÉCNICO / SUPERVISOR_ZONA ───────────────────────────────────
+  // Exactamente el mismo patrón que stock crítico arriba:
+  // recorre allOTs en memoria → sessionStorage anti-spam → addNotif
   if(rol==='tecnico'||rol==='supervisor_zona'){
 
     // OTs sin asignar que el técnico puede tomar
     allOTs.filter(o=>!o.tecnico_id&&o.estado!=='Completada').forEach(o=>{
       const key='tec-libre-'+o.id;
       if(!sessionStorage.getItem(key)){
-        const esUrg=o.prioridad==='Urgente';
-        addNotif((esUrg?'🔴 OT Urgente sin asignar':'📋 OT disponible')+`: ${o.equipo_nombre} — ${o.tipo}`, esUrg?'urgente':'info');
+        const urg=o.prioridad==='Urgente';
+        addNotif((urg?'🔴 OT Urgente disponible':'📋 OT disponible')+`: ${o.equipo_nombre} — ${o.tipo}`,urg?'urgente':'info');
         try{sessionStorage.setItem(key,'1');}catch(e){}
       }
     });
@@ -4746,26 +4712,25 @@ function checkAlertas(){
     allOTs.filter(o=>o.tecnico_id===curUser?.id&&o.estado!=='Completada').forEach(o=>{
       const key='tec-mia-'+o.id;
       if(!sessionStorage.getItem(key)){
-        addNotif(`📋 OT asignada a ti: ${o.equipo_nombre} — ${o.tipo} (${o.prioridad})`, o.prioridad==='Urgente'?'urgente':'info');
+        addNotif(`📋 OT asignada a ti: ${o.equipo_nombre} — ${o.tipo} (${o.prioridad})`,o.prioridad==='Urgente'?'urgente':'info');
         try{sessionStorage.setItem(key,'1');}catch(e){}
       }
     });
 
-    // PMs programados en los próximos 7 días
-    const _hoy=new Date();_hoy.setHours(0,0,0,0);
-    const _en7=new Date(_hoy);_en7.setDate(_en7.getDate()+7);
+    // PMs programados esta semana
+    const _h=new Date();_h.setHours(0,0,0,0);
+    const _h7=new Date(_h);_h7.setDate(_h7.getDate()+7);
     allOTs.filter(o=>{
       if(!['Preventivo','Predictivo','Inspección'].includes(o.tipo))return false;
-      if(o.estado==='Completada')return false;
-      if(!o.fecha_programada)return false;
+      if(o.estado==='Completada'||!o.fecha_programada)return false;
       const fp=new Date(o.fecha_programada);
-      return fp>=_hoy&&fp<=_en7;
+      return fp>=_h&&fp<=_h7;
     }).forEach(o=>{
       const key='tec-pm-'+o.id;
       if(!sessionStorage.getItem(key)){
-        const dias=Math.round((new Date(o.fecha_programada)-_hoy)/(864e5));
+        const dias=Math.round((new Date(o.fecha_programada)-_h)/864e5);
         const cuando=dias===0?'HOY':dias===1?'mañana':`en ${dias} días`;
-        addNotif(`🔧 PM ${cuando}: ${o.equipo_nombre} — ${o.tipo}`, dias<=1?'warn':'info');
+        addNotif(`🔧 PM ${cuando}: ${o.equipo_nombre} — ${o.tipo}`,dias<=1?'warn':'info');
         try{sessionStorage.setItem(key,'1');}catch(e){}
       }
     });
@@ -6598,23 +6563,20 @@ function renderAgendaTecnico(){
   let mis_ots = isSuperZona
     ? allOTs.filter(o => o.estado !== 'Completada' || isToday(o.fecha_cierre))
     : allOTs.filter(o =>
-        o.tecnico_id === curUser?.id ||
-        o.tecnico_nombre === curProf?.nombre ||
-        (!o.tecnico_id && o.estado !== 'Completada')
-      );
+        o.tecnico_id===curUser?.id ||
+        o.tecnico_nombre===curProf?.nombre ||
+        (!o.tecnico_id&&o.estado!=='Completada'));
 
   const urgentes   = mis_ots.filter(o=>o.prioridad==='Urgente'&&o.estado!=='Completada').length;
   const sinAsignar = mis_ots.filter(o=>!o.tecnico_id&&o.estado!=='Completada').length;
   const completas  = mis_ots.filter(o=>o.estado==='Completada').length;
   const activas    = mis_ots.filter(o=>o.estado!=='Completada').length;
-  const _hoyA=new Date();_hoyA.setHours(0,0,0,0);
-  const _en7A=new Date(_hoyA);_en7A.setDate(_en7A.getDate()+7);
-  const pmsSemana  = allOTs.filter(o=>{
+  const _h0=new Date();_h0.setHours(0,0,0,0);
+  const _h7=new Date(_h0);_h7.setDate(_h7.getDate()+7);
+  const pmsSemana=allOTs.filter(o=>{
     if(!['Preventivo','Predictivo','Inspección'].includes(o.tipo))return false;
-    if(o.estado==='Completada')return false;
-    if(!o.fecha_programada)return false;
-    const fp=new Date(o.fecha_programada);
-    return fp>=_hoyA&&fp<=_en7A;
+    if(o.estado==='Completada'||!o.fecha_programada)return false;
+    const fp=new Date(o.fecha_programada);return fp>=_h0&&fp<=_h7;
   });
 
   const now = new Date();
@@ -6644,15 +6606,15 @@ function renderAgendaTecnico(){
     'pm_semana':pmsSemana.length,
     'hoy':      mis_ots.filter(o=>isToday(o.fecha_programada)||isToday(o.fecha_creacion)).length,
     'pendiente':mis_ots.filter(o=>o.estado==='Pendiente').length,
-    'completada':completas
+    'completada':completas,
   };
-  const _chipLbl={todas:'Todas',paro:'Paros',libre:'Sin asignar',pm_semana:'PMs semana',hoy:'Hoy',pendiente:'Pendiente',completada:'Completada'};
-  Object.entries(chipsData).forEach(([key,cnt])=>{
-    const el=document.getElementById('chip-'+key);
-    if(el) el.textContent=(_chipLbl[key]||key)+' '+cnt;
+  const _lbl={todas:'Todas',paro:'Paros',libre:'Sin asignar',pm_semana:'PMs semana',hoy:'Hoy',pendiente:'Pendiente',completada:'Completada'};
+  Object.entries(chipsData).forEach(([k,c])=>{
+    const el=document.getElementById('chip-'+k);
+    if(el) el.textContent=(_lbl[k]||k)+' '+c;
   });
-  if(document.getElementById('tec-kpi-progreso'))
-    document.getElementById('tec-kpi-progreso').textContent=sinAsignar;
+  const kpiSA=document.getElementById('tec-kpi-progreso');
+  if(kpiSA) kpiSA.textContent=sinAsignar;
 
   let filtered=[...mis_ots];
   if(tecFilter==='paro')       filtered=mis_ots.filter(o=>o.prioridad==='Urgente'&&o.estado!=='Completada');
@@ -6699,7 +6661,7 @@ function renderAgendaTecnico(){
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span style="font-size:11px;font-weight:600;color:var(--txt3);background:var(--bg3);padding:3px 8px;border-radius:4px;">OT-${o.id}</span>
-          ${isSinAsig?'<span style="font-size:10px;font-weight:700;color:var(--blue-txt);background:var(--blue-bg);padding:3px 8px;border-radius:20px;">Disponible — tómala</span>':''}
+          ${isSinAsig?'<span style="font-size:10px;font-weight:700;color:var(--blue-txt);background:var(--blue-bg);padding:3px 8px;border-radius:20px;">📋 Disponible — tómala</span>':''}
           ${isUrgente?'<span style="font-size:10px;font-weight:600;color:var(--red);background:rgba(192,53,42,.08);padding:3px 8px;border-radius:20px;">● Crítica</span>':''}
           ${slaBadge}
         </div>
