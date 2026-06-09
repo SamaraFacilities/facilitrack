@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // SAMARA FACILITIES — Service Worker v4
 // Background sync para iOS PWA
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 
 const CACHE_NAME = 'samara-v4';
 const SUPA_URL   = 'https://knzelkthjzdtlghaizmr.supabase.co';
