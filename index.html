@@ -3861,11 +3861,28 @@ let notifOpen = false;
 function toggleNotifPanel(){
   const panel = document.getElementById('notif-panel');
   notifOpen = !notifOpen;
-  panel.style.display = notifOpen ? 'block' : 'none';
   if(notifOpen){
-    // Mark as read — limpiar badge
+    // En móvil (técnico), reposicionar el panel debajo del top bar
+    const isMobile = document.body.classList.contains('fdym');
+    if(isMobile){
+      panel.style.position = 'fixed';
+      panel.style.top = '70px';
+      panel.style.left = '12px';
+      panel.style.right = '12px';
+      panel.style.width = 'auto';
+      panel.style.zIndex = '500';
+      document.body.appendChild(panel); // mover al body para que no quede oculto
+    }
+    panel.style.display = 'block';
+  } else {
+    panel.style.display = 'none';
+  }
+  if(notifOpen){
+    // Mark as read — limpiar ambos badges (desktop + móvil)
     const _nb = document.getElementById('notif-badge');
     if(_nb){ _nb.style.display = 'none'; _nb.textContent = ''; }
+    const _fdymNb = document.getElementById('fdym-notif-badge');
+    if(_fdymNb){ _fdymNb.style.display = 'none'; _fdymNb.textContent = ''; }
     // Close on outside click
     setTimeout(()=>{
       document.addEventListener('click', closeNotifOnOutside, {once:true});
@@ -3887,6 +3904,8 @@ function clearNotifs(){
   renderNotifList();
   const _b = document.getElementById('notif-badge');
   if(_b){ _b.style.display = 'none'; _b.textContent = ''; }
+  const _fdymB = document.getElementById('fdym-notif-badge');
+  if(_fdymB){ _fdymB.style.display = 'none'; _fdymB.textContent = ''; }
 }
 
 function addNotif(msg, tipo='info'){
@@ -3894,17 +3913,42 @@ function addNotif(msg, tipo='info'){
   notifList.unshift(n);
   if(notifList.length > 30) notifList.pop();
   renderNotifList();
-  // Actualizar badge con conteo
+  // Actualizar AMBOS badges: desktop y móvil
   if(!notifOpen){
+    const count = notifList.length;
+    const countTxt = count > 9 ? '9+' : String(count);
+    // Badge desktop (header)
     const badge = document.getElementById('notif-badge');
     if(badge){
-      const count = notifList.length;
-      badge.textContent = count > 9 ? '9+' : String(count);
+      badge.textContent = countTxt;
       badge.style.cssText = 'display:flex;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:var(--red);color:#fff;border-radius:999px;font-size:9px;font-weight:700;align-items:center;justify-content:center;padding:0 3px;';
     }
+    // Badge móvil (fdym top bar - técnicos)
+    const fdymBadge = document.getElementById('fdym-notif-badge');
+    if(fdymBadge){
+      fdymBadge.textContent = countTxt;
+      fdymBadge.style.display = 'flex';
+    }
   }
-  // Urgente: toast automático siempre
-  if(tipo === 'urgente') toast('🔴 ' + msg, 6000);
+  // Toast automático: urgentes siempre, info/warn también para técnicos
+  if(tipo === 'urgente'){
+    toast('🔴 ' + msg, 6000);
+  } else if(['tecnico','supervisor_zona'].includes(curProf?.rol)){
+    toast('📋 ' + msg, 4500);
+  }
+}
+
+// Sincronizar badge móvil con estado actual de notifList
+function _fdymSyncBadge(){
+  const count = notifList.length;
+  const fdymBadge = document.getElementById('fdym-notif-badge');
+  if(!fdymBadge) return;
+  if(count > 0 && !notifOpen){
+    fdymBadge.textContent = count > 9 ? '9+' : String(count);
+    fdymBadge.style.display = 'flex';
+  } else {
+    fdymBadge.style.display = 'none';
+  }
 }
 
 function renderNotifList(){
@@ -8065,10 +8109,16 @@ function _initFoundryMobile(){
         <div class="nm">${nm}</div>
         <div class="role">${rol}${window.curProf?.zona?' · '+window.curProf.zona:''}</div>
       </div>
+      <div class="iconbtn" id="fdym-bell-btn" onclick="window.toggleNotifPanel&&toggleNotifPanel()" title="Notificaciones" style="position:relative;">
+        <i class="ti ti-bell"></i>
+        <span id="fdym-notif-badge" style="display:none;position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;background:#b02a1a;color:#fff;border-radius:999px;font-size:9px;font-weight:700;align-items:center;justify-content:center;padding:0 3px;"></span>
+      </div>
       <div class="iconbtn" onclick="window.doLogout&&doLogout()" title="Salir">
         <i class="ti ti-logout"></i>
       </div>
     `;
+    // Sync badge state after render
+    _fdymSyncBadge();
   }
 
   function statsCard(){
