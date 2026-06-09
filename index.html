@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Samara">
 <meta name="theme-color" content="#ffffff">
-<meta name="description" content="Samara Facilities — Gestión de mantenimiento industrial">
+<meta name="description" content="Samara Facilities Tracking — Gestión de mantenimiento industrial">
 <script>
 const _origin = location.origin + location.pathname.replace(/\/[^\/]*$/, '/');
 const _manifest = {
@@ -1696,15 +1696,7 @@ if('serviceWorker' in navigator){
       if(swResp && swResp.ok){
         const reg = await navigator.serviceWorker.register(swPath, {scope: swScope});
         console.log('✅ SW registered:', reg.scope);
-        window._swReg = reg;
         reg.addEventListener('updatefound', () => console.log('🔄 SW update found'));
-        // Escuchar mensajes del SW (nuevas OTs en background)
-        navigator.serviceWorker.addEventListener('message', e => {
-          if(e.data?.type==='PUSH_NOTIF' && typeof addNotif==='function'){
-            addNotif(e.data.body||'Nueva actualización', e.data.urgente?'urgente':'info');
-          }
-          if(e.data?.type==='NEW_OTS' && typeof loadAll==='function') loadAll();
-        });
       } else {
         console.log('ℹ️ sw.js not found — PWA offline mode disabled');
       }
@@ -1716,7 +1708,7 @@ if('serviceWorker' in navigator){
 
 // ── PWA: Push Notifications ──
 let swRegistration = null;
-const VAPID_PUBLIC_KEY = ''; // Set your VAPID key here when deploying
+const VAPID_PUBLIC_KEY = 'BGurRvz8mvqskE8qxxxhc9pVsZURw3A6i9voLBlnYQMAZ05q_kV1goa1kUllgR0w65aWeNTGLfJkDbbfYM11Ppk'; // VAPID public key para push nativas
 
 async function requestPushPermission(){
   if(!('Notification' in window)) return false;
@@ -1727,36 +1719,77 @@ async function requestPushPermission(){
 }
 
 async function subscribeToPush(){
-  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if(!('serviceWorker' in navigator)) return;
   try {
     const reg = await navigator.serviceWorker.ready;
     swRegistration = reg;
-    const granted = await requestPushPermission();
-    if(!granted){ console.log('Push permission denied'); return; }
-    console.log('✅ Push notifications enabled');
+    // Pedir permiso
+    const perm = Notification.permission === 'granted'
+      ? 'granted'
+      : await Notification.requestPermission();
+    if(perm !== 'granted'){ console.log('Push: permiso denegado'); return; }
+
+    // Registrar suscripción push con VAPID
+    if('PushManager' in window && VAPID_PUBLIC_KEY){
+      try{
+        // Verificar si ya hay suscripción activa
+        let sub = await reg.pushManager.getSubscription();
+        if(!sub){
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: _urlB64ToUint8(VAPID_PUBLIC_KEY),
+          });
+          console.log('✅ Push subscription creada:', JSON.stringify(sub));
+        } else {
+          console.log('✅ Push subscription ya existía');
+        }
+        window._pushSubscription = sub;
+      } catch(subErr){
+        console.warn('PushManager.subscribe failed (normal en iOS sin PWA):', subErr.message);
+      }
+    }
+
+    // Guardar contexto en SW para background check
+    if(reg.active){
+      reg.active.postMessage({
+        type: 'INIT_USER',
+        userId: curUser?.id,
+        rol:    curProf?.rol,
+        zona:   curProf?.zona || null,
+        lastCheck: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Push notifications inicializadas');
   } catch(e) {
-    console.warn('Push subscription failed:', e);
+    console.warn('subscribeToPush error:', e);
   }
 }
 
-// Send native push notification via SW
+// Helper: convertir base64url a Uint8Array para VAPID
+function _urlB64ToUint8(base64String){
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+// Mostrar notificación nativa via SW (funciona en background y en foreground)
 async function sendNativePush(title, body, data={}){
   if(!('serviceWorker' in navigator)) return;
   if(Notification.permission !== 'granted') return;
   try {
     const reg = await navigator.serviceWorker.ready;
-    reg.showNotification(title, {
+    await reg.showNotification(title, {
       body,
-      icon: 'icon-192.png',
-      badge: 'icon-96.png',
-      tag: data.tag || 'samara-notif',
+      icon:    'icon-192.png',
+      badge:   'icon-192.png',
+      tag:     data.tag || 'samara',
       data,
-      vibrate: [200, 100, 200],
-      actions: data.actions || [],
-      silent: false,
+      vibrate: data.urgent ? [300,100,300,100,300] : [200,100,200],
+      requireInteraction: data.urgent || false,
     });
   } catch(e) {
-    console.warn('Push failed:', e);
+    console.warn('showNotification failed:', e.message);
   }
 }
 
@@ -1999,8 +2032,7 @@ async function bootApp(user){
   // Apply language from profile
   setLang(prof?.lang || 'es');
   addLangToggle();
-  // Pedir permiso de notificaciones al login (gesto del usuario = iOS lo permite)
-  _initNotificaciones();
+  subscribeToPush(); // Request push permission
 
   if(['ingeniero','ehs'].includes(curProf.rol)){
     await loadAll();
@@ -2090,28 +2122,6 @@ async function forceLoadAll(){ return loadAll(); }
 
 
 // setupRT redefined below with notifications
-
-// ── NOTIFICACIONES: init al login ────────────────────────────
-async function _initNotificaciones(){
-  // 1. Pedir permiso (el gesto de login lo permite en iOS)
-  if('Notification' in window && Notification.permission==='default'){
-    await Notification.requestPermission();
-  }
-  // 2. Enviar contexto al SW para background sync
-  _enviarContextoSW();
-}
-
-function _enviarContextoSW(){
-  const target = navigator.serviceWorker?.controller || window._swReg?.active;
-  if(!target) return;
-  target.postMessage({
-    type: 'INIT_USER',
-    userId: curUser?.id,
-    rol:    curProf?.rol,
-    zona:   curProf?.zona||null,
-    lastCheck: new Date().toISOString(),
-  });
-}
 
 // ── NAVEGACIÓN ──
 const TABS=['escaner','dashboard','programar','calendario','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
@@ -3651,13 +3661,12 @@ function renderCLSel() {
 // Refresh when app comes back to foreground (PWA/mobile)
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible' && curUser){
-    // Limpiar sessionStorage del técnico para re-notificar OTs nuevas al volver
     try{
       Object.keys(sessionStorage)
         .filter(k=>k.startsWith('tec-libre-')||k.startsWith('tec-mia-')||k.startsWith('tec-pm-'))
         .forEach(k=>sessionStorage.removeItem(k));
     }catch(e){}
-    setupRT(); // reconectar canal (puede haberse caído en sleep de iPad)
+    setupRT();
     loadAll();
   }
 });
@@ -3917,7 +3926,7 @@ function addNotif(msg, tipo='info'){
   notifList.unshift(n);
   if(notifList.length > 30) notifList.pop();
   renderNotifList();
-  // Badge con número (mismo punto rojo, pero con conteo)
+  // Badge con número
   if(!notifOpen){
     const badge = document.getElementById('notif-badge');
     if(badge){
@@ -3926,13 +3935,12 @@ function addNotif(msg, tipo='info'){
       badge.style.cssText = 'display:flex;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:var(--red);color:#fff;border-radius:999px;font-size:9px;font-weight:700;align-items:center;justify-content:center;padding:0 3px;';
     }
   }
-  // Toast para todos los tipos — el técnico lo ve aunque no abra la campana
+  // Toast siempre visible en pantalla
   const pfx={urgente:'🔴',info:'📋',ok:'✅',warn:'⚠️'};
   toast((pfx[tipo]||'📋')+' '+msg, tipo==='urgente'?6000:4000);
-  // Notificar al Service Worker para que haga push nativo si app está en background
-  if(navigator.serviceWorker?.controller){
-    navigator.serviceWorker.controller.postMessage({type:'IN_APP_NOTIF',title:(pfx[tipo]||'📋')+' Samara',body:msg,tag:tipo+'-'+Date.now(),urgent:tipo==='urgente'});
-  }
+  // Push nativa al SO (funciona con app abierta Y en background)
+  const titles={urgente:'🔴 Samara — Urgente',info:'📋 Samara',ok:'✅ Samara',warn:'⚠️ Samara'};
+  sendNativePush(titles[tipo]||'Samara', msg, {tag:'samara-'+tipo+'-'+Date.now(), urgent: tipo==='urgente'});
 }
 
 function renderNotifList(){
@@ -4012,7 +4020,7 @@ function setupRT(){
   if(window._pollTimer) clearInterval(window._pollTimer);
   window._pollTimer = setInterval(()=>{
     if(document.visibilityState==='visible') loadAll();
-  }, 30000); // cada 30s — garantiza que checkAlertas corra frecuentemente
+  }, 30000); // cada 30s — checkAlertas corre en cada loadAll
 }
 
 // ══════════════════════════════════════════════════════════
@@ -4694,11 +4702,10 @@ function checkAlertas(){
   }
 
   // ── TÉCNICO / SUPERVISOR_ZONA ───────────────────────────────────
-  // Exactamente el mismo patrón que stock crítico arriba:
-  // recorre allOTs en memoria → sessionStorage anti-spam → addNotif
+  // Mismo patrón exacto: allOTs en memoria → sessionStorage → addNotif → badge + toast + push nativa
   if(rol==='tecnico'||rol==='supervisor_zona'){
 
-    // OTs sin asignar que el técnico puede tomar
+    // OTs sin asignar que puede tomar
     allOTs.filter(o=>!o.tecnico_id&&o.estado!=='Completada').forEach(o=>{
       const key='tec-libre-'+o.id;
       if(!sessionStorage.getItem(key)){
@@ -4708,7 +4715,7 @@ function checkAlertas(){
       }
     });
 
-    // OTs asignadas a este técnico (nuevas)
+    // OTs asignadas a este técnico
     allOTs.filter(o=>o.tecnico_id===curUser?.id&&o.estado!=='Completada').forEach(o=>{
       const key='tec-mia-'+o.id;
       if(!sessionStorage.getItem(key)){
@@ -4717,14 +4724,13 @@ function checkAlertas(){
       }
     });
 
-    // PMs programados esta semana
+    // PMs esta semana
     const _h=new Date();_h.setHours(0,0,0,0);
     const _h7=new Date(_h);_h7.setDate(_h7.getDate()+7);
     allOTs.filter(o=>{
       if(!['Preventivo','Predictivo','Inspección'].includes(o.tipo))return false;
       if(o.estado==='Completada'||!o.fecha_programada)return false;
-      const fp=new Date(o.fecha_programada);
-      return fp>=_h&&fp<=_h7;
+      const fp=new Date(o.fecha_programada);return fp>=_h&&fp<=_h7;
     }).forEach(o=>{
       const key='tec-pm-'+o.id;
       if(!sessionStorage.getItem(key)){
@@ -6562,9 +6568,9 @@ function renderAgendaTecnico(){
   const isSuperZona = curProf?.rol === 'supervisor_zona';
   let mis_ots = isSuperZona
     ? allOTs.filter(o => o.estado !== 'Completada' || isToday(o.fecha_cierre))
-    : allOTs.filter(o =>
-        o.tecnico_id===curUser?.id ||
-        o.tecnico_nombre===curProf?.nombre ||
+    : allOTs.filter(o=>
+        o.tecnico_id===curUser?.id||
+        o.tecnico_nombre===curProf?.nombre||
         (!o.tecnico_id&&o.estado!=='Completada'));
 
   const urgentes   = mis_ots.filter(o=>o.prioridad==='Urgente'&&o.estado!=='Completada').length;
@@ -6613,8 +6619,8 @@ function renderAgendaTecnico(){
     const el=document.getElementById('chip-'+k);
     if(el) el.textContent=(_lbl[k]||k)+' '+c;
   });
-  const kpiSA=document.getElementById('tec-kpi-progreso');
-  if(kpiSA) kpiSA.textContent=sinAsignar;
+  const _kpiSA=document.getElementById('tec-kpi-progreso');
+  if(_kpiSA) _kpiSA.textContent=sinAsignar;
 
   let filtered=[...mis_ots];
   if(tecFilter==='paro')       filtered=mis_ots.filter(o=>o.prioridad==='Urgente'&&o.estado!=='Completada');
