@@ -212,3 +212,7 @@ async function getCtx() {
     r.onerror   = e => rej(e.target.error);
   });
 }
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false  # ← esto evita el error de cancelación
