@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // SAMARA FACILITIES — Service Worker v3
 // Fusión del sw.js original con background sync de Supabase
-// ═══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════
 
 const CACHE_NAME  = 'samara-v3';
 const OFFLINE_URL = '/index.html';
