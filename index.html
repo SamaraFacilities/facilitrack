@@ -2318,6 +2318,14 @@ async function crearOTSupervisorZona(){
   toast('✅ Orden de trabajo creada — pendiente de asignación');
   // Notificar in-app: OT sin asignar esperando técnico
   addNotif(`📋 OT creada sin asignar: ${eq.codigo} – ${eq.nombre} · ${tipo} · ${pri}`, pri==='Urgente'?'urgente':'info');
+  // Broadcast a técnicos conectados
+  if(db){
+    const _sCh = window._broadcastCh || db.channel('samara-broadcast');
+    _sCh.send({type:'broadcast', event:'nueva-ot', payload:{
+      equipo_nombre: `${eq.codigo} – ${eq.nombre}`, tipo, prioridad: pri,
+      tecnico_id: null, tecnico_nombre: null
+    }}).catch(()=>{});
+  }
 
   // Mostrar confirmación visual inline
   const card=document.querySelector('#sz-panel .card:last-of-type');
@@ -2695,15 +2703,25 @@ async function crearOT(){
   if(error){toast('Error: '+error.message);return;}
   closeM('modal-ot');
   await forceLoadAll();
-  // Notificar in-app de la OT recién creada
+  // Notificar in-app + emitir broadcast para técnicos (bypassa RLS)
   {
     const _fTId = document.getElementById('f-tec')?.value;
     const _fTec = allProfs.find(p=>p.id===_fTId);
     const _fPri = document.getElementById('f-pri')?.value || '';
-    const _fEqNom = document.getElementById('f-equipo')?.options[document.getElementById('f-equipo')?.selectedIndex]?.text || 'Equipo';
+    const _fEqEl = document.getElementById('f-equipo');
+    const _fEqNom = _fEqEl?.options[_fEqEl?.selectedIndex]?.text || 'Equipo';
+    const _fTipo = document.getElementById('f-tipo')?.value || '';
     const _newOTMsg = (_fPri==='Urgente'?'🔴 OT Urgente creada':'📋 OT creada')
       + `: ${_fEqNom}` + (_fTec ? ` → asignada a ${_fTec.nombre}` : ' → sin asignar');
     addNotif(_newOTMsg, _fPri==='Urgente'?'urgente':'info');
+    // Broadcast a técnicos conectados
+    if(window._broadcastCh || db){
+      const _ch = window._broadcastCh || db.channel('samara-broadcast');
+      _ch.send({type:'broadcast', event:'nueva-ot', payload:{
+        equipo_nombre: _fEqNom, tipo: _fTipo, prioridad: _fPri,
+        tecnico_id: _fTId || null, tecnico_nombre: _fTec?.nombre || null
+      }}).catch(()=>{});
+    }
   }
 
   // Feedback especial para supervisor de zona: confirmar y ofrecer nuevo scan
@@ -3632,7 +3650,9 @@ function renderCLSel() {
 // Refresh when app comes back to foreground (PWA/mobile)
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible' && curUser){
-    console.log('📱 App visible again - refreshing data');
+    console.log('📱 App visible again - refreshing data + reconnecting RT');
+    // Reconectar el canal realtime (puede haberse caído en background/sleep de iPad)
+    setupRT();
     loadAll();
   }
 });
@@ -3973,7 +3993,8 @@ function renderNotifList(){
 function setupRT(){
   if(rtCh) db.removeChannel(rtCh);
 
-  rtCh = db.channel('samara-rt-'+Date.now())
+  // Usar nombre de canal fijo para evitar canales huérfanos al reconectar
+  rtCh = db.channel('samara-main-v2')
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'ordenes_trabajo'}, payload=>{
       const ot = payload.new;
       if(!ot) return;
@@ -4046,17 +4067,63 @@ function setupRT(){
       const el = document.getElementById('rt-st');
       console.log('RT status:', status);
       if(el) el.textContent = status==='SUBSCRIBED' ? 'En vivo' : 'Reconectando...';
-      // If subscription fails, retry after 5s
-      if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
-        setTimeout(setupRT, 5000);
+      if(status === 'SUBSCRIBED'){
+        // Canal activo: limpiar timer de reconexión si había uno
+        if(window._rtRetryTimer){ clearTimeout(window._rtRetryTimer); window._rtRetryTimer = null; }
+        console.log('✅ Realtime subscribed OK');
+      }
+      if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
+        // Reconexión exponencial: 3s, 6s, 12s...
+        const _delay = Math.min(3000 * Math.pow(2, window._rtRetries || 0), 30000);
+        window._rtRetries = (window._rtRetries || 0) + 1;
+        console.warn(`⚠️ RT ${status} — reintentando en ${_delay}ms (intento ${window._rtRetries})`);
+        window._rtRetryTimer = setTimeout(()=>{ window._rtRetries = 0; setupRT(); }, _delay);
       }
     });
 
-  // Polling fallback every 30s to ensure data is always fresh
+  // ── Canal de broadcast: técnicos reciben aviso cuando se crea una OT ──
+  // Esto bypassa el problema de RLS en postgres_changes para técnicos
+  if(window._broadcastCh){ try{ db.removeChannel(window._broadcastCh); }catch(e){} }
+  window._broadcastCh = db.channel('samara-broadcast')
+    .on('broadcast', {event:'nueva-ot'}, ({payload}) => {
+      if(!payload) return;
+      const _esTec = ['tecnico','supervisor_zona'].includes(curProf?.rol);
+      if(!_esTec) return;
+      const _esUrg = payload.prioridad === 'Urgente';
+      const _asigTxt = payload.tecnico_id && String(payload.tecnico_id) === String(curUser?.id)
+        ? ' — asignada a ti'
+        : payload.tecnico_id ? '' : ' — sin asignar, puedes tomarla';
+      const _msg = (_esUrg ? '🔴 OT Urgente' : '📋 Nueva OT') + `: ${payload.equipo_nombre || 'Equipo'}${_asigTxt}`;
+      addNotif(_msg, _esUrg ? 'urgente' : 'info');
+      // Recargar datos para que aparezca en la lista
+      loadAll();
+    })
+    .subscribe();
+  console.log('📡 Broadcast channel subscribed');
+
+  // Polling agresivo — especialmente para técnicos en iPad donde el realtime
+  // puede no recibir eventos por RLS o por reconexión tras sleep
   if(window._pollTimer) clearInterval(window._pollTimer);
-  window._pollTimer = setInterval(()=>{
-    if(document.visibilityState === 'visible') loadAll();
-  }, 120000); // poll every 2 min
+  window._pollTimer = setInterval(async ()=>{
+    if(document.visibilityState !== 'visible') return;
+    // Guardar snapshot de OTs antes de recargar
+    const _prevOTCount = (window.allOTs || []).length;
+    const _prevOTIds = new Set((window.allOTs || []).map(o => o.id));
+    await loadAll();
+    // Detectar OTs nuevas y notificar al técnico (por si el realtime falló)
+    const _esTecnico = ['tecnico','supervisor_zona'].includes(curProf?.rol);
+    if(_esTecnico){
+      const _nuevas = (window.allOTs || []).filter(o => !_prevOTIds.has(o.id));
+      _nuevas.forEach(ot => {
+        const _esUrg = ot.prioridad === 'Urgente';
+        const _asigTxt = ot.tecnico_id && String(ot.tecnico_id) === String(curUser?.id)
+          ? ' — asignada a ti'
+          : ot.tecnico_id ? '' : ' — sin asignar, puedes tomarla';
+        const _msg = (_esUrg ? '🔴 OT Urgente' : '📋 Nueva OT') + `: ${ot.equipo_nombre || 'Equipo'}${_asigTxt}`;
+        addNotif(_msg, _esUrg ? 'urgente' : 'info');
+      });
+    }
+  }, 15000); // cada 15 segundos
 }
 
 // ══════════════════════════════════════════════════════════
