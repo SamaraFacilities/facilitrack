@@ -1708,7 +1708,7 @@ if('serviceWorker' in navigator){
 
 // ── PWA: Push Notifications ──
 let swRegistration = null;
-const VAPID_PUBLIC_KEY = 'BGurRvz8mvqskE8qxxxhc9pVsZURw3A6i9voLBlnYQMAZ05q_kV1goa1kUllgR0w65aWeNTGLfJkDbbfYM11Ppk'; // VAPID public key para push nativas
+const VAPID_PUBLIC_KEY = ''; // Set your VAPID key here when deploying
 
 async function requestPushPermission(){
   if(!('Notification' in window)) return false;
@@ -1720,36 +1720,15 @@ async function requestPushPermission(){
 
 async function subscribeToPush(){
   if(!('serviceWorker' in navigator)) return;
+  if(Notification.permission !== 'granted'){
+    console.log('Push: permiso no concedido, saltando suscripción');
+    return;
+  }
   try {
     const reg = await navigator.serviceWorker.ready;
     swRegistration = reg;
-    // Pedir permiso
-    const perm = Notification.permission === 'granted'
-      ? 'granted'
-      : await Notification.requestPermission();
-    if(perm !== 'granted'){ console.log('Push: permiso denegado'); return; }
 
-    // Registrar suscripción push con VAPID
-    if('PushManager' in window && VAPID_PUBLIC_KEY){
-      try{
-        // Verificar si ya hay suscripción activa
-        let sub = await reg.pushManager.getSubscription();
-        if(!sub){
-          sub = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: _urlB64ToUint8(VAPID_PUBLIC_KEY),
-          });
-          console.log('✅ Push subscription creada:', JSON.stringify(sub));
-        } else {
-          console.log('✅ Push subscription ya existía');
-        }
-        window._pushSubscription = sub;
-      } catch(subErr){
-        console.warn('PushManager.subscribe failed (normal en iOS sin PWA):', subErr.message);
-      }
-    }
-
-    // Guardar contexto en SW para background check
+    // Enviar contexto del usuario al SW para background polling
     if(reg.active){
       reg.active.postMessage({
         type: 'INIT_USER',
@@ -1759,21 +1738,22 @@ async function subscribeToPush(){
         lastCheck: new Date().toISOString(),
       });
     }
-    console.log('✅ Push notifications inicializadas');
+
+    // Listener de mensajes del SW (nuevas OTs detectadas en background)
+    if(!navigator.serviceWorker._samaraListenerAdded){
+      navigator.serviceWorker._samaraListenerAdded = true;
+      navigator.serviceWorker.addEventListener('message', e => {
+        if(e.data?.type === 'NEW_OTS' && typeof loadAll === 'function') loadAll();
+      });
+    }
+
+    console.log('✅ Push notifications listas — permiso:', Notification.permission);
   } catch(e) {
-    console.warn('subscribeToPush error:', e);
+    console.warn('subscribeToPush error:', e.message);
   }
 }
 
-// Helper: convertir base64url a Uint8Array para VAPID
-function _urlB64ToUint8(base64String){
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(base64);
-  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
-}
-
-// Mostrar notificación nativa via SW (funciona en background y en foreground)
+// Helper: mostrar notificación nativa via SW
 async function sendNativePush(title, body, data={}){
   if(!('serviceWorker' in navigator)) return;
   if(Notification.permission !== 'granted') return;
@@ -1781,15 +1761,36 @@ async function sendNativePush(title, body, data={}){
     const reg = await navigator.serviceWorker.ready;
     await reg.showNotification(title, {
       body,
-      icon:    'icon-192.png',
-      badge:   'icon-192.png',
-      tag:     data.tag || 'samara',
-      data,
-      vibrate: data.urgent ? [300,100,300,100,300] : [200,100,200],
+      icon:               'icon-192.png',
+      badge:              'icon-192.png',
+      tag:                data.tag || 'samara',
+      vibrate:            data.urgent ? [300,100,300,100,300] : [200,100,200],
       requireInteraction: data.urgent || false,
+      data,
+    });
+  } catch(e){
+    console.warn('showNotification:', e.message);
+  }
+}
+
+// Send native push notification via SW
+async function sendNativePush(title, body, data={}){
+  if(!('serviceWorker' in navigator)) return;
+  if(Notification.permission !== 'granted') return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    reg.showNotification(title, {
+      body,
+      icon: 'icon-192.png',
+      badge: 'icon-96.png',
+      tag: data.tag || 'samara-notif',
+      data,
+      vibrate: [200, 100, 200],
+      actions: data.actions || [],
+      silent: false,
     });
   } catch(e) {
-    console.warn('showNotification failed:', e.message);
+    console.warn('Push failed:', e);
   }
 }
 
@@ -1898,6 +1899,16 @@ function setPasos(activo){
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.addEventListener('DOMContentLoaded',()=>{const u=document.getElementById('l-username');if(u)u.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('l-pass').focus();});});
 async function doLogin(){
+  // ── Pedir permiso de notificaciones AQUÍ ──────────────────────
+  // Debe ser lo primero, antes de cualquier await, para que iOS Safari
+  // reconozca que viene de un gesto directo del usuario (click en el botón)
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission().then(p => {
+      console.log('🔔 Permiso notificaciones:', p);
+    });
+    // No hacer await aquí — continuar el login sin esperar
+  }
+
   if(!db){
     document.getElementById('login-err').textContent='Error: Supabase no inicializado.';
     document.getElementById('login-err').classList.add('show');
@@ -3897,8 +3908,8 @@ function toggleNotifPanel(){
   notifOpen = !notifOpen;
   panel.style.display = notifOpen ? 'block' : 'none';
   if(notifOpen){
-    const _nb=document.getElementById('notif-badge');
-    if(_nb){_nb.style.display='none';_nb.textContent='';}
+    const _nb = document.getElementById('notif-badge');
+    if(_nb){ _nb.style.display='none'; _nb.textContent=''; }
     // Close on outside click
     setTimeout(()=>{
       document.addEventListener('click', closeNotifOnOutside, {once:true});
@@ -3935,11 +3946,11 @@ function addNotif(msg, tipo='info'){
       badge.style.cssText = 'display:flex;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:var(--red);color:#fff;border-radius:999px;font-size:9px;font-weight:700;align-items:center;justify-content:center;padding:0 3px;';
     }
   }
-  // Toast siempre visible en pantalla
-  const pfx={urgente:'🔴',info:'📋',ok:'✅',warn:'⚠️'};
+  // Toast visible en pantalla para todos los tipos
+  const pfx = {urgente:'🔴', info:'📋', ok:'✅', warn:'⚠️'};
   toast((pfx[tipo]||'📋')+' '+msg, tipo==='urgente'?6000:4000);
-  // Push nativa al SO (funciona con app abierta Y en background)
-  const titles={urgente:'🔴 Samara — Urgente',info:'📋 Samara',ok:'✅ Samara',warn:'⚠️ Samara'};
+  // Push nativa al SO (aparece en el centro de notificaciones del dispositivo)
+  const titles = {urgente:'🔴 Samara — Urgente', info:'📋 Samara', ok:'✅ Samara', warn:'⚠️ Samara'};
   sendNativePush(titles[tipo]||'Samara', msg, {tag:'samara-'+tipo+'-'+Date.now(), urgent: tipo==='urgente'});
 }
 
@@ -4702,10 +4713,10 @@ function checkAlertas(){
   }
 
   // ── TÉCNICO / SUPERVISOR_ZONA ───────────────────────────────────
-  // Mismo patrón exacto: allOTs en memoria → sessionStorage → addNotif → badge + toast + push nativa
+  // Idéntico al bloque de stock crítico: allOTs en memoria → sessionStorage → addNotif
   if(rol==='tecnico'||rol==='supervisor_zona'){
 
-    // OTs sin asignar que puede tomar
+    // OTs sin asignar disponibles para tomar
     allOTs.filter(o=>!o.tecnico_id&&o.estado!=='Completada').forEach(o=>{
       const key='tec-libre-'+o.id;
       if(!sessionStorage.getItem(key)){
@@ -4724,7 +4735,7 @@ function checkAlertas(){
       }
     });
 
-    // PMs esta semana
+    // PMs programados esta semana
     const _h=new Date();_h.setHours(0,0,0,0);
     const _h7=new Date(_h);_h7.setDate(_h7.getDate()+7);
     allOTs.filter(o=>{
@@ -6606,27 +6617,20 @@ function renderAgendaTecnico(){
   if(kpiC) kpiC.textContent=completas;
 
   const chipsData={
-    'todas':    mis_ots.length,
-    'paro':     urgentes,
-    'libre':    sinAsignar,
-    'pm_semana':pmsSemana.length,
+    'todas':    mis_ots.length,    'paro':     urgentes,
+    'libre':    sinAsignar,        'pm_semana':pmsSemana.length,
     'hoy':      mis_ots.filter(o=>isToday(o.fecha_programada)||isToday(o.fecha_creacion)).length,
-    'pendiente':mis_ots.filter(o=>o.estado==='Pendiente').length,
-    'completada':completas,
+    'pendiente':mis_ots.filter(o=>o.estado==='Pendiente').length,'completada':completas,
   };
   const _lbl={todas:'Todas',paro:'Paros',libre:'Sin asignar',pm_semana:'PMs semana',hoy:'Hoy',pendiente:'Pendiente',completada:'Completada'};
-  Object.entries(chipsData).forEach(([k,c])=>{
-    const el=document.getElementById('chip-'+k);
-    if(el) el.textContent=(_lbl[k]||k)+' '+c;
-  });
-  const _kpiSA=document.getElementById('tec-kpi-progreso');
-  if(_kpiSA) _kpiSA.textContent=sinAsignar;
+  Object.entries(chipsData).forEach(([k,c])=>{const el=document.getElementById('chip-'+k);if(el)el.textContent=(_lbl[k]||k)+' '+c;});
+  const _kSA=document.getElementById('tec-kpi-progreso');if(_kSA)_kSA.textContent=sinAsignar;
 
   let filtered=[...mis_ots];
-  if(tecFilter==='paro')       filtered=mis_ots.filter(o=>o.prioridad==='Urgente'&&o.estado!=='Completada');
-  else if(tecFilter==='libre') filtered=mis_ots.filter(o=>!o.tecnico_id&&o.estado!=='Completada');
+  if(tecFilter==='paro')        filtered=mis_ots.filter(o=>o.prioridad==='Urgente'&&o.estado!=='Completada');
+  else if(tecFilter==='libre')  filtered=mis_ots.filter(o=>!o.tecnico_id&&o.estado!=='Completada');
   else if(tecFilter==='pm_semana') filtered=pmsSemana;
-  else if(tecFilter==='hoy')   filtered=mis_ots.filter(o=>isToday(o.fecha_programada)||isToday(o.fecha_creacion));
+  else if(tecFilter==='hoy')    filtered=mis_ots.filter(o=>isToday(o.fecha_programada)||isToday(o.fecha_creacion));
   else if(tecFilter==='pendiente') filtered=mis_ots.filter(o=>o.estado==='Pendiente');
   else if(tecFilter==='completada') filtered=mis_ots.filter(o=>o.estado==='Completada');
 
