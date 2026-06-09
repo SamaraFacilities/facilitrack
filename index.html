@@ -1689,26 +1689,41 @@ tr:hover td { background: var(--bg3) !important; }
 if('serviceWorker' in navigator){
   window.addEventListener('load', async () => {
     try {
-      // Check if sw.js exists before registering
-      const swPath = location.pathname.replace(/\/[^\/]*$/, '/') + 'sw.js';
+      const swPath  = location.pathname.replace(/\/[^\/]*$/, '/') + 'sw.js';
       const swScope = location.pathname.replace(/\/[^\/]*$/, '/');
-      const swResp = await fetch(swPath, {method:'HEAD'}).catch(()=>null);
-      if(swResp && swResp.ok){
-        const reg = await navigator.serviceWorker.register(swPath, {scope: swScope});
-        console.log('✅ SW registered:', reg.scope);
-        reg.addEventListener('updatefound', () => console.log('🔄 SW update found'));
-      } else {
-        console.log('ℹ️ sw.js not found — PWA offline mode disabled');
+      const reg = await navigator.serviceWorker.register(swPath, {scope: swScope});
+      window._swReg = reg;
+      console.log('✅ SW registered:', reg.scope);
+
+      // Escuchar mensajes del SW (nuevas OTs detectadas en background)
+      navigator.serviceWorker.addEventListener('message', e => {
+        if (e.data?.type === 'NEW_OTS' && typeof loadAll === 'function') {
+          console.log('[SW→App] nuevas OTs, recargando...');
+          loadAll();
+        }
+      });
+
+      // Registrar Periodic Background Sync (Chrome/Android)
+      if ('periodicSync' in reg) {
+        try {
+          await reg.periodicSync.register('samara-bg-check', {
+            minInterval: 30 * 1000 // 30 segundos
+          });
+          console.log('✅ Periodic sync registrado');
+        } catch(psErr) {
+          console.log('ℹ️ Periodic sync no disponible:', psErr.message);
+        }
       }
+
     } catch(e) {
-      console.log('ℹ️ SW not available:', e.message);
+      console.log('ℹ️ SW error:', e.message);
     }
   });
 }
 
 // ── PWA: Push Notifications ──
 let swRegistration = null;
-const VAPID_PUBLIC_KEY = 'BGurRvz8mvqskE8qxxxhc9pVsZURw3A6i9voLBlnYQMAZ05q_kV1goa1kUllgR0w65aWeNTGLfJkDbbfYM11Ppk'; // VAPID para push nativas iOS PWA
+const VAPID_PUBLIC_KEY = 'BGurRvz8mvqskE8qxxxhc9pVsZURw3A6i9voLBlnYQMAZ05q_kV1goa1kUllgR0w65aWeNTGLfJkDbbfYM11Ppk';
 
 async function requestPushPermission(){
   if(!('Notification' in window)) return false;
@@ -1720,66 +1735,119 @@ async function requestPushPermission(){
 
 async function subscribeToPush(){
   if(!('serviceWorker' in navigator)) return;
-  if(Notification.permission !== 'granted'){ console.log('Push: no hay permiso'); return; }
+  if(Notification.permission !== 'granted'){
+    console.log('Push: sin permiso, saltando'); return;
+  }
   try {
     const reg = await navigator.serviceWorker.ready;
-    swRegistration = reg;
-    window._swReg = reg;
-    // Enviar contexto del usuario al SW para background polling
-    const swTarget = reg.active || reg.installing || reg.waiting;
-    if(swTarget){
-      swTarget.postMessage({
-        type: 'INIT_USER',
-        userId: curUser?.id,
-        rol:    curProf?.rol,
-        zona:   curProf?.zona || null,
-        lastCheck: new Date().toISOString(),
-      });
-    }
-    // Listener: SW detectó OTs nuevas en background
+    swRegistration  = reg;
+    window._swReg   = reg;
+
+    // Enviar contexto del usuario al SW para que sepa qué notificar
+    _enviarContextoSW(reg);
+
+    // Listener: SW avisó que hay OTs nuevas
     if(!navigator.serviceWorker._samListener){
       navigator.serviceWorker._samListener = true;
       navigator.serviceWorker.addEventListener('message', e => {
         if(e.data?.type === 'NEW_OTS' && typeof loadAll === 'function') loadAll();
       });
     }
-    console.log('✅ Push listo — permiso:', Notification.permission);
-  } catch(e) {
+
+    // ── iOS Background Keep-Alive ──────────────────────────────
+    // iOS mata el SW agresivamente. Usamos fetch loop cada 20s
+    // para mantener vivo el contexto y hacer polling de OTs nuevas.
+    // Solo cuando la app está visible; si se va a background el SW
+    // toma el relevo con bgCheck().
+    _iniciarKeepAlive();
+
+    console.log('✅ Push inicializado — permiso:', Notification.permission);
+  } catch(e){
     console.warn('subscribeToPush error:', e.message);
   }
 }
 
-// Mostrar notificación nativa en el dispositivo
-// iOS PWA: usa new Notification() — más directo y compatible
-// Fallback: SW showNotification para cuando la app está en background
+// Enviar contexto del usuario al Service Worker
+function _enviarContextoSW(reg){
+  const target = reg?.active || reg?.installing || reg?.waiting ||
+                 navigator.serviceWorker?.controller;
+  if(!target) return;
+  target.postMessage({
+    type:      'INIT_USER',
+    userId:    curUser?.id,
+    rol:       curProf?.rol,
+    zona:      curProf?.zona || null,
+    lastCheck: new Date().toISOString(),
+  });
+  console.log('✅ Contexto enviado al SW:', curProf?.rol);
+}
+
+// Keep-alive: intervalo que mantiene la app "despierta" en iOS
+// y hace polling directo a Supabase cada 20s
+let _kaTimer = null;
+function _iniciarKeepAlive(){
+  if(_kaTimer) clearInterval(_kaTimer);
+  _kaTimer = setInterval(async ()=>{
+    if(document.visibilityState !== 'visible') return;
+    if(!curUser || !db) return;
+    try{
+      // Fetch mínimo a Supabase para mantener la conexión activa
+      // y detectar OTs nuevas que checkAlertas procesará al volver loadAll
+      const since = window._kaLastCheck || new Date(Date.now()-25000).toISOString();
+      const {data, error} = await db
+        .from('ordenes_trabajo')
+        .select('id,equipo_nombre,tipo,prioridad,tecnico_id,created_at')
+        .gt('created_at', since)
+        .order('created_at', {ascending:true})
+        .limit(5);
+      if(error || !data?.length) return;
+      window._kaLastCheck = data[data.length-1].created_at;
+      // Hay OTs nuevas — notificar y recargar
+      data.forEach(ot => {
+        const urg = ot.prioridad === 'Urgente';
+        const esMia = String(ot.tecnico_id) === String(curUser.id);
+        const sinAsig = !ot.tecnico_id;
+        const rol = curProf?.rol;
+        if(rol === 'admin' || rol === 'gerencia' || rol === 'supervisor'){
+          sendNativePush(urg?'🔴 OT Urgente — Samara':'📋 Nueva OT — Samara',
+            `${ot.equipo_nombre} · ${ot.tipo} · ${ot.prioridad}`,
+            {tag:'ka-ot-'+ot.id, urgent:urg});
+        } else if((rol==='tecnico'||rol==='supervisor_zona') && (esMia||sinAsig)){
+          sendNativePush(urg?'🔴 OT Urgente — Samara':'📋 Nueva OT — Samara',
+            `${ot.equipo_nombre}${sinAsig?' — sin asignar, puedes tomarla':' — asignada a ti ✓'}`,
+            {tag:'ka-ot-'+ot.id, urgent:urg});
+        }
+      });
+      loadAll();
+    }catch(e){ console.warn('keep-alive error:', e.message); }
+  }, 20000); // cada 20 segundos
+}
+
+// Mostrar notificación nativa en el dispositivo iOS/Android
 async function sendNativePush(title, body, data={}){
   if(Notification.permission !== 'granted') return;
   const opts = {
     body,
-    icon:    'icon-192.png',
-    badge:   'icon-192.png',
-    tag:     data.tag || 'samara',
-    vibrate: data.urgent ? [300,100,300,100,300] : [200,100,200],
+    icon:               'icon-192.png',
+    badge:              'icon-192.png',
+    tag:                data.tag || 'samara',
+    vibrate:            data.urgent ? [300,100,300,100,300] : [200,100,200],
     requireInteraction: !!data.urgent,
     data,
   };
+  // Método 1: new Notification() — funciona con app abierta en iOS PWA
   try {
-    // Método 1: new Notification() — funciona en iOS PWA con la app abierta
-    if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
-      new Notification(title, opts);
-      return;
-    }
-  } catch(e1){
-    // new Notification() no disponible — usar SW
-  }
+    new Notification(title, opts);
+    return;
+  } catch(e1){}
+  // Método 2: SW showNotification — funciona en background
   try {
-    // Método 2: SW showNotification — funciona en background y algunas versiones iOS
     if('serviceWorker' in navigator){
       const reg = await navigator.serviceWorker.ready;
       await reg.showNotification(title, opts);
     }
   } catch(e2){
-    console.warn('sendNativePush failed:', e2.message);
+    console.warn('sendNativePush:', e2.message);
   }
 }
 
@@ -1888,9 +1956,12 @@ function setPasos(activo){
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.addEventListener('DOMContentLoaded',()=>{const u=document.getElementById('l-username');if(u)u.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('l-pass').focus();});});
 async function doLogin(){
-  // Pedir permiso AQUÍ — primer await-free en el gesto del usuario (iOS requirement)
+  // iOS: pedir permiso de notificaciones AQUÍ, antes de cualquier await
+  // Este es el único lugar donde iOS permite el diálogo sin bloquearlo
   if('Notification' in window && Notification.permission === 'default'){
-    Notification.requestPermission().then(p => console.log('🔔 Notif:', p));
+    Notification.requestPermission().then(p => {
+      console.log('🔔 Permiso notificaciones:', p);
+    });
   }
   if(!db){
     document.getElementById('login-err').textContent='Error: Supabase no inicializado.';
@@ -3655,13 +3726,15 @@ function renderCLSel() {
 // Refresh when app comes back to foreground (PWA/mobile)
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible' && curUser){
+    // Limpiar notifs de técnico para re-notificar OTs nuevas
     try{
       Object.keys(sessionStorage)
         .filter(k=>k.startsWith('tec-libre-')||k.startsWith('tec-mia-')||k.startsWith('tec-pm-'))
         .forEach(k=>sessionStorage.removeItem(k));
     }catch(e){}
-    setupRT();
-    loadAll();
+    setupRT();                    // reconectar canal realtime
+    loadAll();                    // recargar datos y ejecutar checkAlertas
+    if(typeof _iniciarKeepAlive === 'function') _iniciarKeepAlive(); // reiniciar keep-alive
   }
 });
 
@@ -3929,12 +4002,12 @@ function addNotif(msg, tipo='info'){
       badge.style.cssText = 'display:flex;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:var(--red);color:#fff;border-radius:999px;font-size:9px;font-weight:700;align-items:center;justify-content:center;padding:0 3px;';
     }
   }
-  // Toast en pantalla para todos
+  // Toast en pantalla
   const pfx = {urgente:'🔴',info:'📋',ok:'✅',warn:'⚠️'};
   toast((pfx[tipo]||'📋')+' '+msg, tipo==='urgente'?6000:4000);
-  // Push nativa al SO del dispositivo
+  // Push nativa al SO
   const titles = {urgente:'🔴 Samara — Urgente',info:'📋 Samara',ok:'✅ Samara',warn:'⚠️ Samara'};
-  sendNativePush(titles[tipo]||'Samara', msg, {tag:'s-'+tipo+'-'+Date.now(), urgent:tipo==='urgente'});
+  sendNativePush(titles[tipo]||'Samara', msg, {tag:'notif-'+Date.now(), urgent:tipo==='urgente'});
 }
 
 function renderNotifList(){
@@ -4666,7 +4739,6 @@ function checkAlertas(){
   if(!curProf) return;
   const rol = curProf.rol;
 
-  // ── ADMIN / GERENCIA / SUPERVISOR ──────────────────────────────
   if(['admin','gerencia','supervisor'].includes(rol)){
     allEqs.forEach(eq=>{
       if(eq.horas_actuales>=eq.frec_pm_horas&&eq.frec_pm_horas>0){
@@ -4695,8 +4767,7 @@ function checkAlertas(){
     });
   }
 
-  // ── TÉCNICO / SUPERVISOR_ZONA ───────────────────────────────────
-  // Mismo patrón exacto que stock crítico arriba
+  // ── TÉCNICO / SUPERVISOR_ZONA — mismo patrón que stock crítico ──
   if(rol==='tecnico'||rol==='supervisor_zona'){
     allOTs.filter(o=>!o.tecnico_id&&o.estado!=='Completada').forEach(o=>{
       const key='tec-libre-'+o.id;
