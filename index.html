@@ -1057,7 +1057,7 @@ tr:hover td { background: var(--bg3) !important; }
     <!-- TAB: EQUIPOS -->
     <div id="tab-equipos" class="panel-hidden">
       <div class="card">
-        <div class="card-header"><div class="card-title"><i class="ti ti-settings-2"></i> Inventario de equipos</div><button class="btn-sm btn-primary btn-admin-only" onclick="openModalEq()"><i class="ti ti-plus"></i> Agregar</button></div>
+        <div class="card-header"><div class="card-title"><i class="ti ti-settings-2"></i> Inventario de equipos</div><button class="btn-sm btn-primary btn-crear-equipo" onclick="openModalEq()"><i class="ti ti-plus"></i> Agregar</button></div>
         <div id="eq-wrap"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div><!-- /tab-equipos -->
@@ -1915,6 +1915,7 @@ function canDo(a){
     crear_ot:['tecnico','supervisor','supervisor_zona','ingeniero','ehs'],
     ver_tecnicos:['gerencia'],
     gestionar_equipos:['supervisor','gerencia'],
+    crear_equipo:['tecnico','supervisor_zona','supervisor','gerencia'],
     ver_dashboard:['gerencia','supervisor']
   };
   return(p[a]||[]).includes(r);
@@ -2041,6 +2042,8 @@ async function bootApp(user){
       nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaTecnico();"><i class="ti ti-layout-list"></i> Mi Agenda</button>`;
       nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
     }
+    // Permitir ver/agregar equipos
+    nav.innerHTML+=`<button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>`;
   }
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
@@ -2077,6 +2080,7 @@ async function bootApp(user){
   }
 
   document.querySelectorAll('.btn-admin-only').forEach(b=>b.style.display=curProf.rol==='admin'?'':'none');
+  document.querySelectorAll('.btn-crear-equipo').forEach(b=>b.style.display=canDo('crear_equipo')?'':'none');
 
   // Adaptar UI según rol en el escáner
   if(curProf.rol==='supervisor_zona'){
