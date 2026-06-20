@@ -8671,7 +8671,9 @@ function _renderSzDayDetail(dateStr){
     const borderColor = isPorAprobar ? 'var(--amber)' : isUrg ? 'var(--red)' : isComp ? 'var(--green)' : 'var(--blue)';
     const badgeBg = isPorAprobar ? 'var(--amber-bg)' : isComp ? 'var(--green-bg)' : isUrg ? 'var(--red-bg)' : 'var(--blue-bg)';
     const badgeTxt = isPorAprobar ? 'var(--amber-txt)' : isComp ? 'var(--green-txt)' : isUrg ? 'var(--red-txt)' : 'var(--blue-txt)';
-    const puedeAprobar = isPorAprobar && curProf?.rol === 'supervisor_zona';
+    const esTipoPM = ['Preventivo','Predictivo','Inspección'].includes(o.tipo);
+    const esPendienteSinAprobar = o.estado === 'Pendiente' && esTipoPM && !o.aprobado_por && !o.aprobado_en;
+    const puedeAprobar = (isPorAprobar || esPendienteSinAprobar) && curProf?.rol === 'supervisor_zona';
     return `<div style="border:1px solid var(--line);border-left:3px solid ${borderColor};border-radius:6px;padding:10px 12px;margin-bottom:8px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;">
         <div style="font-size:12px;font-weight:600;color:var(--txt);">${eq ? eq.nombre : (o.equipo_nombre || '–')}</div>
