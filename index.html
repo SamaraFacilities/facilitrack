@@ -940,6 +940,7 @@ tr:hover td { background: var(--bg3) !important; }
                 <button class="btn-sm" style="flex:1;justify-content:center;" onclick="clearFirmaD()">Borrar firma</button>
                 <button class="btn-sm btn-primary" style="flex:1;justify-content:center;" onclick="cerrarOTDirecto()"><i class="ti ti-check"></i> Cerrar OT</button>
               </div>
+              <button class="btn-sm" style="width:100%;justify-content:center;margin-top:8px;color:var(--red-txt);border-color:var(--red);" onclick="abrirReportarBloqueo()"><i class="ti ti-alert-triangle"></i> No puedo continuar — reportar al supervisor</button>
             </div>
           </div>
         </div>
@@ -1681,6 +1682,37 @@ tr:hover td { background: var(--bg3) !important; }
   </div>
 </div>
 
+
+<!-- MODAL: REPORTAR BLOQUEO -->
+<div class="modal-backdrop" id="modal-reportar-bloqueo">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-title">
+      <span><i class="ti ti-alert-triangle" style="margin-right:6px;color:var(--red-txt);"></i>Reportar bloqueo</span>
+      <button class="close-btn" onclick="closeM('modal-reportar-bloqueo')"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="font-size:12px;color:var(--txt2);margin-bottom:14px;">Esto notificará a tu supervisor y al admin para que puedan resolver el impedimento. La OT quedará marcada como <b>Bloqueada</b> hasta que se resuelva.</div>
+    <div class="form-group">
+      <label>Motivo</label>
+      <select id="bloq-motivo-sel" onchange="document.getElementById('bloq-motivo-otro').style.display=this.value==='Otro'?'block':'none';">
+        <option value="Falta de material">Falta de material / refacción</option>
+        <option value="Equipo inaccesible">Equipo inaccesible / fuera de servicio</option>
+        <option value="Falta de herramienta">Falta de herramienta especializada</option>
+        <option value="Requiere apoyo">Requiere apoyo de otro técnico</option>
+        <option value="Riesgo de seguridad">Riesgo de seguridad</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+    <div class="form-group" id="bloq-motivo-otro" style="display:none;">
+      <label>Especifica</label>
+      <textarea id="bloq-motivo-txt" placeholder="Describe el impedimento..." style="min-height:60px;"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-sm" onclick="closeM('modal-reportar-bloqueo')">Cancelar</button>
+      <button class="btn-sm btn-danger" onclick="confirmarReportarBloqueo()"><i class="ti ti-send"></i> Enviar reporte</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -1905,7 +1937,7 @@ let otActual=null;   // OT seleccionada para el checklist
 function toast(msg,dur=3500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 function ini(n){return(n||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();}
 function fmt(ts){if(!ts)return'–';const d=new Date(ts);return d.toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
-function badge(e){const m={'Urgente':'badge-red','En progreso':'badge-amber','Pendiente':'badge-gray','Completada':'badge-green','Operativo':'badge-green','En mantenimiento':'badge-amber','Fuera de servicio':'badge-red','Alta':'badge-red','Media':'badge-amber','Baja':'badge-gray','Correctivo':'badge-red','Preventivo':'badge-blue','Predictivo':'badge-purple','Inspección':'badge-blue'};return`<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;}
+function badge(e){const m={'Urgente':'badge-red','Bloqueada':'badge-red','En progreso':'badge-amber','Pendiente':'badge-gray','Completada':'badge-green','Operativo':'badge-green','En mantenimiento':'badge-amber','Fuera de servicio':'badge-red','Alta':'badge-red','Media':'badge-amber','Baja':'badge-gray','Correctivo':'badge-red','Preventivo':'badge-blue','Predictivo':'badge-purple','Inspección':'badge-blue'};return`<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;}
 function rolBadge(r){const c={tecnico:'r-tecnico',supervisor:'r-supervisor',supervisor_zona:'r-supervisor_zona',admin:'r-admin',gerencia:'r-gerencia',ingeniero:'r-tecnico',ehs:'r-supervisor'};const l={tecnico:'Técnico',supervisor:'Supervisor',supervisor_zona:'Sup. Zona',admin:'Admin',gerencia:'Gerencia',ingeniero:'Ingeniería',ehs:'EHS'};return`<span class="role-badge ${c[r]||''}">${l[r]||r}</span>`;}
 
 function canDo(a){
@@ -4072,6 +4104,17 @@ function setupRT(){
       // Admin: nueva OT urgente
       if(curProf?.rol === 'admin' && ot.prioridad === 'Urgente' && prev?.prioridad !== 'Urgente'){
         addNotif(`🔴 OT Urgente: ${ot.equipo_nombre}`, 'urgente');
+      }
+      // OT bloqueada — notificar admin y al supervisor de la zona del equipo
+      if(ot.estado === 'Bloqueada' && prev?.estado !== 'Bloqueada'){
+        const eqBloq = allEqs.find(e => e.id === ot.equipo_id);
+        const soyAdmin = curProf?.rol === 'admin';
+        const soySupervisorDeEstaZona = curProf?.rol === 'supervisor_zona' && eqBloq && curProf?.zona === eqBloq.area;
+        if(soyAdmin || soySupervisorDeEstaZona){
+          const motivo = ot.motivo_bloqueo || 'Sin especificar';
+          addNotif(`🔴 ${ot.tecnico_nombre||'Técnico'} no puede continuar: ${ot.equipo_nombre} — ${motivo}`, 'urgente');
+          sendNativePush('🔴 OT Bloqueada', `${ot.equipo_nombre} · ${motivo}`, {tag:'bloqueo-'+ot.id, urgent:true});
+        }
       }
       loadAll();
     })
@@ -8541,7 +8584,7 @@ function _renderSzCal(zonOTs, eqIds){
     const dateStr = `${szCalYear}-${String(szCalMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isSelected = szSelDay === dateStr;
     const dayOTs = dateMap[d] || [];
-    const hasUrgent   = dayOTs.some(o => o.prioridad === 'Urgente' && o.estado !== 'Completada');
+    const hasUrgent   = dayOTs.some(o => (o.prioridad === 'Urgente' || o.estado === 'Bloqueada') && o.estado !== 'Completada');
     const hasCompleted = dayOTs.some(o => o.estado === 'Completada');
     const hasPending   = dayOTs.some(o => o.estado !== 'Completada') && !hasUrgent;
 
@@ -8623,6 +8666,17 @@ function _renderProximosPMs(eqsZona, zonOTs){
   const hoy = new Date(); hoy.setHours(0,0,0,0);
   const en30 = new Date(hoy); en30.setDate(en30.getDate() + 30);
 
+  // OTs pendientes/bloqueadas SIN fecha programada — paros, correctivos, urgencias
+  // Estas no deben perderse solo porque no tienen fecha_programada
+  const pendientesSinFecha = zonOTs
+    .filter(o => !o.fecha_programada && o.estado !== 'Completada')
+    .sort((a, b) => {
+      const prio = {Urgente:0, Alta:1, Media:2, Baja:3};
+      if(a.estado === 'Bloqueada' && b.estado !== 'Bloqueada') return -1;
+      if(b.estado === 'Bloqueada' && a.estado !== 'Bloqueada') return 1;
+      return (prio[a.prioridad]??2) - (prio[b.prioridad]??2);
+    });
+
   // PMs programados en los próximos 30 días
   const proximos = zonOTs
     .filter(o => {
@@ -8646,7 +8700,29 @@ function _renderProximosPMs(eqsZona, zonOTs){
 
   let html = '';
 
+  // ── Pendientes / Bloqueadas (sin fecha) — primero, son las más urgentes de atender ──
+  if(pendientesSinFecha.length){
+    html += `<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Pendientes sin programar</div>`;
+    html += pendientesSinFecha.map(o => {
+      const eq = allEqs.find(e => e.id === o.equipo_id);
+      const isBloq = o.estado === 'Bloqueada';
+      const isUrg = o.prioridad === 'Urgente';
+      const badgeColor = isBloq ? 'var(--red)' : isUrg ? 'var(--red)' : 'var(--amber)';
+      const badgeTxt = isBloq ? 'Bloqueada' : o.estado;
+      return `<div onclick="iniciarOTDesdeOrdenes(${o.id})" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;">
+        <div style="width:8px;height:8px;border-radius:50%;background:${badgeColor};flex-shrink:0;"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;color:var(--txt);">${eq ? eq.nombre : o.equipo_nombre}</div>
+          <div style="font-size:11px;color:var(--txt3);">${o.tipo}${o.descripcion ? ' · ' + o.descripcion.slice(0,40) : ''}</div>
+          ${isBloq && o.motivo_bloqueo ? `<div style="font-size:11px;color:var(--red-txt);margin-top:2px;"><i class="ti ti-alert-triangle" style="font-size:11px;"></i> ${o.motivo_bloqueo}</div>` : ''}
+        </div>
+        <span style="font-size:10px;font-weight:600;color:${badgeColor};flex-shrink:0;white-space:nowrap;">${badgeTxt}</span>
+      </div>`;
+    }).join('');
+  }
+
   if(proximos.length){
+    if(pendientesSinFecha.length) html += `<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;">Próximos 30 días</div>`;
     html += proximos.map(o => {
       const eq = allEqs.find(e => e.id === o.equipo_id);
       const fp = new Date(o.fecha_programada);
@@ -8684,7 +8760,7 @@ function _renderProximosPMs(eqsZona, zonOTs){
     }).join('');
   }
 
-  if(!proximos.length && !pmPorHoras.length){
+  if(!proximos.length && !pmPorHoras.length && !pendientesSinFecha.length){
     html = `<div style="text-align:center;padding:20px;color:var(--txt3);">
       <i class="ti ti-circle-check" style="font-size:28px;display:block;margin-bottom:8px;opacity:.5;"></i>
       <div style="font-size:13px;">Sin PMs próximos en los siguientes 30 días</div>
@@ -9240,6 +9316,57 @@ async function _importarRefaccionesConfirmar(btn){
   await forceLoadAll();
   toast(`✅ ${ok} refacciones importadas${errors ? ' · ' + errors + ' errores' : ''}`);
   if(document.getElementById('tab-inventario')?.classList.contains('panel-visible')) renderInventario();
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+// REPORTAR BLOQUEO — técnico no puede continuar (falta material, etc)
+// ══════════════════════════════════════════════════════════
+
+function abrirReportarBloqueo(){
+  if(!otActual){ toast('No hay OT activa'); return; }
+  document.getElementById('bloq-motivo-sel').value = 'Falta de material';
+  document.getElementById('bloq-motivo-otro').style.display = 'none';
+  document.getElementById('bloq-motivo-txt').value = '';
+  openM('modal-reportar-bloqueo');
+}
+
+async function confirmarReportarBloqueo(){
+  if(!otActual){ toast('No hay OT activa'); return; }
+  const motivoSel = document.getElementById('bloq-motivo-sel').value;
+  const motivoTxt = document.getElementById('bloq-motivo-txt').value.trim();
+  const motivoFinal = motivoSel === 'Otro' && motivoTxt ? motivoTxt : motivoSel;
+
+  if(motivoSel === 'Otro' && !motivoTxt){
+    toast('Describe el motivo'); return;
+  }
+
+  const {error} = await db.from('ordenes_trabajo').update({
+    estado: 'Bloqueada',
+    motivo_bloqueo: motivoFinal,
+    bloqueada_por: curUser?.id,
+    bloqueada_en: new Date().toISOString(),
+  }).eq('id', otActual.id);
+
+  if(error){
+    // Si la columna motivo_bloqueo no existe aún, reintentar solo con estado
+    if((error.message||'').includes('motivo_bloqueo') || (error.message||'').includes('bloqueada_por') || (error.message||'').includes('bloqueada_en')){
+      const {error: e2} = await db.from('ordenes_trabajo').update({
+        estado: 'Bloqueada',
+        observaciones: `[BLOQUEADA: ${motivoFinal}] ` + (otActual.observaciones||''),
+      }).eq('id', otActual.id);
+      if(e2){ toast('❌ ' + e2.message); return; }
+    } else {
+      toast('❌ ' + error.message); return;
+    }
+  }
+
+  closeM('modal-reportar-bloqueo');
+  toast('🔴 Reporte enviado a tu supervisor');
+  await forceLoadAll();
+  setTab('cal-tecnico');
+  renderAgendaTecnico();
 }
 
 </script>
