@@ -1163,78 +1163,35 @@ tr:hover td { background: var(--bg3) !important; }
 
       <!-- ── VISTA SUPERVISOR DE ZONA: calendario de PMs ── -->
       <div id="agenda-zona-view" style="display:none;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1100px;margin:0 auto;">
+        <div style="max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">
 
-          <!-- Columna izquierda: calendario -->
-          <div class="card" style="align-self:start;">
-            <div class="card-header" style="margin-bottom:16px;">
-              <div class="card-title"><i class="ti ti-calendar"></i> Mantenimientos de la Zona</div>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <button class="btn-sm" onclick="chgMonthZona(-1)"><i class="ti ti-chevron-left"></i></button>
-                <span id="sz-cal-label" style="font-weight:600;font-size:13px;min-width:110px;text-align:center;"></span>
-                <button class="btn-sm" onclick="chgMonthZona(1)"><i class="ti ti-chevron-right"></i></button>
+          <!-- PMs por aprobar — sección destacada, siempre visible -->
+          <div class="card" id="sz-por-aprobar-card" style="display:none;">
+            <div class="card-header" style="margin-bottom:12px;">
+              <div class="card-title" style="color:var(--amber-txt);">
+                <i class="ti ti-clock-pause"></i> Pendientes de tu aprobación
               </div>
+              <span id="sz-por-aprobar-badge" style="font-size:11px;font-weight:700;background:var(--amber);color:#fff;padding:2px 10px;border-radius:20px;"></span>
             </div>
-
-            <!-- Day headers -->
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
-              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">D</div>
-              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">L</div>
-              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">M</div>
-              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">M</div>
-              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">J</div>
-              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">V</div>
-              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">S</div>
-            </div>
-            <div id="sz-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
-
-            <!-- Leyenda -->
-            <div style="display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap;">
-              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
-                <span style="width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block;"></span> Preventivo
-              </div>
-              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
-                <span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block;"></span> Urgente / Paro
-              </div>
-              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
-                <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;"></span> Completada
-              </div>
-            </div>
+            <div id="sz-por-aprobar-list"></div>
           </div>
 
-          <!-- Columna derecha: detalle del día + próximos PMs -->
-          <div style="display:flex;flex-direction:column;gap:14px;">
-
-            <!-- Detalle del día seleccionado -->
-            <div class="card" id="sz-day-detail">
-              <div class="card-header" style="margin-bottom:12px;">
-                <div class="card-title"><i class="ti ti-calendar-event"></i> <span id="sz-day-title">Selecciona un día</span></div>
-              </div>
-              <div id="sz-day-content">
-                <div style="text-align:center;padding:32px;color:var(--txt3);">
-                  <i class="ti ti-hand-click" style="font-size:32px;display:block;margin-bottom:8px;opacity:.4;"></i>
-                  <div style="font-size:13px;">Toca un día en el calendario para ver los mantenimientos programados</div>
-                </div>
-              </div>
+          <!-- Próximos PMs — 30 días -->
+          <div class="card">
+            <div class="card-header" style="margin-bottom:12px;">
+              <div class="card-title"><i class="ti ti-clock-hour-4"></i> Próximos PMs — 30 días</div>
             </div>
-
-            <!-- Próximos PMs -->
-            <div class="card">
-              <div class="card-header" style="margin-bottom:12px;">
-                <div class="card-title"><i class="ti ti-clock-hour-4"></i> Próximos PMs — 30 días</div>
-              </div>
-              <div id="sz-proximos-pms"></div>
-            </div>
-
-            <!-- Resumen de equipos de la zona -->
-            <div class="card">
-              <div class="card-header" style="margin-bottom:12px;">
-                <div class="card-title"><i class="ti ti-settings-2"></i> Equipos de la zona</div>
-              </div>
-              <div id="sz-equipos-zona"></div>
-            </div>
-
+            <div id="sz-proximos-pms"></div>
           </div>
+
+          <!-- Equipos de la zona -->
+          <div class="card">
+            <div class="card-header" style="margin-bottom:12px;">
+              <div class="card-title"><i class="ti ti-settings-2"></i> Equipos de la zona</div>
+            </div>
+            <div id="sz-equipos-zona"></div>
+          </div>
+
         </div>
       </div>
 
@@ -8532,16 +8489,13 @@ function chgMonthZona(dir){
 }
 
 function renderAgendaZona(){
-  // Show/hide correct view panels
   const vTec = document.getElementById('agenda-tecnico-view');
   const vZona = document.getElementById('agenda-zona-view');
   if(vTec) vTec.style.display = 'none';
   if(vZona) vZona.style.display = '';
 
-  // Tecnico: filter by assigned OTs; supervisor_zona: filter by zone
   let eqsZona, eqIds, zonOTs;
   if(curProf?.rol === 'tecnico'){
-    // Tecnico sees their OTs and all equipment
     zonOTs = allOTs.filter(o => o.tecnico_id === curUser?.id || o.tecnico_nombre === curProf?.nombre);
     eqIds = [...new Set(zonOTs.map(o=>o.equipo_id).filter(Boolean))];
     eqsZona = allEqs.filter(e => eqIds.includes(e.id));
@@ -8552,14 +8506,8 @@ function renderAgendaZona(){
     zonOTs = allOTs.filter(o => eqIds.includes(o.equipo_id));
   }
 
-  // Render calendar (zona scoped safely)
-  const _zona = curProf?.zona || '';
-  _renderSzCal(zonOTs, eqIds);
-
-  // Render próximos PMs (next 30 days)
+  _renderPorAprobar(zonOTs);
   _renderProximosPMs(eqsZona, zonOTs);
-
-  // Render equipos de la zona
   _renderEquiposZona(eqsZona, zonOTs);
 }
 
@@ -9434,7 +9382,7 @@ async function aprobarPM(otId){
 
   toast('✅ Mantenimiento aprobado — el técnico ya puede ejecutarlo');
   await forceLoadAll();
-  if(szSelDay) _renderSzDayDetail(szSelDay);
+  renderAgendaZona();  // Refresh to remove item from Por aprobar section
 }
 
 async function rechazarPM(otId){
@@ -9450,10 +9398,99 @@ async function rechazarPM(otId){
   }).eq('id', otId);
 
   if(error){ toast('❌ ' + error.message); return; }
-  toast('📅 Fecha reprogramada — pendiente de tu aprobación');
+  toast('📅 Fecha reprogramada — sigue pendiente de tu aprobación');
   await forceLoadAll();
-  if(szSelDay) _renderSzDayDetail(szSelDay);
   renderAgendaZona();
+}
+
+
+// ══════════════════════════════════════════════════════════
+// SECCIÓN "POR APROBAR" — visible de entrada en la agenda
+// Lista PMs pendientes de aprobación ordenados por proximidad
+// ══════════════════════════════════════════════════════════
+function _renderPorAprobar(zonOTs){
+  const card  = document.getElementById('sz-por-aprobar-card');
+  const list  = document.getElementById('sz-por-aprobar-list');
+  const badge = document.getElementById('sz-por-aprobar-badge');
+  if(!card || !list) return;
+
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+
+  // PMs que necesitan aprobación: estado 'Por aprobar' O
+  // Preventivo/Predictivo/Inspección en estado 'Pendiente' sin aprobado_por
+  const pendientes = zonOTs
+    .filter(o => {
+      const esTipo = ['Preventivo','Predictivo','Inspección'].includes(o.tipo);
+      if(!esTipo) return false;
+      if(o.estado === 'Completada' || o.estado === 'En progreso') return false;
+      return o.estado === 'Por aprobar' ||
+             (o.estado === 'Pendiente' && !o.aprobado_por && !o.aprobado_en);
+    })
+    .sort((a,b) => {
+      // Sin fecha van al final, con fecha ordenadas por proximidad
+      if(!a.fecha_programada && !b.fecha_programada) return 0;
+      if(!a.fecha_programada) return 1;
+      if(!b.fecha_programada) return -1;
+      return new Date(a.fecha_programada) - new Date(b.fecha_programada);
+    });
+
+  if(!pendientes.length){
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = '';
+  if(badge) badge.textContent = pendientes.length;
+
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+  list.innerHTML = pendientes.map(o => {
+    const eq = allEqs.find(e => e.id === o.equipo_id);
+    const eqNom = eq ? eq.nombre : (o.equipo_nombre || '–');
+    const eqCod = eq ? eq.codigo : '';
+
+    // Days until PM
+    let diasLabel = '', diasColor = 'var(--txt3)', diasNum = null;
+    if(o.fecha_programada){
+      const fp = new Date(o.fecha_programada + 'T00:00:00');
+      diasNum = Math.ceil((fp - hoy) / (1000*60*60*24));
+      diasLabel = diasNum === 0 ? 'HOY' : diasNum === 1 ? 'Mañana' :
+                  diasNum < 0  ? `Hace ${Math.abs(diasNum)}d` : `En ${diasNum}d`;
+      diasColor = diasNum <= 0 ? 'var(--red-txt)' :
+                  diasNum <= 3 ? 'var(--red-txt)' :
+                  diasNum <= 7 ? 'var(--amber-txt)' : 'var(--txt2)';
+    } else {
+      diasLabel = 'Sin fecha';
+    }
+
+    return `<div style="border:1px solid var(--amber);background:var(--amber-bg);border-radius:8px;padding:14px;margin-bottom:8px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <!-- Date block -->
+        <div style="flex-shrink:0;width:44px;text-align:center;">
+          ${o.fecha_programada ? `
+            <div style="font-size:22px;font-weight:700;color:${diasColor};line-height:1;">${new Date(o.fecha_programada+'T00:00:00').getDate()}</div>
+            <div style="font-size:10px;text-transform:uppercase;color:var(--txt3);">${meses[new Date(o.fecha_programada+'T00:00:00').getMonth()]}</div>
+          ` : `<div style="font-size:11px;color:var(--txt3);margin-top:6px;">Sin<br>fecha</div>`}
+        </div>
+        <!-- Info -->
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:600;color:var(--txt);margin-bottom:2px;">${eqNom}</div>
+          <div style="font-size:11px;color:var(--txt3);">${o.tipo}${eqCod ? ' · ' + eqCod : ''}${o.tecnico_nombre ? ' · <i class="ti ti-user" style="font-size:10px;"></i> ' + o.tecnico_nombre : ''}</div>
+          ${o.descripcion ? `<div style="font-size:11px;color:var(--txt2);margin-top:3px;">${o.descripcion.slice(0,60)}</div>` : ''}
+          ${diasLabel ? `<div style="font-size:11px;font-weight:600;color:${diasColor};margin-top:4px;">${diasLabel}</div>` : ''}
+        </div>
+        <!-- Action buttons -->
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button class="btn-sm btn-primary" style="font-size:11px;white-space:nowrap;" onclick="aprobarPM(${o.id})">
+            <i class="ti ti-thumb-up"></i> Adelante
+          </button>
+          <button class="btn-sm" style="font-size:11px;white-space:nowrap;color:var(--red-txt);border-color:var(--red);" onclick="rechazarPM(${o.id})">
+            <i class="ti ti-calendar-x"></i> Reprogramar
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 </script>
