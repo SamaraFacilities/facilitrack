@@ -227,18 +227,6 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 #reader video{object-fit:cover;border-radius:4px}
 @media print{body *{visibility:hidden}#print-area,#print-area *{visibility:visible}#print-area{position:absolute;left:0;top:0;width:100%;text-align:center;background:var(--bg2);color:#000}}
 
-/* ── CALENDARIO ── */
-.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.cal-day-header{text-align:center;font-size:10px;font-weight:500;color:var(--txt3);padding:8px 0;text-transform:uppercase;letter-spacing:0.6px}
-.cal-cell{background:#ffffff;border:1px solid var(--line);border-radius:3px;min-height:90px;padding:8px;display:flex;flex-direction:column;gap:3px;transition:all 0.15s;cursor:pointer}
-.cal-cell:hover{border-color:var(--line2);background:var(--bg3)}
-.cal-cell.drag-over{background:var(--blue-bg);border-color:var(--blue);border-style:dashed}
-.cal-cell.today{border-color:var(--txt3)}
-.cal-date{font-size:11px;font-weight:500;color:var(--txt3);text-align:right;pointer-events:none}
-.cal-event{font-size:10px;padding:3px 6px;border-radius:2px;background:var(--blue-bg);color:var(--blue-txt);border:1px solid rgba(74,127,168,0.2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;user-select:none}
-.cal-event:active{cursor:grabbing}
-.cal-event.completada{background:var(--green-bg);color:var(--green-txt);border-color:rgba(74,153,96,0.2);cursor:default}
 
 /* ── FLUJO TÉCNICO ── */
 #equipo-panel{display:none;animation:slideUp 0.25s ease}
@@ -967,20 +955,6 @@ tr:hover td { background: var(--bg3) !important; }
         </div>
       </div>
     </div><!-- /tab-dashboard -->
-
-    <!-- TAB: CALENDARIO -->
-    <div id="tab-calendario" class="panel-hidden card">
-      <div class="cal-header">
-        <button class="btn-sm" onclick="chgMonth(-1)"><i class="ti ti-chevron-left"></i></button>
-        <div id="cal-month-lbl" style="font-family:'Playfair Display',serif;font-size:20px;font-weight:300;color:var(--txt);text-align:center;min-width:180px;">Mes Año</div>
-        <button class="btn-sm" onclick="chgMonth(1)"><i class="ti ti-chevron-right"></i></button>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:4px;"><i class="ti ti-info-circle"></i> Clic en un día para programar. Arrastra para reprogramar.</div>
-        <button class="btn-sm btn-primary" onclick="autoProgramarPMs()" title="Calcular y programar automáticamente los próximos PMs basado en horas de uso"><i class="ti ti-calendar-plus"></i> Auto-programar PMs</button>
-      </div>
-      <div class="cal-grid" id="cal-grid"></div>
-    </div><!-- /tab-calendario -->
 
     <!-- TAB: ORDENES -->
     <div id="tab-ordenes" class="panel-hidden">
@@ -1885,7 +1859,6 @@ let curUser=null,curProf=null,allOTs=[],allEqs=[],allProfs=[],rtCh=null;
 let allRefacciones=[],allOrdenesCompra=[],allPlantillas=[];
 let allZonas=['Zona 1','Zona 2','Zona 3','Zona 4','Zona 5','Zona 6','Zona 7'];
 let html5Scanner=null;
-let currYear=new Date().getFullYear(),currMonth=new Date().getMonth();
 
 // Estado del flujo técnico
 let eqActual=null;   // equipo detectado por QR
@@ -2038,7 +2011,6 @@ async function bootApp(user){
   }
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
-    nav.innerHTML+=`<button class="nav-btn" id="nav-calendario" onclick="setTab('calendario')"><i class="ti ti-calendar"></i> Calendario PM</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-programar" onclick="setTab('programar')"><i class="ti ti-calendar-plus"></i> Programar PM</button>`;
   }
   // supervisor_zona: solo tab Escáner
@@ -2184,7 +2156,7 @@ async function forceLoadAll(){ return loadAll(); }
 // setupRT redefined below with notifications
 
 // ── NAVEGACIÓN ──
-const TABS=['escaner','dashboard','programar','calendario','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
+const TABS=['escaner','dashboard','programar','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -2204,7 +2176,6 @@ function setTab(t){
   if(t==='tecnicos')renderUsuarios();
   if(t==='checklist')renderCLSel();
   if(t==='downtime')renderDowntime();
-  if(t==='calendario')renderCalendar();
   if(t==='reportes')renderReportes();
   if(t==='cal-tecnico')renderCalTecnico();
   if(t==='inventario')renderInventario();
@@ -3056,12 +3027,6 @@ function verDetalleDT(eqId,nombre){
 }
 
 // ── CALENDARIO ──
-function chgMonth(dir){
-  currMonth+=dir;
-  if(currMonth<0){currMonth=11;currYear--;}
-  else if(currMonth>11){currMonth=0;currYear++;}
-  renderCalendar();
-}
 
 function renderCalendar(){
   if(!document.getElementById('cal-grid')) return;
@@ -6367,7 +6332,7 @@ function applyLang(){
   // Nav buttons
   const navMap = {
     'nav-escaner': 'escaner', 'nav-dashboard': 'dashboard',
-    'nav-calendario': 'calendario', 'nav-ordenes': 'ordenes',
+    'nav-ordenes': 'ordenes',
     'nav-checklist': 'checklist', 'nav-equipos': 'equipos',
     'nav-tecnicos': 'personal', 'nav-downtime': 'downtime',
     'nav-reportes': 'reportes', 'nav-inventario': 'inventario',
@@ -7411,7 +7376,7 @@ function _initFoundryLayout(){
     if (!navBtns.length) return;
 
     const groups = {
-      'Operación': ['escaner','dashboard','calendario','ordenes','checklist','ot-libre','cal-tecnico'],
+      'Operación': ['escaner','dashboard','ordenes','checklist','ot-libre','cal-tecnico'],
       'Activos':   ['equipos','tecnicos','inventario','compras'],
       'Analítica': ['downtime','reportes','analisis','configuracion'],
     };
