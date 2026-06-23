@@ -3,396 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Samara · Display</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<title>Samara TV Dashboard</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:     #f4f4f4;
-  --card:   #ffffff;
-  --line:   #e8e8e8;
-  --txt:    #111111;
-  --txt2:   #555555;
-  --txt3:   #999999;
-  --red:    #c0352a;
-  --amber:  #8a6200;
-  --green:  #1f6135;
-  --blue:   #1a5fa8;
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+background:#0d2f6b;
+color:white;
+font-family:Arial,sans-serif;
+height:100vh;
+overflow:hidden;
 }
-html, body { height: 100%; background: var(--bg); color: var(--txt);
-  font-family: 'Inter', sans-serif; font-size: 14px; overflow: hidden; }
+.header{
+height:70px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:0 30px;
+background:#123b84;
+font-size:28px;
+font-weight:bold;
+}
+.kpis{
+display:grid;
+grid-template-columns:repeat(6,1fr);
+gap:12px;
+padding:12px;
+}
+.kpi{
+background:white;
+color:#0d2f6b;
+border-radius:10px;
+padding:15px;
+}
+.kpi .label{font-size:18px;font-weight:bold}
+.kpi .value{font-size:58px;font-weight:900;margin-top:8px}
+.red{color:#c0352a}
+.green{color:#1f6135}
+.amber{color:#8a6200}
+.blue{color:#1a5fa8}
 
-/* ── HEADER ── */
-.hdr {
-  height: 56px; background: var(--card); border-bottom: 1px solid var(--line);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px;
+.main{
+display:grid;
+grid-template-columns:70% 30%;
+gap:12px;
+padding:0 12px;
+height:calc(100vh - 220px);
 }
-.hdr-brand {
-  font-family: 'Inter Tight', sans-serif; font-weight: 800;
-  font-size: 22px; letter-spacing: -0.04em;
+.panel{
+background:white;
+color:#111;
+border-radius:10px;
+padding:15px;
+overflow:hidden;
 }
-.hdr-right { display: flex; align-items: center; gap: 20px; }
-.live { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--txt3); }
-.live .dot {
-  width: 8px; height: 8px; border-radius: 50%; background: #22aa55;
-  animation: pulse 2s infinite;
+.panel h2{
+color:#123b84;
+margin-bottom:10px;
 }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
-.clock {
-  font-family: 'Inter Tight', sans-serif; font-variant-numeric: tabular-nums;
-  font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+table{
+width:100%;
+border-collapse:collapse;
+font-size:22px;
 }
+th,td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+th{
+background:#edf3ff;
+}
+.badge{
+padding:6px 12px;
+border-radius:20px;
+color:white;
+font-weight:bold;
+}
+.b-red{background:#c0352a}
+.b-green{background:#1f6135}
+.b-amber{background:#8a6200}
+.b-blue{background:#1a5fa8}
 
-/* ── KPI GRID ── */
-.kpi-grid {
-  display: grid; grid-template-columns: repeat(4,1fr);
-  background: var(--line); gap: 1px;
-  border-bottom: 1px solid var(--line);
+.status{
+display:flex;
+flex-direction:column;
+gap:25px;
+font-size:34px;
+font-weight:bold;
+padding-top:20px;
 }
-.kpi {
-  background: var(--card); padding: 22px 28px 18px;
-  position: relative;
+.footer{
+height:120px;
+padding:12px;
 }
-.kpi-bar {
-  position: absolute; top: 0; left: 28px;
-  width: 36px; height: 3px; border-radius: 0 0 2px 2px;
+.activity{
+background:white;
+color:#111;
+border-radius:10px;
+padding:15px;
+height:100%;
+font-size:24px;
 }
-.kpi-bar.black  { background: #111; }
-.kpi-bar.amber  { background: #c8860a; }
-.kpi-bar.green  { background: #22aa55; }
-.kpi-bar.blue   { background: #2266cc; }
-.kpi-label {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--txt3); margin-bottom: 6px;
-}
-.kpi-val {
-  font-family: 'Inter Tight', sans-serif; font-size: 52px;
-  font-weight: 800; letter-spacing: -0.04em; line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.kpi-val.red    { color: var(--red); }
-.kpi-val.amber  { color: var(--amber); }
-.kpi-val.green  { color: var(--green); }
-.kpi-val.blue   { color: var(--blue); }
-.kpi-sub { font-size: 12px; color: var(--txt3); margin-top: 4px; }
-
-/* ── BODY ── */
-.body {
-  display: grid; grid-template-columns: 1fr 300px;
-  gap: 16px; padding: 16px 24px;
-  height: calc(100vh - 56px - 96px);
-  overflow: hidden;
-}
-
-/* ── CARD ── */
-.card {
-  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
-  padding: 20px 22px; overflow: hidden; display: flex; flex-direction: column;
-}
-.card-title {
-  font-family: 'Inter Tight', sans-serif; font-weight: 600;
-  font-size: 16px; letter-spacing: -0.02em;
-  display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
-  flex-shrink: 0;
-}
-.card-title i { font-size: 18px; color: var(--txt3); }
-
-/* ── TABLE ── */
-.tbl-wrap { overflow-y: auto; flex: 1; }
-.tbl-wrap::-webkit-scrollbar { display: none; }
-table { width: 100%; border-collapse: collapse; }
-thead th {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--txt3);
-  padding: 8px 10px; text-align: left;
-  border-bottom: 1px solid var(--line);
-  background: var(--card); position: sticky; top: 0;
-}
-tbody tr {
-  border-bottom: 1px solid var(--line);
-  transition: background .1s;
-}
-tbody tr:last-child { border-bottom: none; }
-tbody tr.nueva { animation: rowFlash .6s ease; }
-@keyframes rowFlash {
-  0%   { background: rgba(200,134,10,.18); }
-  100% { background: transparent; }
-}
-td { padding: 14px 10px; font-size: 14px; vertical-align: middle; }
-.td-id { color: var(--txt3); font-size: 13px; font-weight: 500; white-space: nowrap; }
-.td-equipo { font-weight: 500; color: var(--txt); }
-.td-desc { font-size: 12px; color: var(--txt3); margin-top: 2px; }
-.av {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: var(--line); color: var(--txt2);
-  display: grid; place-items: center;
-  font-size: 10px; font-weight: 600;
-}
-
-/* ── BADGES ── */
-.badge {
-  display: inline-block; padding: 3px 10px;
-  border-radius: 20px; font-size: 11px; font-weight: 500;
-}
-.badge-red    { background: rgba(192,53,42,.09); color: var(--red); }
-.badge-amber  { background: rgba(138,98,0,.10); color: var(--amber); }
-.badge-green  { background: rgba(31,97,53,.09); color: var(--green); }
-.badge-blue   { background: rgba(26,95,168,.10); color: var(--blue); }
-.badge-gray   { background: var(--bg); color: var(--txt3); }
-.badge-nueva  {
-  background: #c8860a; color: #fff; font-weight: 700;
-  animation: blink 1s step-end 5;
-}
-@keyframes blink { 50% { opacity: 0; } }
-
-/* ── RESUMEN ── */
-.res-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 13px 0; border-bottom: 1px solid var(--line);
-  font-size: 14px;
-}
-.res-row:last-child { border-bottom: none; }
-.res-row .lbl { color: var(--txt2); }
-.res-row .val { font-weight: 700; font-variant-numeric: tabular-nums; }
-.val.red   { color: var(--red); }
-.val.amber { color: var(--amber); }
-.val.green { color: var(--green); }
-
-/* ── NEW TOAST ── */
-#toast {
-  position: fixed; bottom: 24px; right: 24px;
-  background: #c8860a; color: #fff;
-  font-family: 'Inter Tight', sans-serif; font-weight: 700; font-size: 16px;
-  padding: 14px 22px; border-radius: 8px; display: none;
-  align-items: center; gap: 10px; z-index: 999;
-  box-shadow: 0 6px 24px rgba(0,0,0,.18);
-  animation: toastIn .3s ease;
-}
-@keyframes toastIn { from{transform:translateY(16px);opacity:0} to{transform:none;opacity:1} }
+.activity h2{color:#123b84;margin-bottom:10px}
+.activity ul{list-style:none}
+.activity li{padding:6px 0}
 </style>
 </head>
 <body>
 
-<div class="hdr">
-  <div class="hdr-brand">Samara</div>
-  <div class="hdr-right">
-    <div class="live"><div class="dot"></div><span id="rt-lbl">Conectando...</span></div>
-    <div class="clock" id="clk">--:--</div>
-  </div>
+<div class="header">
+<div>SAMARA · CENTRO DE MANTENIMIENTO</div>
+<div id="clock"></div>
 </div>
 
-<div class="kpi-grid">
-  <div class="kpi">
-    <div class="kpi-bar black"></div>
-    <div class="kpi-label">Urgentes</div>
-    <div class="kpi-val red" id="k-urg">–</div>
-    <div class="kpi-sub">Atención inmediata</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi-bar amber"></div>
-    <div class="kpi-label">En progreso</div>
-    <div class="kpi-val amber" id="k-prog">–</div>
-    <div class="kpi-sub">Asignadas</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi-bar green"></div>
-    <div class="kpi-label">Completadas hoy</div>
-    <div class="kpi-val green" id="k-comp">–</div>
-    <div class="kpi-sub">Histórico</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi-bar blue"></div>
-    <div class="kpi-label">Equipos</div>
-    <div class="kpi-val blue" id="k-eqs">–</div>
-    <div class="kpi-sub">Registrados</div>
-  </div>
+<div class="kpis">
+<div class="kpi"><div class="label">OTs Abiertas</div><div class="value blue">245</div></div>
+<div class="kpi"><div class="label">Urgentes</div><div class="value red">28</div></div>
+<div class="kpi"><div class="label">Críticas</div><div class="value red">7</div></div>
+<div class="kpi"><div class="label">En Progreso</div><div class="value amber">52</div></div>
+<div class="kpi"><div class="label">Completadas</div><div class="value green">156</div></div>
+<div class="kpi"><div class="label">Equipos</div><div class="value blue">84</div></div>
 </div>
 
-<div class="body">
-  <!-- Tabla de órdenes -->
-  <div class="card">
-    <div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes recientes</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Equipo</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>Técnico</th>
-          </tr>
-        </thead>
-        <tbody id="ot-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Panel resumen -->
-  <div class="card">
-    <div class="card-title"><i class="ti ti-chart-bar"></i> Resumen</div>
-    <div id="res-list" style="flex:1;overflow-y:auto;"></div>
-  </div>
+<div class="main">
+<div class="panel">
+<h2>ÓRDENES PRIORITARIAS</h2>
+<table>
+<tr>
+<th>OT</th>
+<th>Equipo</th>
+<th>Tipo</th>
+<th>Estado</th>
+<th>Técnico</th>
+</tr>
+<tr>
+<td>#1048</td>
+<td>Conveyor Belt</td>
+<td><span class="badge b-blue">Preventivo</span></td>
+<td><span class="badge b-amber">En Progreso</span></td>
+<td>JM</td>
+</tr>
+<tr>
+<td>#1035</td>
+<td>HVAC</td>
+<td><span class="badge b-red">Correctivo</span></td>
+<td><span class="badge b-red">Urgente</span></td>
+<td>AR</td>
+</tr>
+<tr>
+<td>#1027</td>
+<td>Pump P-101</td>
+<td><span class="badge b-blue">Inspección</span></td>
+<td><span class="badge b-blue">Pendiente</span></td>
+<td>LC</td>
+</tr>
+</table>
 </div>
 
-<div id="toast" style="display:none;"></div>
+<div class="panel">
+<h2>ESTADO DE PLANTA</h2>
+<div class="status">
+<div>🟢 Operativos: 52</div>
+<div>🟡 Atención: 4</div>
+<div>🔴 Críticos: 1</div>
+<div>✅ Disponibilidad: 97%</div>
+</div>
+</div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div class="footer">
+<div class="activity">
+<h2>ACTIVIDAD RECIENTE</h2>
+<ul>
+<li>✓ Pump Inspection completada</li>
+<li>✓ HVAC asignado</li>
+<li>✓ Conveyor Belt iniciado</li>
+<li>⚠ Alerta de mantenimiento vencido</li>
+</ul>
+</div>
+</div>
+
 <script>
-const SUPA_URL = 'https://knzelkthjzdtlghaizmr.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuemVsa3RoanpkdGxnaGFpem1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjY2NTQsImV4cCI6MjA5NDM0MjY1NH0.xL1cAwZ4kQ-u1bILLm-WMR-5j-PH_MJ8aVjBRCuhi6k';
-const db = supabase.createClient(SUPA_URL, SUPA_KEY);
-
-let allOTs = [], allEqs = [], knownIds = new Set(), newIds = new Set();
-
-/* ── CLOCK ── */
-function tickClock(){
-  const n = new Date();
-  document.getElementById('clk').textContent =
-    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+function updateClock(){
+ const d=new Date();
+ document.getElementById('clock').innerText=d.toLocaleTimeString();
 }
-tickClock(); setInterval(tickClock, 10000);
-
-/* ── LOAD ── */
-async function load(){
-  const [{data:ots, error:e1}, {data:eqs, error:e2}] = await Promise.all([
-    db.from('ordenes_trabajo').select('*').order('id', {ascending:false}),
-    db.from('equipos').select('*'),
-  ]);
-  if(e1 || e2){ console.error(e1||e2); return; }
-
-  allEqs = eqs || [];
-  const prev = new Set(knownIds);
-  allOTs = ots || [];
-
-  allOTs.forEach(o => {
-    if(prev.size && !prev.has(o.id)){
-      newIds.add(o.id);
-      showToast(o);
-    }
-    knownIds.add(o.id);
-  });
-
-  render();
-  setTimeout(()=>{ newIds.clear(); renderTable(); }, 8000);
-}
-
-/* ── BADGE HELPER ── */
-function badge(txt){
-  const map = {
-    'Urgente':'badge-red','Bloqueada':'badge-red',
-    'En progreso':'badge-amber','Por aprobar':'badge-amber',
-    'Pendiente':'badge-gray','Completada':'badge-green',
-    'Preventivo':'badge-blue','Predictivo':'badge-blue',
-    'Correctivo':'badge-red','Inspección':'badge-blue',
-  };
-  return `<span class="badge ${map[txt]||'badge-gray'}">${txt}</span>`;
-}
-
-function initials(n){
-  const p=(n||'').trim().split(/\s+/);
-  return ((p[0]||'')[0]||'')+((p[1]||'')[0]||'');
-}
-
-/* ── RENDER ── */
-function render(){
-  const hoy = new Date(); hoy.setHours(0,0,0,0);
-  const active   = allOTs.filter(o => o.estado !== 'Completada');
-  const urg      = active.filter(o => o.prioridad === 'Urgente').length;
-  const prog     = active.filter(o => o.estado === 'En progreso').length;
-  const compHoy  = allOTs.filter(o => {
-    if(o.estado !== 'Completada' || !o.fecha_cierre) return false;
-    const d = new Date(o.fecha_cierre); d.setHours(0,0,0,0);
-    return d.getTime() === hoy.getTime();
-  }).length;
-  const correctivos = allOTs.filter(o => o.tipo === 'Correctivo').length;
-  const preventivos = allOTs.filter(o => o.tipo === 'Preventivo' || o.tipo === 'Predictivo').length;
-  const completadas = allOTs.filter(o => o.estado === 'Completada').length;
-  const pendProg    = allOTs.filter(o => o.estado === 'Pendiente' || o.estado === 'En progreso').length;
-
-  document.getElementById('k-urg').textContent  = urg;
-  document.getElementById('k-prog').textContent = prog;
-  document.getElementById('k-comp').textContent = compHoy;
-  document.getElementById('k-eqs').textContent  = allEqs.length;
-
-  renderTable();
-
-  // Resumen panel
-  document.getElementById('res-list').innerHTML = [
-    {l:'Total OTs',           v:allOTs.length,  cls:''},
-    {l:'Completadas',         v:completadas,     cls:'green'},
-    {l:'Pendientes / En progreso', v:pendProg,  cls:'amber'},
-    {l:'Urgentes',            v:urg,             cls:'red'},
-    {l:'Correctivos',         v:correctivos,     cls:''},
-    {l:'Preventivos',         v:preventivos,     cls:''},
-    {l:'Equipos registrados', v:allEqs.length,   cls:''},
-  ].map(r=>`<div class="res-row">
-    <span class="lbl">${r.l}</span>
-    <span class="val ${r.cls}">${r.v}</span>
-  </div>`).join('');
-}
-
-function renderTable(){
-  // Sort: urgente/bloqueada first, then by id desc
-  const sorted = [...allOTs].sort((a,b) => {
-    const po = {Urgente:0, Bloqueada:0,'En progreso':1,'Por aprobar':2,Pendiente:3,Completada:4};
-    const pa = po[a.estado]??3, pb = po[b.estado]??3;
-    if(pa !== pb) return pa - pb;
-    return b.id - a.id;
-  });
-
-  document.getElementById('ot-tbody').innerHTML = sorted.map(o => {
-    const eq = allEqs.find(e => e.id === o.equipo_id);
-    const eqNom = eq ? (eq.codigo + ' – ' + eq.nombre) : (o.equipo_nombre || '–');
-    const isNew = newIds.has(o.id);
-    const av = o.tecnico_nombre
-      ? `<div class="av" title="${o.tecnico_nombre}">${initials(o.tecnico_nombre).toUpperCase()}</div>`
-      : `<div class="av">?</div>`;
-
-    return `<tr class="${isNew?'nueva':''}">
-      <td class="td-id">#${o.id}</td>
-      <td>
-        <div class="td-equipo">${eqNom}</div>
-        ${o.descripcion ? `<div class="td-desc">${o.descripcion.slice(0,45)}</div>` : ''}
-      </td>
-      <td>${badge(o.tipo)}</td>
-      <td>
-        ${badge(o.estado)}
-        ${isNew ? ' <span class="badge badge-nueva">NUEVA</span>' : ''}
-      </td>
-      <td>${av}</td>
-    </tr>`;
-  }).join('');
-}
-
-/* ── TOAST ── */
-function showToast(ot){
-  const el = document.getElementById('toast');
-  el.innerHTML = `<i class="ti ti-bell-ringing" style="font-size:20px;"></i> Nueva OT: ${ot.equipo_nombre||'–'} — ${ot.tipo||''}`;
-  el.style.display = 'flex';
-  clearTimeout(el._t);
-  el._t = setTimeout(()=>{ el.style.display='none'; }, 6000);
-}
-
-/* ── REALTIME ── */
-function initRT(){
-  db.channel('samara-display-' + Date.now())
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ordenes_trabajo'}, ()=>load())
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'ordenes_trabajo'}, ()=>load())
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'ordenes_trabajo'}, ()=>load())
-    .subscribe(s=>{
-      const el = document.getElementById('rt-lbl');
-      if(s==='SUBSCRIBED'){ el.textContent='En vivo'; el.style.color='#22aa55'; }
-      else { el.textContent='Reconectando...'; el.style.color='#c8860a'; }
-    });
-}
-
-load();
-initRT();
-setInterval(load, 30000); // fallback every 30s
+updateClock();
+setInterval(updateClock,1000);
 </script>
 </body>
 </html>
