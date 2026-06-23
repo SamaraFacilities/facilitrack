@@ -1150,6 +1150,42 @@ tr:hover td { background: var(--bg3) !important; }
             <div id="sz-por-aprobar-list"></div>
           </div>
 
+          <!-- Calendario mensual de OTs -->
+          <div class="card">
+            <div class="card-header" style="margin-bottom:14px;">
+              <div class="card-title"><i class="ti ti-calendar"></i> <span id="sz-cal-title">Calendario</span></div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <button class="btn-sm" onclick="chgMonthZona(-1)"><i class="ti ti-chevron-left"></i></button>
+                <span id="sz-cal-label" style="font-weight:600;font-size:13px;min-width:110px;text-align:center;"></span>
+                <button class="btn-sm" onclick="chgMonthZona(1)"><i class="ti ti-chevron-right"></i></button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">D</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">L</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">M</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">M</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">J</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">V</div>
+              <div style="text-align:center;font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0;">S</div>
+            </div>
+            <div id="sz-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px;"></div>
+            <!-- Leyenda -->
+            <div style="display:flex;gap:14px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--blue);display:inline-block;"></span> Preventivo
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;"></span> Urgente / Paro
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;"></span> Completada
+              </div>
+            </div>
+            <!-- Day detail -->
+            <div id="sz-day-content" style="margin-top:14px;"></div>
+          </div>
+
           <!-- Próximos PMs — 30 días -->
           <div class="card">
             <div class="card-header" style="margin-bottom:12px;">
@@ -8472,12 +8508,16 @@ function renderAgendaZona(){
   }
 
   _renderPorAprobar(zonOTs);
+  _renderSzCal(zonOTs, eqIds);
   _renderProximosPMs(eqsZona, zonOTs);
   _renderEquiposZona(eqsZona, zonOTs);
 }
 
 function _renderSzCal(zonOTs, eqIds){
   const zona = curProf?.zona || '';
+  // Update calendar title based on role
+  const titleEl = document.getElementById('sz-cal-title');
+  if(titleEl) titleEl.textContent = curProf?.rol === 'tecnico' ? 'Mis órdenes del mes' : 'Mantenimientos de la Zona';
   const lbl = document.getElementById('sz-cal-label');
   const grid = document.getElementById('sz-cal-grid');
   if(!lbl || !grid) return;
