@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samara · Display</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:    #0a0a0a;
+    --bg2:   #141414;
+    --bg3:   #1e1e1e;
+    --line:  #2a2a2a;
+    --txt:   #ffffff;
+    --txt2:  #cccccc;
+    --txt3:  #888888;
+    --red:   #ff4433;
+    --amber: #ffaa00;
+    --green: #22cc66;
+    --blue:  #4488ff;
+  }
+
+  html, body {
+    height: 100%; width: 100%;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    height: 72px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg2);
+  }
+  .brand {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 800; font-size: 28px;
+    letter-spacing: -0.04em; color: #fff;
+  }
+  .header-right {
+    display: flex; align-items: center; gap: 24px;
+  }
+  .live-dot {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--txt3);
+  }
+  .live-dot .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+  .clock {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 22px; font-weight: 700;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── KPI BAR ── */
+  .kpi-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg2);
+  }
+  .kpi {
+    padding: 20px 32px;
+    border-right: 1px solid var(--line);
+  }
+  .kpi:last-child { border-right: none; }
+  .kpi-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--txt3); margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 48px; font-weight: 800;
+    letter-spacing: -0.04em; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-value.red    { color: var(--red); }
+  .kpi-value.amber  { color: var(--amber); }
+  .kpi-value.green  { color: var(--green); }
+  .kpi-value.white  { color: #fff; }
+
+  /* ── OT LIST ── */
+  .ot-section {
+    display: flex; flex-direction: column;
+    height: calc(100vh - 72px - 89px);
+    overflow: hidden;
+    padding: 28px 40px;
+    gap: 12px;
+  }
+  .section-title {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--txt3);
+    margin-bottom: 4px;
+  }
+  .ot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 12px;
+    overflow-y: auto;
+    flex: 1;
+    align-content: start;
+  }
+  .ot-grid::-webkit-scrollbar { display: none; }
+
+  /* ── OT CARD ── */
+  .ot-card {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.35s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .ot-card::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 4px;
+  }
+  .ot-card.urgente::before { background: var(--red); }
+  .ot-card.progreso::before { background: var(--amber); }
+  .ot-card.pendiente::before { background: var(--line); }
+  .ot-card.nueva {
+    border-color: var(--amber);
+    animation: flashIn 0.5s ease, glow 2s 0.5s ease-out;
+  }
+  @keyframes flashIn {
+    0%   { background: rgba(255,170,0,0.25); }
+    100% { background: var(--bg2); }
+  }
+  @keyframes glow {
+    0%   { box-shadow: 0 0 20px rgba(255,170,0,0.4); }
+    100% { box-shadow: none; }
+  }
+
+  .ot-top {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px;
+    margin-bottom: 10px;
+  }
+  .ot-id {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px; font-weight: 700;
+    background: var(--bg3); padding: 3px 10px;
+    border-radius: 4px; color: var(--txt2);
+  }
+  .ot-badges { display: flex; gap: 6px; align-items: center; }
+  .badge {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .badge.red   { background: rgba(255,68,51,0.15); color: var(--red); }
+  .badge.amber { background: rgba(255,170,0,0.15); color: var(--amber); }
+  .badge.green { background: rgba(34,204,102,0.12); color: var(--green); }
+  .badge.gray  { background: var(--bg3); color: var(--txt3); }
+  .badge.nueva-tag {
+    background: var(--amber); color: #000;
+    animation: blink 1s step-end 4;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .ot-title {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 19px; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.25;
+    color: #fff; margin-bottom: 10px;
+  }
+  .ot-meta {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-size: 12px; color: var(--txt3);
+  }
+  .ot-meta span {
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .ot-meta i { font-size: 13px; }
+  .ot-meta .paro { color: var(--red); font-weight: 600; }
+  .sla-timer {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 12px; font-weight: 700;
+    color: var(--red); font-variant-numeric: tabular-nums;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; gap: 16px;
+    color: var(--txt3);
+  }
+  .empty i { font-size: 64px; opacity: 0.2; }
+  .empty div { font-size: 18px; font-weight: 500; }
+
+  /* ── NEW OT TOAST ── */
+  .new-toast {
+    position: fixed; bottom: 32px; right: 32px;
+    background: var(--amber); color: #000;
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 700; font-size: 18px;
+    padding: 16px 28px; border-radius: 10px;
+    display: none; align-items: center; gap: 12px;
+    box-shadow: 0 8px 32px rgba(255,170,0,0.5);
+    z-index: 100;
+    animation: toastIn 0.3s ease;
+  }
+  @keyframes toastIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="brand">Samara</div>
+  <div class="header-right">
+    <div class="live-dot">
+      <div class="dot"></div>
+      <span id="rt-status">Conectando...</span>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+</div>
+
+<!-- KPI Bar -->
+<div class="kpi-bar">
+  <div class="kpi">
+    <div class="kpi-label">Órdenes activas</div>
+    <div class="kpi-value white" id="kpi-total">–</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Paros activos</div>
+    <div class="kpi-value red" id="kpi-paros">–</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">En progreso</div>
+    <div class="kpi-value amber" id="kpi-progreso">–</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Completadas hoy</div>
+    <div class="kpi-value green" id="kpi-completas">–</div>
+  </div>
+</div>
+
+<!-- OT List -->
+<div class="ot-section">
+  <div class="section-title">Órdenes de trabajo activas</div>
+  <div class="ot-grid" id="ot-grid">
+    <div class="empty">
+      <i class="ti ti-loader" style="animation:spin 1s linear infinite;"></i>
+      <div>Cargando órdenes...</div>
+    </div>
+  </div>
+</div>
+
+<!-- New OT Toast -->
+<div class="new-toast" id="new-toast">
+  <i class="ti ti-bell-ringing"></i>
+  <span id="new-toast-msg">Nueva OT asignada</span>
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPA_URL = 'https://knzelkthjzdtlghaizmr.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuemVsa3RoanpkdGxnaGFpem1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjY2NTQsImV4cCI6MjA5NDM0MjY1NH0.xL1cAwZ4kQ-u1bILLm-WMR-5j-PH_MJ8aVjBRCuhi6k';
+
+const { createClient } = supabase;
+const db = createClient(SUPA_URL, SUPA_KEY);
+
+let allOTs = [];
+let allEqs = [];
+let knownIds = new Set();
+let newIds   = new Set();
+
+// ── CLOCK ──
+function tick(){
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = h + ':' + m;
+}
+tick(); setInterval(tick, 10000);
+
+// ── LOAD DATA ──
+async function loadData(){
+  const [{ data: ots }, { data: eqs }] = await Promise.all([
+    db.from('ordenes_trabajo').select('*').order('created_at', {ascending: false}),
+    db.from('equipos').select('*'),
+  ]);
+  allEqs = eqs || [];
+  const prev = new Set(knownIds);
+  allOTs = (ots || []);
+
+  // Detect new OTs
+  allOTs.forEach(o => {
+    if(!prev.has(o.id) && prev.size > 0){
+      newIds.add(o.id);
+      showToast(o);
+    }
+    knownIds.add(o.id);
+  });
+
+  render();
+
+  // Clear new flag after 8s
+  setTimeout(() => { newIds.clear(); render(); }, 8000);
+}
+
+// ── RENDER ──
+function render(){
+  const active = allOTs.filter(o => o.estado !== 'Completada');
+  const paros  = active.filter(o => o.prioridad === 'Urgente').length;
+  const prog   = active.filter(o => o.estado === 'En progreso').length;
+  const hoy    = new Date(); hoy.setHours(0,0,0,0);
+  const complHoy = allOTs.filter(o => {
+    if(o.estado !== 'Completada' || !o.fecha_cierre) return false;
+    const d = new Date(o.fecha_cierre); d.setHours(0,0,0,0);
+    return d.getTime() === hoy.getTime();
+  }).length;
+
+  document.getElementById('kpi-total').textContent    = active.length;
+  document.getElementById('kpi-paros').textContent    = paros;
+  document.getElementById('kpi-progreso').textContent = prog;
+  document.getElementById('kpi-completas').textContent = complHoy;
+
+  const grid = document.getElementById('ot-grid');
+
+  // Sort: urgente first, then En progreso, then Pendiente
+  const sorted = [...active].sort((a,b) => {
+    const p = {Urgente:0,'En progreso':1,'Por aprobar':2,'Pendiente':3,'Bloqueada':0};
+    return (p[a.prioridad]??3)-(p[b.prioridad]??3) || (p[a.estado]??3)-(p[b.estado]??3);
+  });
+
+  if(!sorted.length){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1;">
+      <i class="ti ti-checks"></i>
+      <div>Sin órdenes activas</div>
+    </div>`;
+    return;
+  }
+
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+  grid.innerHTML = sorted.map(o => {
+    const isUrg   = o.prioridad === 'Urgente';
+    const isProg  = o.estado === 'En progreso';
+    const isBloq  = o.estado === 'Bloqueada';
+    const isNueva = newIds.has(o.id);
+    const eq = allEqs.find(e => e.id === o.equipo_id);
+
+    const cardClass = ['ot-card',
+      isUrg ? 'urgente' : isProg ? 'progreso' : 'pendiente',
+      isNueva ? 'nueva' : ''
+    ].filter(Boolean).join(' ');
+
+    // SLA timer
+    let slaHtml = '';
+    if(isProg && o.fecha_creacion){
+      const mins = Math.floor((Date.now() - new Date(o.fecha_creacion)) / 60000);
+      if(mins > 60){
+        const h = Math.floor(mins/60), m = mins%60;
+        slaHtml = `<span class="sla-timer"><i class="ti ti-alarm"></i> SLA -${h}:${String(m).padStart(2,'0')}</span>`;
+      }
+    }
+
+    const zona = eq?.area || '–';
+    const titulo = (o.equipo_nombre || '–') + (o.descripcion ? ' — ' + o.descripcion.slice(0,50) : '');
+
+    return `<div class="${cardClass}">
+      <div class="ot-top">
+        <span class="ot-id">OT-${String(o.id).padStart(4,'0')}</span>
+        <div class="ot-badges">
+          ${isNueva ? '<span class="badge nueva-tag">● NUEVA</span>' : ''}
+          ${isUrg   ? '<span class="badge red">● Urgente</span>' : ''}
+          ${isBloq  ? '<span class="badge red">⚠ Bloqueada</span>' : ''}
+          ${!isUrg && !isBloq ? `<span class="badge ${isProg?'amber':'gray'}">${o.estado}</span>` : ''}
+          ${slaHtml}
+        </div>
+      </div>
+      <div class="ot-title">${titulo}</div>
+      <div class="ot-meta">
+        ${eq ? `<span><i class="ti ti-settings-2"></i> ${eq.codigo}</span>` : ''}
+        <span><i class="ti ti-map-pin"></i> ${zona}</span>
+        ${o.tecnico_nombre ? `<span><i class="ti ti-user"></i> ${o.tecnico_nombre}</span>` : ''}
+        ${o.tiempo_minutos ? `<span><i class="ti ti-clock"></i> ${Math.floor(o.tiempo_minutos/60)}h ${o.tiempo_minutos%60}m</span>` : ''}
+        ${o.tipo ? `<span><i class="ti ti-tag"></i> ${o.tipo}</span>` : ''}
+        ${isUrg ? '<span class="paro"><i class="ti ti-alert-triangle"></i> Paro activo</span>' : ''}
+        ${isBloq && o.motivo_bloqueo ? `<span style="color:var(--red);"><i class="ti ti-ban"></i> ${o.motivo_bloqueo}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── NEW OT TOAST ──
+function showToast(ot){
+  const el = document.getElementById('new-toast');
+  const msg = document.getElementById('new-toast-msg');
+  msg.textContent = `🔔 Nueva OT: ${ot.equipo_nombre || '–'} — ${ot.tipo || ''}`;
+  el.style.display = 'flex';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+// ── REALTIME ──
+function initRealtime(){
+  db.channel('display-rt')
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'ordenes_trabajo'}, () => loadData())
+    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'ordenes_trabajo'}, () => loadData())
+    .on('postgres_changes', {event:'DELETE', schema:'public', table:'ordenes_trabajo'}, () => loadData())
+    .subscribe(status => {
+      const rtEl = document.getElementById('rt-status');
+      if(status === 'SUBSCRIBED'){
+        rtEl.textContent = 'En vivo';
+        rtEl.style.color = '#22cc66';
+      } else {
+        rtEl.textContent = 'Reconectando...';
+        rtEl.style.color = '#ffaa00';
+      }
+    });
+}
+
+// ── INIT ──
+loadData();
+initRealtime();
+// Refresh every 60s as fallback
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>
