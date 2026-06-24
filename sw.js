@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // SAMARA FACILITIES — Service Worker v4
 // Background sync para iOS PWA
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 
 const CACHE_NAME = 'samara-v4';
 const SUPA_URL   = 'https://knzelkthjzdtlghaizmr.supabase.co';
@@ -30,17 +30,14 @@ self.addEventListener('activate', e => {
   );
 });
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false  # ← esto evita el error de cancelación
 // ── FETCH ─────────────────────────────────────────────────────
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // No interceptar Supabase ni otros servicios externos
-  if (url.hostname.includes('supabase.co') ||
-      url.hostname.includes('googleapis') ||
-      url.hostname.includes('jsdelivr') ||
-      url.hostname.includes('cdnjs') ||
+  // No interceptar servicios externos
+  if (url.hostname.includes('supabase.co')  ||
+      url.hostname.includes('googleapis')   ||
+      url.hostname.includes('jsdelivr')     ||
+      url.hostname.includes('cdnjs')        ||
       url.hostname.includes('unpkg')) return;
   if (e.request.method !== 'GET') return;
 
@@ -55,12 +52,12 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
-      return fetch(e.request).then(resp => {
-        if (resp?.status === 200 && resp.type === 'basic') {
+      return fetch(e.request.clone()).then(resp => {
+        if (resp && resp.status === 200 && resp.type === 'basic') {
           caches.open(CACHE_NAME).then(c => c.put(e.request, resp.clone()));
         }
         return resp;
-      }).catch(() => cached);
+      }).catch(() => cached || Response.error());
     })
   );
 });
@@ -78,7 +75,6 @@ self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      // Si la app ya está abierta, enfocarla
       const appClient = list.find(c => c.url.includes(self.location.origin));
       if (appClient) return appClient.focus();
       return clients.openWindow ? clients.openWindow('/') : null;
@@ -106,7 +102,6 @@ self.addEventListener('message', async e => {
     return;
   }
 
-  // Contexto del usuario para saber qué notificar en background
   if (d.type === 'INIT_USER') {
     await saveCtx({
       userId:    d.userId,
@@ -114,20 +109,19 @@ self.addEventListener('message', async e => {
       zona:      d.zona || null,
       lastCheck: d.lastCheck || new Date().toISOString(),
     });
-    console.log('[SW] contexto guardado:', d.rol);
-    // Hacer check inmediato
+    console.log('[SW] Contexto guardado:', d.rol);
     await bgCheck();
     return;
   }
 
-  // La app está en primer plano y quiere que mostremos una notif del SO
   if (d.type === 'SHOW_NOTIF') {
     await mostrarNotif(d.title, d.body, d);
     return;
   }
 });
 
-// ── LÓGICA DE BACKGROUND CHECK ────────────────────────────────
+// ── BACKGROUND CHECK ──────────────────────────────────────────
+// Usa fecha_creacion (nombre real de la columna en ordenes_trabajo)
 async function bgCheck() {
   try {
     const ctx = await getCtx();
@@ -137,9 +131,9 @@ async function bgCheck() {
 
     const resp = await fetch(
       `${SUPA_URL}/rest/v1/ordenes_trabajo` +
-      `?created_at=gt.${encodeURIComponent(since)}` +
-      `&order=created_at.asc&limit=10` +
-      `&select=id,equipo_nombre,tipo,prioridad,tecnico_id,created_at`,
+      `?fecha_creacion=gt.${encodeURIComponent(since)}` +
+      `&order=fecha_creacion.asc&limit=10` +
+      `&select=id,equipo_nombre,tipo,prioridad,tecnico_id,fecha_creacion`,
       {
         headers: {
           'apikey':        SUPA_KEY,
@@ -156,10 +150,9 @@ async function bgCheck() {
     let latest = ctx.lastCheck;
 
     for (const ot of ots) {
-      const urg    = ot.prioridad === 'Urgente';
-      const esMia  = String(ot.tecnico_id) === String(ctx.userId);
+      const urg   = ot.prioridad === 'Urgente';
+      const esMia = String(ot.tecnico_id) === String(ctx.userId);
       const sinAsg = !ot.tecnico_id;
-
       let title, body;
 
       if (['admin', 'gerencia', 'supervisor'].includes(ctx.rol)) {
@@ -167,7 +160,7 @@ async function bgCheck() {
         body  = `${ot.equipo_nombre || 'Equipo'} · ${ot.tipo || ''} · ${ot.prioridad || ''}`;
       } else if (ctx.rol === 'tecnico' || ctx.rol === 'supervisor_zona') {
         if (!esMia && !sinAsg) {
-          if (ot.created_at > latest) latest = ot.created_at;
+          if (ot.fecha_creacion > latest) latest = ot.fecha_creacion;
           continue;
         }
         title = urg ? '🔴 OT Urgente — Samara' : '📋 Nueva OT — Samara';
@@ -178,17 +171,14 @@ async function bgCheck() {
       }
 
       await mostrarNotif(title, body, { tag: 'ot-' + ot.id, urgent: urg });
-      if (ot.created_at > latest) latest = ot.created_at;
+      if (ot.fecha_creacion > latest) latest = ot.fecha_creacion;
     }
 
-    // Actualizar el timestamp al más reciente procesado
     await saveCtx({ ...ctx, lastCheck: latest });
 
-    // Avisar a la app si está abierta para que recargue datos
+    // Avisar a la app si está abierta
     const list = await clients.matchAll({ type: 'window' });
-    if (list.length > 0) {
-      list.forEach(c => c.postMessage({ type: 'NEW_OTS', count: ots.length }));
-    }
+    list.forEach(c => c.postMessage({ type: 'NEW_OTS', count: ots.length }));
 
   } catch (err) {
     console.warn('[SW] bgCheck error:', err.message);
@@ -202,8 +192,8 @@ async function mostrarNotif(title, body, data = {}) {
     body,
     icon:               '/icon-192.png',
     badge:              '/icon-192.png',
-    tag:                data.tag  || 'samara',
-    vibrate:            data.urgent ? [300, 100, 300, 100, 300] : [200, 100, 200],
+    tag:                data.tag || 'samara',
+    vibrate:            data.urgent ? [300,100,300,100,300] : [200,100,200],
     requireInteraction: !!data.urgent,
     data,
   });
