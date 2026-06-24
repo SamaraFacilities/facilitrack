@@ -1405,6 +1405,59 @@ tr:hover td { background: var(--bg3) !important; }
       </div>
     </div>
 
+
+    <!-- TAB: PROYECTOS -->
+    <div id="tab-proyectos" class="panel-hidden">
+      <div style="max-width:1100px;margin:0 auto;">
+
+        <!-- Header row -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;">CAPEX de mantenimiento</div>
+          </div>
+          <button class="btn-sm btn-primary" onclick="openModalProyecto()"><i class="ti ti-plus"></i> Nuevo proyecto</button>
+        </div>
+
+        <!-- KPI strip -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+          <div class="card" style="padding:16px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Proyectos activos</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Inter Tight',sans-serif;" id="py-kpi-activos">–</div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Presupuesto total</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Inter Tight',sans-serif;" id="py-kpi-presupuesto">–</div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Gastado</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Inter Tight',sans-serif;color:var(--amber-txt);" id="py-kpi-gastado">–</div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Disponible</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Inter Tight',sans-serif;color:var(--green-txt);" id="py-kpi-disponible">–</div>
+          </div>
+        </div>
+
+        <!-- Projects list -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:14px;">
+            <div class="card-title"><i class="ti ti-folder"></i> Proyectos</div>
+            <div style="display:flex;gap:8px;">
+              <select id="py-fil-estado" onchange="renderProyectos()" style="border:1px solid var(--line2);border-radius:3px;padding:6px 10px;font-size:12px;background:#fff;">
+                <option value="">Todos los estados</option>
+                <option value="Activo">Activo</option>
+                <option value="En pausa">En pausa</option>
+                <option value="Completado">Completado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+          </div>
+          <div id="py-lista"></div>
+        </div>
+
+      </div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -1676,6 +1729,153 @@ tr:hover td { background: var(--bg3) !important; }
     <div class="form-actions">
       <button class="btn-sm" onclick="closeM('modal-reportar-bloqueo')">Cancelar</button>
       <button class="btn-sm btn-danger" onclick="confirmarReportarBloqueo()"><i class="ti ti-send"></i> Enviar reporte</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: COPIAR CHECKLIST A EQUIPOS -->
+<div class="modal-backdrop" id="modal-cl-copiar">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-title">
+      <span><i class="ti ti-copy" style="margin-right:6px;"></i>Copiar checklist a otros equipos</span>
+      <button class="close-btn" onclick="closeM('modal-cl-copiar')"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="font-size:12px;color:var(--txt2);margin-bottom:14px;">
+      El checklist <strong id="clc-tipo-label">–</strong> de <strong id="clc-origen-label">–</strong>
+      se copiará a los equipos que selecciones. Si ya tienen un checklist de ese tipo, se reemplazará.
+    </div>
+
+    <!-- Search filter -->
+    <div style="margin-bottom:10px;">
+      <input type="text" id="clc-search" placeholder="Buscar equipo..." oninput="clcFiltrar()"
+        style="width:100%;border:1px solid var(--line2);border-radius:3px;padding:8px 12px;font-size:13px;outline:none;">
+    </div>
+
+    <!-- Equipment list -->
+    <div id="clc-eq-list" style="max-height:320px;overflow-y:auto;border:1px solid var(--line);border-radius:4px;"></div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;margin-bottom:4px;">
+      <button class="btn-sm" onclick="clcToggleAll(true)" style="font-size:11px;">Seleccionar todos</button>
+      <button class="btn-sm" onclick="clcToggleAll(false)" style="font-size:11px;">Quitar todos</button>
+      <span id="clc-count" style="font-size:11px;color:var(--txt3);margin-left:auto;"></span>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-sm" onclick="closeM('modal-cl-copiar')">Cancelar</button>
+      <button class="btn-sm btn-primary" onclick="clbConfirmarCopiar()"><i class="ti ti-copy"></i> Copiar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: PROYECTO -->
+<div class="modal-backdrop" id="modal-proyecto">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-title">
+      <span id="modal-py-title"><i class="ti ti-folder" style="margin-right:6px;"></i>Nuevo Proyecto</span>
+      <button class="close-btn" onclick="closeM('modal-proyecto')"><i class="ti ti-x"></i></button>
+    </div>
+    <input type="hidden" id="py-edit-id">
+    <div class="form-grid">
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Nombre del proyecto</label>
+        <input type="text" id="py-nombre" placeholder="Ej: Rehabilitación compresor COMP-01">
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="py-estado">
+          <option value="Activo">Activo</option>
+          <option value="En pausa">En pausa</option>
+          <option value="Completado">Completado</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="py-tipo">
+          <option value="CAPEX">CAPEX</option>
+          <option value="OPEX">OPEX</option>
+          <option value="Mejora">Mejora continua</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Fecha inicio</label>
+        <input type="date" id="py-fecha-inicio">
+      </div>
+      <div class="form-group">
+        <label>Fecha estimada cierre</label>
+        <input type="date" id="py-fecha-fin">
+      </div>
+      <div class="form-group">
+        <label>Presupuesto aprobado (MXN)</label>
+        <input type="number" id="py-presupuesto" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="form-group">
+        <label>PO / Número de orden de compra</label>
+        <input type="text" id="py-po" placeholder="Ej: PO-2024-001">
+      </div>
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Descripción / Alcance</label>
+        <textarea id="py-desc" placeholder="Describe el alcance del proyecto..." style="min-height:60px;"></textarea>
+      </div>
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Responsable</label>
+        <select id="py-responsable">
+          <option value="">Sin asignar</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-sm" onclick="closeM('modal-proyecto')">Cancelar</button>
+      <button class="btn-sm btn-primary" onclick="guardarProyecto()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PROYECTO DETALLE / GASTOS -->
+<div class="modal-backdrop" id="modal-proyecto-detalle">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-title">
+      <span id="py-det-title">Proyecto</span>
+      <button class="close-btn" onclick="closeM('modal-proyecto-detalle')"><i class="ti ti-x"></i></button>
+    </div>
+
+    <!-- Project summary -->
+    <div id="py-det-resumen" style="margin-bottom:16px;"></div>
+
+    <!-- Gastos section -->
+    <div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
+      <i class="ti ti-receipt"></i> Gastos / OTs asociadas
+    </div>
+    <div id="py-det-gastos" style="margin-bottom:16px;max-height:260px;overflow-y:auto;"></div>
+
+    <!-- Add gasto -->
+    <div style="border:1px solid var(--line);border-radius:4px;padding:14px;background:#fafafa;">
+      <div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Registrar gasto</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">
+        <div>
+          <div style="font-size:11px;color:var(--txt3);margin-bottom:4px;">Concepto</div>
+          <input type="text" id="py-gasto-concepto" placeholder="Ej: Refacciones compresor" style="width:100%;border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;outline:none;">
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--txt3);margin-bottom:4px;">Monto (MXN)</div>
+          <input type="number" id="py-gasto-monto" placeholder="0.00" step="0.01" min="0" style="width:100%;border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;outline:none;">
+        </div>
+        <button class="btn-sm btn-primary" onclick="agregarGasto()" style="height:38px;"><i class="ti ti-plus"></i> Agregar</button>
+      </div>
+      <div style="margin-top:8px;">
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:4px;">OT relacionada (opcional)</div>
+        <select id="py-gasto-ot" style="width:100%;border:1px solid var(--line2);border-radius:3px;padding:8px 10px;font-size:12px;outline:none;">
+          <option value="">Sin OT específica</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions" style="margin-top:14px;">
+      <button class="btn-sm" onclick="closeM('modal-proyecto-detalle')">Cerrar</button>
+      <button class="btn-sm" onclick="editarProyecto(pyDetalleId)"><i class="ti ti-edit"></i> Editar proyecto</button>
     </div>
   </div>
 </div>
@@ -2048,6 +2248,7 @@ async function bootApp(user){
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-programar" onclick="setTab('programar')"><i class="ti ti-calendar-plus"></i> Programar PM</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-proyectos" onclick="setTab('proyectos')"><i class="ti ti-folder"></i> Proyectos</button>`;
   }
   // supervisor_zona: solo tab Escáner
   if(curProf.rol!=='supervisor_zona'){
@@ -2151,6 +2352,8 @@ async function loadAll(){
       window.allEqRefacciones = _eqrErr ? [] : (_eqr||[]);
     }catch(e){ window.allEqRefacciones = []; }
     loadCustomCLsFromDB();
+    // Load proyectos silently (table may not exist yet)
+    try{ await loadProyectos(); }catch(e){ allProyectos=[]; allProyectoGastos=[]; }
     
     console.log(`📊 Datos cargados: ${allOTs.length} OTs, ${allEqs.length} equipos, ${allProfs.length} perfiles`);
     
@@ -2220,8 +2423,10 @@ function setTab(t){
   if(t==='configuracion')renderConfiguracion();
   if(t==='cal-tecnico')renderAgendaTecnico();
   if(t==='programar'&&typeof renderProgramar==='function')renderProgramar();
+  if(t==='proyectos'&&typeof renderProyectos==='function')renderProyectos();
   if(t==='cal-tecnico')renderAgendaTecnico();
   if(t==='programar'&&typeof renderProgramar==='function')renderProgramar();
+  if(t==='proyectos'&&typeof renderProyectos==='function')renderProyectos();
   if(t==='ot-libre')renderOTLibre();
   if(t!=='escaner')stopScanner();
 }
@@ -6880,6 +7085,7 @@ function isToday(dateStr){
 
     <div class="form-actions" style="margin-top:14px;">
       <button class="btn-sm" onclick="closeM('modal-cl-builder')">Cancelar</button>
+      <button class="btn-sm" onclick="clbAbrirCopiar()" style="color:var(--blue-txt);border-color:var(--blue);"><i class="ti ti-copy"></i> Copiar a equipos</button>
       <button class="btn-sm btn-primary" onclick="clbGuardar()"><i class="ti ti-check"></i> Guardar Checklist</button>
     </div>
   </div>
@@ -8507,7 +8713,8 @@ function renderAgendaZona(){
     zonOTs = allOTs.filter(o => eqIds.includes(o.equipo_id));
   }
 
-  _renderPorAprobar(zonOTs);
+  // Approval section: supervisor de zona only
+  if(curProf?.rol === 'supervisor_zona') _renderPorAprobar(zonOTs);
   _renderSzCal(zonOTs, eqIds);
   _renderProximosPMs(eqsZona, zonOTs);
   _renderEquiposZona(eqsZona, zonOTs);
@@ -9414,6 +9621,8 @@ async function rechazarPM(otId){
 // Lista PMs pendientes de aprobación ordenados por proximidad
 // ══════════════════════════════════════════════════════════
 function _renderPorAprobar(zonOTs){
+  // Solo mostrar al supervisor de zona
+  if(curProf?.rol !== 'supervisor_zona'){ const card=document.getElementById('sz-por-aprobar-card'); if(card) card.style.display='none'; return; }
   const card  = document.getElementById('sz-por-aprobar-card');
   const list  = document.getElementById('sz-por-aprobar-list');
   const badge = document.getElementById('sz-por-aprobar-badge');
@@ -9496,6 +9705,404 @@ function _renderPorAprobar(zonOTs){
       </div>
     </div>`;
   }).join('');
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+// COPIAR CHECKLIST A OTROS EQUIPOS
+// ══════════════════════════════════════════════════════════
+
+function clbAbrirCopiar(){
+  const eqId = document.getElementById('clb-eq-id').value;
+  const tipo = document.getElementById('clb-tipo-ot')?.value || clbTipoActual || 'Preventivo';
+  const eq = allEqs.find(e => String(e.id) === String(eqId));
+  if(!eq){ toast('Guarda el checklist primero'); return; }
+  if(!clbItems.length){ toast('El checklist está vacío, agrega ítems primero'); return; }
+
+  // Set labels
+  document.getElementById('clc-tipo-label').textContent = tipo;
+  document.getElementById('clc-origen-label').textContent = eq.codigo + ' — ' + eq.nombre;
+
+  // Build equipment list (exclude current)
+  clcRenderList(eqId);
+  document.getElementById('clc-search').value = '';
+  clcUpdateCount();
+  openM('modal-cl-copiar');
+}
+
+function clcRenderList(excludeId, filter=''){
+  const list = document.getElementById('clc-eq-list');
+  const eqs = allEqs
+    .filter(e => String(e.id) !== String(excludeId))
+    .filter(e => !filter || e.nombre.toLowerCase().includes(filter) || e.codigo.toLowerCase().includes(filter));
+
+  if(!eqs.length){
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px;">Sin equipos disponibles</div>';
+    return;
+  }
+
+  const tipo = document.getElementById('clb-tipo-ot')?.value || clbTipoActual || 'Preventivo';
+
+  list.innerHTML = eqs.map(e => {
+    const hasCL = !!getCustomCL(e.id, tipo);
+    return `<label style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;">
+      <input type="checkbox" data-eqid="${e.id}" style="width:16px;height:16px;cursor:pointer;" onchange="clcUpdateCount()">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;color:var(--txt);">${e.nombre}</div>
+        <div style="font-size:11px;color:var(--txt3);">${e.codigo}${e.area ? ' · ' + e.area : ''}</div>
+      </div>
+      ${hasCL ? `<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--amber-bg);color:var(--amber-txt);">Reemplaza</span>` : ''}
+    </label>`;
+  }).join('');
+}
+
+function clcFiltrar(){
+  const q = document.getElementById('clc-search').value.toLowerCase().trim();
+  const eqId = document.getElementById('clb-eq-id').value;
+  clcRenderList(eqId, q);
+  clcUpdateCount();
+}
+
+function clcToggleAll(checked){
+  document.querySelectorAll('#clc-eq-list input[type="checkbox"]').forEach(cb => cb.checked = checked);
+  clcUpdateCount();
+}
+
+function clcUpdateCount(){
+  const selected = document.querySelectorAll('#clc-eq-list input[type="checkbox"]:checked').length;
+  const total    = document.querySelectorAll('#clc-eq-list input[type="checkbox"]').length;
+  const el = document.getElementById('clc-count');
+  if(el) el.textContent = selected > 0 ? `${selected} de ${total} seleccionados` : `${total} equipos`;
+}
+
+async function clbConfirmarCopiar(){
+  const checks = document.querySelectorAll('#clc-eq-list input[type="checkbox"]:checked');
+  if(!checks.length){ toast('Selecciona al menos un equipo'); return; }
+
+  const targetIds = [...checks].map(cb => parseInt(cb.dataset.eqid));
+  const tipo = document.getElementById('clb-tipo-ot')?.value || clbTipoActual || 'Preventivo';
+  const itemsPayload = { tipo_ot: tipo, items: clbItems };
+  const itemsStr = JSON.stringify(itemsPayload);
+  const btn = document.querySelector('#modal-cl-copiar .btn-primary');
+  if(btn){ btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader"></i> Copiando...'; }
+
+  let ok = 0, errors = 0;
+
+  for(const eqId of targetIds){
+    // Check if already has a plantilla for this tipo
+    const {data: existingRows} = await db.from('checklist_plantillas')
+      .select('id,items').eq('equipo_id', eqId);
+
+    const existing = (existingRows||[]).find(r => {
+      try {
+        const d = typeof r.items==='string' ? JSON.parse(r.items) : r.items;
+        return d.tipo_ot === tipo;
+      } catch(e){ return false; }
+    }) || null;
+
+    let error;
+    if(existing){
+      ({error} = await db.from('checklist_plantillas').update({
+        items: itemsStr,
+        updated_at: new Date().toISOString()
+      }).eq('id', existing.id));
+    } else {
+      const eq = allEqs.find(e => e.id === eqId);
+      ({error} = await db.from('checklist_plantillas').insert({
+        equipo_id: eqId,
+        equipo_nombre: eq ? (eq.codigo + ' — ' + eq.nombre) : '–',
+        items: itemsStr,
+        creado_por: curProf?.nombre || 'Admin',
+      }));
+    }
+
+    if(error){ console.error('clbCopiar error:', error); errors++; }
+    else ok++;
+  }
+
+  closeM('modal-cl-copiar');
+  if(btn){ btn.disabled = false; btn.innerHTML = '<i class="ti ti-copy"></i> Copiar'; }
+  await forceLoadAll();
+  toast(errors
+    ? `⚠️ ${ok} copiados, ${errors} errores`
+    : `✅ Checklist "${tipo}" copiado a ${ok} equipo${ok!==1?'s':''}`
+  );
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+// PROYECTOS — Seguimiento CAPEX/OPEX de mantenimiento
+// Tabla: proyectos (id, nombre, estado, tipo, fecha_inicio,
+//        fecha_fin, presupuesto, po, descripcion, responsable_id, created_at)
+// Tabla: proyecto_gastos (id, proyecto_id, concepto, monto, ot_id, created_at)
+// ══════════════════════════════════════════════════════════
+
+let allProyectos = [];
+let allProyectoGastos = [];
+let pyDetalleId = null;
+
+const MXN = v => '$' + Number(v||0).toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+async function loadProyectos(){
+  const [{data:pys},{data:gts}] = await Promise.all([
+    db.from('proyectos').select('*').order('created_at',{ascending:false}),
+    db.from('proyecto_gastos').select('*').order('created_at',{ascending:false}),
+  ]);
+  allProyectos = pys || [];
+  allProyectoGastos = gts || [];
+}
+
+function renderProyectos(){
+  const filEstado = document.getElementById('py-fil-estado')?.value || '';
+  let list = allProyectos;
+  if(filEstado) list = list.filter(p => p.estado === filEstado);
+
+  // KPIs
+  const activos = allProyectos.filter(p => p.estado === 'Activo').length;
+  const presupuesto = allProyectos.reduce((s,p) => s + (p.presupuesto||0), 0);
+  const gastado = allProyectoGastos.reduce((s,g) => s + (g.monto||0), 0);
+  document.getElementById('py-kpi-activos').textContent = activos;
+  document.getElementById('py-kpi-presupuesto').textContent = MXN(presupuesto);
+  document.getElementById('py-kpi-gastado').textContent = MXN(gastado);
+  document.getElementById('py-kpi-disponible').textContent = MXN(presupuesto - gastado);
+
+  const el = document.getElementById('py-lista');
+  if(!el) return;
+
+  if(!list.length){
+    el.innerHTML = '<div class="empty-state" style="padding:32px;"><i class="ti ti-folder-off"></i><br>Sin proyectos. Crea el primero.</div>';
+    return;
+  }
+
+  const statusColors = {
+    'Activo':'badge-green','En pausa':'badge-amber',
+    'Completado':'badge-blue','Cancelado':'badge-red'
+  };
+
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>Proyecto</th><th>PO</th><th>Tipo</th><th>Estado</th>
+      <th>Presupuesto</th><th>Gastado</th><th>% Avance</th><th>Cierre est.</th><th></th>
+    </tr></thead>
+    <tbody>${list.map(p => {
+      const gastadoPy = allProyectoGastos.filter(g=>g.proyecto_id===p.id).reduce((s,g)=>s+(g.monto||0),0);
+      const pct = p.presupuesto > 0 ? Math.min(100, Math.round(gastadoPy/p.presupuesto*100)) : 0;
+      const pctColor = pct >= 90 ? 'var(--red-txt)' : pct >= 70 ? 'var(--amber-txt)' : 'var(--green-txt)';
+      const resp = allProfs.find(pr => pr.id === p.responsable_id);
+      return `<tr>
+        <td>
+          <div style="font-weight:500;color:var(--txt);">${p.nombre}</div>
+          ${p.descripcion ? `<div style="font-size:11px;color:var(--txt3);">${p.descripcion.slice(0,50)}</div>` : ''}
+          ${resp ? `<div style="font-size:11px;color:var(--txt3);"><i class="ti ti-user" style="font-size:10px;"></i> ${resp.nombre}</div>` : ''}
+        </td>
+        <td style="font-size:12px;font-family:monospace;">${p.po||'–'}</td>
+        <td>${badge(p.tipo||'Otro')}</td>
+        <td><span class="badge ${statusColors[p.estado]||'badge-gray'}">${p.estado}</span></td>
+        <td style="font-size:12px;font-variant-numeric:tabular-nums;">${MXN(p.presupuesto)}</td>
+        <td style="font-size:12px;font-variant-numeric:tabular-nums;color:${pctColor};">${MXN(gastadoPy)}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="flex:1;height:4px;background:var(--line);border-radius:2px;min-width:50px;">
+              <div style="width:${pct}%;height:100%;background:${pctColor};border-radius:2px;"></div>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:${pctColor};">${pct}%</span>
+          </div>
+        </td>
+        <td style="font-size:12px;color:var(--txt3);">${p.fecha_fin ? new Date(p.fecha_fin+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '–'}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <button class="btn-sm" onclick="abrirDetalleProyecto(${p.id})" title="Ver detalle"><i class="ti ti-eye"></i></button>
+            <button class="btn-sm" onclick="editarProyecto(${p.id})" title="Editar"><i class="ti ti-edit"></i></button>
+            <button class="btn-sm btn-danger" onclick="eliminarProyecto(${p.id})" title="Eliminar"><i class="ti ti-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+// ── CRUD ──
+function openModalProyecto(){
+  document.getElementById('py-edit-id').value = '';
+  document.getElementById('py-nombre').value = '';
+  document.getElementById('py-estado').value = 'Activo';
+  document.getElementById('py-tipo').value = 'CAPEX';
+  document.getElementById('py-fecha-inicio').value = new Date().toISOString().slice(0,10);
+  document.getElementById('py-fecha-fin').value = '';
+  document.getElementById('py-presupuesto').value = '';
+  document.getElementById('py-po').value = '';
+  document.getElementById('py-desc').value = '';
+  document.getElementById('modal-py-title').innerHTML = '<i class="ti ti-folder" style="margin-right:6px;"></i>Nuevo Proyecto';
+  // Populate responsable
+  const sel = document.getElementById('py-responsable');
+  sel.innerHTML = '<option value="">Sin asignar</option>' +
+    allProfs.filter(p=>['admin','supervisor','supervisor_zona'].includes(p.rol))
+      .map(p=>`<option value="${p.id}">${p.nombre} (${p.rol})</option>`).join('');
+  openM('modal-proyecto');
+}
+
+function editarProyecto(id){
+  const p = allProyectos.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('py-edit-id').value = id;
+  document.getElementById('py-nombre').value = p.nombre||'';
+  document.getElementById('py-estado').value = p.estado||'Activo';
+  document.getElementById('py-tipo').value = p.tipo||'CAPEX';
+  document.getElementById('py-fecha-inicio').value = p.fecha_inicio||'';
+  document.getElementById('py-fecha-fin').value = p.fecha_fin||'';
+  document.getElementById('py-presupuesto').value = p.presupuesto||'';
+  document.getElementById('py-po').value = p.po||'';
+  document.getElementById('py-desc').value = p.descripcion||'';
+  document.getElementById('modal-py-title').innerHTML = '<i class="ti ti-edit" style="margin-right:6px;"></i>Editar Proyecto';
+  const sel = document.getElementById('py-responsable');
+  sel.innerHTML = '<option value="">Sin asignar</option>' +
+    allProfs.filter(pr=>['admin','supervisor','supervisor_zona'].includes(pr.rol))
+      .map(pr=>`<option value="${pr.id}" ${pr.id===p.responsable_id?'selected':''}>${pr.nombre} (${pr.rol})</option>`).join('');
+  closeM('modal-proyecto-detalle');
+  openM('modal-proyecto');
+}
+
+async function guardarProyecto(){
+  const id = document.getElementById('py-edit-id').value;
+  const nombre = document.getElementById('py-nombre').value.trim();
+  if(!nombre){ toast('El proyecto necesita un nombre'); return; }
+  const payload = {
+    nombre,
+    estado:       document.getElementById('py-estado').value,
+    tipo:         document.getElementById('py-tipo').value,
+    fecha_inicio: document.getElementById('py-fecha-inicio').value || null,
+    fecha_fin:    document.getElementById('py-fecha-fin').value || null,
+    presupuesto:  parseFloat(document.getElementById('py-presupuesto').value)||0,
+    po:           document.getElementById('py-po').value.trim()||null,
+    descripcion:  document.getElementById('py-desc').value.trim()||null,
+    responsable_id: document.getElementById('py-responsable').value || null,
+  };
+  let error;
+  if(id){
+    ({error} = await db.from('proyectos').update(payload).eq('id',id));
+  } else {
+    ({error} = await db.from('proyectos').insert(payload));
+  }
+  if(error){ toast('❌ '+error.message); return; }
+  closeM('modal-proyecto');
+  toast('✅ Proyecto guardado');
+  await loadProyectos();
+  renderProyectos();
+}
+
+async function eliminarProyecto(id){
+  if(!confirm('¿Eliminar este proyecto y todos sus gastos?')) return;
+  await db.from('proyecto_gastos').delete().eq('proyecto_id',id);
+  const {error} = await db.from('proyectos').delete().eq('id',id);
+  if(error){ toast('❌ '+error.message); return; }
+  toast('✅ Proyecto eliminado');
+  await loadProyectos();
+  renderProyectos();
+}
+
+// ── DETALLE + GASTOS ──
+function abrirDetalleProyecto(id){
+  const p = allProyectos.find(x=>x.id===id);
+  if(!p) return;
+  pyDetalleId = id;
+  document.getElementById('py-det-title').textContent = p.nombre;
+
+  const gastados = allProyectoGastos.filter(g=>g.proyecto_id===id);
+  const totalGastado = gastados.reduce((s,g)=>s+(g.monto||0),0);
+  const pct = p.presupuesto>0 ? Math.min(100,Math.round(totalGastado/p.presupuesto*100)) : 0;
+  const disponible = (p.presupuesto||0) - totalGastado;
+  const pctColor = pct>=90?'var(--red-txt)':pct>=70?'var(--amber-txt)':'var(--green-txt)';
+
+  const statusColors = {'Activo':'badge-green','En pausa':'badge-amber','Completado':'badge-blue','Cancelado':'badge-red'};
+  const resp = allProfs.find(pr=>pr.id===p.responsable_id);
+
+  document.getElementById('py-det-resumen').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
+      <div style="background:var(--bg3);border-radius:6px;padding:12px;">
+        <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;font-weight:600;margin-bottom:4px;">Presupuesto</div>
+        <div style="font-size:20px;font-weight:700;font-family:'Inter Tight',sans-serif;">${MXN(p.presupuesto)}</div>
+        ${p.po?`<div style="font-size:11px;color:var(--txt3);margin-top:2px;font-family:monospace;">PO: ${p.po}</div>`:''}
+      </div>
+      <div style="background:var(--bg3);border-radius:6px;padding:12px;">
+        <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;font-weight:600;margin-bottom:4px;">Gastado</div>
+        <div style="font-size:20px;font-weight:700;font-family:'Inter Tight',sans-serif;color:${pctColor};">${MXN(totalGastado)}</div>
+        <div style="height:4px;background:var(--line);border-radius:2px;margin-top:6px;"><div style="width:${pct}%;height:100%;background:${pctColor};border-radius:2px;"></div></div>
+      </div>
+      <div style="background:var(--bg3);border-radius:6px;padding:12px;">
+        <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;font-weight:600;margin-bottom:4px;">Disponible</div>
+        <div style="font-size:20px;font-weight:700;font-family:'Inter Tight',sans-serif;color:${disponible<0?'var(--red-txt)':'var(--green-txt)'};">${MXN(disponible)}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--txt2);">
+      <span class="badge ${statusColors[p.estado]||'badge-gray'}">${p.estado}</span>
+      <span>${p.tipo||'–'}</span>
+      ${resp?`<span><i class="ti ti-user" style="font-size:11px;"></i> ${resp.nombre}</span>`:''}
+      ${p.fecha_inicio?`<span><i class="ti ti-calendar" style="font-size:11px;"></i> ${p.fecha_inicio} → ${p.fecha_fin||'?'}</span>`:''}
+    </div>`;
+
+  // Gastos list
+  document.getElementById('py-det-gastos').innerHTML = gastados.length ? `
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr>
+        <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:10px;color:var(--txt3);text-transform:uppercase;">Fecha</th>
+        <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:10px;color:var(--txt3);text-transform:uppercase;">Concepto</th>
+        <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:10px;color:var(--txt3);text-transform:uppercase;">OT</th>
+        <th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);font-size:10px;color:var(--txt3);text-transform:uppercase;">Monto</th>
+        <th style="padding:6px 4px;border-bottom:1px solid var(--line);"></th>
+      </tr></thead>
+      <tbody>${gastados.map(g=>{
+        const ot = allOTs.find(o=>o.id===g.ot_id);
+        return `<tr style="border-bottom:1px solid var(--line);">
+          <td style="padding:8px;">${g.created_at?new Date(g.created_at).toLocaleDateString('es-MX',{day:'numeric',month:'short'}):'–'}</td>
+          <td style="padding:8px;font-weight:500;">${g.concepto||'–'}</td>
+          <td style="padding:8px;font-size:11px;color:var(--txt3);">${ot?'OT-'+ot.id:'–'}</td>
+          <td style="padding:8px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;">${MXN(g.monto)}</td>
+          <td style="padding:8px 4px;"><button class="btn-sm btn-danger" style="padding:3px 8px;" onclick="eliminarGasto(${g.id})"><i class="ti ti-trash"></i></button></td>
+        </tr>`;
+      }).join('')}</tbody>
+      <tfoot><tr>
+        <td colspan="3" style="padding:10px 8px;font-weight:600;font-size:13px;">Total</td>
+        <td style="padding:10px 8px;text-align:right;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;">${MXN(totalGastado)}</td>
+        <td></td>
+      </tr></tfoot>
+    </table>` :
+    '<div style="text-align:center;padding:20px;color:var(--txt3);font-size:13px;">Sin gastos registrados</div>';
+
+  // OT selector
+  const otSel = document.getElementById('py-gasto-ot');
+  otSel.innerHTML = '<option value="">Sin OT específica</option>' +
+    allOTs.map(o=>`<option value="${o.id}">OT-${o.id} · ${o.equipo_nombre||'–'}</option>`).join('');
+
+  document.getElementById('py-gasto-concepto').value = '';
+  document.getElementById('py-gasto-monto').value = '';
+  openM('modal-proyecto-detalle');
+}
+
+async function agregarGasto(){
+  const concepto = document.getElementById('py-gasto-concepto').value.trim();
+  const monto = parseFloat(document.getElementById('py-gasto-monto').value)||0;
+  const otId = document.getElementById('py-gasto-ot').value || null;
+  if(!concepto){ toast('Escribe el concepto del gasto'); return; }
+  if(monto <= 0){ toast('El monto debe ser mayor a 0'); return; }
+  const {error} = await db.from('proyecto_gastos').insert({
+    proyecto_id: pyDetalleId, concepto, monto, ot_id: otId ? parseInt(otId) : null,
+  });
+  if(error){ toast('❌ '+error.message); return; }
+  toast('✅ Gasto registrado');
+  await loadProyectos();
+  abrirDetalleProyecto(pyDetalleId);
+  renderProyectos();
+}
+
+async function eliminarGasto(id){
+  if(!confirm('¿Eliminar este gasto?')) return;
+  const {error} = await db.from('proyecto_gastos').delete().eq('id',id);
+  if(error){ toast('❌ '+error.message); return; }
+  await loadProyectos();
+  abrirDetalleProyecto(pyDetalleId);
+  renderProyectos();
 }
 
 </script>
