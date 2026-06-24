@@ -1416,7 +1416,10 @@ tr:hover td { background: var(--bg3) !important; }
           <div>
             <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;">CAPEX de mantenimiento</div>
           </div>
-          <button class="btn-sm btn-primary" onclick="openModalProyecto()"><i class="ti ti-plus"></i> Nuevo proyecto</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-sm" onclick="mostrarSQLProyectos()" title="SQL para crear tablas"><i class="ti ti-database"></i> Setup SQL</button>
+            <button class="btn-sm btn-primary" onclick="openModalProyecto()"><i class="ti ti-plus"></i> Nuevo proyecto</button>
+          </div>
         </div>
 
         <!-- KPI strip -->
@@ -2354,7 +2357,13 @@ async function loadAll(){
     }catch(e){ window.allEqRefacciones = []; }
     loadCustomCLsFromDB();
     // Load proyectos silently (table may not exist yet)
-    try{ await loadProyectos(); }catch(e){ allProyectos=[]; allProyectoGastos=[]; }
+    try{
+      await loadProyectos();
+    }catch(e){
+      allProyectos=[]; allProyectoGastos=[];
+      console.warn('[Proyectos] Tablas no encontradas:', e.message,
+        '— Ejecuta el SQL de proyectos en Supabase');
+    }
     
     console.log(`📊 Datos cargados: ${allOTs.length} OTs, ${allEqs.length} equipos, ${allProfs.length} perfiles`);
     
@@ -9874,7 +9883,19 @@ function renderProyectos(){
   if(!el) return;
 
   if(!list.length){
-    el.innerHTML = '<div class="empty-state" style="padding:32px;"><i class="ti ti-folder-off"></i><br>Sin proyectos. Crea el primero.</div>';
+    // Check if table exists or just no projects
+    const tablaOk = Array.isArray(allProyectos);  // will be [] if table missing (caught) or genuinely empty
+    el.innerHTML = `<div class="empty-state" style="padding:32px;text-align:center;">
+      <i class="ti ti-folder-off" style="font-size:36px;display:block;margin-bottom:12px;opacity:.4;"></i>
+      <div style="font-weight:500;margin-bottom:6px;">Sin proyectos</div>
+      <div style="font-size:12px;color:var(--txt3);max-width:400px;margin:0 auto;">
+        Si acabas de crear las tablas en Supabase, recarga la página.<br>
+        Si aún no las has creado, ejecuta el SQL en Supabase SQL Editor.
+      </div>
+      <button class="btn-sm btn-primary" onclick="openModalProyecto()" style="margin-top:16px;">
+        <i class="ti ti-plus"></i> Crear primer proyecto
+      </button>
+    </div>`;
     return;
   }
 
@@ -10250,6 +10271,57 @@ function exportarTodosACalendario(){
   const ics = _buildICS(events);
   _downloadICS(ics, `Samara_PMs_${new Date().toISOString().slice(0,10)}.ics`);
   toast(`📅 ${events.length} PMs exportados al calendario`);
+}
+
+
+
+function mostrarSQLProyectos(){
+  const sql = `-- Ejecuta esto en Supabase → SQL Editor
+CREATE TABLE IF NOT EXISTS public.proyectos (
+  id BIGSERIAL PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  estado TEXT DEFAULT 'Activo',
+  tipo TEXT DEFAULT 'CAPEX',
+  fecha_inicio DATE,
+  fecha_fin DATE,
+  presupuesto NUMERIC DEFAULT 0,
+  po TEXT,
+  descripcion TEXT,
+  responsable_id UUID,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS public.proyecto_gastos (
+  id BIGSERIAL PRIMARY KEY,
+  proyecto_id BIGINT REFERENCES public.proyectos(id) ON DELETE CASCADE,
+  concepto TEXT NOT NULL,
+  monto NUMERIC NOT NULL DEFAULT 0,
+  ot_id BIGINT REFERENCES public.ordenes_trabajo(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.proyectos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.proyecto_gastos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "auth_proyectos" ON public.proyectos FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "auth_proyecto_gastos" ON public.proyecto_gastos FOR ALL TO authenticated USING (true) WITH CHECK (true);
+NOTIFY pgrst, 'reload schema';`;
+
+  // Show in a modal
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;';
+  el.innerHTML = `<div style="background:#fff;border-radius:6px;padding:24px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-family:'Inter Tight',sans-serif;font-size:17px;font-weight:700;"><i class="ti ti-database"></i> Setup — Tablas de Proyectos</div>
+      <button onclick="this.closest('[style*=position:fixed]').remove()" style="background:none;border:none;cursor:pointer;font-size:22px;color:#888;">×</button>
+    </div>
+    <div style="font-size:12px;color:#555;margin-bottom:12px;">Copia y ejecuta este SQL en <b>Supabase → SQL Editor</b>, luego recarga la app.</div>
+    <textarea readonly onclick="this.select()" style="width:100%;height:320px;font-family:monospace;font-size:11px;border:1px solid #ddd;border-radius:4px;padding:12px;background:#f9f9f9;resize:none;">${sql}</textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+      <button class="btn-sm" onclick="this.closest('[style*=position:fixed]').remove()">Cerrar</button>
+      <button class="btn-sm btn-primary" onclick="navigator.clipboard.writeText(document.querySelector('[style*=height:320px]').value).then(()=>toast('✅ SQL copiado'))">
+        <i class="ti ti-copy"></i> Copiar SQL
+      </button>
+    </div>
+  </div>`;
+  document.body.appendChild(el);
 }
 
 </script>
