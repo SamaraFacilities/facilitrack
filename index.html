@@ -10213,6 +10213,19 @@ function exportarPMaCalendario(otId){
   toast('📅 Abriendo en tu aplicación de calendario...');
 }
 
+function _downloadICS(icsContent, filename){
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
 // Export ALL upcoming PMs to one .ics file
 function exportarTodosACalendario(){
   const hoy = new Date(); hoy.setHours(0,0,0,0);
