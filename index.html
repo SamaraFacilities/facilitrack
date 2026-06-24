@@ -1399,7 +1399,8 @@ tr:hover td { background: var(--bg3) !important; }
       <div class="card">
         <div class="card-header" style="margin-bottom:14px;">
           <div class="card-title"><i class="ti ti-list"></i> Mantenimientos Programados</div>
-          <button class="btn-sm" onclick="exportarProgramacion()"><i class="ti ti-download"></i> Exportar</button>
+          <button class="btn-sm" onclick="exportarTodosACalendario()"><i class="ti ti-calendar-event"></i> Exportar al calendario</button>
+          <button class="btn-sm" onclick="exportarProgramacion()"><i class="ti ti-download"></i> Exportar CSV</button>
         </div>
         <div id="prog-lista"></div>
       </div>
@@ -1992,15 +1993,15 @@ function _iniciarKeepAlive(){
     try{
       // Fetch mínimo a Supabase para mantener la conexión activa
       // y detectar OTs nuevas que checkAlertas procesará al volver loadAll
-      const since = window._kaLastCheck || new Date(Date.now()-25000).toISOString();
+      const since = window._kaLastCheck || new Date(Date.now()-30000).toISOString();
       const {data, error} = await db
         .from('ordenes_trabajo')
-        .select('id,equipo_nombre,tipo,prioridad,tecnico_id,created_at')
-        .gt('created_at', since)
-        .order('created_at', {ascending:true})
+        .select('id,equipo_nombre,tipo,prioridad,tecnico_id,fecha_creacion')
+        .gt('fecha_creacion', since)
+        .order('fecha_creacion', {ascending:true})
         .limit(5);
       if(error || !data?.length) return;
-      window._kaLastCheck = data[data.length-1].created_at;
+      window._kaLastCheck = data[data.length-1].fecha_creacion;
       // Hay OTs nuevas — notificar y recargar
       data.forEach(ot => {
         const urg = ot.prioridad === 'Urgente';
@@ -9126,6 +9127,7 @@ function _renderProgDayDetail(dateStr){
             ${o.descripcion ? `<div style="font-size:11px;color:var(--txt2);margin-top:3px;">${o.descripcion.slice(0,60)}</div>` : ''}
           </div>
           <div style="display:flex;gap:4px;flex-shrink:0;">
+            <button class="btn-sm" onclick="exportarPMaCalendario(${o.id})" title="Agregar a calendario"><i class="ti ti-calendar-plus"></i></button>
             ${!isComp ? `<button class="btn-sm" onclick="openModalProgramarPM(null,${o.id})" title="Editar"><i class="ti ti-edit"></i></button>` : ''}
             <button class="btn-sm btn-danger" onclick="eliminarProgramacion(${o.id})" title="Eliminar"><i class="ti ti-trash"></i></button>
           </div>
@@ -9164,6 +9166,7 @@ function _renderProgLista(){
       <td style="font-size:12px;">${o.tiempo_minutos ? o.tiempo_minutos+'min' : '–'}</td>
       <td>${badge(o.estado)}</td>
       <td style="display:flex;gap:4px;">
+        <button class="btn-sm" onclick="exportarPMaCalendario(${o.id})" title="Agregar a calendario"><i class="ti ti-calendar-plus"></i></button>
         <button class="btn-sm" onclick="openModalProgramarPM(null,${o.id})"><i class="ti ti-edit"></i></button>
         <button class="btn-sm btn-danger" onclick="eliminarProgramacion(${o.id})"><i class="ti ti-trash"></i></button>
       </td>
@@ -9811,7 +9814,6 @@ async function clbConfirmarCopiar(){
       const eq = allEqs.find(e => e.id === eqId);
       ({error} = await db.from('checklist_plantillas').insert({
         equipo_id: eqId,
-        equipo_nombre: eq ? (eq.codigo + ' — ' + eq.nombre) : '–',
         items: itemsStr,
         creado_por: curProf?.nombre || 'Admin',
       }));
@@ -10103,6 +10105,138 @@ async function eliminarGasto(id){
   await loadProyectos();
   abrirDetalleProyecto(pyDetalleId);
   renderProyectos();
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+// EXPORTAR PM AL CALENDARIO NATIVO (.ics)
+// Compatible con: Apple Calendar, Google Calendar, Outlook,
+// Samsung Calendar, y cualquier app compatible con iCalendar
+// ══════════════════════════════════════════════════════════
+
+function _buildICS(events){
+  // Format: YYYYMMDDTHHMMSSZ
+  const fmtDate = (dateStr, startHour=8) => {
+    const d = new Date(dateStr + 'T00:00:00');
+    const y = d.getFullYear();
+    const mo = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}${mo}${day}T${String(startHour).padStart(2,'0')}0000`;
+  };
+
+  const fmtDateEnd = (dateStr, durationMins=60, startHour=8) => {
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setHours(startHour);
+    d.setMinutes(durationMins);
+    const y = d.getFullYear();
+    const mo = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    const totalMins = startHour * 60 + durationMins;
+    const endH = Math.floor(totalMins / 60) % 24;
+    const endM = totalMins % 60;
+    return `${y}${mo}${day}T${String(endH).padStart(2,'0')}${String(endM).padStart(2,'0')}00`;
+  };
+
+  const uid = () => Date.now() + '-' + Math.random().toString(36).slice(2) + '@samara';
+  const now = new Date().toISOString().replace(/[-:]/g,'').slice(0,15) + 'Z';
+  const esc = s => { const nl=String.fromCharCode(10); return String(s||'').split(nl).join('\\n').split(',').join('\\,').split(';').join('\\;'); };
+  let lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Samara Facilities//PM Schedule//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+
+  for(const ev of events){
+    const dur = ev.duracion || 60;
+    lines = lines.concat([
+      'BEGIN:VEVENT',
+      `UID:${uid()}`,
+      `DTSTAMP:${now}`,
+      `DTSTART:${fmtDate(ev.fecha, 8)}`,
+      `DTEND:${fmtDateEnd(ev.fecha, dur, 8)}`,
+      `SUMMARY:${esc('🔧 PM ' + (ev.tipo||'Mantenimiento') + ' — ' + ev.equipo)}`,
+      `DESCRIPTION:${esc([
+        'Tipo: ' + (ev.tipo||'Preventivo'),
+        'Equipo: ' + ev.equipo,
+        ev.tecnico ? 'Técnico: ' + ev.tecnico : '',
+        ev.desc ? 'Notas: ' + ev.desc : '',
+        dur ? 'Duración estimada: ' + dur + ' min' : '',
+        '',
+        'Generado por Samara Facilities'
+      ].filter(Boolean).join('\n'))}`,
+      `CATEGORIES:MANTENIMIENTO,${esc(ev.tipo||'PM')}`,
+      ev.tecnico ? `ORGANIZER;CN=${esc(ev.tecnico)}:MAILTO:mantenimiento@samara.com` : '',
+      `BEGIN:VALARM`,
+      `TRIGGER:-P1D`,           // 1 day before
+      `ACTION:DISPLAY`,
+      `DESCRIPTION:${esc('Mañana: PM ' + ev.equipo)}`,
+      `END:VALARM`,
+      `BEGIN:VALARM`,
+      `TRIGGER:-PT2H`,          // 2 hours before
+      `ACTION:DISPLAY`,
+      `DESCRIPTION:${esc('En 2 horas: PM ' + ev.equipo)}`,
+      `END:VALARM`,
+      'END:VEVENT',
+    ].filter(Boolean));
+  }
+
+  lines.push('END:VCALENDAR');
+  return lines.join(String.fromCharCode(13,10));
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  // On iOS, open in new tab so Safari prompts to open in Calendar
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+// Export single PM to calendar
+function exportarPMaCalendario(otId){
+  const ot = allOTs.find(o => o.id === otId);
+  if(!ot || !ot.fecha_programada){
+    toast('❌ Este PM no tiene fecha programada'); return;
+  }
+  const eq = allEqs.find(e => e.id === ot.equipo_id);
+  const event = {
+    fecha:    ot.fecha_programada,
+    equipo:   eq ? (eq.codigo + ' — ' + eq.nombre) : (ot.equipo_nombre || '–'),
+    tipo:     ot.tipo || 'Preventivo',
+    tecnico:  ot.tecnico_nombre || null,
+    duracion: ot.tiempo_minutos || 60,
+    desc:     ot.descripcion || '',
+  };
+  const ics = _buildICS([event]);
+  const fname = `PM_${(event.equipo).replace(/[^a-zA-Z0-9]/g,'-')}_${ot.fecha_programada}.ics`;
+  _downloadICS(ics, fname);
+  toast('📅 Abriendo en tu aplicación de calendario...');
+}
+
+// Export ALL upcoming PMs to one .ics file
+function exportarTodosACalendario(){
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const ots = _progGetOTs()
+    .filter(o => o.fecha_programada && new Date(o.fecha_programada) >= hoy && o.estado !== 'Completada')
+    .sort((a,b) => new Date(a.fecha_programada) - new Date(b.fecha_programada));
+
+  if(!ots.length){ toast('Sin PMs programados próximos'); return; }
+
+  const events = ots.map(o => {
+    const eq = allEqs.find(e => e.id === o.equipo_id);
+    return {
+      fecha:    o.fecha_programada,
+      equipo:   eq ? (eq.codigo + ' — ' + eq.nombre) : (o.equipo_nombre || '–'),
+      tipo:     o.tipo || 'Preventivo',
+      tecnico:  o.tecnico_nombre || null,
+      duracion: o.tiempo_minutos || 60,
+      desc:     o.descripcion || '',
+    };
+  });
+
+  const ics = _buildICS(events);
+  _downloadICS(ics, `Samara_PMs_${new Date().toISOString().slice(0,10)}.ics`);
+  toast(`📅 ${events.length} PMs exportados al calendario`);
 }
 
 </script>
