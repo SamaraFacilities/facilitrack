@@ -1926,7 +1926,7 @@ if('serviceWorker' in navigator){
 
 // ── PWA: Push Notifications ──
 let swRegistration = null;
-const VAPID_PUBLIC_KEY = 'BGurRvz8mvqskE8qxxxhc9pVsZURw3A6i9voLBlnYQMAZ05q_kV1goa1kUllgR0w65aWeNTGLfJkDbbfYM11Ppk';
+const VAPID_PUBLIC_KEY = 'BIK9JccXA3kbGImRDjT5YQZ4UtY4Khd0nwBoVi5ZxGBQAehFUqduBeekNzzLjFanpUJX9WhZ3aAYoxP886d3xxw';
 
 async function requestPushPermission(){
   if(!('Notification' in window)) return false;
@@ -1948,6 +1948,19 @@ async function subscribeToPush(){
 
     // Enviar contexto del usuario al SW para que sepa qué notificar
     _enviarContextoSW(reg);
+
+    // ── Suscribir al servidor para push desde Edge Function ──
+    try {
+      const existing = await reg.pushManager.getSubscription();
+      const sub = existing || await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: VAPID_PUBLIC_KEY,
+      });
+      if(sub){
+        // Guardar suscripción en Supabase para que el servidor pueda notificar
+        await _guardarPushSubscription(sub);
+      }
+    } catch(e){ console.warn('Push server sub error:', e.message); }
 
     // Listener: SW avisó que hay OTs nuevas
     if(!navigator.serviceWorker._samListener){
@@ -10322,6 +10335,27 @@ NOTIFY pgrst, 'reload schema';`;
     </div>
   </div>`;
   document.body.appendChild(el);
+}
+
+
+
+// Guardar suscripción push en Supabase (para push desde servidor)
+async function _guardarPushSubscription(sub){
+  if(!sub || !curUser?.id) return;
+  try {
+    const subJson = sub.toJSON();
+    await db.from('push_subscriptions').upsert({
+      user_id:      curUser.id,
+      rol:          curProf?.rol || '',
+      zona:         curProf?.zona || null,
+      endpoint:     subJson.endpoint,
+      subscription: subJson,
+      updated_at:   new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+    console.log('✅ Push subscription guardada en servidor');
+  } catch(e){
+    console.warn('_guardarPushSubscription error:', e.message);
+  }
 }
 
 </script>
