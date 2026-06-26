@@ -2268,9 +2268,12 @@ async function bootApp(user){
   if(canDo('ver_dashboard')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-programar" onclick="setTab('programar')"><i class="ti ti-calendar-plus"></i> Programar PM</button>`;
+  }
+  // Proyectos: solo admin
+  if(curProf.rol==='admin'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-proyectos" onclick="setTab('proyectos')"><i class="ti ti-folder"></i> Proyectos</button>`;
   }
-  // supervisor_zona: solo tab Escáner
+  // supervisor_zona: solo tab Escáner (supervisor de mantenimiento sí ve órdenes)
   if(curProf.rol!=='supervisor_zona'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>`;
   }
@@ -2288,7 +2291,8 @@ async function bootApp(user){
   if(canDo('ver_tecnicos')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-tecnicos" onclick="setTab('tecnicos')"><i class="ti ti-users"></i> Personal</button>`;
   }
-  if(canDo('ver_dashboard')){
+  // Downtime: solo admin
+  if(curProf.rol==='admin'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
   }
   if(curProf.rol==='admin'){
@@ -6371,14 +6375,14 @@ async function iniciarOTDesdeOrdenes(otId){
   const ot = allOTs.find(o => o.id === otId);
   if(!ot){ toast('OT no encontrada'); return; }
 
-  // PM pendiente de aprobación del supervisor de zona — el técnico no puede iniciarlo aún
+  // PM pendiente de aprobación — tecnico no puede iniciar, supervisor sí puede aprobar y ejecutar
   if(ot.estado === 'Por aprobar' && curProf.rol === 'tecnico'){
     toast('⏳ Este mantenimiento está pendiente de aprobación del supervisor de zona');
     return;
   }
 
-  // Si no está asignada al técnico actual y es técnico, asignársela
-  if(curProf.rol === 'tecnico' && !ot.tecnico_id){
+  // Si no está asignada y es tecnico o supervisor, asignársela
+  if(['tecnico','supervisor'].includes(curProf.rol) && !ot.tecnico_id){
     const{error} = await db.from('ordenes_trabajo').update({
       tecnico_id: curUser.id,
       tecnico_nombre: curProf.nombre,
