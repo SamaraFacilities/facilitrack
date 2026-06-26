@@ -1663,6 +1663,9 @@ tr:hover td { background: var(--bg3) !important; }
       <div class="form-group"><label>Fecha programada</label>
         <input type="date" id="prog-fecha">
       </div>
+      <div class="form-group"><label>Hora de inicio</label>
+        <input type="time" id="prog-hora" value="08:00">
+      </div>
       <div class="form-group"><label>Técnico asignado</label>
         <select id="prog-tecnico">
           <option value="">Sin asignar</option>
@@ -9185,7 +9188,7 @@ function _renderProgLista(){
       <td>${eq ? '<strong>'+eq.codigo+'</strong> '+eq.nombre : o.equipo_nombre||'–'}</td>
       <td>${badge(o.tipo)}</td>
       <td style="font-size:12px;">${o.tecnico_nombre||'<span style="color:var(--txt3);">Sin asignar</span>'}</td>
-      <td style="font-size:12px;">${o.tiempo_minutos ? o.tiempo_minutos+'min' : '–'}</td>
+      <td style="font-size:12px;">${o.hora_programada ? o.hora_programada : '–'} ${o.tiempo_minutos ? '('+o.tiempo_minutos+'min)' : ''}</td>
       <td>${badge(o.estado)}</td>
       <td style="display:flex;gap:4px;">
         <button class="btn-sm" onclick="exportarPMaCalendario(${o.id})" title="Agregar a calendario"><i class="ti ti-calendar-plus"></i></button>
@@ -9210,6 +9213,7 @@ function openModalProgramarPM(fechaPre=null, otId=null){
     document.getElementById('prog-equipo').value = ot.equipo_id || '';
     document.getElementById('prog-tipo').value = ot.tipo || 'Preventivo';
     document.getElementById('prog-fecha').value = ot.fecha_programada || '';
+    document.getElementById('prog-hora').value = ot.hora_programada || '08:00';
     document.getElementById('prog-tecnico').value = ot.tecnico_id || '';
     document.getElementById('prog-duracion').value = ot.tiempo_minutos || 60;
     document.getElementById('prog-prioridad').value = ot.prioridad || 'Media';
@@ -9245,16 +9249,19 @@ async function guardarProgramacion(){
   const tec = allProfs.find(p => p.id === tecId);
   // Mantenimientos preventivos requieren aprobación del supervisor de zona antes de ejecutarse
   const requiereAprobacion = ['Preventivo','Predictivo','Inspección'].includes(tipo);
+  const hora = document.getElementById('prog-hora')?.value || '08:00';
+  const fechaHora = fecha ? `${fecha}T${hora}:00` : null;
   const payload = {
     equipo_id: parseInt(eqId),
     equipo_nombre: eq ? `${eq.codigo} – ${eq.nombre}` : '–',
     tipo, prioridad: pri,
     estado: requiereAprobacion ? 'Por aprobar' : 'Pendiente',
     fecha_programada: fecha,
+    hora_programada: hora,
+    descripcion: desc || `${tipo} programado a las ${hora}`,
+    tiempo_minutos: dur,
     tecnico_id: tecId || null,
     tecnico_nombre: tec ? tec.nombre : null,
-    descripcion: desc || `${tipo} programado`,
-    tiempo_minutos: dur,
     creado_por: curUser?.id,
   };
 
