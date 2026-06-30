@@ -2700,9 +2700,9 @@ function renderOTsEquipo(eq){
     let btnHtml='';
     if(esMia){
       btnHtml=`<button class="btn-tomar mine-btn" onclick="seleccionarOT(${o.id})"><i class="ti ti-player-play"></i> Iniciar trabajo</button>`;
-    } else if(sinAsignar && curProf.rol==='tecnico'){
+    } else if(sinAsignar && ['tecnico','supervisor','admin'].includes(curProf.rol)){
       btnHtml=`<button class="btn-tomar" onclick="tomarYEjecutar(${o.id})"><i class="ti ti-hand-click"></i> Tomar y ejecutar</button>`;
-    } else if(curProf.rol!=='tecnico'){
+    } else if(!['tecnico','supervisor','admin'].includes(curProf.rol)){
       btnHtml=tieneCL?`<button class="btn-tomar" onclick="seleccionarOT(${o.id})"><i class="ti ti-clipboard-check"></i> Ver checklist</button>`:'';
     } else {
       btnHtml=`<span style="font-size:11px;color:var(--txt3);"><i class="ti ti-user"></i> Asignada a ${o.tecnico_nombre||'otro'}</span>`;
@@ -2987,7 +2987,7 @@ function renderOrdenes(){
     <td>${badge(o.tipo)}</td><td>${badge(o.prioridad)}</td><td>${badge(o.estado)}</td>
     <td><span class="tech-av" title="${o.tecnico_nombre||''}">${ini(o.tecnico_nombre)}</span></td>
     <td style="display:flex;gap:4px;">
-      ${o.estado!=='Completada'&&(o.tecnico_id===curUser?.id||curProf.rol==='admin')?`<button class="btn-sm btn-primary" onclick="iniciarOTDesdeOrdenes(${o.id})" title="Iniciar checklist" style="font-size:11px;"><i class="ti ti-player-play"></i> Iniciar</button>`:''}
+      ${o.estado!=='Completada'&&(o.tecnico_id===curUser?.id||['admin','supervisor'].includes(curProf.rol)||!o.tecnico_id)?`<button class="btn-sm btn-primary" onclick="iniciarOTDesdeOrdenes(${o.id})" title="Iniciar checklist" style="font-size:11px;"><i class="ti ti-player-play"></i> Iniciar</button>`:''}
       ${o.estado!=='Completada'&&canDo('crear_ot')?`<button class="btn-sm" onclick="cambiarEst(${o.id})"><i class="ti ti-edit"></i></button>`:''}
       ${o.estado==='Completada'?`<button class="btn-sm" onclick="verReporteCL(${o.id})" title="Ver checklist" style="color:var(--green-txt);border-color:var(--green-bg);"><i class="ti ti-clipboard-check"></i></button>`:''}
       ${o.estado==='Completada'&&curProf.rol==='admin'?`<button class="btn-sm" onclick="generarYVerPDF(${o.id})" title="Ver PDF" style="color:var(--red-txt);border-color:var(--red-bg);"><i class="ti ti-file-type-pdf"></i></button>`:''}
@@ -6395,9 +6395,20 @@ async function iniciarOTDesdeOrdenes(otId){
     return;
   }
 
-  // Cambiar a En progreso si está Pendiente
-  if(ot.estado === 'Pendiente' || ot.estado === 'Urgente'){
-    await db.from('ordenes_trabajo').update({estado:'En progreso'}).eq('id', otId);
+  // Cambiar a En progreso si está Pendiente / Urgente / Por aprobar (supervisor la aprueba al tomarla)
+  if(['Pendiente','Urgente','Por aprobar'].includes(ot.estado)){
+    const updatePayload = { estado: 'En progreso' };
+    // Si no tiene técnico asignado, asignarse a sí mismo (admin/supervisor tomando la OT)
+    if(!ot.tecnico_id){
+      updatePayload.tecnico_id = curUser?.id;
+      updatePayload.tecnico_nombre = curProf?.nombre;
+    }
+    const {error} = await db.from('ordenes_trabajo').update(updatePayload).eq('id', otId);
+    if(error){ toast('❌ '+error.message); return; }
+    await forceLoadAll();
+    const otActualizada = allOTs.find(o => o.id === otId) || ot;
+    _abrirChecklistDirecto(otActualizada);
+    return;
   }
 
   // Ir al tab escaner y abrir checklist
