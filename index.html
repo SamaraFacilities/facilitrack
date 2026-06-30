@@ -2269,6 +2269,10 @@ async function bootApp(user){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-programar" onclick="setTab('programar')"><i class="ti ti-calendar-plus"></i> Programar PM</button>`;
   }
+  // Supervisor de mantenimiento: también puede escanear QR
+  if(curProf.rol === 'supervisor'){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
+  }
   // Proyectos: solo admin
   if(curProf.rol==='admin'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-proyectos" onclick="setTab('proyectos')"><i class="ti ti-folder"></i> Proyectos</button>`;
