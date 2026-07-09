@@ -1397,10 +1397,21 @@ tr:hover td { background: var(--bg3) !important; }
 
       <!-- Lista de próximos PMs programados -->
       <div class="card">
-        <div class="card-header" style="margin-bottom:14px;">
+        <div class="card-header" style="margin-bottom:10px;">
           <div class="card-title"><i class="ti ti-list"></i> Mantenimientos Programados</div>
-          <button class="btn-sm" onclick="exportarTodosACalendario()"><i class="ti ti-calendar-event"></i> Exportar al calendario</button>
-          <button class="btn-sm" onclick="exportarProgramacion()"><i class="ti ti-download"></i> Exportar CSV</button>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-sm" onclick="exportarTodosACalendario()"><i class="ti ti-calendar-event"></i> Exportar al calendario</button>
+            <button class="btn-sm" onclick="exportarProgramacion()"><i class="ti ti-download"></i> Exportar CSV</button>
+          </div>
+        </div>
+        <!-- Filtro de horizonte temporal -->
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+          <button class="otl-chip otl-chip-active" id="prog-rng-30"  onclick="setProgRango(30)"  >30 días</button>
+          <button class="otl-chip" id="prog-rng-60"  onclick="setProgRango(60)"  >60 días</button>
+          <button class="otl-chip" id="prog-rng-90"  onclick="setProgRango(90)"  >3 meses</button>
+          <button class="otl-chip" id="prog-rng-180" onclick="setProgRango(180)" >6 meses</button>
+          <button class="otl-chip" id="prog-rng-365" onclick="setProgRango(365)" >1 año</button>
+          <button class="otl-chip" id="prog-rng-730" onclick="setProgRango(730)" >2 años</button>
         </div>
         <div id="prog-lista"></div>
       </div>
@@ -9061,6 +9072,17 @@ function renderAgendaTecnico(){
 let progCalYear = new Date().getFullYear();
 let progCalMonth = new Date().getMonth();
 let progSelDay = null;
+let progRangoDias = 30; // Default: 30 días
+
+function setProgRango(dias){
+  progRangoDias = dias;
+  // Update chip active state
+  [30,60,90,180,365,730].forEach(d => {
+    const btn = document.getElementById('prog-rng-'+d);
+    if(btn) btn.classList.toggle('otl-chip-active', d === dias);
+  });
+  _renderProgLista();
+}
 
 function chgMonthProg(dir){
   progCalMonth += dir;
@@ -9194,12 +9216,13 @@ function _renderProgLista(){
   const el = document.getElementById('prog-lista');
   if(!el) return;
   const hoy = new Date(); hoy.setHours(0,0,0,0);
-  const en60 = new Date(hoy); en60.setDate(en60.getDate() + 60);
+  const rango = typeof progRangoDias !== 'undefined' ? progRangoDias : 30;
+  const enRango = new Date(hoy); enRango.setDate(enRango.getDate() + rango);
   const ots = _progGetOTs()
     .filter(o => {
       if(!o.fecha_programada || o.estado === 'Completada') return false;
       const fp = new Date(o.fecha_programada + 'T00:00:00');
-      return fp >= hoy && fp <= en60;
+      return fp >= hoy && fp <= enRango;
     })
     .sort((a,b) => new Date(a.fecha_programada+'T00:00:00') - new Date(b.fecha_programada+'T00:00:00'));
 
