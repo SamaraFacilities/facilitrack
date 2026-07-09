@@ -2269,9 +2269,10 @@ async function bootApp(user){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-programar" onclick="setTab('programar')"><i class="ti ti-calendar-plus"></i> Programar PM</button>`;
   }
-  // Supervisor de mantenimiento: también puede escanear QR
+  // Supervisor de mantenimiento: escanear QR + agenda de toda la planta
   if(curProf.rol === 'supervisor'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaZona();"><i class="ti ti-calendar"></i> Agenda</button>`;
   }
   // Proyectos: solo admin
   if(curProf.rol==='admin'){
@@ -4376,6 +4377,8 @@ function _renderCalTecnicoOld(){
       panelTitle.textContent = 'Agenda de Zona — ' + (curProf.zona || 'Mi zona');
     } else if(curProf.rol === 'tecnico'){
       panelTitle.textContent = 'Mi Agenda';
+    } else if(curProf.rol === 'supervisor'){
+      panelTitle.textContent = 'Agenda — Toda la planta';
     } else {
       panelTitle.textContent = 'Agenda';
     }
@@ -8751,11 +8754,16 @@ function renderAgendaZona(){
     zonOTs = allOTs.filter(o => o.tecnico_id === curUser?.id || o.tecnico_nombre === curProf?.nombre);
     eqIds = [...new Set(zonOTs.map(o=>o.equipo_id).filter(Boolean))];
     eqsZona = allEqs.filter(e => eqIds.includes(e.id));
-  } else {
+  } else if(curProf?.rol === 'supervisor_zona'){
     const zona = curProf?.zona || '';
     eqsZona = allEqs.filter(e => e.area === zona);
     eqIds = eqsZona.map(e => e.id);
     zonOTs = allOTs.filter(o => eqIds.includes(o.equipo_id));
+  } else {
+    // Supervisor de mantenimiento / sin zona asignada: ve toda la planta
+    eqsZona = allEqs;
+    eqIds = allEqs.map(e => e.id);
+    zonOTs = allOTs;
   }
 
   // Approval section: supervisor de zona only
@@ -9100,7 +9108,7 @@ function _renderProgCal(){
   // Build dateMap
   const dateMap = {};
   ots.forEach(o => {
-    const d = new Date(o.fecha_programada);
+    const d = new Date((o.fecha_programada||'') + 'T00:00:00');
     if(d.getMonth() === progCalMonth && d.getFullYear() === progCalYear){
       const k = d.getDate();
       if(!dateMap[k]) dateMap[k] = [];
@@ -9149,7 +9157,7 @@ function _renderProgDayDetail(dateStr){
   titleEl.textContent = dias[d.getDay()] + ' ' + d.getDate() + ' ' + meses[d.getMonth()];
 
   const ots = _progGetOTs().filter(o => {
-    const fp = new Date(o.fecha_programada);
+    const fp = new Date((o.fecha_programada||'') + 'T00:00:00');
     return fp.toDateString() === d.toDateString();
   });
 
@@ -9199,7 +9207,7 @@ function _renderProgLista(){
     <th>Fecha</th><th>Equipo</th><th>Tipo</th><th>Técnico</th><th>Duración</th><th>Estado</th><th></th>
   </tr></thead><tbody>${ots.map(o => {
     const eq = allEqs.find(e => e.id === o.equipo_id);
-    const fp = new Date(o.fecha_programada + 'T00:00:00');
+    const fp = new Date((o.fecha_programada||'') + 'T00:00:00');
     const dias = Math.ceil((fp - hoy)/(1000*60*60*24));
     const diasTxt = dias === 0 ? '<span style="color:var(--red-txt);font-weight:600;">Hoy</span>' : dias === 1 ? 'Mañana' : `En ${dias}d`;
     return `<tr>
@@ -9263,6 +9271,18 @@ async function guardarProgramacion(){
   const rep = document.querySelector('input[name="prog-rep"]:checked')?.value || 'ninguna';
 
   if(!eqId || !fecha){ toast('Selecciona equipo y fecha'); return; }
+  // Warn if date falls on weekend, offer to move to Monday
+  const fechaDate = new Date(fecha + 'T00:00:00');
+  const dayOfWeek = fechaDate.getDay();
+  if(dayOfWeek === 0 || dayOfWeek === 6){
+    const diasHabiles = dayOfWeek === 6 ? 2 : 1;
+    fechaDate.setDate(fechaDate.getDate() + diasHabiles);
+    const fechaCorregida = fechaDate.toISOString().slice(0,10);
+    if(confirm(`La fecha cae en ${dayOfWeek===6?'sábado':'domingo'}. ¿Moverla al lunes ${fechaCorregida}?`)){
+      fecha = fechaCorregida;
+      document.getElementById('prog-fecha').value = fechaCorregida;
+    }
+  }
 
   const eq = allEqs.find(e => e.id == eqId);
   const tec = allProfs.find(p => p.id === tecId);
@@ -9294,12 +9314,20 @@ async function guardarProgramacion(){
     if(!error && rep !== 'ninguna'){
       const fechaBase = new Date(fecha);
       const copies = rep === 'semanal' ? 11 : rep === 'mensual' ? 11 : 2;
+      // Skip weekends helper — move to next business day
+      function nextBizDay(d){
+        const day = d.getDay();
+        if(day === 6) d.setDate(d.getDate()+2); // Saturday → Monday
+        if(day === 0) d.setDate(d.getDate()+1); // Sunday → Monday
+        return d;
+      }
       const addFn = rep === 'semanal' ? (d,n) => d.setDate(d.getDate()+7*n) :
                     rep === 'mensual' ? (d,n) => d.setMonth(d.getMonth()+n) :
                     (d,n) => d.setMonth(d.getMonth()+3*n);
       for(let i = 1; i <= copies; i++){
-        const nd = new Date(fecha);
+        const nd = new Date(fecha + 'T00:00:00');
         addFn(nd, i);
+        nextBizDay(nd); // Move to Monday if weekend
         const fp = nd.toISOString().slice(0,10);
         await db.from('ordenes_trabajo').insert({...payload, fecha_programada: fp});
       }
@@ -9717,7 +9745,7 @@ function _renderPorAprobar(zonOTs){
     // Days until PM
     let diasLabel = '', diasColor = 'var(--txt3)', diasNum = null;
     if(o.fecha_programada){
-      const fp = new Date(o.fecha_programada + 'T00:00:00');
+      const fp = new Date((o.fecha_programada||'') + 'T00:00:00');
       diasNum = Math.ceil((fp - hoy) / (1000*60*60*24));
       diasLabel = diasNum === 0 ? 'HOY' : diasNum === 1 ? 'Mañana' :
                   diasNum < 0  ? `Hace ${Math.abs(diasNum)}d` : `En ${diasNum}d`;
