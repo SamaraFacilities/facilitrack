@@ -1218,13 +1218,13 @@ tr:hover td { background: var(--bg3) !important; }
             <button class="btn-sm" onclick="verListadoStockBajo()" style="color:var(--red-txt);border-color:rgba(192,53,42,.25);" title="Ver y compartir listado de bajo stock">
               <i class="ti ti-alert-triangle"></i> Bajo stock
             </button>
-            <button class="btn-sm" onclick="abrirImportarRefacciones()" title="Importar desde Excel">
+            <button class="btn-sm btn-inv-edit" onclick="abrirImportarRefacciones()" title="Importar desde Excel">
               <i class="ti ti-upload"></i> Importar
             </button>
             <button class="btn-sm" onclick="exportarInventarioCSV()" title="Exportar inventario completo">
               <i class="ti ti-download"></i> Exportar
             </button>
-            <button class="btn-sm btn-primary" onclick="openModalRefaccion()"><i class="ti ti-plus"></i> Agregar</button>
+            <button class="btn-sm btn-primary btn-inv-edit" onclick="openModalRefaccion()"><i class="ti ti-plus"></i> Agregar</button>
           </div>
         </div>
         <div id="inv-wrap"><div class="loading"><div class="spinner"></div></div></div>
@@ -2270,6 +2270,7 @@ async function bootApp(user){
       // Tecnico: agenda primero, luego escaner
       nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaTecnico();"><i class="ti ti-layout-list"></i> Mi Agenda</button>`;
       nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
+      nav.innerHTML+=`<button class="nav-btn" id="nav-inventario" onclick="setTab('inventario')"><i class="ti ti-package"></i> Inventario</button>`;
     }
     // Permitir ver/agregar equipos — solo técnico (supervisor de zona ya no lo necesita)
     if(curProf.rol === 'tecnico'){
@@ -2280,10 +2281,11 @@ async function bootApp(user){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-programar" onclick="setTab('programar')"><i class="ti ti-calendar-plus"></i> Programar PM</button>`;
   }
-  // Supervisor de mantenimiento: escanear QR + agenda de toda la planta
+  // Supervisor de mantenimiento: escanear QR + agenda + inventario
   if(curProf.rol === 'supervisor'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaZona();"><i class="ti ti-calendar"></i> Agenda</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-inventario" onclick="setTab('inventario')"><i class="ti ti-package"></i> Inventario</button>`;
   }
   // Proyectos: solo admin
   if(curProf.rol==='admin'){
@@ -2321,6 +2323,8 @@ async function bootApp(user){
 
   document.querySelectorAll('.btn-admin-only').forEach(b=>b.style.display=curProf.rol==='admin'?'':'none');
   document.querySelectorAll('.btn-crear-equipo').forEach(b=>b.style.display=canDo('crear_equipo')?'':'none');
+  // Inventario edit buttons: admin + supervisor can add/edit; tecnico read-only
+  document.querySelectorAll('.btn-inv-edit').forEach(b=>b.style.display=['admin','supervisor'].includes(curProf.rol)?'':'none');
 
   // Adaptar UI según rol en el escáner
   if(curProf.rol==='supervisor_zona'){
