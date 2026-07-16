@@ -1476,53 +1476,70 @@ tr:hover td { background: var(--bg3) !important; }
 
         <!-- TAB: PENDIENTES -->
     <div id="tab-pendientes" class="panel-hidden">
-      <div style="max-width:680px;margin:0 auto;padding:0 4px;">
+      <div style="display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 56px);overflow:hidden;">
 
-        <!-- Apple-style header -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:4px 0;">
-          <div style="font-family:-apple-system,'SF Pro Display','Inter Tight',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.03em;color:var(--txt);">Pendientes</div>
-          <button onclick="openModalPendiente()" style="width:32px;height:32px;border-radius:50%;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;line-height:1;flex-shrink:0;">+</button>
+        <!-- ── SIDE PANEL ── -->
+        <div style="border-right:1px solid var(--line);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden;">
+
+          <!-- Header -->
+          <div style="padding:20px 16px 12px;border-bottom:1px solid var(--line);">
+            <div style="font-family:-apple-system,'SF Pro Display','Inter Tight',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.02em;color:var(--txt);margin-bottom:14px;">Pendientes</div>
+            <button onclick="openModalPendiente()" style="width:100%;padding:10px;border-radius:10px;background:var(--blue);border:none;cursor:pointer;color:#fff;font-size:14px;font-weight:600;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <i class="ti ti-plus" style="font-size:16px;"></i> Nuevo pendiente
+            </button>
+          </div>
+
+          <!-- Smart lists -->
+          <div style="padding:12px 8px;border-bottom:1px solid var(--line);">
+            <div id="pend-smart-todos" onclick="setPendFiltro('')"
+              style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;background:var(--bg3);">
+              <div style="width:28px;height:28px;border-radius:7px;background:#636366;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="ti ti-list" style="color:#fff;font-size:14px;"></i>
+              </div>
+              <span style="font-size:14px;font-weight:500;color:var(--txt);flex:1;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;">Todos</span>
+              <span id="pend-kpi-todos" style="font-size:13px;font-weight:600;color:var(--txt3);">–</span>
+            </div>
+            <div id="pend-smart-pendiente" onclick="setPendFiltro('Pendiente')"
+              style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;">
+              <div style="width:28px;height:28px;border-radius:7px;background:#ff9500;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="ti ti-clock" style="color:#fff;font-size:14px;"></i>
+              </div>
+              <span style="font-size:14px;font-weight:500;color:var(--txt);flex:1;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;">Pendiente</span>
+              <span id="pend-kpi-pendiente" style="font-size:13px;font-weight:600;color:var(--txt3);">–</span>
+            </div>
+            <div id="pend-smart-proceso" onclick="setPendFiltro('En proceso')"
+              style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;">
+              <div style="width:28px;height:28px;border-radius:7px;background:#007aff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="ti ti-loader" style="color:#fff;font-size:14px;"></i>
+              </div>
+              <span style="font-size:14px;font-weight:500;color:var(--txt);flex:1;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;">En proceso</span>
+              <span id="pend-kpi-proceso" style="font-size:13px;font-weight:600;color:var(--txt3);">–</span>
+            </div>
+            <div id="pend-smart-resuelto" onclick="setPendFiltro('Resuelto')"
+              style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;">
+              <div style="width:28px;height:28px;border-radius:7px;background:#34c759;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="ti ti-check" style="color:#fff;font-size:14px;"></i>
+              </div>
+              <span style="font-size:14px;font-weight:500;color:var(--txt);flex:1;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;">Resuelto</span>
+              <span id="pend-kpi-resuelto" style="font-size:13px;font-weight:600;color:var(--txt3);">–</span>
+            </div>
+          </div>
+
+          <!-- Spacer -->
+          <div style="flex:1;"></div>
         </div>
 
-        <!-- Smart lists — Apple Reminders style -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
-          <div onclick="setPendFiltro('')" id="pend-smart-todos" style="background:#e5e5ea;border-radius:14px;padding:16px;cursor:pointer;transition:opacity .15s;">
-            <div style="width:36px;height:36px;border-radius:50%;background:#636366;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
-              <i class="ti ti-list" style="color:#fff;font-size:18px;"></i>
-            </div>
-            <div style="font-size:13px;font-weight:600;color:#3a3a3c;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;">Todos</div>
-            <div style="font-size:28px;font-weight:700;color:#1c1c1e;font-family:-apple-system,'SF Pro Display','Inter Tight',sans-serif;margin-top:2px;" id="pend-kpi-todos">–</div>
-          </div>
-          <div onclick="setPendFiltro('Pendiente')" id="pend-smart-pendiente" style="background:#fff3cd;border-radius:14px;padding:16px;cursor:pointer;transition:opacity .15s;">
-            <div style="width:36px;height:36px;border-radius:50%;background:#ff9500;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
-              <i class="ti ti-clock" style="color:#fff;font-size:18px;"></i>
-            </div>
-            <div style="font-size:13px;font-weight:600;color:#3a3a3c;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;">Pendiente</div>
-            <div style="font-size:28px;font-weight:700;color:#1c1c1e;font-family:-apple-system,'SF Pro Display','Inter Tight',sans-serif;margin-top:2px;" id="pend-kpi-pendiente">–</div>
-          </div>
-          <div onclick="setPendFiltro('En proceso')" id="pend-smart-proceso" style="background:#dbeafe;border-radius:14px;padding:16px;cursor:pointer;transition:opacity .15s;">
-            <div style="width:36px;height:36px;border-radius:50%;background:#007aff;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
-              <i class="ti ti-loader" style="color:#fff;font-size:18px;"></i>
-            </div>
-            <div style="font-size:13px;font-weight:600;color:#3a3a3c;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;">En proceso</div>
-            <div style="font-size:28px;font-weight:700;color:#1c1c1e;font-family:-apple-system,'SF Pro Display','Inter Tight',sans-serif;margin-top:2px;" id="pend-kpi-proceso">–</div>
-          </div>
-          <div onclick="setPendFiltro('Resuelto')" id="pend-smart-resuelto" style="background:#d1fae5;border-radius:14px;padding:16px;cursor:pointer;transition:opacity .15s;">
-            <div style="width:36px;height:36px;border-radius:50%;background:#34c759;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
-              <i class="ti ti-check" style="color:#fff;font-size:18px;"></i>
-            </div>
-            <div style="font-size:13px;font-weight:600;color:#3a3a3c;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;">Resuelto</div>
-            <div style="font-size:28px;font-weight:700;color:#1c1c1e;font-family:-apple-system,'SF Pro Display','Inter Tight',sans-serif;margin-top:2px;" id="pend-kpi-resuelto">–</div>
-          </div>
-        </div>
+        <!-- ── MAIN CONTENT ── -->
+        <div style="display:flex;flex-direction:column;overflow:hidden;background:var(--bg);">
 
-        <!-- Lista estilo Reminders -->
-        <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;">
-            <div style="font-family:-apple-system,'SF Pro Display','Inter Tight',sans-serif;font-size:17px;font-weight:700;color:var(--txt);" id="pend-lista-titulo">Todos</div>
-            <span id="pend-lista-count" style="font-size:13px;color:#8e8e93;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;"></span>
+          <!-- Content header -->
+          <div style="padding:20px 24px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <div style="font-family:-apple-system,'SF Pro Display','Inter Tight',sans-serif;font-size:20px;font-weight:700;color:var(--txt);" id="pend-lista-titulo">Todos</div>
+            <span id="pend-lista-count" style="font-size:13px;color:var(--txt3);"></span>
           </div>
-          <div id="pend-lista"></div>
+
+          <!-- Lista scrollable -->
+          <div id="pend-lista" style="flex:1;overflow-y:auto;padding:0 16px 20px;"></div>
         </div>
 
       </div>
@@ -10606,10 +10623,14 @@ async function loadPendientes(){
 
 function setPendFiltro(f){
   pendFiltroActivo = f;
-  // Highlight active smart list card
+  // Highlight active item in side panel
+  const map = {'':'todos','Pendiente':'pendiente','En proceso':'proceso','Resuelto':'resuelto'};
   ['todos','pendiente','proceso','resuelto'].forEach(k => {
-    const card = document.getElementById('pend-smart-' + k);
-    if(card) card.style.opacity = ((k==='todos'&&f==='')||f.toLowerCase().replace(' ','')===k) ? '1' : '0.55';
+    const el = document.getElementById('pend-smart-' + k);
+    if(!el) return;
+    const isActive = map[f] === k;
+    el.style.background = isActive ? 'var(--bg3)' : 'transparent';
+    el.style.fontWeight  = isActive ? '600' : '500';
   });
   renderPendientes();
 }
@@ -10630,6 +10651,8 @@ function renderPendientes(){
   const tituloEl = document.getElementById('pend-lista-titulo');
   const countEl  = document.getElementById('pend-lista-count');
   if(!el) return;
+  // Initialize side panel active state on first render
+  if(!pendFiltroActivo) setPendFiltro('');
 
   let list = pendFiltroActivo
     ? allPendientes.filter(p=>p.estatus===pendFiltroActivo)
@@ -10640,8 +10663,10 @@ function renderPendientes(){
   if(countEl)  countEl.textContent  = list.length + (list.length===1?' pendiente':' pendientes');
 
   if(!list.length){
-    el.innerHTML = `<div style="padding:32px;text-align:center;color:#8e8e93;font-family:-apple-system,'SF Pro Text','Inter',sans-serif;font-size:14px;">
-      ${pendFiltroActivo ? 'Sin pendientes con este estatus' : 'Sin pendientes — toca + para agregar'}
+    el.innerHTML = `<div style="padding:48px 24px;text-align:center;color:var(--txt3);">
+      <i class="ti ti-checklist" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3;"></i>
+      <div style="font-size:15px;font-weight:500;">${pendFiltroActivo ? 'Sin pendientes con este estatus' : 'Sin pendientes aún'}</div>
+      <div style="font-size:13px;margin-top:4px;">Toca "Nuevo pendiente" para agregar</div>
     </div>`;
     return;
   }
@@ -10649,7 +10674,7 @@ function renderPendientes(){
   const hoy = new Date(); hoy.setHours(0,0,0,0);
   const statusDot = {'Pendiente':'#ff9500','En proceso':'#007aff','Resuelto':'#34c759'};
 
-  el.innerHTML = list.map((p,i) => {
+  el.innerHTML = '<div style="padding-top:12px;">' + list.map((p,i) => {
     let metaHtml = '';
     let vencida  = false;
     if(p.fecha_limite){
@@ -10664,7 +10689,7 @@ function renderPendientes(){
     // Generate .ics VTODO — opens in Reminders on iOS with title + due date
     const reminderURL = 'javascript:exportarPendienteReminder(' + p.id + ')';
 
-    return `<div style="display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-top:${i===0?'none':'1px solid #f2f2f7'};">
+    return `<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;">
       <!-- Circle checkbox -->
       <button onclick="toggleResuelto(${p.id},'${p.estatus}')" style="flex-shrink:0;width:24px;height:24px;border-radius:50%;border:2px solid ${statusDot[p.estatus]||'#c7c7cc'};background:${p.estatus==='Resuelto'?statusDot.Resuelto:'transparent'};cursor:pointer;margin-top:1px;display:flex;align-items:center;justify-content:center;">
         ${p.estatus==='Resuelto'?'<i class="ti ti-check" style="font-size:12px;color:#fff;"></i>':''}
@@ -10688,7 +10713,7 @@ function renderPendientes(){
         </button>
       </div>
     </div>`;
-  }).join('');
+  }).join('') + '</div>';
 }
 
 // Toggle Resuelto/Pendiente with circle tap
