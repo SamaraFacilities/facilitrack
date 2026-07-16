@@ -1473,6 +1473,79 @@ tr:hover td { background: var(--bg3) !important; }
       </div>
     </div>
 
+
+    <!-- TAB: PENDIENTES -->
+    <div id="tab-pendientes" class="panel-hidden">
+      <div style="max-width:900px;margin:0 auto;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div></div>
+          <button class="btn-sm btn-primary" onclick="openModalPendiente()">
+            <i class="ti ti-plus"></i> Nuevo pendiente
+          </button>
+        </div>
+
+        <!-- Filter chips -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button class="otl-chip otl-chip-active" id="pend-fil-todos"     onclick="setPendFiltro('')">Todos</button>
+          <button class="otl-chip" id="pend-fil-pendiente"  onclick="setPendFiltro('Pendiente')">Pendiente</button>
+          <button class="otl-chip" id="pend-fil-proceso"    onclick="setPendFiltro('En proceso')">En proceso</button>
+          <button class="otl-chip" id="pend-fil-resuelto"   onclick="setPendFiltro('Resuelto')">Resuelto</button>
+        </div>
+
+        <!-- List -->
+        <div class="card">
+          <div id="pend-lista"></div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- TAB: PENDIENTES -->
+    <div id="tab-pendientes" class="panel-hidden">
+      <div style="max-width:900px;margin:0 auto;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.6px;">Seguimiento de pendientes</div>
+          <button class="btn-sm btn-primary" onclick="openModalPendiente()"><i class="ti ti-plus"></i> Nuevo pendiente</button>
+        </div>
+
+        <!-- KPIs -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+          <div class="card" style="padding:16px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Pendientes</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Inter Tight',sans-serif;color:var(--amber-txt);" id="pend-kpi-pendiente">–</div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">En proceso</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Inter Tight',sans-serif;color:var(--blue-txt);" id="pend-kpi-proceso">–</div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Resueltos</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Inter Tight',sans-serif;color:var(--green-txt);" id="pend-kpi-resuelto">–</div>
+          </div>
+        </div>
+
+        <!-- Filter chips -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:12px;">
+            <div class="card-title"><i class="ti ti-checklist"></i> Pendientes</div>
+            <div style="display:flex;gap:6px;">
+              <button class="otl-chip otl-chip-active" id="pend-fil-todos"     onclick="setPendFiltro('')">Todos</button>
+              <button class="otl-chip" id="pend-fil-pendiente" onclick="setPendFiltro('Pendiente')">Pendiente</button>
+              <button class="otl-chip" id="pend-fil-proceso"   onclick="setPendFiltro('En proceso')">En proceso</button>
+              <button class="otl-chip" id="pend-fil-resuelto"  onclick="setPendFiltro('Resuelto')">Resuelto</button>
+            </div>
+          </div>
+          <div id="pend-lista"></div>
+        </div>
+
+      </div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -1898,6 +1971,90 @@ tr:hover td { background: var(--bg3) !important; }
   </div>
 </div>
 
+
+<!-- MODAL: PENDIENTE -->
+<div class="modal-backdrop" id="modal-pendiente">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title">
+      <span id="modal-pend-title"><i class="ti ti-checkbox" style="margin-right:6px;"></i>Nuevo Pendiente</span>
+      <button class="close-btn" onclick="closeM('modal-pendiente')"><i class="ti ti-x"></i></button>
+    </div>
+    <input type="hidden" id="pend-edit-id">
+    <div class="form-grid">
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Título</label>
+        <input type="text" id="pend-titulo" placeholder="Describe el pendiente...">
+      </div>
+      <div class="form-group">
+        <label>Estatus</label>
+        <select id="pend-estatus">
+          <option value="Pendiente">Pendiente</option>
+          <option value="En proceso">En proceso</option>
+          <option value="Resuelto">Resuelto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Fecha límite</label>
+        <input type="date" id="pend-fecha">
+      </div>
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Solicitante</label>
+        <input type="text" id="pend-solicitante" placeholder="Nombre de quien solicita...">
+      </div>
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Notas (opcional)</label>
+        <textarea id="pend-notas" style="min-height:60px;" placeholder="Detalles adicionales..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-sm" onclick="closeM('modal-pendiente')">Cancelar</button>
+      <button class="btn-sm btn-primary" onclick="guardarPendiente()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: PENDIENTE -->
+<div class="modal-backdrop" id="modal-pendiente">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-title">
+      <span id="modal-pend-title"><i class="ti ti-checklist" style="margin-right:6px;"></i>Nuevo Pendiente</span>
+      <button class="close-btn" onclick="closeM('modal-pendiente')"><i class="ti ti-x"></i></button>
+    </div>
+    <input type="hidden" id="pend-edit-id">
+    <div class="form-grid">
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Título</label>
+        <input type="text" id="pend-titulo" placeholder="Describe brevemente el pendiente...">
+      </div>
+      <div class="form-group">
+        <label>Estatus</label>
+        <select id="pend-estatus">
+          <option value="Pendiente">Pendiente</option>
+          <option value="En proceso">En proceso</option>
+          <option value="Resuelto">Resuelto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Fecha límite</label>
+        <input type="date" id="pend-fecha">
+      </div>
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Solicitante</label>
+        <input type="text" id="pend-solicitante" placeholder="¿Quién lo solicitó?">
+      </div>
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>Notas</label>
+        <textarea id="pend-notas" placeholder="Detalles adicionales..." style="min-height:60px;"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-sm" onclick="closeM('modal-pendiente')">Cancelar</button>
+      <button class="btn-sm btn-primary" onclick="guardarPendiente()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -2281,15 +2438,21 @@ async function bootApp(user){
     nav.innerHTML+=`<button class="nav-btn" id="nav-dashboard" onclick="setTab('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-programar" onclick="setTab('programar')"><i class="ti ti-calendar-plus"></i> Programar PM</button>`;
   }
-  // Supervisor de mantenimiento: escanear QR + agenda + inventario
+  // Supervisor de mantenimiento: escanear QR + agenda + inventario + pendientes
   if(curProf.rol === 'supervisor'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaZona();"><i class="ti ti-calendar"></i> Agenda</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-inventario" onclick="setTab('inventario')"><i class="ti ti-package"></i> Inventario</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-pendientes" onclick="setTab('pendientes')"><i class="ti ti-checklist"></i> Pendientes</button>`;
   }
-  // Proyectos: solo admin
+  // Proyectos y Pendientes: solo admin y supervisor
   if(curProf.rol==='admin'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-proyectos" onclick="setTab('proyectos')"><i class="ti ti-folder"></i> Proyectos</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-pendientes" onclick="setTab('pendientes')"><i class="ti ti-checklist"></i> Pendientes</button>`;
+  }
+  // Pendientes: admin y supervisor
+  if(['admin','supervisor'].includes(curProf.rol)){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-pendientes" onclick="setTab('pendientes')"><i class="ti ti-checkbox"></i> Pendientes</button>`;
   }
   // supervisor_zona: solo tab Escáner (supervisor de mantenimiento sí ve órdenes)
   if(curProf.rol!=='supervisor_zona'){
@@ -2445,7 +2608,7 @@ async function forceLoadAll(){ return loadAll(); }
 // setupRT redefined below with notifications
 
 // ── NAVEGACIÓN ──
-const TABS=['escaner','dashboard','programar','proyectos','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
+const TABS=['escaner','dashboard','programar','proyectos','pendientes','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -2474,9 +2637,13 @@ function setTab(t){
   if(t==='cal-tecnico')renderAgendaTecnico();
   if(t==='programar'&&typeof renderProgramar==='function')renderProgramar();
   if(t==='proyectos'&&typeof renderProyectos==='function')renderProyectos();
+  if(t==='pendientes'&&typeof renderPendientes==='function')renderPendientes();
+  if(t==='pendientes'&&typeof renderPendientes==='function')renderPendientes();
   if(t==='cal-tecnico')renderAgendaTecnico();
   if(t==='programar'&&typeof renderProgramar==='function')renderProgramar();
   if(t==='proyectos'&&typeof renderProyectos==='function')renderProyectos();
+  if(t==='pendientes'&&typeof renderPendientes==='function')renderPendientes();
+  if(t==='pendientes'&&typeof renderPendientes==='function')renderPendientes();
   if(t==='ot-libre')renderOTLibre();
   if(t!=='escaner')stopScanner();
 }
@@ -10441,6 +10608,183 @@ async function _guardarPushSubscription(sub){
   } catch(e){
     console.warn('_guardarPushSubscription error:', e.message);
   }
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+// PENDIENTES
+// Tabla: pendientes (id, titulo, estatus, solicitante,
+//        fecha_limite, notas, creado_por, created_at)
+// ══════════════════════════════════════════════════════════
+// PENDIENTES — Seguimiento admin + supervisor
+// ══════════════════════════════════════════════════════════
+
+let allPendientes = [];
+let pendFiltroActivo = '';
+
+async function loadPendientes(){
+  const {data, error} = await db.from('pendientes').select('*').order('created_at',{ascending:false});
+  if(error){ console.warn('[Pendientes]', error.message); allPendientes=[]; return; }
+  allPendientes = data || [];
+}
+
+function setPendFiltro(f){
+  pendFiltroActivo = f;
+  ['todos','pendiente','proceso','resuelto'].forEach(k => {
+    const btn = document.getElementById('pend-fil-' + k);
+    if(btn) btn.classList.toggle('otl-chip-active',
+      (k==='todos' && f==='') || f.toLowerCase().replace(' ','')===k
+    );
+  });
+  renderPendientes();
+}
+
+function renderPendientes(){
+  // KPIs
+  const pend = allPendientes.filter(p=>p.estatus==='Pendiente').length;
+  const proc = allPendientes.filter(p=>p.estatus==='En proceso').length;
+  const res  = allPendientes.filter(p=>p.estatus==='Resuelto').length;
+  const kp = document.getElementById('pend-kpi-pendiente');
+  const kpr = document.getElementById('pend-kpi-proceso');
+  const kr = document.getElementById('pend-kpi-resuelto');
+  if(kp) kp.textContent = pend;
+  if(kpr) kpr.textContent = proc;
+  if(kr) kr.textContent = res;
+
+  const el = document.getElementById('pend-lista');
+  if(!el) return;
+
+  let list = pendFiltroActivo
+    ? allPendientes.filter(p=>p.estatus===pendFiltroActivo)
+    : allPendientes;
+
+  if(!list.length){
+    el.innerHTML = `<div class="empty-state" style="padding:32px;text-align:center;">
+      <i class="ti ti-checklist" style="font-size:36px;display:block;margin-bottom:12px;opacity:.4;"></i>
+      <div>${pendFiltroActivo ? 'Sin pendientes con este estatus' : 'Sin pendientes registrados'}</div>
+    </div>`;
+    return;
+  }
+
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const statusColor = {
+    'Pendiente': 'badge-amber',
+    'En proceso': 'badge-blue',
+    'Resuelto':   'badge-green',
+  };
+
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>Título</th>
+      <th>Solicitante</th>
+      <th>Fecha límite</th>
+      <th>Estatus</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${list.map(p => {
+      let fechaHtml = '–';
+      let vencida = false;
+      if(p.fecha_limite){
+        const fl = new Date(p.fecha_limite + 'T00:00:00');
+        const dias = Math.ceil((fl - hoy)/(1000*60*60*24));
+        vencida = dias < 0 && p.estatus !== 'Resuelto';
+        const diasTxt = dias === 0 ? 'Hoy' : dias === 1 ? 'Mañana' :
+                        dias < 0 ? `Hace ${Math.abs(dias)}d` : `En ${dias}d`;
+        fechaHtml = `<div style="font-weight:500;">${fl.toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'})}</div>
+          <div style="font-size:10px;color:${vencida?'var(--red-txt)':'var(--txt3)'};">${diasTxt}</div>`;
+      }
+      return `<tr style="${vencida?'background:rgba(192,53,42,.04);':''}">
+        <td>
+          <div style="font-weight:500;color:var(--txt);">${p.titulo}</div>
+          ${p.notas?`<div style="font-size:11px;color:var(--txt3);margin-top:2px;">${p.notas.slice(0,60)}${p.notas.length>60?'…':''}</div>`:''}
+        </td>
+        <td style="font-size:12px;color:var(--txt2);">${p.solicitante||'–'}</td>
+        <td>${fechaHtml}</td>
+        <td>
+          <select style="border:1px solid var(--line);border-radius:3px;padding:4px 8px;font-size:11px;background:#fff;cursor:pointer;"
+            onchange="cambiarEstatusPendiente(${p.id}, this.value)">
+            <option value="Pendiente"  ${p.estatus==='Pendiente'  ?'selected':''}>Pendiente</option>
+            <option value="En proceso" ${p.estatus==='En proceso' ?'selected':''}>En proceso</option>
+            <option value="Resuelto"   ${p.estatus==='Resuelto'   ?'selected':''}>Resuelto</option>
+          </select>
+        </td>
+        <td style="display:flex;gap:4px;">
+          <button class="btn-sm" onclick="editarPendiente(${p.id})"><i class="ti ti-edit"></i></button>
+          <button class="btn-sm btn-danger" onclick="eliminarPendiente(${p.id})"><i class="ti ti-trash"></i></button>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody></table>`;
+}
+
+// ── CRUD ──────────────────────────────────────────────────
+function openModalPendiente(){
+  document.getElementById('pend-edit-id').value = '';
+  document.getElementById('pend-titulo').value = '';
+  document.getElementById('pend-estatus').value = 'Pendiente';
+  document.getElementById('pend-fecha').value = '';
+  document.getElementById('pend-solicitante').value = '';
+  document.getElementById('pend-notas').value = '';
+  document.getElementById('modal-pend-title').innerHTML = '<i class="ti ti-checklist" style="margin-right:6px;"></i>Nuevo Pendiente';
+  openM('modal-pendiente');
+}
+
+function editarPendiente(id){
+  const p = allPendientes.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('pend-edit-id').value = id;
+  document.getElementById('pend-titulo').value = p.titulo||'';
+  document.getElementById('pend-estatus').value = p.estatus||'Pendiente';
+  document.getElementById('pend-fecha').value = p.fecha_limite||'';
+  document.getElementById('pend-solicitante').value = p.solicitante||'';
+  document.getElementById('pend-notas').value = p.notas||'';
+  document.getElementById('modal-pend-title').innerHTML = '<i class="ti ti-edit" style="margin-right:6px;"></i>Editar Pendiente';
+  openM('modal-pendiente');
+}
+
+async function guardarPendiente(){
+  const id     = document.getElementById('pend-edit-id').value;
+  const titulo = document.getElementById('pend-titulo').value.trim();
+  if(!titulo){ toast('El pendiente necesita un título'); return; }
+
+  const payload = {
+    titulo,
+    estatus:      document.getElementById('pend-estatus').value,
+    fecha_limite: document.getElementById('pend-fecha').value || null,
+    solicitante:  document.getElementById('pend-solicitante').value.trim() || null,
+    notas:        document.getElementById('pend-notas').value.trim() || null,
+    creado_por:   curUser?.id,
+  };
+
+  let error;
+  if(id){
+    ({error} = await db.from('pendientes').update(payload).eq('id', id));
+  } else {
+    ({error} = await db.from('pendientes').insert(payload));
+  }
+  if(error){ toast('❌ '+error.message); return; }
+  closeM('modal-pendiente');
+  toast('✅ Pendiente guardado');
+  await loadPendientes();
+  renderPendientes();
+}
+
+async function cambiarEstatusPendiente(id, estatus){
+  const {error} = await db.from('pendientes').update({estatus}).eq('id',id);
+  if(error){ toast('❌ '+error.message); return; }
+  const p = allPendientes.find(x=>x.id===id);
+  if(p) p.estatus = estatus;
+  renderPendientes();
+}
+
+async function eliminarPendiente(id){
+  if(!confirm('¿Eliminar este pendiente?')) return;
+  const {error} = await db.from('pendientes').delete().eq('id',id);
+  if(error){ toast('❌ '+error.message); return; }
+  toast('✅ Pendiente eliminado');
+  allPendientes = allPendientes.filter(x=>x.id!==id);
+  renderPendientes();
 }
 
 </script>
