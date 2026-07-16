@@ -2433,9 +2433,7 @@ async function bootApp(user){
     nav.innerHTML+=`<button class="nav-btn" id="nav-pendientes" onclick="setTab('pendientes')"><i class="ti ti-checklist"></i> Pendientes</button>`;
   }
   // Pendientes: admin y supervisor
-  if(['admin','supervisor'].includes(curProf.rol)){
-    nav.innerHTML+=`<button class="nav-btn" id="nav-pendientes" onclick="setTab('pendientes')"><i class="ti ti-checkbox"></i> Pendientes</button>`;
-  }
+
   // supervisor_zona: solo tab Escáner (supervisor de mantenimiento sí ve órdenes)
   if(curProf.rol!=='supervisor_zona'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-ordenes" onclick="setTab('ordenes')"><i class="ti ti-clipboard-list"></i> Órdenes <span class="nav-badge" id="badge-urg" style="display:none">0</span></button>`;
@@ -2619,13 +2617,13 @@ function setTab(t){
   if(t==='cal-tecnico')renderAgendaTecnico();
   if(t==='programar'&&typeof renderProgramar==='function')renderProgramar();
   if(t==='proyectos'&&typeof renderProyectos==='function')renderProyectos();
-  if(t==='pendientes'&&typeof renderPendientes==='function')renderPendientes();
-  if(t==='pendientes'&&typeof renderPendientes==='function')renderPendientes();
+  if(t==='pendientes'&&typeof renderPendientes==='function'){ loadPendientes().then(()=>renderPendientes()).catch(()=>renderPendientes()); }
+  if(t==='pendientes'&&typeof renderPendientes==='function'){ loadPendientes().then(()=>renderPendientes()).catch(()=>renderPendientes()); }
   if(t==='cal-tecnico')renderAgendaTecnico();
   if(t==='programar'&&typeof renderProgramar==='function')renderProgramar();
   if(t==='proyectos'&&typeof renderProyectos==='function')renderProyectos();
-  if(t==='pendientes'&&typeof renderPendientes==='function')renderPendientes();
-  if(t==='pendientes'&&typeof renderPendientes==='function')renderPendientes();
+  if(t==='pendientes'&&typeof renderPendientes==='function'){ loadPendientes().then(()=>renderPendientes()).catch(()=>renderPendientes()); }
+  if(t==='pendientes'&&typeof renderPendientes==='function'){ loadPendientes().then(()=>renderPendientes()).catch(()=>renderPendientes()); }
   if(t==='ot-libre')renderOTLibre();
   if(t!=='escaner')stopScanner();
 }
@@ -10808,17 +10806,17 @@ function exportarPendienteReminder(id){
     'END:VCALENDAR',
   ].filter(Boolean).join(String.fromCharCode(13,10));
 
-  const blob = new Blob([lines], { type: 'text/calendar;charset=utf-8' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
+  // Use data URI — Safari iOS blocks blob: URLs for .ics downloads
+  const encoded = encodeURIComponent(lines);
+  const dataURI  = 'data:text/calendar;charset=utf-8,' + encoded;
+  const a = document.createElement('a');
+  a.href = dataURI;
   a.download = 'pendiente-' + p.id + '.ics';
-  a.target   = '_blank';
+  a.target = '_blank';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 3000);
-  toast('📋 Abriendo en Reminders...');
+  toast('📋 Descargando — abre el archivo para guardarlo en Reminders');
 }
 
 </script>
