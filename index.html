@@ -10926,6 +10926,7 @@ const BT_PLANTILLAS = {
     horarios:['09:00','11:30','15:30'],
     campos:[
       {clave:'temp',  etiqueta:'Temperatura',        tipo:'numero',unidad:'°F',limite_max:200,requerido:true},
+      {clave:'vacio', etiqueta:'Nivel de vacío',     tipo:'numero',unidad:'inHg'},
       {clave:'l1',    etiqueta:'Amperaje L1',        tipo:'numero',unidad:'A', limite_max:62, requerido:true},
       {clave:'l2',    etiqueta:'Amperaje L2',        tipo:'numero',unidad:'A', limite_max:62, requerido:true},
       {clave:'l3',    etiqueta:'Amperaje L3',        tipo:'numero',unidad:'A', limite_max:62, requerido:true},
@@ -11202,15 +11203,21 @@ function btEngancharForm(){
   btRevisar(btLeerForm().valores);
 }
 
+function btLimiteDesbalance(){
+  const v=btCtx.bitacora&&btCtx.bitacora.desbalance_max;
+  return (v===null||v===undefined)?5:Number(v);
+}
+
 function btRevisar(valores){
   const cont=document.getElementById('bt-alertas'); if(!cont) return;
   const alertas=btEvaluar(btCtx.campos,valores);
   const db_=btDesbalance(valores);
+  const lim=btLimiteDesbalance();
   let html='';
   if(db_!==null){
-    const mal=db_>5;
-    if(mal) alertas.push(`Desbalance de corriente ${db_.toFixed(1)} % (> 5 %)`);
-    html+=`<div class="bt-desb${mal?' mal':''}">Desbalance de corriente: ${db_.toFixed(1)} %</div>`;
+    const mal=db_>lim;
+    if(mal) alertas.push(`Desbalance de corriente ${db_.toFixed(1)} % (> ${lim} %)`);
+    html+=`<div class="bt-desb${mal?' mal':''}">Desbalance de corriente: ${db_.toFixed(1)} % <span style="color:var(--txt3);">(NEMA: desviación máxima ÷ promedio · límite ${lim} %)</span></div>`;
   }
   if(alertas.length) html+=`<div class="bt-alertas-box"><i class="ti ti-alert-triangle"></i> ${alertas.map(btEsc).join('<br>')}</div>`;
   cont.innerHTML=html;
@@ -11237,7 +11244,7 @@ async function btGuardar(){
 
   const alertas=btEvaluar(btCtx.campos,d.valores);
   const des=btDesbalance(d.valores);
-  if(des!==null&&des>5) alertas.push(`Desbalance de corriente ${des.toFixed(1)} %`);
+  if(des!==null&&des>btLimiteDesbalance()) alertas.push(`Desbalance de corriente ${des.toFixed(1)} %`);
 
   const fila={
     bitacora_id:btCtx.bitacora.id,
