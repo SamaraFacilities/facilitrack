@@ -661,6 +661,33 @@ tr:hover td { background: var(--bg3) !important; }
 ::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--txt3); }
 
+
+/* ── BITÁCORAS POR EQUIPO ── */
+.bt-card{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:4px;padding:13px 14px;margin-bottom:9px;cursor:pointer;background:#fff;transition:all .15s}
+.bt-card:hover{border-color:var(--line2);background:var(--bg2)}
+.bt-card-t{font-size:14px;font-weight:500;color:var(--txt)}
+.bt-card-s{font-size:12px;color:var(--txt2);margin-top:1px}
+.bt-card-h{font-size:11px;color:var(--txt3);margin-top:5px;font-family:monospace;letter-spacing:.04em}
+.bt-daynav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.bt-slot{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-left-width:3px;border-radius:4px;padding:11px 13px;margin-bottom:9px;cursor:pointer;min-height:56px;background:#fff;transition:all .15s}
+.bt-slot:hover{border-color:var(--line2)}
+.bt-slot.pend{border-left-color:var(--line2)}
+.bt-slot.ok{border-left-color:var(--green)}
+.bt-slot.alerta{border-left-color:var(--red);background:var(--red-bg)}
+.bt-slot-h{font-size:13px;font-weight:600;font-family:monospace;width:56px;flex:none}
+.bt-slot-b{flex:1;min-width:0}
+.bt-slot-b b{display:block;font-size:13px;font-weight:500}
+.bt-slot-b small{display:block;font-size:11px;color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bt-note{background:var(--bg3);border-left:2px solid var(--txt);padding:9px 11px;font-size:12px;color:var(--txt2);margin-bottom:14px;border-radius:0 3px 3px 0}
+.bt-hint{font-size:11px;color:var(--txt3);margin-top:4px}
+.bt-desb{font-size:12px;color:var(--txt2);margin-bottom:6px}
+.bt-desb.mal{color:var(--red-txt);font-weight:600}
+.bt-alertas-box{background:var(--red-bg);border:1px solid var(--red);color:var(--red-txt);border-radius:3px;padding:9px 11px;font-size:12px;font-weight:500;margin-bottom:8px}
+#bt-form input.bt-mal,#bt-form select.bt-mal{border-color:var(--red)!important;background:var(--red-bg)!important;color:var(--red-txt)}
+#bt-form input,#bt-form select,#bt-form textarea{font-size:16px}
+.bt-mini{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--line);border-radius:3px;margin-bottom:6px;cursor:pointer;background:var(--bg2)}
+.bt-mini:hover{border-color:var(--line2)}
+#bt-back{background:none;border:0;color:var(--txt2);cursor:pointer;padding:0 6px 0 0;font-size:18px;line-height:1}
 </style>
 </head>
 <body>
@@ -795,6 +822,14 @@ tr:hover td { background: var(--bg3) !important; }
           <div id="sz-ots-resumen"></div>
         </div>
 
+                <div class="card" style="margin-bottom:14px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div class="card-title"><i class="ti ti-notebook"></i> Bitácoras del equipo</div>
+            <button class="btn-sm" onclick="abrirBitacorasEquipo(document.getElementById('sz-eq-id').value)"><i class="ti ti-clipboard-data"></i> Abrir</button>
+          </div>
+          <div id="bt-sz-resumen"></div>
+        </div>
+
         <div class="card" style="margin-bottom:14px;display:none;" id="sz-historial-wrap">
           <div class="card-header" style="margin-bottom:10px;"><div class="card-title"><i class="ti ti-history"></i> Últimos trabajos realizados</div></div>
           <div id="sz-historial"></div>
@@ -857,6 +892,14 @@ tr:hover td { background: var(--bg3) !important; }
             <div class="nueva-ot-rapida" onclick="openNuevaOT(document.getElementById('eq-id-actual').value)"><i class="ti ti-plus"></i>Levantar nueva OT para este equipo</div>
           </div>
           <input type="hidden" id="eq-id-actual">
+        </div>
+
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div class="card-title"><i class="ti ti-notebook"></i> Bitácoras del equipo</div>
+            <button class="btn-sm" onclick="abrirBitacorasEquipo(document.getElementById('eq-id-actual').value)"><i class="ti ti-clipboard-data"></i> Abrir</button>
+          </div>
+          <div id="bt-eq-resumen"></div>
         </div>
       </div>
 
@@ -1596,6 +1639,22 @@ tr:hover td { background: var(--bg3) !important; }
       <div class="form-group"><label>Idioma / Language</label><select id="inv-lang"><option value="es">🇲🇽 Español</option><option value="en">🇺🇸 English</option></select></div>
     </div>
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-invite')">Cancelar</button><button class="btn-sm btn-primary" onclick="guardarPerfil()"><i class="ti ti-check"></i> Guardar</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-bitacora">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal-title">
+      <span style="display:flex;align-items:center;gap:4px;min-width:0;">
+        <button id="bt-back" onclick="btAtras()" title="Atrás"><i class="ti ti-chevron-left"></i></button>
+        <span style="min-width:0;">
+          <span id="bt-title" style="display:block;">Bitácoras</span>
+          <span id="bt-sub" style="display:block;font-size:11px;color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0;"></span>
+        </span>
+      </span>
+      <button class="close-btn" onclick="closeM('modal-bitacora')"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="bt-body"></div>
   </div>
 </div>
 
@@ -2388,6 +2447,7 @@ async function doLogin(){
     if(pe){ err.textContent='Error de perfil: '+pe.message; err.classList.add('show'); btn.disabled=false; btn.textContent='Iniciar sesión'; return; }
     btn.disabled=false; btn.textContent='Iniciar sesión';
     console.log('✅ Login OK:', prof.nombre, prof.rol);
+  try{ btInitRealtime(); }catch(e){ console.warn('bitácoras realtime:', e); }
     await bootApp(data.user);
   } catch(e) {
     console.error('💥', e);
@@ -2729,6 +2789,7 @@ function mostrarEquipoEscaneado(eq){
     // OTs activas resumen + historial
     renderOTsResumenSZ(eq);
     renderHistorialSZ(eq);
+    btResumenEquipo(eq.id);
     setPasos(2);
 
   } else {
@@ -2748,6 +2809,7 @@ function mostrarEquipoEscaneado(eq){
 
     setPasos(2);
     renderOTsEquipo(eq);
+    btResumenEquipo(eq.id);
   }
 }
 
@@ -3281,6 +3343,7 @@ function renderEquipos(){
       <td>${badge(e.estado)} ${reqPM?'<span class="badge badge-red" style="margin-left:4px;">PM Req.</span>':''}</td>
       <td style="display:flex;gap:6px;">
         <button class="btn-sm" title="Generar QR" onclick="verQRById(${e.id})"><i class="ti ti-qrcode"></i></button>
+        <button class="btn-sm" title="Bitácoras del equipo" onclick="abrirBitacorasEquipo(${e.id})"><i class="ti ti-notebook"></i></button>
         ${curProf.rol==='admin'?`<button class="btn-sm" title="Refacciones del equipo" onclick="openRefaccionesEquipo(${e.id})"><i class="ti ti-package"></i></button>`:''}
         ${curProf.rol==='admin'?`<button class="btn-sm" title="Editar Checklist" onclick="openClBuilder(${e.id})" style="color:var(--blue-txt);"><i class="ti ti-list-check"></i></button>`:''}
         ${curProf.rol==='admin'?`
@@ -10842,6 +10905,516 @@ function exportarPendienteReminder(id){
   a.click();
   document.body.removeChild(a);
   toast('📋 Descargando — abre el archivo para guardarlo en Reminders');
+}
+
+</script>
+<script>
+/* ============================================================
+   BITÁCORAS POR EQUIPO
+   Registro recurrente por equipo (temperatura, amperaje, etc.)
+   Tablas: bitacoras · bitacora_campos · bitacora_registros
+   La llave única (bitacora_id, fecha, hora) + upsert es lo que
+   hace que al reabrir un horario ya capturado se recuerden los
+   valores en vez de duplicar el renglón.
+   ============================================================ */
+
+const BT_ROLES_CONFIG = ['admin','supervisor','supervisor_zona','ingeniero','gerencia'];
+
+const BT_PLANTILLAS = {
+  blower: {
+    nombre:'Operación diaria', descripcion:'Blower de canal lateral / bomba de vacío',
+    horarios:['09:00','11:30','15:30'],
+    campos:[
+      {clave:'temp',  etiqueta:'Temperatura',        tipo:'numero',unidad:'°F',limite_max:200,requerido:true},
+      {clave:'l1',    etiqueta:'Amperaje L1',        tipo:'numero',unidad:'A', limite_max:62, requerido:true},
+      {clave:'l2',    etiqueta:'Amperaje L2',        tipo:'numero',unidad:'A', limite_max:62, requerido:true},
+      {clave:'l3',    etiqueta:'Amperaje L3',        tipo:'numero',unidad:'A', limite_max:62, requerido:true},
+      {clave:'filtro',etiqueta:'Filtro de admisión', tipo:'lista',opciones:['Limpio','Sucio','Saturado','Reemplazado'],opciones_alerta:['Sucio','Saturado'],requerido:true},
+      {clave:'ruido', etiqueta:'Ruido / vibración',  tipo:'lista',opciones:['Normal','Ruido anormal','Vibración anormal','Ambos'],opciones_alerta:['Ruido anormal','Vibración anormal','Ambos'],requerido:true}
+    ]
+  },
+  motor: {
+    nombre:'Motor eléctrico', descripcion:'Corriente por fase y temperatura de carcasa',
+    horarios:['09:00','15:30'],
+    campos:[
+      {clave:'l1',  etiqueta:'Amperaje L1',        tipo:'numero',unidad:'A',requerido:true},
+      {clave:'l2',  etiqueta:'Amperaje L2',        tipo:'numero',unidad:'A',requerido:true},
+      {clave:'l3',  etiqueta:'Amperaje L3',        tipo:'numero',unidad:'A',requerido:true},
+      {clave:'temp',etiqueta:'Temperatura carcasa',tipo:'numero',unidad:'°F'},
+      {clave:'vibr',etiqueta:'Vibración',          tipo:'lista',opciones:['Normal','Anormal'],opciones_alerta:['Anormal']}
+    ]
+  },
+  compresor: {
+    nombre:'Compresor', descripcion:'Presión, temperatura y horómetro',
+    horarios:['07:00','15:00','23:00'],
+    campos:[
+      {clave:'presion',etiqueta:'Presión de descarga',tipo:'numero',unidad:'psi',requerido:true},
+      {clave:'temp',   etiqueta:'Temperatura',        tipo:'numero',unidad:'°F', requerido:true},
+      {clave:'horas',  etiqueta:'Horómetro',          tipo:'numero',unidad:'h'},
+      {clave:'drenaje',etiqueta:'Drenaje de condensado',tipo:'lista',opciones:['Correcto','Obstruido'],opciones_alerta:['Obstruido']}
+    ]
+  },
+  hidraulico: {
+    nombre:'Unidad hidráulica', descripcion:'Presión, nivel y temperatura de aceite',
+    horarios:['09:00','15:30'],
+    campos:[
+      {clave:'presion',etiqueta:'Presión',            tipo:'numero',unidad:'psi',requerido:true},
+      {clave:'temp',   etiqueta:'Temperatura aceite', tipo:'numero',unidad:'°F', limite_max:180,requerido:true},
+      {clave:'nivel',  etiqueta:'Nivel de aceite',    tipo:'lista',opciones:['Normal','Bajo'],opciones_alerta:['Bajo'],requerido:true},
+      {clave:'fugas',  etiqueta:'Fugas visibles',     tipo:'lista',opciones:['No','Sí'],opciones_alerta:['Sí'],requerido:true}
+    ]
+  },
+  vacia: { nombre:'Bitácora nueva', descripcion:'Sin campos: se definen después', horarios:['09:00'], campos:[] }
+};
+
+let btCtx = {};     // { bitacora, campos, fecha, hora, registro, ultimo }
+let btPila = [];    // navegación dentro del modal
+
+/* ---------------------------------------------------------- utilidades --- */
+function btPuedeConfig(){ return !!curProf && BT_ROLES_CONFIG.includes(curProf.rol); }
+function btHoy(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function btFechaLarga(f){ const p=f.split('-'); return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('es-MX',{weekday:'short',day:'2-digit',month:'short'}); }
+function btEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function btDraftKey(bid,fecha,hora){ return 'bt_draft_'+bid+'_'+fecha+'_'+hora; }
+
+/* Alertas por límites y por opciones marcadas como anormales */
+function btEvaluar(campos, valores){
+  const alertas=[];
+  campos.forEach(c=>{
+    const v=valores[c.clave];
+    if(v===''||v===null||v===undefined) return;
+    if(c.tipo==='numero'){
+      const n=Number(v); if(isNaN(n)) return;
+      if(c.limite_min!==null&&c.limite_min!==undefined&&n<c.limite_min) alertas.push(`${c.etiqueta} bajo: ${n} < ${c.limite_min}${c.unidad||''}`);
+      if(c.limite_max!==null&&c.limite_max!==undefined&&n>c.limite_max) alertas.push(`${c.etiqueta} alto: ${n} > ${c.limite_max}${c.unidad||''}`);
+    } else if(c.tipo==='lista'&&(c.opciones_alerta||[]).includes(v)){
+      alertas.push(`${c.etiqueta}: ${v}`);
+    }
+  });
+  return alertas;
+}
+
+/* Desbalance de corriente si la bitácora trae l1/l2/l3 (criterio NEMA: 5 %) */
+function btDesbalance(valores){
+  const a=[valores.l1,valores.l2,valores.l3].map(Number);
+  if(a.some(n=>isNaN(n)||n===0)) return null;
+  const prom=(a[0]+a[1]+a[2])/3;
+  const dev=Math.max(...a.map(n=>Math.abs(n-prom)));
+  return (dev/prom)*100;
+}
+
+/* ------------------------------------------------------------ navegación -- */
+function btIr(fn,titulo,sub){ btPila.push({fn,titulo,sub}); btPintar(); }
+function btAtras(){ btPila.pop(); btPila.length?btPintar():closeM('modal-bitacora'); }
+
+async function btPintar(){
+  const v=btPila[btPila.length-1]; if(!v) return closeM('modal-bitacora');
+  document.getElementById('bt-title').textContent=v.titulo;
+  document.getElementById('bt-sub').textContent=v.sub||'';
+  document.getElementById('bt-back').style.visibility=btPila.length>1?'visible':'hidden';
+  const body=document.getElementById('bt-body');
+  body.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{ body.innerHTML=await v.fn(); }
+  catch(e){ body.innerHTML=`<div class="empty-state" style="color:var(--red-txt);"><i class="ti ti-alert-triangle"></i><br>No se pudo cargar: ${btEsc(e.message||e)}</div>`; }
+}
+
+/* ------------------------------------------------- vista: equipo --------- */
+async function abrirBitacorasEquipo(equipoId, nombreEquipo){
+  const id=Number(equipoId);
+  const eq=(typeof allEqs!=='undefined'?allEqs:[]).find(e=>e.id===id);
+  btPila=[];
+  openM('modal-bitacora');
+  btIr(()=>btVistaEquipo(id), 'Bitácoras', nombreEquipo||(eq?eq.nombre:''));
+}
+
+async function btVistaEquipo(equipoId){
+  const {data,error}=await db.from('bitacoras').select('*').eq('equipo_id',equipoId).eq('activa',true).order('fecha_creacion');
+  if(error) throw error;
+  const hoy=btHoy();
+  let regs=[];
+  if(data.length){
+    const r=await db.from('bitacora_registros').select('bitacora_id,hora,estado').in('bitacora_id',data.map(b=>b.id)).eq('fecha',hoy);
+    regs=r.data||[];
+  }
+  let html='';
+  if(!data.length){
+    html+='<div class="empty-state"><i class="ti ti-notebook"></i><br>Este equipo todavía no tiene bitácora</div>';
+  }
+  data.forEach(b=>{
+    const propias=regs.filter(x=>x.bitacora_id===b.id);
+    const alertas=propias.filter(x=>x.estado==='alerta').length;
+    const faltan=b.horarios.length-propias.length;
+    const chip = alertas ? `<span class="badge badge-red">${alertas} alerta${alertas>1?'s':''}</span>`
+               : faltan>0 ? `<span class="badge badge-amber">${faltan} pendiente${faltan>1?'s':''} hoy</span>`
+               : '<span class="badge badge-green">Día completo</span>';
+    html+=`<div class="bt-card" onclick="btAbrirBitacora('${b.id}')">
+      <div style="flex:1;min-width:0;">
+        <div class="bt-card-t">${btEsc(b.nombre)}</div>
+        <div class="bt-card-s">${btEsc(b.descripcion||'')}</div>
+        <div class="bt-card-h">${b.horarios.join(' · ')}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">${chip}<i class="ti ti-chevron-right" style="color:var(--txt3);"></i></div>
+    </div>`;
+  });
+  if(btPuedeConfig()){
+    html+=`<button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="btNueva(${equipoId})"><i class="ti ti-plus"></i> Agregar bitácora</button>`;
+  }
+  return html;
+}
+
+/* ------------------------------------------------- vista: día ------------ */
+function btAbrirBitacora(bitacoraId, fecha){
+  fecha=fecha||btHoy();
+  btIr(()=>btVistaDia(bitacoraId,fecha),'Bitácora',btFechaLarga(fecha));
+}
+
+async function btVistaDia(bitacoraId,fecha){
+  const [b,c,r]=await Promise.all([
+    db.from('bitacoras').select('*').eq('id',bitacoraId).single(),
+    db.from('bitacora_campos').select('*').eq('bitacora_id',bitacoraId).order('orden'),
+    db.from('bitacora_registros').select('*').eq('bitacora_id',bitacoraId).eq('fecha',fecha)
+  ]);
+  if(b.error) throw b.error;
+  btCtx={bitacora:b.data,campos:c.data||[],fecha};
+  btPila[btPila.length-1].titulo=b.data.nombre;
+  document.getElementById('bt-title').textContent=b.data.nombre;
+
+  const porHora={}; (r.data||[]).forEach(x=>porHora[x.hora]=x);
+  let html=`<div class="bt-daynav">
+    <button class="btn-sm" onclick="btMoverDia(-1)"><i class="ti ti-chevron-left"></i> Anterior</button>
+    <strong style="font-size:12px;">${btFechaLarga(fecha)}</strong>
+    <button class="btn-sm" onclick="btMoverDia(1)">Siguiente <i class="ti ti-chevron-right"></i></button>
+  </div>`;
+
+  b.data.horarios.forEach(h=>{
+    const x=porHora[h];
+    const cls=!x?'pend':(x.estado==='alerta'?'alerta':'ok');
+    const est=!x?'Pendiente':(x.estado==='alerta'?'Alerta':'Capturado');
+    let resumen='';
+    if(x){
+      resumen = x.estado==='alerta' ? x.alertas.join(' · ')
+        : btCtx.campos.slice(0,4).map(cc=>{
+            const v=x.valores[cc.clave];
+            return (v===undefined||v==='')?null:`${cc.etiqueta}: ${v}${cc.unidad?' '+cc.unidad:''}`;
+          }).filter(Boolean).join(' · ');
+    }
+    html+=`<div class="bt-slot ${cls}" onclick="btCapturar('${h}')">
+      <span class="bt-slot-h">${h}</span>
+      <span class="bt-slot-b"><b>${est}</b><small>${btEsc(resumen)}</small></span>
+      <span class="btn-sm">${x?'Editar':'Capturar'}</span>
+    </div>`;
+  });
+
+  if(!btCtx.campos.length){
+    html+='<div class="empty-state" style="color:var(--amber-txt);"><i class="ti ti-alert-triangle"></i><br>Esta bitácora todavía no tiene campos definidos</div>';
+  }
+  html+=`<button class="btn-sm" style="width:100%;margin-top:12px;justify-content:center;" onclick="btHistorial()"><i class="ti ti-history"></i> Ver historial</button>`;
+  return html;
+}
+
+function btMoverDia(delta){
+  const p=btCtx.fecha.split('-'); const d=new Date(p[0],p[1]-1,p[2]);
+  d.setDate(d.getDate()+delta);
+  const f=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  btPila.pop();
+  btAbrirBitacora(btCtx.bitacora.id,f);
+}
+
+/* ------------------------------------------------- vista: captura -------- */
+function btCapturar(hora){
+  btIr(()=>btVistaCaptura(hora),btCtx.bitacora.nombre,btFechaLarga(btCtx.fecha)+' · '+hora);
+}
+
+async function btVistaCaptura(hora){
+  const bid=btCtx.bitacora.id;
+  const [ex,ult]=await Promise.all([
+    db.from('bitacora_registros').select('*').eq('bitacora_id',bid).eq('fecha',btCtx.fecha).eq('hora',hora).maybeSingle(),
+    db.from('bitacora_registros').select('*').eq('bitacora_id',bid).order('fecha',{ascending:false}).order('hora',{ascending:false}).limit(1)
+  ]);
+  const existente=ex.data||null;
+  const ultimo=(ult.data&&ult.data[0])||null;
+
+  // 1º lo guardado en Supabase · 2º el borrador local que quedó sin enviar
+  let valores=existente?Object.assign({},existente.valores):{};
+  let obs=existente?(existente.observaciones||''):'';
+  let borrador=null;
+  try{ borrador=JSON.parse(localStorage.getItem(btDraftKey(bid,btCtx.fecha,hora))||'null'); }catch(e){}
+  if(borrador&&!existente){ valores=borrador.valores||{}; obs=borrador.observaciones||''; }
+
+  btCtx.hora=hora; btCtx.registro=existente; btCtx.ultimo=ultimo;
+
+  let html='';
+  if(existente){
+    html+=`<div class="bt-note"><i class="ti ti-history"></i> Capturado el ${new Date(existente.fecha_modificacion).toLocaleString('es-MX')}. Se cargaron los valores tal como quedaron; al guardar se corrige el mismo renglón.</div>`;
+  } else if(borrador){
+    html+='<div class="bt-note"><i class="ti ti-device-floppy"></i> Se recuperó lo que habías escrito sin guardar.</div>';
+  } else if(ultimo){
+    html+=`<div class="bt-note"><i class="ti ti-arrow-back-up"></i> Última lectura: ${btFechaLarga(ultimo.fecha)} ${ultimo.hora}
+      <button class="btn-sm" style="margin-left:8px;" onclick="btCopiarUltima()">Copiar valores</button></div>`;
+  }
+
+  html+='<div id="bt-form">';
+  btCtx.campos.forEach(c=>{
+    const v=valores[c.clave]===undefined?'':valores[c.clave];
+    const ref=ultimo&&ultimo.valores[c.clave]!==undefined?ultimo.valores[c.clave]:null;
+    html+=`<div class="form-group" style="margin-bottom:12px;"><label>${btEsc(c.etiqueta)}${c.unidad?` <span style="color:var(--txt3);font-weight:400;">(${btEsc(c.unidad)})</span>`:''}${c.requerido?' <span style="color:var(--red-txt);">*</span>':''}</label>`;
+    if(c.tipo==='lista'||c.tipo==='booleano'){
+      const ops=c.tipo==='booleano'?['Sí','No']:(c.opciones||[]);
+      html+=`<select data-bt="${c.clave}"><option value="">—</option>${ops.map(o=>`<option${o===v?' selected':''}>${btEsc(o)}</option>`).join('')}</select>`;
+    } else if(c.tipo==='numero'){
+      html+=`<input type="number" inputmode="decimal" step="0.1" data-bt="${c.clave}" value="${btEsc(v)}">`;
+    } else {
+      html+=`<input type="text" data-bt="${c.clave}" value="${btEsc(v)}">`;
+    }
+    const pie=[];
+    if(c.limite_max!==null&&c.limite_max!==undefined) pie.push('máx '+c.limite_max+(c.unidad||''));
+    if(c.limite_min!==null&&c.limite_min!==undefined) pie.push('mín '+c.limite_min+(c.unidad||''));
+    if(ref!==null) pie.push('anterior: '+ref);
+    if(pie.length) html+=`<div class="bt-hint">${btEsc(pie.join(' · '))}</div>`;
+    html+='</div>';
+  });
+  html+=`<div class="form-group"><label>Observaciones</label><textarea id="bt-obs" rows="3">${btEsc(obs)}</textarea></div>`;
+  html+='<div id="bt-alertas"></div>';
+  html+=`<button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="btGuardar()"><i class="ti ti-device-floppy"></i> ${existente?'Guardar cambios':'Guardar lectura'}</button></div>`;
+
+  setTimeout(btEngancharForm,0);
+  return html;
+}
+
+function btLeerForm(){
+  const valores={};
+  document.querySelectorAll('#bt-form [data-bt]').forEach(el=>{
+    if(el.value!=='') valores[el.dataset.bt]= el.type==='number'?Number(el.value):el.value;
+  });
+  const obsEl=document.getElementById('bt-obs');
+  return {valores, observaciones: obsEl?obsEl.value:''};
+}
+
+function btPersistirBorrador(){
+  const d=btLeerForm();
+  try{ localStorage.setItem(btDraftKey(btCtx.bitacora.id,btCtx.fecha,btCtx.hora),JSON.stringify(d)); }catch(e){}
+  return d;
+}
+
+function btEngancharForm(){
+  const form=document.getElementById('bt-form'); if(!form) return;
+  form.addEventListener('input',()=>btRevisar(btPersistirBorrador().valores));
+  btRevisar(btLeerForm().valores);
+}
+
+function btRevisar(valores){
+  const cont=document.getElementById('bt-alertas'); if(!cont) return;
+  const alertas=btEvaluar(btCtx.campos,valores);
+  const db_=btDesbalance(valores);
+  let html='';
+  if(db_!==null){
+    const mal=db_>5;
+    if(mal) alertas.push(`Desbalance de corriente ${db_.toFixed(1)} % (> 5 %)`);
+    html+=`<div class="bt-desb${mal?' mal':''}">Desbalance de corriente: ${db_.toFixed(1)} %</div>`;
+  }
+  if(alertas.length) html+=`<div class="bt-alertas-box"><i class="ti ti-alert-triangle"></i> ${alertas.map(btEsc).join('<br>')}</div>`;
+  cont.innerHTML=html;
+  document.querySelectorAll('#bt-form [data-bt]').forEach(el=>{
+    const c=btCtx.campos.find(x=>x.clave===el.dataset.bt); if(!c) return;
+    el.classList.toggle('bt-mal', btEvaluar([c],valores).length>0);
+  });
+}
+
+function btCopiarUltima(){
+  if(!btCtx.ultimo) return;
+  document.querySelectorAll('#bt-form [data-bt]').forEach(el=>{
+    const v=btCtx.ultimo.valores[el.dataset.bt];
+    if(v!==undefined) el.value=v;
+  });
+  btRevisar(btPersistirBorrador().valores);
+  toast('Valores copiados de la última lectura — verifícalos antes de guardar');
+}
+
+async function btGuardar(){
+  const d=btLeerForm();
+  const faltan=btCtx.campos.filter(c=>c.requerido&&(d.valores[c.clave]===undefined||d.valores[c.clave]===''));
+  if(faltan.length){ toast('Falta capturar: '+faltan.map(c=>c.etiqueta).join(', ')); return; }
+
+  const alertas=btEvaluar(btCtx.campos,d.valores);
+  const des=btDesbalance(d.valores);
+  if(des!==null&&des>5) alertas.push(`Desbalance de corriente ${des.toFixed(1)} %`);
+
+  const fila={
+    bitacora_id:btCtx.bitacora.id,
+    equipo_id:btCtx.bitacora.equipo_id,
+    fecha:btCtx.fecha,
+    hora:btCtx.hora,
+    valores:d.valores,
+    observaciones:d.observaciones,
+    estado:alertas.length?'alerta':'ok',
+    alertas:alertas,
+    tecnico_id:curUser?curUser.id:null,
+    tecnico_nombre:curProf?curProf.nombre:null
+  };
+
+  const {error}=await db.from('bitacora_registros').upsert(fila,{onConflict:'bitacora_id,fecha,hora'});
+  if(error){
+    toast('No se guardó: '+error.message+' — la captura quedó en borrador');
+    return;
+  }
+  try{ localStorage.removeItem(btDraftKey(btCtx.bitacora.id,btCtx.fecha,btCtx.hora)); }catch(e){}
+
+  if(alertas.length){
+    const eq=(typeof allEqs!=='undefined'?allEqs:[]).find(e=>e.id===btCtx.bitacora.equipo_id);
+    toast('⚠️ Guardado con alerta — repórtalo a tu supervisor');
+    if(typeof addNotif==='function') addNotif(`⚠️ Bitácora ${eq?eq.nombre:''}: ${alertas[0]}`,'urgente');
+  } else {
+    toast('✅ Lectura guardada');
+  }
+  btAtras();
+  if(typeof btResumenEquipo==='function') btResumenEquipo(btCtx.bitacora.equipo_id);
+}
+
+/* ------------------------------------------------- historial y CSV ------- */
+function btHistorial(){
+  btIr(async ()=>{
+    const {data,error}=await db.from('bitacora_registros').select('*')
+      .eq('bitacora_id',btCtx.bitacora.id)
+      .order('fecha',{ascending:false}).order('hora',{ascending:false}).limit(120);
+    if(error) throw error;
+    if(!data.length) return '<div class="empty-state"><i class="ti ti-history"></i><br>Sin lecturas registradas</div>';
+    const cols=btCtx.campos.slice(0,6);
+    let h=`<div style="overflow:auto;"><table><thead><tr><th>Fecha</th><th>Hora</th>${cols.map(c=>`<th>${btEsc(c.etiqueta)}</th>`).join('')}<th>Estado</th></tr></thead><tbody>`;
+    data.forEach(x=>{
+      h+=`<tr${x.estado==='alerta'?' style="background:var(--red-bg);"':''}><td style="font-size:11px;">${x.fecha}</td><td style="font-size:11px;">${x.hora}</td>`+
+         cols.map(c=>`<td style="font-size:12px;">${btEsc(x.valores[c.clave]===undefined?'–':x.valores[c.clave])}</td>`).join('')+
+         `<td>${x.estado==='alerta'?'<span class="badge badge-red">Alerta</span>':'<span class="badge badge-green">OK</span>'}</td></tr>`;
+    });
+    return h+`</tbody></table></div><button class="btn-sm" style="width:100%;margin-top:12px;justify-content:center;" onclick="btExportarCSV()"><i class="ti ti-download"></i> Descargar CSV</button>`;
+  },btCtx.bitacora.nombre,'Historial');
+}
+
+async function btExportarCSV(){
+  const {data,error}=await db.from('bitacora_registros').select('*')
+    .eq('bitacora_id',btCtx.bitacora.id).order('fecha').order('hora');
+  if(error){ toast('No se pudo exportar'); return; }
+  const cols=btCtx.campos;
+  const lineas=[['Fecha','Hora'].concat(cols.map(c=>c.etiqueta+(c.unidad?` (${c.unidad})`:''))).concat(['Estado','Alertas','Observaciones','Técnico']).join(',')];
+  data.forEach(x=>{
+    lineas.push([x.fecha,x.hora]
+      .concat(cols.map(c=>x.valores[c.clave]===undefined?'':x.valores[c.clave]))
+      .concat([x.estado,`"${(x.alertas||[]).join('; ')}"`,`"${String(x.observaciones||'').replace(/"/g,'""')}"`,`"${x.tecnico_nombre||''}"`]).join(','));
+  });
+  const blob=new Blob(['\ufeff'+lineas.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='bitacora_'+btCtx.bitacora.nombre.replace(/\s+/g,'_')+'.csv';
+  a.click();
+  toast('📄 CSV descargado');
+}
+
+/* ------------------------------------------------- alta de bitácora ------ */
+function btNueva(equipoId){
+  btIr(()=>{
+    const ops=Object.keys(BT_PLANTILLAS).map(k=>`<option value="${k}">${btEsc(BT_PLANTILLAS[k].nombre)} — ${btEsc(BT_PLANTILLAS[k].descripcion)}</option>`).join('');
+    return `<input type="hidden" id="bt-nueva-eq" value="${equipoId}">
+      <div class="form-group" style="margin-bottom:12px;"><label>Plantilla</label>
+        <select id="bt-nueva-plantilla" onchange="btAplicarPlantilla()">${ops}</select></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Nombre</label>
+        <input type="text" id="bt-nueva-nombre" placeholder="Operación diaria"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Descripción</label>
+        <input type="text" id="bt-nueva-desc" placeholder="Marca y modelo del equipo"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Horarios de captura</label>
+        <input type="text" id="bt-nueva-horarios" placeholder="09:00, 11:30, 15:30">
+        <div class="bt-hint">Separados por coma. Cada uno genera un renglón por día.</div></div>
+      <div id="bt-nueva-campos" class="bt-note"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="btCrear()"><i class="ti ti-plus"></i> Crear bitácora</button>`;
+  },'Agregar bitácora','');
+  setTimeout(btAplicarPlantilla,60);
+}
+
+function btAplicarPlantilla(){
+  const sel=document.getElementById('bt-nueva-plantilla'); if(!sel) return;
+  const p=BT_PLANTILLAS[sel.value];
+  document.getElementById('bt-nueva-nombre').value=p.nombre;
+  document.getElementById('bt-nueva-desc').value=p.descripcion;
+  document.getElementById('bt-nueva-horarios').value=p.horarios.join(', ');
+  document.getElementById('bt-nueva-campos').innerHTML= p.campos.length
+    ? '<b>Campos:</b> '+p.campos.map(c=>btEsc(c.etiqueta)+(c.unidad?` (${c.unidad})`:'')+(c.limite_max!==undefined?` · máx ${c.limite_max}`:'')).join(' · ')
+    : 'Sin campos: los defines después.';
+}
+
+async function btCrear(){
+  const equipoId=Number(document.getElementById('bt-nueva-eq').value);
+  const key=document.getElementById('bt-nueva-plantilla').value;
+  const nombre=document.getElementById('bt-nueva-nombre').value.trim();
+  const desc=document.getElementById('bt-nueva-desc').value.trim();
+  const horarios=document.getElementById('bt-nueva-horarios').value.split(',').map(h=>h.trim()).filter(Boolean);
+  if(!nombre){ toast('Ponle nombre a la bitácora'); return; }
+  if(!horarios.length){ toast('Define al menos un horario de captura'); return; }
+
+  const {data,error}=await db.from('bitacoras').insert({
+    equipo_id:equipoId, nombre, descripcion:desc, horarios,
+    creado_por: curUser?curUser.id:null
+  }).select().single();
+  if(error){ toast('No se creó: '+error.message); return; }
+
+  const campos=BT_PLANTILLAS[key].campos;
+  if(campos.length){
+    const filas=campos.map((c,i)=>({
+      bitacora_id:data.id, orden:i+1, clave:c.clave, etiqueta:c.etiqueta, tipo:c.tipo,
+      unidad:c.unidad||null, opciones:c.opciones||null, opciones_alerta:c.opciones_alerta||null,
+      limite_min:c.limite_min===undefined?null:c.limite_min,
+      limite_max:c.limite_max===undefined?null:c.limite_max,
+      requerido:!!c.requerido
+    }));
+    const r=await db.from('bitacora_campos').insert(filas);
+    if(r.error){ toast('Bitácora creada, pero fallaron los campos: '+r.error.message); }
+  }
+  toast('✅ Bitácora creada');
+  btPila.pop();
+  btAbrirBitacora(data.id);
+  btResumenEquipo(equipoId);
+}
+
+/* ------------------------------- resumen en la ficha del equipo ---------- */
+async function btResumenEquipo(equipoId){
+  const wraps=[document.getElementById('bt-eq-resumen'),document.getElementById('bt-sz-resumen')].filter(Boolean);
+  if(!wraps.length) return;
+  const id=Number(equipoId);
+  if(!id){ wraps.forEach(w=>w.innerHTML=''); return; }
+  const {data}=await db.from('bitacoras').select('id,nombre,horarios').eq('equipo_id',id).eq('activa',true);
+  if(!data||!data.length){
+    wraps.forEach(w=>w.innerHTML='<div style="font-size:12px;color:var(--txt3);">Sin bitácoras configuradas para este equipo.</div>');
+    return;
+  }
+  const r=await db.from('bitacora_registros').select('bitacora_id,estado').in('bitacora_id',data.map(b=>b.id)).eq('fecha',btHoy());
+  const regs=r.data||[];
+  const html=data.map(b=>{
+    const p=regs.filter(x=>x.bitacora_id===b.id);
+    const alertas=p.filter(x=>x.estado==='alerta').length;
+    const faltan=b.horarios.length-p.length;
+    const chip = alertas ? `<span class="badge badge-red">${alertas} alerta${alertas>1?'s':''}</span>`
+               : faltan>0 ? `<span class="badge badge-amber">${faltan} pendiente${faltan>1?'s':''}</span>`
+               : '<span class="badge badge-green">Completa</span>';
+    return `<div class="bt-mini" onclick="abrirBitacorasEquipo(${id})">
+      <span style="font-size:12px;font-weight:500;">${btEsc(b.nombre)}</span>
+      <span style="display:flex;align-items:center;gap:6px;">${chip}<span style="font-size:11px;color:var(--txt3);">${p.length}/${b.horarios.length} hoy</span></span>
+    </div>`;
+  }).join('');
+  wraps.forEach(w=>w.innerHTML=html);
+}
+
+/* ------------------------------- alertas en tiempo real (mandos) --------- */
+function btInitRealtime(){
+  if(!curProf||!['admin','supervisor','supervisor_zona','ingeniero'].includes(curProf.rol)) return;
+  if(window._btChannel) return;
+  window._btChannel=db.channel('bitacora-alertas')
+    .on('postgres_changes',{event:'*',schema:'public',table:'bitacora_registros'},payload=>{
+      const r=payload.new; if(!r||r.estado!=='alerta') return;
+      if(r.tecnico_id===curUser?.id) return;
+      const eq=(typeof allEqs!=='undefined'?allEqs:[]).find(e=>e.id===r.equipo_id);
+      if(curProf.rol==='supervisor_zona'&&eq&&curProf.zona&&curProf.zona!==eq.area) return;
+      const txt=`⚠️ Bitácora ${eq?eq.nombre:''}: ${(r.alertas||[]).join(' · ')}`;
+      if(typeof addNotif==='function') addNotif(txt,'urgente');
+      if(typeof sendNativePush==='function') sendNativePush('⚠️ Alerta en bitácora',`${eq?eq.nombre:''} · ${(r.alertas||[])[0]||''}`,{tag:'bitacora-'+r.id,urgent:true});
+    })
+    .subscribe();
 }
 
 </script>
