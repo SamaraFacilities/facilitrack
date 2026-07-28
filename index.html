@@ -688,6 +688,11 @@ tr:hover td { background: var(--bg3) !important; }
 .bt-mini{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--line);border-radius:3px;margin-bottom:6px;cursor:pointer;background:var(--bg2)}
 .bt-mini:hover{border-color:var(--line2)}
 #bt-back{background:none;border:0;color:var(--txt2);cursor:pointer;padding:0 6px 0 0;font-size:18px;line-height:1}
+.bt-slot.off{border-left-color:var(--line);background:var(--bg2);opacity:.75}
+.bt-firma-wrap{border:1px solid var(--line2);border-radius:3px;background:#fff;overflow:hidden}
+#bt-firma{display:block;width:100%;height:150px;touch-action:none;cursor:crosshair;background:repeating-linear-gradient(180deg,#fff 0,#fff 148px,var(--line) 149px,var(--line) 150px)}
+.bt-firma-pie{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;border-top:1px solid var(--line);font-size:11px;color:var(--txt2);background:var(--bg2)}
+.bt-firma-img{max-width:100%;border:1px solid var(--line);border-radius:3px}
 </style>
 </head>
 <body>
@@ -10923,7 +10928,7 @@ const BT_ROLES_CONFIG = ['admin','supervisor','supervisor_zona','ingeniero','ger
 const BT_PLANTILLAS = {
   blower: {
     nombre:'Operación diaria', descripcion:'Blower de canal lateral / bomba de vacío',
-    horarios:['09:00','11:30','15:30'],
+    frecuencia:'diaria', dias:[], horarios:['09:00','11:30','15:30'],
     campos:[
       {clave:'temp',  etiqueta:'Temperatura',        tipo:'numero',unidad:'°F',limite_max:200,requerido:true},
       {clave:'vacio', etiqueta:'Nivel de vacío',     tipo:'numero',unidad:'inHg'},
@@ -10936,7 +10941,7 @@ const BT_PLANTILLAS = {
   },
   motor: {
     nombre:'Motor eléctrico', descripcion:'Corriente por fase y temperatura de carcasa',
-    horarios:['09:00','15:30'],
+    frecuencia:'diaria', dias:[], horarios:['09:00','15:30'],
     campos:[
       {clave:'l1',  etiqueta:'Amperaje L1',        tipo:'numero',unidad:'A',requerido:true},
       {clave:'l2',  etiqueta:'Amperaje L2',        tipo:'numero',unidad:'A',requerido:true},
@@ -10947,7 +10952,7 @@ const BT_PLANTILLAS = {
   },
   compresor: {
     nombre:'Compresor', descripcion:'Presión, temperatura y horómetro',
-    horarios:['07:00','15:00','23:00'],
+    frecuencia:'diaria', dias:[], horarios:['07:00','15:00','23:00'],
     campos:[
       {clave:'presion',etiqueta:'Presión de descarga',tipo:'numero',unidad:'psi',requerido:true},
       {clave:'temp',   etiqueta:'Temperatura',        tipo:'numero',unidad:'°F', requerido:true},
@@ -10957,7 +10962,7 @@ const BT_PLANTILLAS = {
   },
   hidraulico: {
     nombre:'Unidad hidráulica', descripcion:'Presión, nivel y temperatura de aceite',
-    horarios:['09:00','15:30'],
+    frecuencia:'diaria', dias:[], horarios:['09:00','15:30'],
     campos:[
       {clave:'presion',etiqueta:'Presión',            tipo:'numero',unidad:'psi',requerido:true},
       {clave:'temp',   etiqueta:'Temperatura aceite', tipo:'numero',unidad:'°F', limite_max:180,requerido:true},
@@ -10965,7 +10970,20 @@ const BT_PLANTILLAS = {
       {clave:'fugas',  etiqueta:'Fugas visibles',     tipo:'lista',opciones:['No','Sí'],opciones_alerta:['Sí'],requerido:true}
     ]
   },
-  vacia: { nombre:'Bitácora nueva', descripcion:'Sin campos: se definen después', horarios:['09:00'], campos:[] }
+  lubricacion: {
+    nombre:'Lubricación', descripcion:'Programa de lubricación por puntos',
+    frecuencia:'semanal', dias:[1], horarios:['Lubricación'],
+    campos:[
+      {clave:'puntos',      etiqueta:'Puntos lubricados',       tipo:'numero',requerido:true},
+      {clave:'lubricante',  etiqueta:'Lubricante aplicado',     tipo:'texto', requerido:true},
+      {clave:'cantidad',    etiqueta:'Cantidad aplicada',       tipo:'numero',unidad:'g / ml'},
+      {clave:'metodo',      etiqueta:'Método',                  tipo:'lista',opciones:['Grasera manual','Bomba neumática','Baño de aceite','Sistema automático']},
+      {clave:'estado_punto',etiqueta:'Estado de los puntos',    tipo:'lista',opciones:['Normal','Reseco','Exceso de grasa','Contaminado','Fuga'],opciones_alerta:['Reseco','Exceso de grasa','Contaminado','Fuga'],requerido:true},
+      {clave:'nivel',       etiqueta:'Nivel de aceite',         tipo:'lista',opciones:['Normal','Bajo','Alto','No aplica'],opciones_alerta:['Bajo','Alto']},
+      {clave:'temp_rod',    etiqueta:'Temperatura de chumacera',tipo:'numero',unidad:'°F',limite_max:180}
+    ]
+  },
+  vacia: { nombre:'Bitácora nueva', descripcion:'Sin campos: se definen después', frecuencia:'diaria', dias:[], horarios:['09:00'], campos:[] }
 };
 
 let btCtx = {};     // { bitacora, campos, fecha, hora, registro, ultimo }
@@ -11002,6 +11020,27 @@ function btDesbalance(valores){
   const prom=(a[0]+a[1]+a[2])/3;
   const dev=Math.max(...a.map(n=>Math.abs(n-prom)));
   return (dev/prom)*100;
+}
+
+/* Programación: diaria, semanal (días 1-7, lunes=1) o mensual (día del mes) */
+function btAplicaDia(bit,fecha){
+  const f=bit.frecuencia||'diaria';
+  if(f==='diaria') return true;
+  const dias=bit.dias||[];
+  if(!dias.length) return true;
+  const p=fecha.split('-'), d=new Date(p[0],p[1]-1,p[2]);
+  if(f==='semanal') return dias.includes(d.getDay()===0?7:d.getDay());
+  if(f==='mensual') return dias.includes(d.getDate());
+  return true;
+}
+const BT_DIAS=['','lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+function btProgramaTxt(bit){
+  const f=bit.frecuencia||'diaria';
+  if(f==='diaria') return 'Todos los días';
+  const dias=bit.dias||[];
+  if(!dias.length) return f==='semanal'?'Semanal':'Mensual';
+  return f==='semanal' ? 'Cada '+dias.map(d=>BT_DIAS[d]).join(', ')
+                       : 'Día '+dias.join(', ')+' de cada mes';
 }
 
 /* ------------------------------------------------------------ navegación -- */
@@ -11044,15 +11083,17 @@ async function btVistaEquipo(equipoId){
   data.forEach(b=>{
     const propias=regs.filter(x=>x.bitacora_id===b.id);
     const alertas=propias.filter(x=>x.estado==='alerta').length;
+    const aplica=btAplicaDia(b,hoy);
     const faltan=b.horarios.length-propias.length;
     const chip = alertas ? `<span class="badge badge-red">${alertas} alerta${alertas>1?'s':''}</span>`
+               : !aplica ? `<span class="badge">${btEsc(btProgramaTxt(b))}</span>`
                : faltan>0 ? `<span class="badge badge-amber">${faltan} pendiente${faltan>1?'s':''} hoy</span>`
                : '<span class="badge badge-green">Día completo</span>';
     html+=`<div class="bt-card" onclick="btAbrirBitacora('${b.id}')">
       <div style="flex:1;min-width:0;">
         <div class="bt-card-t">${btEsc(b.nombre)}</div>
         <div class="bt-card-s">${btEsc(b.descripcion||'')}</div>
-        <div class="bt-card-h">${b.horarios.join(' · ')}</div>
+        <div class="bt-card-h">${b.horarios.join(' · ')} · ${btEsc(btProgramaTxt(b))}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">${chip}<i class="ti ti-chevron-right" style="color:var(--txt3);"></i></div>
     </div>`;
@@ -11081,7 +11122,12 @@ async function btVistaDia(bitacoraId,fecha){
   document.getElementById('bt-title').textContent=b.data.nombre;
 
   const porHora={}; (r.data||[]).forEach(x=>porHora[x.hora]=x);
-  let html=`<div class="bt-daynav">
+  const aplica=btAplicaDia(b.data,fecha);
+  let html='';
+  if(!aplica){
+    html+=`<div class="bt-note"><i class="ti ti-calendar-off"></i> No programada para este día — ${btEsc(btProgramaTxt(b.data))}. Puedes capturar de todos modos si hiciste el trabajo hoy.</div>`;
+  }
+  html+=`<div class="bt-daynav">
     <button class="btn-sm" onclick="btMoverDia(-1)"><i class="ti ti-chevron-left"></i> Anterior</button>
     <strong style="font-size:12px;">${btFechaLarga(fecha)}</strong>
     <button class="btn-sm" onclick="btMoverDia(1)">Siguiente <i class="ti ti-chevron-right"></i></button>
@@ -11089,8 +11135,8 @@ async function btVistaDia(bitacoraId,fecha){
 
   b.data.horarios.forEach(h=>{
     const x=porHora[h];
-    const cls=!x?'pend':(x.estado==='alerta'?'alerta':'ok');
-    const est=!x?'Pendiente':(x.estado==='alerta'?'Alerta':'Capturado');
+    const cls=!x?(aplica?'pend':'off'):(x.estado==='alerta'?'alerta':'ok');
+    const est=!x?(aplica?'Pendiente':'No programada'):(x.estado==='alerta'?'Alerta':'Capturado');
     let resumen='';
     if(x){
       resumen = x.estado==='alerta' ? x.alertas.join(' · ')
@@ -11110,6 +11156,9 @@ async function btVistaDia(bitacoraId,fecha){
     html+='<div class="empty-state" style="color:var(--amber-txt);"><i class="ti ti-alert-triangle"></i><br>Esta bitácora todavía no tiene campos definidos</div>';
   }
   html+=`<button class="btn-sm" style="width:100%;margin-top:12px;justify-content:center;" onclick="btHistorial()"><i class="ti ti-history"></i> Ver historial</button>`;
+  if(btPuedeConfig()){
+    html+=`<button class="btn-sm" style="width:100%;margin-top:8px;justify-content:center;" onclick="btCampos()"><i class="ti ti-adjustments"></i> Configurar campos y programación</button>`;
+  }
   return html;
 }
 
@@ -11175,6 +11224,16 @@ async function btVistaCaptura(hora){
     html+='</div>';
   });
   html+=`<div class="form-group"><label>Observaciones</label><textarea id="bt-obs" rows="3">${btEsc(obs)}</textarea></div>`;
+  html+=`<div class="form-group"><label>Firma del técnico</label>
+    <div class="bt-firma-wrap">
+      <canvas id="bt-firma" height="150"></canvas>
+      <div class="bt-firma-pie">
+        <span><b>${btEsc(curProf?curProf.nombre:'')}</b> · ${btFechaLarga(btCtx.fecha)} ${hora}</span>
+        <button class="btn-sm" onclick="btLimpiarFirma()"><i class="ti ti-eraser"></i> Limpiar</button>
+      </div>
+    </div>
+    <div class="bt-hint">Firma con el dedo o el stylus. Queda guardada junto con tu usuario y la hora.</div>
+  </div>`;
   html+='<div id="bt-alertas"></div>';
   html+=`<button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="btGuardar()"><i class="ti ti-device-floppy"></i> ${existente?'Guardar cambios':'Guardar lectura'}</button></div>`;
 
@@ -11201,6 +11260,45 @@ function btEngancharForm(){
   const form=document.getElementById('bt-form'); if(!form) return;
   form.addEventListener('input',()=>btRevisar(btPersistirBorrador().valores));
   btRevisar(btLeerForm().valores);
+  try{ btInitFirma(btCtx.registro?btCtx.registro.firma:null); }catch(e){ console.warn('firma:',e); }
+}
+
+/* Firma manuscrita: canvas simple, se guarda como PNG en el registro */
+function btInitFirma(dataURL){
+  const c=document.getElementById('bt-firma'); if(!c) return;
+  const w=Math.max(c.clientWidth||0,280);
+  c.width=w; c.height=150;
+  const cx=c.getContext&&c.getContext('2d');
+  if(!cx) return;                       // navegador sin canvas: el resto del formulario sigue vivo
+  cx.lineWidth=1.8; cx.lineCap='round'; cx.lineJoin='round'; cx.strokeStyle='#0a0a0a';
+  btCtx.firmada=false;
+  if(dataURL){
+    const img=new Image();
+    img.onload=()=>{ cx.drawImage(img,0,0,w,150); btCtx.firmada=true; };
+    img.src=dataURL;
+  }
+  let dib=false,last=null;
+  const pos=e=>{const r=c.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};
+  const ini=e=>{dib=true;last=pos(e);e.preventDefault();};
+  const mov=e=>{if(!dib)return;const p=pos(e);cx.beginPath();cx.moveTo(last.x,last.y);cx.lineTo(p.x,p.y);cx.stroke();last=p;btCtx.firmada=true;e.preventDefault();};
+  const fin=()=>{dib=false;};
+  c.addEventListener('mousedown',ini); c.addEventListener('mousemove',mov);
+  c.addEventListener('mouseup',fin);   c.addEventListener('mouseleave',fin);
+  c.addEventListener('touchstart',ini,{passive:false});
+  c.addEventListener('touchmove',mov,{passive:false});
+  c.addEventListener('touchend',fin);
+}
+
+function btLimpiarFirma(){
+  const c=document.getElementById('bt-firma'); if(!c) return;
+  c.getContext('2d').clearRect(0,0,c.width,c.height);
+  btCtx.firmada=false;
+}
+
+function btFirmaDataURL(){
+  const c=document.getElementById('bt-firma');
+  if(!c||!btCtx.firmada) return null;
+  try{ return c.toDataURL('image/png'); }catch(e){ return null; }
 }
 
 function btLimiteDesbalance(){
@@ -11256,8 +11354,10 @@ async function btGuardar(){
     estado:alertas.length?'alerta':'ok',
     alertas:alertas,
     tecnico_id:curUser?curUser.id:null,
-    tecnico_nombre:curProf?curProf.nombre:null
+    tecnico_nombre:curProf?curProf.nombre:null,
+    firma:btFirmaDataURL()
   };
+  if(fila.firma===null) delete fila.firma;   // no borra una firma ya guardada
 
   const {error}=await db.from('bitacora_registros').upsert(fila,{onConflict:'bitacora_id,fecha,hora'});
   if(error){
@@ -11326,13 +11426,30 @@ function btNueva(equipoId){
         <input type="text" id="bt-nueva-nombre" placeholder="Operación diaria"></div>
       <div class="form-group" style="margin-bottom:12px;"><label>Descripción</label>
         <input type="text" id="bt-nueva-desc" placeholder="Marca y modelo del equipo"></div>
-      <div class="form-group" style="margin-bottom:12px;"><label>Horarios de captura</label>
+      <div class="form-group" style="margin-bottom:12px;"><label>Horarios / etiquetas de captura</label>
         <input type="text" id="bt-nueva-horarios" placeholder="09:00, 11:30, 15:30">
-        <div class="bt-hint">Separados por coma. Cada uno genera un renglón por día.</div></div>
+        <div class="bt-hint">Separados por coma. Cada uno genera un renglón. Para rutinas sin hora fija sirve una etiqueta, ej. <code>Lubricación</code>.</div></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Programación</label>
+        <select id="bt-nueva-frec" onchange="btNuevaFrec()">
+          <option value="diaria">Diaria</option>
+          <option value="semanal">Semanal</option>
+          <option value="mensual">Mensual</option>
+        </select></div>
+      <div class="form-group" style="margin-bottom:12px;display:none;" id="bt-nueva-dias-wrap">
+        <label id="bt-nueva-dias-lbl">Días</label>
+        <input type="text" id="bt-nueva-dias" placeholder="1, 4">
+        <div class="bt-hint" id="bt-nueva-dias-hint">1 = lunes … 7 = domingo</div></div>
       <div id="bt-nueva-campos" class="bt-note"></div>
       <button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="btCrear()"><i class="ti ti-plus"></i> Crear bitácora</button>`;
   },'Agregar bitácora','');
   setTimeout(btAplicarPlantilla,60);
+}
+
+function btNuevaFrec(){
+  const f=document.getElementById('bt-nueva-frec'); if(!f) return;
+  document.getElementById('bt-nueva-dias-wrap').style.display=f.value==='diaria'?'none':'';
+  document.getElementById('bt-nueva-dias-lbl').textContent=f.value==='semanal'?'Días de la semana':'Días del mes';
+  document.getElementById('bt-nueva-dias-hint').textContent=f.value==='semanal'?'1 = lunes … 7 = domingo':'Día del mes (1-31)';
 }
 
 function btAplicarPlantilla(){
@@ -11341,6 +11458,9 @@ function btAplicarPlantilla(){
   document.getElementById('bt-nueva-nombre').value=p.nombre;
   document.getElementById('bt-nueva-desc').value=p.descripcion;
   document.getElementById('bt-nueva-horarios').value=p.horarios.join(', ');
+  document.getElementById('bt-nueva-frec').value=p.frecuencia||'diaria';
+  document.getElementById('bt-nueva-dias').value=(p.dias||[]).join(', ');
+  btNuevaFrec();
   document.getElementById('bt-nueva-campos').innerHTML= p.campos.length
     ? '<b>Campos:</b> '+p.campos.map(c=>btEsc(c.etiqueta)+(c.unidad?` (${c.unidad})`:'')+(c.limite_max!==undefined?` · máx ${c.limite_max}`:'')).join(' · ')
     : 'Sin campos: los defines después.';
@@ -11352,11 +11472,15 @@ async function btCrear(){
   const nombre=document.getElementById('bt-nueva-nombre').value.trim();
   const desc=document.getElementById('bt-nueva-desc').value.trim();
   const horarios=document.getElementById('bt-nueva-horarios').value.split(',').map(h=>h.trim()).filter(Boolean);
+  const frec=document.getElementById('bt-nueva-frec').value;
+  const dias=frec==='diaria'?[]:document.getElementById('bt-nueva-dias').value.split(',').map(x=>parseInt(x.trim(),10)).filter(n=>!isNaN(n));
   if(!nombre){ toast('Ponle nombre a la bitácora'); return; }
   if(!horarios.length){ toast('Define al menos un horario de captura'); return; }
+  if(frec!=='diaria'&&!dias.length){ toast('Indica en qué días aplica'); return; }
 
   const {data,error}=await db.from('bitacoras').insert({
     equipo_id:equipoId, nombre, descripcion:desc, horarios,
+    frecuencia:frec, dias,
     creado_por: curUser?curUser.id:null
   }).select().single();
   if(error){ toast('No se creó: '+error.message); return; }
@@ -11379,29 +11503,169 @@ async function btCrear(){
   btResumenEquipo(equipoId);
 }
 
+/* ------------------------------- configurar campos y programación -------- */
+function btCampos(){
+  btIr(async ()=>{
+    const {data,error}=await db.from('bitacora_campos').select('*').eq('bitacora_id',btCtx.bitacora.id).order('orden');
+    if(error) throw error;
+    btCtx.campos=data||[];
+    const b=btCtx.bitacora;
+    let h=`<div class="bt-note"><i class="ti ti-info-circle"></i> Los campos aplican a las capturas nuevas. Las lecturas ya guardadas conservan lo que traían.</div>`;
+
+    h+=`<div class="form-group" style="margin-bottom:10px;"><label>Programación</label>
+      <select id="bt-cfg-frec" onchange="btCfgFrec()">
+        <option value="diaria"${(b.frecuencia||'diaria')==='diaria'?' selected':''}>Diaria</option>
+        <option value="semanal"${b.frecuencia==='semanal'?' selected':''}>Semanal</option>
+        <option value="mensual"${b.frecuencia==='mensual'?' selected':''}>Mensual</option>
+      </select></div>
+      <div class="form-group" id="bt-cfg-dias-wrap" style="margin-bottom:10px;"><label id="bt-cfg-dias-lbl">Días</label>
+        <input type="text" id="bt-cfg-dias" value="${(b.dias||[]).join(', ')}"></div>
+      <div class="form-group" style="margin-bottom:10px;"><label>Horarios / etiquetas de captura</label>
+        <input type="text" id="bt-cfg-horarios" value="${btEsc((b.horarios||[]).join(', '))}"></div>
+      <div class="form-group" style="margin-bottom:10px;"><label>Desbalance máximo de corriente (%)</label>
+        <input type="number" step="0.5" id="bt-cfg-desb" value="${b.desbalance_max===undefined||b.desbalance_max===null?5:b.desbalance_max}"></div>
+      <button class="btn-sm" style="width:100%;justify-content:center;margin-bottom:16px;" onclick="btGuardarConfig()"><i class="ti ti-device-floppy"></i> Guardar programación</button>`;
+
+    h+='<div style="overflow:auto;"><table><thead><tr><th>Campo</th><th>Unidad</th><th>Mín</th><th>Máx</th><th></th></tr></thead><tbody>';
+    btCtx.campos.forEach(c=>{
+      h+=`<tr>
+        <td style="text-align:left;font-size:12px;">${btEsc(c.etiqueta)}<div style="color:var(--txt3);font-size:10px;font-family:monospace;">${btEsc(c.clave)} · ${btEsc(c.tipo)}</div></td>
+        <td style="font-size:12px;">${btEsc(c.unidad||'–')}</td>
+        <td><input type="number" step="0.1" data-lim="min" data-id="${c.id}" value="${c.limite_min===null||c.limite_min===undefined?'':c.limite_min}" style="width:72px;padding:5px;font-size:12px;"></td>
+        <td><input type="number" step="0.1" data-lim="max" data-id="${c.id}" value="${c.limite_max===null||c.limite_max===undefined?'':c.limite_max}" style="width:72px;padding:5px;font-size:12px;"></td>
+        <td><button class="btn-sm btn-danger" onclick="btBorrarCampo('${c.id}')"><i class="ti ti-trash"></i></button></td>
+      </tr>`;
+    });
+    h+='</tbody></table></div>';
+    if(!btCtx.campos.length) h+='<div class="empty-state"><i class="ti ti-list"></i><br>Sin campos definidos</div>';
+    else h+=`<button class="btn-sm" style="width:100%;justify-content:center;margin-top:10px;" onclick="btGuardarLimites()"><i class="ti ti-device-floppy"></i> Guardar límites</button>`;
+
+    h+=`<div style="margin-top:20px;border-top:1px solid var(--line);padding-top:16px;">
+      <div class="card-title" style="margin-bottom:10px;"><i class="ti ti-plus"></i> Agregar campo</div>
+      <div class="form-group" style="margin-bottom:10px;"><label>Etiqueta</label><input type="text" id="bt-nc-etq" placeholder="Nivel de vacío"></div>
+      <div class="form-group" style="margin-bottom:10px;"><label>Tipo</label>
+        <select id="bt-nc-tipo" onchange="btNCTipo()">
+          <option value="numero">Numérico</option><option value="lista">Lista de opciones</option>
+          <option value="texto">Texto</option><option value="booleano">Sí / No</option>
+        </select></div>
+      <div class="form-group" style="margin-bottom:10px;" id="bt-nc-unidad-wrap"><label>Unidad</label><input type="text" id="bt-nc-unidad" placeholder="inHg"></div>
+      <div class="form-group" style="margin-bottom:10px;display:none;" id="bt-nc-ops-wrap"><label>Opciones (separadas por coma)</label>
+        <input type="text" id="bt-nc-ops" placeholder="Normal, Bajo, Alto">
+        <div class="bt-hint">Escribe con <b>!</b> adelante las que deban marcar alerta: <code>Normal, !Bajo, !Alto</code></div></div>
+      <div class="form-group" style="margin-bottom:10px;" id="bt-nc-lim-wrap"><label>Límite máximo (opcional)</label><input type="number" step="0.1" id="bt-nc-max"></div>
+      <button class="btn btn-primary" style="width:100%;" onclick="btAgregarCampo()"><i class="ti ti-plus"></i> Agregar campo</button>
+    </div>`;
+    setTimeout(()=>{btCfgFrec();btNCTipo();},0);
+    return h;
+  }, btCtx.bitacora.nombre, 'Configuración');
+}
+
+function btCfgFrec(){
+  const f=document.getElementById('bt-cfg-frec'); if(!f) return;
+  const wrap=document.getElementById('bt-cfg-dias-wrap');
+  const lbl=document.getElementById('bt-cfg-dias-lbl');
+  wrap.style.display=f.value==='diaria'?'none':'';
+  lbl.textContent=f.value==='semanal'?'Días de la semana (1 = lunes … 7 = domingo)':'Días del mes (1-31)';
+}
+
+function btNCTipo(){
+  const t=document.getElementById('bt-nc-tipo'); if(!t) return;
+  document.getElementById('bt-nc-ops-wrap').style.display=t.value==='lista'?'':'none';
+  document.getElementById('bt-nc-unidad-wrap').style.display=t.value==='numero'?'':'none';
+  document.getElementById('bt-nc-lim-wrap').style.display=t.value==='numero'?'':'none';
+}
+
+async function btGuardarConfig(){
+  const frec=document.getElementById('bt-cfg-frec').value;
+  const dias=document.getElementById('bt-cfg-dias').value.split(',').map(x=>parseInt(x.trim(),10)).filter(n=>!isNaN(n));
+  const horarios=document.getElementById('bt-cfg-horarios').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const desb=parseFloat(document.getElementById('bt-cfg-desb').value);
+  if(!horarios.length){ toast('Deja al menos un horario de captura'); return; }
+  const {error}=await db.from('bitacoras').update({
+    frecuencia:frec, dias:frec==='diaria'?[]:dias, horarios,
+    desbalance_max:isNaN(desb)?5:desb
+  }).eq('id',btCtx.bitacora.id);
+  if(error){ toast('No se guardó: '+error.message); return; }
+  Object.assign(btCtx.bitacora,{frecuencia:frec,dias:frec==='diaria'?[]:dias,horarios,desbalance_max:isNaN(desb)?5:desb});
+  toast('✅ Programación actualizada');
+}
+
+async function btGuardarLimites(){
+  const cambios={};
+  document.querySelectorAll('[data-lim]').forEach(el=>{
+    const id=el.dataset.id;
+    cambios[id]=cambios[id]||{};
+    cambios[id][el.dataset.lim==='min'?'limite_min':'limite_max']= el.value===''?null:Number(el.value);
+  });
+  for(const id of Object.keys(cambios)){
+    const {error}=await db.from('bitacora_campos').update(cambios[id]).eq('id',id);
+    if(error){ toast('No se guardó: '+error.message); return; }
+  }
+  toast('✅ Límites actualizados');
+}
+
+async function btAgregarCampo(){
+  const etq=document.getElementById('bt-nc-etq').value.trim();
+  if(!etq){ toast('Ponle etiqueta al campo'); return; }
+  const tipo=document.getElementById('bt-nc-tipo').value;
+  const clave=etq.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,24)||('c'+Date.now());
+  const fila={
+    bitacora_id:btCtx.bitacora.id,
+    orden:(btCtx.campos.length?Math.max(...btCtx.campos.map(c=>c.orden||0)):0)+1,
+    clave, etiqueta:etq, tipo,
+    unidad: tipo==='numero'?(document.getElementById('bt-nc-unidad').value.trim()||null):null,
+    limite_max: null, opciones:null, opciones_alerta:null, requerido:false
+  };
+  if(tipo==='numero'){
+    const mx=document.getElementById('bt-nc-max').value;
+    fila.limite_max = mx===''?null:Number(mx);
+  }
+  if(tipo==='lista'){
+    const crudas=document.getElementById('bt-nc-ops').value.split(',').map(x=>x.trim()).filter(Boolean);
+    if(!crudas.length){ toast('Escribe las opciones de la lista'); return; }
+    fila.opciones=crudas.map(o=>o.replace(/^!/,''));
+    fila.opciones_alerta=crudas.filter(o=>o.startsWith('!')).map(o=>o.slice(1));
+  }
+  const {error}=await db.from('bitacora_campos').insert(fila);
+  if(error){ toast('No se agregó: '+error.message); return; }
+  toast('✅ Campo agregado');
+  btPila.pop(); btCampos();
+}
+
+async function btBorrarCampo(id){
+  if(!confirm('¿Quitar este campo de la bitácora? Las lecturas ya guardadas no se borran.')) return;
+  const {error}=await db.from('bitacora_campos').delete().eq('id',id);
+  if(error){ toast('No se borró: '+error.message); return; }
+  toast('Campo eliminado');
+  btPila.pop(); btCampos();
+}
+
 /* ------------------------------- resumen en la ficha del equipo ---------- */
 async function btResumenEquipo(equipoId){
   const wraps=[document.getElementById('bt-eq-resumen'),document.getElementById('bt-sz-resumen')].filter(Boolean);
   if(!wraps.length) return;
   const id=Number(equipoId);
   if(!id){ wraps.forEach(w=>w.innerHTML=''); return; }
-  const {data}=await db.from('bitacoras').select('id,nombre,horarios').eq('equipo_id',id).eq('activa',true);
+  const {data}=await db.from('bitacoras').select('id,nombre,horarios,frecuencia,dias').eq('equipo_id',id).eq('activa',true);
   if(!data||!data.length){
     wraps.forEach(w=>w.innerHTML='<div style="font-size:12px;color:var(--txt3);">Sin bitácoras configuradas para este equipo.</div>');
     return;
   }
   const r=await db.from('bitacora_registros').select('bitacora_id,estado').in('bitacora_id',data.map(b=>b.id)).eq('fecha',btHoy());
   const regs=r.data||[];
+  const hoy=btHoy();
   const html=data.map(b=>{
     const p=regs.filter(x=>x.bitacora_id===b.id);
     const alertas=p.filter(x=>x.estado==='alerta').length;
+    const aplica=btAplicaDia(b,hoy);
     const faltan=b.horarios.length-p.length;
     const chip = alertas ? `<span class="badge badge-red">${alertas} alerta${alertas>1?'s':''}</span>`
+               : !aplica ? `<span class="badge">${btEsc(btProgramaTxt(b))}</span>`
                : faltan>0 ? `<span class="badge badge-amber">${faltan} pendiente${faltan>1?'s':''}</span>`
                : '<span class="badge badge-green">Completa</span>';
     return `<div class="bt-mini" onclick="abrirBitacorasEquipo(${id})">
       <span style="font-size:12px;font-weight:500;">${btEsc(b.nombre)}</span>
-      <span style="display:flex;align-items:center;gap:6px;">${chip}<span style="font-size:11px;color:var(--txt3);">${p.length}/${b.horarios.length} hoy</span></span>
+      <span style="display:flex;align-items:center;gap:6px;">${chip}<span style="font-size:11px;color:var(--txt3);">${aplica?p.length+'/'+b.horarios.length+' hoy':''}</span></span>
     </div>`;
   }).join('');
   wraps.forEach(w=>w.innerHTML=html);
