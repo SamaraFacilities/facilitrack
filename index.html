@@ -2265,6 +2265,25 @@ async function requestPushPermission(){
   return result === 'granted';
 }
 
+// Guardar suscripción push en Supabase (para push desde servidor)
+async function _guardarPushSubscription(sub){
+  if(!sub || !curUser?.id) return;
+  try {
+    const subJson = sub.toJSON();
+    await db.from('push_subscriptions').upsert({
+      user_id:      curUser.id,
+      rol:          curProf?.rol || '',
+      zona:         curProf?.zona || null,
+      endpoint:     subJson.endpoint,
+      subscription: subJson,
+      updated_at:   new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+    console.log('✅ Push subscription guardada en servidor');
+  } catch(e){
+    console.warn('_guardarPushSubscription error:', e.message);
+  }
+}
+
 async function subscribeToPush(){
   if(!('serviceWorker' in navigator)) return;
   if(Notification.permission !== 'granted'){
@@ -11067,24 +11086,10 @@ NOTIFY pgrst, 'reload schema';`;
 
 
 
-// Guardar suscripción push en Supabase (para push desde servidor)
-async function _guardarPushSubscription(sub){
-  if(!sub || !curUser?.id) return;
-  try {
-    const subJson = sub.toJSON();
-    await db.from('push_subscriptions').upsert({
-      user_id:      curUser.id,
-      rol:          curProf?.rol || '',
-      zona:         curProf?.zona || null,
-      endpoint:     subJson.endpoint,
-      subscription: subJson,
-      updated_at:   new Date().toISOString(),
-    }, { onConflict: 'user_id' });
-    console.log('✅ Push subscription guardada en servidor');
-  } catch(e){
-    console.warn('_guardarPushSubscription error:', e.message);
-  }
-}
+// (guardarPushSubscription se movió arriba, junto a subscribeToPush,
+// para que esté definida en el mismo bloque <script> que la llama —
+// antes vivía aquí, en un bloque que se parsea después de que bootApp()
+// ya la había invocado, y eso disparaba "is not defined" en consola.)
 
 
 
@@ -11401,6 +11406,61 @@ const BT_PLANTILLAS = {
       {clave:'estado_punto',etiqueta:'Estado de los puntos',    tipo:'lista',opciones:['Normal','Reseco','Exceso de grasa','Contaminado','Fuga'],opciones_alerta:['Reseco','Exceso de grasa','Contaminado','Fuga'],requerido:true},
       {clave:'nivel',       etiqueta:'Nivel de aceite',         tipo:'lista',opciones:['Normal','Bajo','Alto','No aplica'],opciones_alerta:['Bajo','Alto']},
       {clave:'temp_rod',    etiqueta:'Temperatura de chumacera',tipo:'numero',unidad:'°F',limite_max:180}
+    ]
+  },
+  shopsabre_is510: {
+    nombre:'Mantenimiento predictivo — ShopSabre IS510', descripcion:'CNC router, control WinCNC — husillo HSD, vacío, neumático, grasa, mecánico, eléctrico, WinCNC/PC, ATC, limpieza',
+    frecuencia:'diaria', dias:[], horarios:['Inicio de turno','Mitad de turno','Final de turno'],
+    campos:[
+      // Husillo (HSD, 10 HP, enfriado por aire — sin refrigerante que checar)
+      {clave:'husillo_temp',   etiqueta:'Husillo — Temperatura',        tipo:'numero',unidad:'°F',limite_max:175,requerido:true},
+      {clave:'husillo_ruido',  etiqueta:'Husillo — Ruido',              tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'husillo_vibr',   etiqueta:'Husillo — Vibración',          tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Sistema de vacío (bomba de paletas seca tipo Becker VTLF — sin aceite)
+      {clave:'vacio_nivel',    etiqueta:'Vacío — Nivel',                tipo:'numero',unidad:'inHg',limite_min:15,requerido:true},
+      {clave:'vacio_amp',      etiqueta:'Vacío — Amperaje del motor',   tipo:'numero',unidad:'A'},
+      {clave:'vacio_temp',     etiqueta:'Vacío — Temperatura del motor',tipo:'numero',unidad:'°F'},
+      {clave:'vacio_ruido',    etiqueta:'Vacío — Ruido',                tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'vacio_vibr',     etiqueta:'Vacío — Vibración',            tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'vacio_filtro',   etiqueta:'Vacío — Estado del filtro de admisión', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Sistema neumático
+      {clave:'neu_presion',    etiqueta:'Neumático — Presión de aire',  tipo:'numero',unidad:'psi',limite_min:80,requerido:true},
+      {clave:'neu_frl',        etiqueta:'Neumático — Estado del FRL',   tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'neu_fugas',      etiqueta:'Neumático — Fugas de aire',    tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'neu_valvulas',   etiqueta:'Neumático — Válvulas y cilindros', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Lubricación por grasa (engrase MANUAL cada 40-60 h — esto es inspección visual, no reengrase diario)
+      {clave:'gr_pelicula',    etiqueta:'Grasa — Película en guías y husillos de bolas', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'gr_lineas',      etiqueta:'Grasa — Líneas / graseras (zerks)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'gr_fugas',       etiqueta:'Grasa — Fugas o exceso',       tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'gr_auto',        etiqueta:'Grasa — Sistema automático (si está instalado)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico','No aplica']},
+      // Sistema mecánico
+      {clave:'mec_guias',      etiqueta:'Mecánico — Guías lineales',    tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'mec_husillos',   etiqueta:'Mecánico — Husillos de bolas (juego)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'mec_acoples',    etiqueta:'Mecánico — Acoples de servomotores', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'mec_tornilleria',etiqueta:'Mecánico — Tornillería visible', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'mec_vibr',       etiqueta:'Mecánico — Vibraciones',       tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'mec_ruido',      etiqueta:'Mecánico — Ruidos anormales',  tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Sistema eléctrico
+      {clave:'elec_temp',      etiqueta:'Eléctrico — Temperatura del gabinete', tipo:'numero',unidad:'°F',limite_max:120,requerido:true},
+      {clave:'elec_vent',      etiqueta:'Eléctrico — Ventiladores del gabinete', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'elec_filtros',   etiqueta:'Eléctrico — Filtros del gabinete', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'elec_alarmas',   etiqueta:'Eléctrico — Alarmas activas en WinCNC', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'elec_mensaje',   etiqueta:'Eléctrico — Mensaje / código mostrado por WinCNC', tipo:'texto'},
+      // Control WinCNC / PC de control — no hay horómetro físico; el tiempo de
+      // operación se obtiene del log de WinCNC (WinCNC\log\wcnc.csv en esa PC)
+      {clave:'wcnc_home',      etiqueta:'WinCNC — Ciclo de referenciación (Home / G28)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'wcnc_disco',     etiqueta:'WinCNC — Espacio libre en disco de la PC', tipo:'numero',unidad:'%',limite_min:15},
+      {clave:'wcnc_pc',        etiqueta:'WinCNC — Estado general de la PC de control', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Cambiador automático de herramientas — quitar estos 2 campos si la
+      // unidad no trae ATC instalado
+      {clave:'atc_ciclo',      etiqueta:'ATC — Ciclo de cambio de herramienta', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico','No aplica'],opciones_alerta:['🟡 Atención','🔴 Crítico']},
+      {clave:'atc_neumatico',  etiqueta:'ATC — Sistema neumático',      tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico','No aplica'],opciones_alerta:['🟡 Atención','🔴 Crítico']},
+      // Limpieza
+      {clave:'limp_mesa',      etiqueta:'Limpieza — Mesa',              tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'limp_polvo',     etiqueta:'Limpieza — Acumulación de polvo', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'limp_extraccion',etiqueta:'Limpieza — Sistema de extracción', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'limp_gabinete',  etiqueta:'Limpieza — Gabinete eléctrico', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'limp_sensores',  etiqueta:'Limpieza — Sensores y switches de límite', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
     ]
   },
   vacia: { nombre:'Bitácora nueva', descripcion:'Sin campos: se definen después', frecuencia:'diaria', dias:[], horarios:['09:00'], campos:[] }
