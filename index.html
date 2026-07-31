@@ -1170,12 +1170,13 @@ tr:hover td { background: var(--bg3) !important; }
       </div>
     </div><!-- /tab-tecnicos -->
 
-    <!-- TAB: DOWNTIME -->
-    <div id="tab-downtime" class="panel-hidden card">
-      <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-activity"></i> Análisis de Downtime</div></div>
-      <p style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Equipos con fallas registradas (Correctivos). Clic en "Ver Detalle" para analizar.</p>
-      <div id="dt-list-equipos"></div>
-    </div><!-- /tab-downtime -->
+    <!-- TAB: ESTATUS DE MÁQUINAS -->
+    <div id="tab-estatus" class="panel-hidden card">
+      <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-heartbeat"></i> Estatus de máquinas</div></div>
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Basado en las lecturas de bitácora de cada equipo — temperatura, amperaje, vibración y demás campos capturados. "Ver bitácoras" abre el historial completo del equipo.</p>
+      <div class="kpi-grid" id="est-kpis" style="margin-bottom:16px;"></div>
+      <div id="est-list-equipos"></div>
+    </div><!-- /tab-estatus -->
 
     <!-- TAB: REPORTES -->
     <div id="tab-reportes" class="panel-hidden">
@@ -1756,14 +1757,6 @@ tr:hover td { background: var(--bg3) !important; }
       <div class="form-group" style="grid-column:1/-1;"><label>Criticidad</label><select id="eq-cri"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></div>
     </div>
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-equipo')">Cancelar</button><button class="btn-sm btn-primary" onclick="guardarEquipo()"><i class="ti ti-check"></i> Guardar</button></div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="modal-dt-detalle">
-  <div class="modal" style="max-width:600px;">
-    <div class="modal-title">Detalle de Fallas<button class="close-btn" onclick="closeM('modal-dt-detalle')"><i class="ti ti-x"></i></button></div>
-    <h3 id="dt-det-nom" style="font-size:15px;margin-bottom:16px;color:var(--txt);">-</h3>
-    <div id="dt-det-lista"></div>
   </div>
 </div>
 
@@ -2611,9 +2604,9 @@ async function bootApp(user){
   if(canDo('ver_tecnicos')){
     nav.innerHTML+=`<button class="nav-btn" id="nav-tecnicos" onclick="setTab('tecnicos')"><i class="ti ti-users"></i> Personal</button>`;
   }
-  // Downtime: solo admin
+  // Estatus de máquinas: solo admin
   if(curProf.rol==='admin'){
-    nav.innerHTML+=`<button class="nav-btn" id="nav-downtime" onclick="setTab('downtime')"><i class="ti ti-activity"></i> Downtime</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-estatus" onclick="setTab('estatus')"><i class="ti ti-heartbeat"></i> Estatus</button>`;
   }
   if(curProf.rol==='admin'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-reportes" onclick="setTab('reportes')"><i class="ti ti-report-analytics"></i> Reportes</button>`;
@@ -2717,7 +2710,7 @@ async function loadAll(){
     try{renderDash();}catch(e){console.error('renderDash:',e);}
     try{renderOrdenes();}catch(e){console.error('renderOrdenes:',e);}
     try{renderEquipos();}catch(e){console.error('renderEquipos:',e);}
-    try{renderDowntime();}catch(e){console.error('renderDowntime:',e);}
+    try{renderEstatusMaquinas();}catch(e){console.error('renderEstatusMaquinas:',e);}
     try{renderCalendar();}catch(e){console.error('renderCalendar:',e);}
     try{renderUsuarios();}catch(e){console.error('renderUsuarios:',e);}
     try{renderCLSel();}catch(e){console.error('renderCLSel:',e);}
@@ -2747,7 +2740,7 @@ async function forceLoadAll(){ return loadAll(); }
 // setupRT redefined below with notifications
 
 // ── NAVEGACIÓN ──
-const TABS=['escaner','dashboard','programar','proyectos','pendientes','ordenes','checklist','equipos','tecnicos','downtime','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
+const TABS=['escaner','dashboard','programar','proyectos','pendientes','ordenes','checklist','equipos','tecnicos','estatus','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -2766,7 +2759,7 @@ function setTab(t){
   if(t==='equipos')renderEquipos();
   if(t==='tecnicos')renderUsuarios();
   if(t==='checklist')renderCLSel();
-  if(t==='downtime')renderDowntime();
+  if(t==='estatus')renderEstatusMaquinas();
   if(t==='reportes')renderReportes();
   if(t==='cal-tecnico')renderCalTecnico();
   if(t==='inventario')renderInventario();
@@ -3644,25 +3637,88 @@ async function delUsr(id){
   toast('✅ Usuario eliminado');await forceLoadAll();
 }
 
-// ── DOWNTIME ──
-function renderDowntime(){
-  if(!document.getElementById('dt-list-equipos')) return;
-  const fallas=allOTs.filter(o=>o.tipo==='Correctivo');
-  let eqStats={};
-  fallas.forEach(f=>{
-    if(!eqStats[f.equipo_id])eqStats[f.equipo_id]={nom:f.equipo_nombre,count:0,min:0,id:f.equipo_id};
-    eqStats[f.equipo_id].count++;
-    eqStats[f.equipo_id].min+=(f.tiempo_minutos||0);
+// ── ESTATUS DE MÁQUINAS (a partir de las bitácoras de cada equipo) ──
+const EST_DIAS_SIN_LECTURA_ATENCION = 2;  // días sin ninguna captura -> se marca en ámbar
+const EST_ORDEN   = {alerta:0, atencion:1, normal:2, sin_datos:3};
+const EST_INFO    = {
+  alerta:    {label:'Alerta',               cls:'badge-red'},
+  atencion:  {label:'Sin lectura reciente',  cls:'badge-amber'},
+  normal:    {label:'Normal',                cls:'badge-green'},
+  sin_datos: {label:'Sin lecturas',          cls:''}
+};
+
+async function calcularEstatusMaquinas(){
+  const [{data:bits,error:e1},{data:regs,error:e2}] = await Promise.all([
+    db.from('bitacoras').select('id,equipo_id,nombre').eq('activa',true),
+    db.from('bitacora_registros').select('bitacora_id,estado,alertas,fecha,hora')
+      .order('fecha',{ascending:false}).order('hora',{ascending:false})
+  ]);
+  if(e1) throw e1; if(e2) throw e2;
+  if(!bits||!bits.length) return [];
+
+  const porEquipo={};
+  bits.forEach(b=>{
+    if(!porEquipo[b.equipo_id]) porEquipo[b.equipo_id]={bitacoraIds:new Set(),nombres:[]};
+    porEquipo[b.equipo_id].bitacoraIds.add(b.id);
+    porEquipo[b.equipo_id].nombres.push(b.nombre);
   });
-  let list=Object.values(eqStats).sort((a,b)=>b.min-a.min);
-  document.getElementById('dt-list-equipos').innerHTML=list.length?`<table><thead><tr><th>Equipo</th><th>Fallas</th><th>Horas Paro</th><th>MTTR</th><th></th></tr></thead><tbody>${list.map(e=>`<tr><td><strong>${e.nom}</strong></td><td><span class="badge badge-red">${e.count}</span></td><td style="color:var(--red-txt);font-weight:600;">${(e.min/60).toFixed(1)}h</td><td>${Math.round(e.min/e.count)}m</td><td><button class="btn-sm" onclick="verDetalleDT(${e.id},'${e.nom}')">Ver Detalle</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty-state">No hay fallas (Correctivos) registrados.</div>';
+
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  const hace7=new Date(hoy); hace7.setDate(hace7.getDate()-7);
+
+  return Object.keys(porEquipo).map(eqId=>{
+    const ids=porEquipo[eqId].bitacoraIds;
+    const propios=(regs||[]).filter(r=>ids.has(r.bitacora_id));   // ya vienen desc por fecha/hora
+    const ultima=propios[0]||null;
+    const alertas7d=propios.filter(r=>r.estado==='alerta'&&fechaLocalOT(r.fecha)>=hace7).length;
+    const eq=(typeof allEqs!=='undefined'?allEqs:[]).find(e=>String(e.id)===String(eqId));
+
+    let diasSinLectura=null, estado='sin_datos';
+    if(ultima){
+      diasSinLectura=Math.round((hoy-fechaLocalOT(ultima.fecha))/86400000);
+      if(ultima.estado==='alerta') estado='alerta';
+      else if(diasSinLectura>EST_DIAS_SIN_LECTURA_ATENCION) estado='atencion';
+      else estado='normal';
+    }
+    return {
+      equipoId:Number(eqId), equipoNombre:eq?eq.nombre:('Equipo '+eqId),
+      bitacoras:porEquipo[eqId].nombres, ultima, diasSinLectura, alertas7d, estado
+    };
+  });
 }
 
-function verDetalleDT(eqId,nombre){
-  const fallas=allOTs.filter(o=>o.equipo_id==eqId&&o.tipo==='Correctivo');
-  document.getElementById('dt-det-nom').textContent="Historial de Correctivos: "+nombre;
-  document.getElementById('dt-det-lista').innerHTML=`<table><thead><tr><th>Fecha</th><th>Falla</th><th>Duración</th></tr></thead><tbody>${fallas.map(f=>`<tr><td style="font-size:12px;color:var(--txt2);">${fmt(f.fecha_creacion)}</td><td style="font-size:12px;">${f.descripcion||'Sin desc.'}</td><td style="font-size:12px;font-weight:600;color:var(--red-txt);">${f.tiempo_minutos?f.tiempo_minutos+'m':'-'}</td></tr>`).join('')}</tbody></table>`;
-  openM('modal-dt-detalle');
+async function renderEstatusMaquinas(){
+  const cont=document.getElementById('est-list-equipos'); if(!cont) return;
+  cont.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  let lista;
+  try{ lista=await calcularEstatusMaquinas(); }
+  catch(e){ cont.innerHTML='<div class="empty-state" style="color:var(--red-txt);">No se pudo cargar: '+e.message+'</div>'; return; }
+
+  lista.sort((a,b)=>(EST_ORDEN[a.estado]-EST_ORDEN[b.estado])||a.equipoNombre.localeCompare(b.equipoNombre));
+
+  const kpis=document.getElementById('est-kpis');
+  if(kpis){
+    const n=k=>lista.filter(x=>x.estado===k).length;
+    kpis.innerHTML=`
+      <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--red)"></span>Alerta</div><div class="kpi-value">${n('alerta')}</div><div class="kpi-sub">Última lectura fuera de rango</div></div>
+      <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--amber)"></span>Sin lectura reciente</div><div class="kpi-value">${n('atencion')}</div><div class="kpi-sub">Más de ${EST_DIAS_SIN_LECTURA_ATENCION} días sin capturar</div></div>
+      <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--green)"></span>Normal</div><div class="kpi-value">${n('normal')}</div><div class="kpi-sub">Al día</div></div>
+      <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--txt3)"></span>Con bitácora activa</div><div class="kpi-value">${lista.length}</div><div class="kpi-sub">de ${(typeof allEqs!=='undefined'?allEqs.length:'–')} equipos</div></div>`;
+  }
+
+  cont.innerHTML=lista.length?`<table><thead><tr><th>Equipo</th><th>Estado</th><th>Última lectura</th><th>Alertas (7 días)</th><th>Bitácoras</th><th></th></tr></thead><tbody>${lista.map(e=>{
+    const info=EST_INFO[e.estado];
+    const ultimaTxt=e.ultima?`${fechaLocalOT(e.ultima.fecha).toLocaleDateString('es-MX',{day:'numeric',month:'short'})} · ${e.ultima.hora}${e.diasSinLectura>0?` (hace ${e.diasSinLectura}d)`:''}`:'—';
+    const motivo=(e.ultima&&e.ultima.estado==='alerta'&&e.ultima.alertas&&e.ultima.alertas.length)?`<div style="font-size:11px;color:var(--red-txt);margin-top:2px;">${e.ultima.alertas[0]}</div>`:'';
+    return `<tr>
+      <td><strong>${e.equipoNombre}</strong>${motivo}</td>
+      <td><span class="badge ${info.cls}">${info.label}</span></td>
+      <td style="font-size:12px;color:var(--txt2);">${ultimaTxt}</td>
+      <td>${e.alertas7d?`<span class="badge badge-red">${e.alertas7d}</span>`:'<span style="color:var(--txt3);">0</span>'}</td>
+      <td style="font-size:11px;color:var(--txt2);">${e.bitacoras.join(', ')}</td>
+      <td><button class="btn-sm" onclick="window.abrirBitacorasEquipo&&abrirBitacorasEquipo(${e.equipoId})">Ver bitácoras</button></td>
+    </tr>`;
+  }).join('')}</tbody></table>`:'<div class="empty-state">Ningún equipo tiene bitácora activa todavía. Agrégala desde la ficha del equipo.</div>';
 }
 
 // ── CALENDARIO ──
@@ -6399,7 +6455,7 @@ async function crearOTLibre(){
 // ══════════════════════════════════════════════════════════
 const PERMISOS_CONFIG = {
   admin:          {label:'Administrador', color:'var(--green-txt)', bg:'var(--green-bg)', perms:['Todo'], editable:false},
-  supervisor:     {label:'Supervisor',    color:'var(--amber-txt)', bg:'var(--amber-bg)', perms:['Dashboard','Calendario','Órdenes','Checklist','Equipos','Downtime','Crear OT'], editable:true},
+  supervisor:     {label:'Supervisor',    color:'var(--amber-txt)', bg:'var(--amber-bg)', perms:['Dashboard','Calendario','Órdenes','Checklist','Equipos','Estatus','Crear OT'], editable:true},
   supervisor_zona:{label:'Sup. de Zona',  color:'var(--amber-txt)', bg:'var(--amber-bg)', perms:['Escáner QR','Agenda de Zona','Crear OT','Ver status equipos'], editable:true},
   tecnico:        {label:'Técnico',       color:'var(--blue-txt)',  bg:'var(--blue-bg)',  perms:['Escáner QR','Mi Agenda','Checklist','Cerrar OT'], editable:true},
   ingeniero:      {label:'Ingeniería',    color:'var(--blue-txt)',  bg:'var(--blue-bg)',  perms:['Nueva Solicitud','Mis Solicitudes'], editable:true},
@@ -6845,7 +6901,7 @@ const T = {
     // Nav
     escaner: 'Escáner QR', dashboard: 'Dashboard', calendario: 'Calendario PM',
     ordenes: 'Órdenes', checklist: 'Checklist', equipos: 'Equipos',
-    personal: 'Personal', downtime: 'Downtime', reportes: 'Reportes',
+    personal: 'Personal', estatus: 'Estatus', reportes: 'Reportes',
     inventario: 'Inventario', compras: 'Compras', analisis: 'Análisis',
     configuracion: 'Configuración', mi_agenda: 'Mi Agenda',
     agenda_zona: 'Agenda de Zona', nueva_solicitud: 'Nueva Solicitud',
@@ -6904,7 +6960,7 @@ const T = {
     // Nav
     escaner: 'QR Scanner', dashboard: 'Dashboard', calendario: 'PM Calendar',
     ordenes: 'Work Orders', checklist: 'Checklist', equipos: 'Equipment',
-    personal: 'Personnel', downtime: 'Downtime', reportes: 'Reports',
+    personal: 'Personnel', estatus: 'Machine Status', reportes: 'Reports',
     inventario: 'Inventory', compras: 'Purchases', analisis: 'Analysis',
     configuracion: 'Settings', mi_agenda: 'My Schedule',
     agenda_zona: 'Zone Schedule', nueva_solicitud: 'New Request',
@@ -6986,7 +7042,7 @@ function applyLang(){
     'nav-escaner': 'escaner', 'nav-dashboard': 'dashboard',
     'nav-ordenes': 'ordenes',
     'nav-checklist': 'checklist', 'nav-equipos': 'equipos',
-    'nav-tecnicos': 'personal', 'nav-downtime': 'downtime',
+    'nav-tecnicos': 'personal', 'nav-estatus': 'estatus',
     'nav-reportes': 'reportes', 'nav-inventario': 'inventario',
     'nav-compras': 'compras', 'nav-analisis': 'analisis',
     'nav-configuracion': 'configuracion', 'nav-cal-tecnico': 'mi_agenda',
@@ -8031,12 +8087,12 @@ function _initFoundryLayout(){
     const groups = {
       'Operación': ['escaner','dashboard','ordenes','checklist','ot-libre','cal-tecnico'],
       'Activos':   ['equipos','tecnicos','inventario','compras'],
-      'Analítica': ['downtime','reportes','analisis','configuracion'],
+      'Analítica': ['estatus','reportes','analisis','configuracion'],
     };
     const tabIcons = {
       escaner:'ti-scan', dashboard:'ti-dashboard', calendario:'ti-calendar',
       ordenes:'ti-clipboard-list', checklist:'ti-checklist', equipos:'ti-settings-2',
-      tecnicos:'ti-users', downtime:'ti-activity', reportes:'ti-report-analytics',
+      tecnicos:'ti-users', estatus:'ti-heartbeat', reportes:'ti-report-analytics',
       'cal-tecnico':'ti-calendar-event', 'ot-libre':'ti-clipboard-plus',
       inventario:'ti-package', compras:'ti-shopping-cart', analisis:'ti-chart-dots',
       configuracion:'ti-settings'
