@@ -1071,7 +1071,7 @@ tr:hover td { background: var(--bg3) !important; }
       </div>
       <div class="two-col">
         <div class="card">
-          <div class="card-header"><div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes recientes</div><button class="btn-sm btn-primary btn-admin-only" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button></div>
+          <div class="card-header"><div class="card-title"><i class="ti ti-clipboard-list"></i> <span id="dash-ots-titulo">OTs de la semana</span><span id="dash-ots-rango" style="font-size:11px;font-weight:400;color:var(--txt3);margin-left:6px;"></span></div><button class="btn-sm btn-primary btn-admin-only" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button></div>
           <div id="dash-ots"></div>
         </div>
         <div class="card">
@@ -3277,6 +3277,22 @@ async function cerrarOTDirecto(){
 }
 
 // ── DASHBOARD ──
+// Corrige el mismo corrimiento de zona horaria que ya se usa en el resto
+// de la app al leer una columna 'date' de Postgres (fecha_programada llega
+// sin hora, y new Date('YYYY-MM-DD') la interpreta en UTC).
+function fechaLocalOT(raw){
+  if(!raw) return null;
+  return new Date(new Date(raw).getTime() + new Date().getTimezoneOffset()*60000);
+}
+function limitesSemana(ref){
+  const d=new Date(ref); d.setHours(0,0,0,0);
+  const dow=d.getDay();                       // 0=domingo…6=sábado
+  const diffLunes=(dow===0?-6:1-dow);
+  const lunes=new Date(d); lunes.setDate(d.getDate()+diffLunes);
+  const domingo=new Date(lunes); domingo.setDate(lunes.getDate()+6); domingo.setHours(23,59,59,999);
+  return [lunes,domingo];
+}
+const PESO_ESTADO_SEM={Urgente:0,Bloqueada:1,'Por aprobar':2,Pendiente:2,Recibida:2,Aprobada:3,'En progreso':3,Completada:4};
 function renderDash(){
   if(!document.getElementById('k-urg')) return;
   const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -3284,8 +3300,31 @@ function renderDash(){
   document.getElementById('k-prog').textContent=allOTs.filter(o=>o.estado==='En progreso').length;
   document.getElementById('k-hoy').textContent=allOTs.filter(o=>o.estado==='Completada'&&o.fecha_cierre&&new Date(o.fecha_cierre)>=hoy).length;
   document.getElementById('k-eq').textContent=allEqs.length;
-  const rec=allOTs.slice(0,6);
-  document.getElementById('dash-ots').innerHTML=rec.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Tipo</th><th>Estado</th><th>Técnico</th></tr></thead><tbody>${rec.map(o=>`<tr><td style="font-size:11px;color:var(--txt3);">#${o.id}</td><td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td><td>${badge(o.tipo)}</td><td>${badge(o.estado)}</td><td><span class="tech-av">${ini(o.tecnico_nombre)}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><i class="ti ti-clipboard"></i>Sin órdenes</div>';
+
+  const [semIni,semFin]=limitesSemana(new Date());
+  const rangoTxt=`${semIni.toLocaleDateString('es-MX',{day:'numeric',month:'short'})} – ${semFin.toLocaleDateString('es-MX',{day:'numeric',month:'short'})}`;
+  const elRango=document.getElementById('dash-ots-rango'); if(elRango) elRango.textContent=rangoTxt;
+
+  let rec=allOTs.filter(o=>{
+    const f=fechaLocalOT(o.fecha_programada||o.fecha_creacion);
+    return f&&f>=semIni&&f<=semFin;
+  });
+  rec.sort((a,b)=>{
+    const pa=PESO_ESTADO_SEM[a.estado]??3, pb=PESO_ESTADO_SEM[b.estado]??3;
+    if(pa!==pb) return pa-pb;
+    return fechaLocalOT(a.fecha_programada||a.fecha_creacion)-fechaLocalOT(b.fecha_programada||b.fecha_creacion);
+  });
+  const TOPE=12;
+  const visibles=rec.slice(0,TOPE);
+  const restantes=rec.length-visibles.length;
+
+  document.getElementById('dash-ots').innerHTML=visibles.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Fecha</th><th>Equipo</th><th>Tipo</th><th>Estado</th><th>Técnico</th></tr></thead><tbody>${visibles.map(o=>{
+    const f=fechaLocalOT(o.fecha_programada||o.fecha_creacion);
+    const esHoy=f&&f.toDateString()===hoy.toDateString();
+    const fTxt=f?f.toLocaleDateString('es-MX',{weekday:'short',day:'numeric'}):'–';
+    return `<tr><td style="font-size:11px;color:var(--txt3);">#${o.id}</td><td style="font-size:11px;${esHoy?'color:var(--txt);font-weight:600;':'color:var(--txt2);'}">${esHoy?'Hoy':fTxt}</td><td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td><td>${badge(o.tipo)}</td><td>${badge(o.estado)}</td><td><span class="tech-av">${ini(o.tecnico_nombre)}</span></td></tr>`;
+  }).join('')}</tbody></table></div>${restantes>0?`<div style="text-align:center;padding:10px 0 2px;"><button class="btn-sm" onclick="window.setTab&&setTab('ordenes')">+${restantes} más esta semana — ver todas</button></div>`:''}`:'<div class="empty-state"><i class="ti ti-clipboard-check"></i>Sin órdenes programadas esta semana</div>';
+
   const compl=allOTs.filter(o=>o.estado==='Completada').length;
   const pend=allOTs.filter(o=>['Pendiente','En progreso'].includes(o.estado)).length;
   document.getElementById('dash-res').innerHTML=`
