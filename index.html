@@ -11412,10 +11412,14 @@ const BT_PLANTILLAS = {
     nombre:'Mantenimiento predictivo — ShopSabre IS510', descripcion:'CNC router, control WinCNC — husillo HSD, vacío, neumático, grasa, mecánico, eléctrico, WinCNC/PC, ATC, limpieza',
     frecuencia:'diaria', dias:[], horarios:['Inicio de turno','Mitad de turno','Final de turno'],
     campos:[
-      // Husillo (HSD, 10 HP, enfriado por aire — sin refrigerante que checar)
-      {clave:'husillo_temp',   etiqueta:'Husillo — Temperatura',        tipo:'numero',unidad:'°F',limite_max:175,requerido:true},
-      {clave:'husillo_ruido',  etiqueta:'Husillo — Ruido',              tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
-      {clave:'husillo_vibr',   etiqueta:'Husillo — Vibración',          tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Horas desde el registro de WinCNC (WinCNC\log\wcnc.csv) — no hay horómetro físico
+      {clave:'horas_activas',  etiqueta:'Horas activas (WinCNC)',       tipo:'numero',unidad:'hrs'},
+      {clave:'horas_running',  etiqueta:'Running (hrs)',                tipo:'numero',unidad:'hrs'},
+      {clave:'horas_cutting',  etiqueta:'Cutting (hrs)',                tipo:'numero',unidad:'hrs'},
+      // Spindle (HSD, 10 HP, enfriado por aire — sin refrigerante que checar)
+      {clave:'husillo_temp',   etiqueta:'Spindle — Temperatura',        tipo:'numero',unidad:'°F',limite_max:175,requerido:true},
+      {clave:'husillo_ruido',  etiqueta:'Spindle — Ruido',              tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'husillo_vibr',   etiqueta:'Spindle — Vibración',          tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
       // Sistema de vacío (bomba de paletas seca tipo Becker VTLF — sin aceite)
       {clave:'vacio_nivel',    etiqueta:'Vacío — Nivel',                tipo:'numero',unidad:'inHg',limite_min:15,requerido:true},
       {clave:'vacio_amp',      etiqueta:'Vacío — Amperaje del motor',   tipo:'numero',unidad:'A'},
@@ -11461,6 +11465,26 @@ const BT_PLANTILLAS = {
       {clave:'limp_extraccion',etiqueta:'Limpieza — Sistema de extracción', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
       {clave:'limp_gabinete',  etiqueta:'Limpieza — Gabinete eléctrico', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
       {clave:'limp_sensores',  etiqueta:'Limpieza — Sensores y switches de límite', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
+    ]
+  },
+  shopsabre_is510_rapida: {
+    nombre:'Recorrido rápido — ShopSabre IS510', descripcion:'Solo lo que se revisa a simple vista/oído, sin detener la máquina ni abrir paneles — 10 puntos, ~3-5 min',
+    frecuencia:'diaria', dias:[], horarios:['Inicio de turno','Mitad de turno','Final de turno'],
+    campos:[
+      // Horas desde el registro de WinCNC (WinCNC\log\wcnc.csv) — no hay horómetro físico
+      {clave:'horas_activas',  etiqueta:'Horas activas (WinCNC)',       tipo:'numero',unidad:'hrs'},
+      {clave:'horas_running',  etiqueta:'Running (hrs)',                tipo:'numero',unidad:'hrs'},
+      {clave:'horas_cutting',  etiqueta:'Cutting (hrs)',                tipo:'numero',unidad:'hrs'},
+      {clave:'husillo_ruido',  etiqueta:'Spindle — Ruido',              tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'husillo_vibr',   etiqueta:'Spindle — Vibración',          tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'vacio_nivel',    etiqueta:'Vacío — Nivel (manómetro)',    tipo:'numero',unidad:'inHg',limite_min:15,requerido:true},
+      {clave:'vacio_ruidovibr',etiqueta:'Vacío — Ruido / vibración',    tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'neu_presion',    etiqueta:'Neumático — Presión de aire (manómetro del FRL)', tipo:'numero',unidad:'psi',limite_min:80,requerido:true},
+      {clave:'neu_fugas',      etiqueta:'Neumático — Fugas de aire audibles', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'gr_visible',     etiqueta:'Grasa — Fuga o falta de película visible en guías', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'mec_ruidovibr',  etiqueta:'Mecánico — Ruidos o vibraciones anormales', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'elec_alarmas',   etiqueta:'WinCNC — Alarmas activas en pantalla', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'limp_general',   etiqueta:'Limpieza — Mesa y área de trabajo', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
     ]
   },
   vacia: { nombre:'Bitácora nueva', descripcion:'Sin campos: se definen después', frecuencia:'diaria', dias:[], horarios:['09:00'], campos:[] }
