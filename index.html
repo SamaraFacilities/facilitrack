@@ -3749,26 +3749,46 @@ function datasetsChart(serie,campo,gruesa){
   return datasets;
 }
 
-function crearChart(reg,canvasId,serie,campo,opts){
+function crearChart(reg,canvasId,serie,campo,opts,intentos){
+  intentos=intentos||0;
   const el=document.getElementById(canvasId);
-  if(!el||typeof Chart==='undefined') return;
-  const chart=new Chart(el.getContext('2d'),{
-    type:'line',
-    data:{labels:serie.map(p=>p.xTxt),datasets:datasetsChart(serie,campo,opts&&opts.grande)},
-    options:{
-      responsive:true,maintainAspectRatio:false,animation:false,
-      plugins:{legend:{display:false},tooltip:{enabled:!!(opts&&opts.grande)}},
-      scales:opts&&opts.grande
-        ?{x:{ticks:{maxRotation:0,autoSkip:true,font:{size:9}}},y:{ticks:{font:{size:9}}}}
-        :{x:{display:false},y:{display:false}}
-    }
-  });
-  reg[canvasId]=chart;
-  // Insurance contra el clásico problema de tamaño de Chart.js: si el canvas
-  // se midió antes de que el navegador terminara de acomodar el layout
-  // (ej. justo después de un innerHTML masivo), se vuelve a medir un frame
-  // después, ya con el contenedor con su tamaño real.
-  requestAnimationFrame(()=>{ try{ if(!chart.destroyed) chart.resize(); }catch(e){} });
+  if(!el) return;                              // el nodo ya no existe (se cambió de tarjeta/tab)
+  if(typeof Chart==='undefined'){
+    if(el.parentElement) el.parentElement.innerHTML='<div class="est-card-nodata" style="color:var(--red-txt);">Chart.js no cargó</div>';
+    return;
+  }
+  const wrap=el.parentElement;
+  const w=wrap?wrap.clientWidth:0, h=wrap?wrap.clientHeight:0;
+  // El canvas puede medir 0×0 si en este momento su pestaña está oculta
+  // (display:none) o el navegador todavía no acomodó el layout — pasa
+  // seguido porque esta gráfica también se recalcula en segundo plano en
+  // cada refresco de datos, no solo cuando el usuario abre la pestaña.
+  // Se reintenta con requestAnimationFrame hasta que sí haya un tamaño real.
+  if(w<10||h<10){
+    if(intentos<60){ requestAnimationFrame(()=>crearChart(reg,canvasId,serie,campo,opts,intentos+1)); return; }
+    if(wrap) wrap.innerHTML='<div class="est-card-nodata">Gráfica pendiente — vuelve a abrir esta pestaña</div>';
+    return;
+  }
+  try{
+    const dpr=window.devicePixelRatio||1;
+    el.width=Math.round(w*dpr); el.height=Math.round(h*dpr);
+    const chart=new Chart(el.getContext('2d'),{
+      type:'line',
+      data:{labels:serie.map(p=>p.xTxt),datasets:datasetsChart(serie,campo,opts&&opts.grande)},
+      options:{
+        responsive:true,maintainAspectRatio:false,animation:false,
+        plugins:{legend:{display:false},tooltip:{enabled:!!(opts&&opts.grande)}},
+        scales:opts&&opts.grande
+          ?{x:{ticks:{maxRotation:0,autoSkip:true,font:{size:9}}},y:{ticks:{font:{size:9}}}}
+          :{x:{display:false},y:{display:false}}
+      }
+    });
+    reg[canvasId]=chart;
+    requestAnimationFrame(()=>{ try{ if(!chart.destroyed) chart.resize(); }catch(e){} });
+  }catch(err){
+    console.error('crearChart',canvasId,err);
+    if(wrap) wrap.innerHTML='<div class="est-card-nodata" style="color:var(--red-txt);">Error al graficar: '+btEsc(err.message)+'</div>';
+  }
 }
 
 async function renderEstatusMaquinas(){
