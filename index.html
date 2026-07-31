@@ -716,6 +716,12 @@ tr:hover td { background: var(--bg3) !important; }
 .bt-mini{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--line);border-radius:3px;margin-bottom:6px;cursor:pointer;background:var(--bg2)}
 .bt-mini:hover{border-color:var(--line2)}
 #bt-back{background:none;border:0;color:var(--txt2);cursor:pointer;padding:0 6px 0 0;font-size:18px;line-height:1}
+.bt-campo-editor-row{border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:10px;background:#fff}
+.bt-campo-editor-top{display:flex;align-items:center;gap:8px}
+.bt-campo-editor-top .bt-campo-etq{flex:1;font-weight:500}
+.bt-campo-editor-top select{width:132px;flex:none}
+.bt-campo-editor-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin-top:8px}
+.bt-campo-editor-grid label{display:block;font-size:10px;color:var(--txt3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em}
 .bt-slot.off{border-left-color:var(--line);background:var(--bg2);opacity:.75}
 .bt-firma-wrap{border:1px solid var(--line2);border-radius:3px;background:#fff;overflow:hidden}
 #bt-firma{display:block;width:100%;height:150px;touch-action:none;cursor:crosshair;background:repeating-linear-gradient(180deg,#fff 0,#fff 148px,var(--line) 149px,var(--line) 150px)}
@@ -11159,6 +11165,10 @@ function btHoy(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMon
 function btFechaLarga(f){ const p=f.split('-'); return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('es-MX',{weekday:'short',day:'2-digit',month:'short'}); }
 function btEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function btDraftKey(bid,fecha,hora){ return 'bt_draft_'+bid+'_'+fecha+'_'+hora; }
+function btSlug(etq){
+  return (etq||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,24)||('c'+Date.now());
+}
 
 /* Alertas por límites y por opciones marcadas como anormales */
 function btEvaluar(campos, valores){
@@ -11205,6 +11215,103 @@ function btProgramaTxt(bit){
   if(!dias.length) return f==='semanal'?'Semanal':'Mensual';
   return f==='semanal' ? 'Cada '+dias.map(d=>BT_DIAS[d]).join(', ')
                        : 'Día '+dias.join(', ')+' de cada mes';
+}
+
+
+/* ── Editor de campos, compartido por "nueva bitácora" y "configurar" ──
+   Un mismo renglón visual para editar etiqueta, unidad, límites y opciones.
+   btNuevaCampos vive solo en memoria mientras se arma una bitácora nueva;
+   en una bitácora ya creada, cada renglón trae su 'id' real y se guarda
+   directo a bitacora_campos sin tocar la 'clave' (para no romper lecturas
+   ya guardadas bajo esa llave dentro de valores jsonb).
+*/
+let btNuevaCampos=[];
+
+function btCampoRowHTML(c,idx,quitarFn){
+  quitarFn = quitarFn || "btNuevaQuitarCampo";
+  const ops=(c.opciones||[]).map(o=>((c.opciones_alerta||[]).includes(o)?'!':'')+o).join(', ');
+  return `<div class="bt-campo-editor-row" data-idx="${idx}" data-id="${c.id||''}">
+    <div class="bt-campo-editor-top">
+      <input type="text" data-cf="etiqueta" value="${btEsc(c.etiqueta)}" placeholder="Nombre del campo" class="bt-campo-etq">
+      <select data-cf="tipo" ${c.id?'disabled title="El tipo no se puede cambiar en un campo que ya tiene lecturas guardadas"':'onchange="btNuevaTipoCambio('+idx+',this.value)"'}>
+        <option value="numero"${c.tipo==='numero'?' selected':''}>Numérico</option>
+        <option value="lista"${c.tipo==='lista'?' selected':''}>Lista</option>
+        <option value="texto"${c.tipo==='texto'?' selected':''}>Texto</option>
+        <option value="booleano"${c.tipo==='booleano'?' selected':''}>Sí / No</option>
+      </select>
+      <button type="button" class="btn-sm btn-danger" onclick="${quitarFn}(${idx})" title="Quitar campo"><i class="ti ti-trash"></i></button>
+    </div>
+    ${c.tipo==='numero'?`
+    <div class="bt-campo-editor-grid">
+      <div><label>Unidad</label><input type="text" data-cf="unidad" value="${btEsc(c.unidad||'')}" placeholder="°F, A, inHg…"></div>
+      <div><label>Mínimo</label><input type="number" step="0.1" data-cf="limite_min" value="${c.limite_min===null||c.limite_min===undefined?'':c.limite_min}"></div>
+      <div><label>Máximo</label><input type="number" step="0.1" data-cf="limite_max" value="${c.limite_max===null||c.limite_max===undefined?'':c.limite_max}"></div>
+    </div>`:''}
+    ${c.tipo==='lista'?`
+    <div class="form-group" style="margin:8px 0 0;"><label>Opciones</label>
+      <input type="text" data-cf="opciones" value="${btEsc(ops)}" placeholder="Normal, !Sucio, !Saturado">
+      <div class="bt-hint">Antepón <b>!</b> a las opciones que deban marcar alerta.</div>
+    </div>`:''}
+    <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--txt2);">
+      <input type="checkbox" data-cf="requerido" ${c.requerido?'checked':''} style="width:auto;min-height:0;"> Campo requerido
+    </label>
+    ${c.clave?`<div class="bt-hint" style="margin-top:2px;">clave: <code>${btEsc(c.clave)}</code></div>`:''}
+  </div>`;
+}
+
+function btLeerCampoEditor(el){
+  const tipo=el.querySelector('[data-cf="tipo"]').value;
+  const out={
+    etiqueta:el.querySelector('[data-cf="etiqueta"]').value.trim(),
+    tipo, requerido:el.querySelector('[data-cf="requerido"]').checked,
+    unidad:null, limite_min:null, limite_max:null, opciones:null, opciones_alerta:null
+  };
+  if(tipo==='numero'){
+    out.unidad=(el.querySelector('[data-cf="unidad"]')||{}).value?.trim()||null;
+    const mn=(el.querySelector('[data-cf="limite_min"]')||{}).value;
+    const mx=(el.querySelector('[data-cf="limite_max"]')||{}).value;
+    out.limite_min=mn===undefined||mn===''?null:Number(mn);
+    out.limite_max=mx===undefined||mx===''?null:Number(mx);
+  }
+  if(tipo==='lista'){
+    const raw=((el.querySelector('[data-cf="opciones"]')||{}).value||'').split(',').map(x=>x.trim()).filter(Boolean);
+    out.opciones=raw.map(o=>o.replace(/^!/,''));
+    out.opciones_alerta=raw.filter(o=>o.startsWith('!')).map(o=>o.slice(1));
+  }
+  return out;
+}
+
+/* ── uso en "nueva bitácora": arreglo en memoria, nada se guarda hasta Crear ── */
+function btNuevaRenderCampos(){
+  const cont=document.getElementById('bt-nueva-campos-editor'); if(!cont) return;
+  cont.innerHTML = btNuevaCampos.map((c,i)=>btCampoRowHTML(c,i,'btNuevaQuitarCampo')).join('')
+    || '<div class="bt-hint">Sin campos todavía — agrega el primero abajo.</div>';
+}
+
+function btNuevaSync(){
+  const filas=document.querySelectorAll('#bt-nueva-campos-editor .bt-campo-editor-row');
+  if(filas.length) btNuevaCampos = Array.from(filas).map(btLeerCampoEditor);
+}
+
+function btNuevaAgregarCampo(){
+  btNuevaSync();
+  btNuevaCampos.push({etiqueta:'',tipo:'numero',unidad:'',limite_min:null,limite_max:null,opciones:[],opciones_alerta:[],requerido:false});
+  btNuevaRenderCampos();
+}
+
+function btNuevaQuitarCampo(idx){
+  btNuevaSync();
+  btNuevaCampos.splice(idx,1);
+  btNuevaRenderCampos();
+}
+
+function btNuevaTipoCambio(idx,tipo){
+  btNuevaSync();
+  const c=btNuevaCampos[idx]; if(!c) return;
+  c.tipo=tipo;
+  if(tipo!=='numero'){ c.unidad=null; c.limite_min=null; c.limite_max=null; }
+  if(tipo!=='lista'){ c.opciones=[]; c.opciones_alerta=[]; }
+  btNuevaRenderCampos();
 }
 
 /* ------------------------------------------------------------ navegación -- */
@@ -11322,8 +11429,46 @@ async function btVistaDia(bitacoraId,fecha){
   html+=`<button class="btn-sm" style="width:100%;margin-top:12px;justify-content:center;" onclick="btHistorial()"><i class="ti ti-history"></i> Ver historial</button>`;
   if(btPuedeConfig()){
     html+=`<button class="btn-sm" style="width:100%;margin-top:8px;justify-content:center;" onclick="btCampos()"><i class="ti ti-adjustments"></i> Configurar campos y programación</button>`;
+    html+=`<button class="btn-sm" style="width:100%;margin-top:8px;justify-content:center;color:var(--red-txt);" onclick="btEliminarBitacora()"><i class="ti ti-trash"></i> Eliminar bitácora</button>`;
   }
   return html;
+}
+
+/* Borrar una bitácora: si nunca se capturó nada, se borra directo (también
+   se van sus campos, por la relación en cascada). Si ya tiene lecturas,
+   se ofrece archivarla en su lugar — deja de aparecer en el equipo pero
+   conserva el historial — y el borrado total exige una segunda confirmación
+   explícita, porque se lleva las lecturas entre las patas. */
+async function btEliminarBitacora(){
+  const bit=btCtx.bitacora;
+  const {data:regs,error:errRegs}=await db.from('bitacora_registros').select('id').eq('bitacora_id',bit.id);
+  if(errRegs){ toast('No se pudo revisar el historial: '+errRegs.message); return; }
+  const n=(regs||[]).length;
+
+  if(n===0){
+    if(!confirm(`¿Eliminar la bitácora "${bit.nombre}"?\n\nNo tiene lecturas guardadas. Esta acción no se puede deshacer.`)) return;
+    const {error}=await db.from('bitacoras').delete().eq('id',bit.id);
+    if(error){ toast('No se pudo eliminar: '+error.message); return; }
+    toast('🗑️ Bitácora eliminada');
+  } else {
+    const archivar=confirm(`"${bit.nombre}" ya tiene ${n} lectura${n>1?'s':''} guardada${n>1?'s':''}.\n\nAceptar: archivarla — deja de aparecer en el equipo pero conserva el historial.\nCancelar: para borrarla por completo junto con sus lecturas.`);
+    if(archivar){
+      const {error}=await db.from('bitacoras').update({activa:false}).eq('id',bit.id);
+      if(error){ toast('No se pudo archivar: '+error.message); return; }
+      toast('📦 Bitácora archivada — su historial se conserva');
+    } else {
+      if(!confirm(`Esto borra "${bit.nombre}" Y sus ${n} lectura${n>1?'s':''} para siempre, sin posibilidad de recuperarlas. ¿Seguro?`)) return;
+      const {error}=await db.from('bitacoras').delete().eq('id',bit.id);
+      if(error){ toast('No se pudo eliminar: '+error.message); return; }
+      toast('🗑️ Bitácora e historial eliminados');
+    }
+  }
+
+  const equipoId=bit.equipo_id;
+  const eq=(typeof allEqs!=='undefined'?allEqs:[]).find(e=>e.id===equipoId);
+  btPila=[];
+  btIr(()=>btVistaEquipo(equipoId),'Bitácoras',eq?eq.nombre:'');
+  if(typeof btResumenEquipo==='function') btResumenEquipo(equipoId);
 }
 
 function btMoverDia(delta){
@@ -11621,7 +11766,11 @@ function btNueva(equipoId){
         <label id="bt-nueva-dias-lbl">Días</label>
         <input type="text" id="bt-nueva-dias" placeholder="1, 4">
         <div class="bt-hint" id="bt-nueva-dias-hint">1 = lunes … 7 = domingo</div></div>
-      <div id="bt-nueva-campos" class="bt-note"></div>
+      <div class="form-group" style="margin-top:6px;">
+        <label>Campos de esta bitácora <span style="color:var(--txt3);font-weight:400;">— edítalos, cámbiales el nombre o la unidad, o quítalos</span></label>
+        <div id="bt-nueva-campos-editor"></div>
+        <button type="button" class="btn-sm" style="width:100%;justify-content:center;margin-top:8px;" onclick="btNuevaAgregarCampo()"><i class="ti ti-plus"></i> Agregar campo</button>
+      </div>
       <button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="btCrear()"><i class="ti ti-plus"></i> Crear bitácora</button>`;
   },'Agregar bitácora','');
   setTimeout(btAplicarPlantilla,60);
@@ -11643,9 +11792,10 @@ function btAplicarPlantilla(){
   document.getElementById('bt-nueva-frec').value=p.frecuencia||'diaria';
   document.getElementById('bt-nueva-dias').value=(p.dias||[]).join(', ');
   btNuevaFrec();
-  document.getElementById('bt-nueva-campos').innerHTML= p.campos.length
-    ? '<b>Campos:</b> '+p.campos.map(c=>btEsc(c.etiqueta)+(c.unidad?` (${c.unidad})`:'')+(c.limite_max!==undefined?` · máx ${c.limite_max}`:'')).join(' · ')
-    : 'Sin campos: los defines después.';
+  // Copia editable de los campos de la plantilla — se puede renombrar,
+  // cambiar de unidad, ajustar límites o quitar, sin tocar la plantilla original.
+  btNuevaCampos = JSON.parse(JSON.stringify(p.campos||[]));
+  btNuevaRenderCampos();
 }
 
 async function btCrear(){
@@ -11660,6 +11810,15 @@ async function btCrear(){
   if(!horarios.length){ toast('Define al menos un horario de captura'); return; }
   if(frec!=='diaria'&&!dias.length){ toast('Indica en qué días aplica'); return; }
 
+  // Lee el editor tal como quedó (renombrado, unidades cambiadas, campos
+  // quitados o agregados) — NO la plantilla original.
+  const filasEditor = Array.from(document.querySelectorAll('#bt-nueva-campos-editor .bt-campo-editor-row'))
+    .map(btLeerCampoEditor);
+  const sinNombre = filasEditor.filter(c=>!c.etiqueta);
+  if(sinNombre.length){ toast('Ponle nombre a todos los campos (o quítalos)'); return; }
+  const sinOpciones = filasEditor.filter(c=>c.tipo==='lista'&&(!c.opciones||!c.opciones.length));
+  if(sinOpciones.length){ toast('Escribe las opciones de: '+sinOpciones.map(c=>c.etiqueta).join(', ')); return; }
+
   const {data,error}=await db.from('bitacoras').insert({
     equipo_id:equipoId, nombre, descripcion:desc, horarios,
     frecuencia:frec, dias,
@@ -11667,15 +11826,19 @@ async function btCrear(){
   }).select().single();
   if(error){ toast('No se creó: '+error.message); return; }
 
-  const campos=BT_PLANTILLAS[key].campos;
-  if(campos.length){
-    const filas=campos.map((c,i)=>({
-      bitacora_id:data.id, orden:i+1, clave:c.clave, etiqueta:c.etiqueta, tipo:c.tipo,
-      unidad:c.unidad||null, opciones:c.opciones||null, opciones_alerta:c.opciones_alerta||null,
-      limite_min:c.limite_min===undefined?null:c.limite_min,
-      limite_max:c.limite_max===undefined?null:c.limite_max,
-      requerido:!!c.requerido
-    }));
+  if(filasEditor.length){
+    const clavesUsadas=new Set();
+    const filas=filasEditor.map((c,i)=>{
+      let clave=btSlug(c.etiqueta);
+      let base=clave, n=2;
+      while(clavesUsadas.has(clave)){ clave=base+'_'+n; n++; }
+      clavesUsadas.add(clave);
+      return {
+        bitacora_id:data.id, orden:i+1, clave, etiqueta:c.etiqueta, tipo:c.tipo,
+        unidad:c.unidad||null, opciones:c.opciones||null, opciones_alerta:c.opciones_alerta||null,
+        limite_min:c.limite_min, limite_max:c.limite_max, requerido:!!c.requerido
+      };
+    });
     const r=await db.from('bitacora_campos').insert(filas);
     if(r.error){ toast('Bitácora creada, pero fallaron los campos: '+r.error.message); }
   }
@@ -11708,19 +11871,9 @@ function btCampos(){
         <input type="number" step="0.5" id="bt-cfg-desb" value="${b.desbalance_max===undefined||b.desbalance_max===null?5:b.desbalance_max}"></div>
       <button class="btn-sm" style="width:100%;justify-content:center;margin-bottom:16px;" onclick="btGuardarConfig()"><i class="ti ti-device-floppy"></i> Guardar programación</button>`;
 
-    h+='<div style="overflow:auto;"><table><thead><tr><th>Campo</th><th>Unidad</th><th>Mín</th><th>Máx</th><th></th></tr></thead><tbody>';
-    btCtx.campos.forEach(c=>{
-      h+=`<tr>
-        <td style="text-align:left;font-size:12px;">${btEsc(c.etiqueta)}<div style="color:var(--txt3);font-size:10px;font-family:monospace;">${btEsc(c.clave)} · ${btEsc(c.tipo)}</div></td>
-        <td style="font-size:12px;">${btEsc(c.unidad||'–')}</td>
-        <td><input type="number" step="0.1" data-lim="min" data-id="${c.id}" value="${c.limite_min===null||c.limite_min===undefined?'':c.limite_min}" style="width:72px;padding:5px;font-size:12px;"></td>
-        <td><input type="number" step="0.1" data-lim="max" data-id="${c.id}" value="${c.limite_max===null||c.limite_max===undefined?'':c.limite_max}" style="width:72px;padding:5px;font-size:12px;"></td>
-        <td><button class="btn-sm btn-danger" onclick="btBorrarCampo('${c.id}')"><i class="ti ti-trash"></i></button></td>
-      </tr>`;
-    });
-    h+='</tbody></table></div>';
+    h+=`<div id="bt-campos-editor">`+btCtx.campos.map((c,i)=>btCampoRowHTML(c,i,'btQuitarCampoExistente')).join('')+`</div>`;
     if(!btCtx.campos.length) h+='<div class="empty-state"><i class="ti ti-list"></i><br>Sin campos definidos</div>';
-    else h+=`<button class="btn-sm" style="width:100%;justify-content:center;margin-top:10px;" onclick="btGuardarLimites()"><i class="ti ti-device-floppy"></i> Guardar límites</button>`;
+    else h+=`<button class="btn-sm" style="width:100%;justify-content:center;margin-top:10px;" onclick="btGuardarCampos()"><i class="ti ti-device-floppy"></i> Guardar cambios en los campos</button>`;
 
     h+=`<div style="margin-top:20px;border-top:1px solid var(--line);padding-top:16px;">
       <div class="card-title" style="margin-bottom:10px;"><i class="ti ti-plus"></i> Agregar campo</div>
@@ -11772,25 +11925,35 @@ async function btGuardarConfig(){
   toast('✅ Programación actualizada');
 }
 
-async function btGuardarLimites(){
-  const cambios={};
-  document.querySelectorAll('[data-lim]').forEach(el=>{
-    const id=el.dataset.id;
-    cambios[id]=cambios[id]||{};
-    cambios[id][el.dataset.lim==='min'?'limite_min':'limite_max']= el.value===''?null:Number(el.value);
-  });
-  for(const id of Object.keys(cambios)){
-    const {error}=await db.from('bitacora_campos').update(cambios[id]).eq('id',id);
-    if(error){ toast('No se guardó: '+error.message); return; }
+async function btGuardarCampos(){
+  const filas=document.querySelectorAll('#bt-campos-editor .bt-campo-editor-row');
+  if(!filas.length) return;
+  let fallo=null;
+  for(const el of filas){
+    const id=el.dataset.id; if(!id) continue;
+    const d=btLeerCampoEditor(el);
+    if(!d.etiqueta){ toast('Ponle nombre a todos los campos'); return; }
+    const payload={
+      etiqueta:d.etiqueta, requerido:d.requerido,
+      unidad:d.unidad, limite_min:d.limite_min, limite_max:d.limite_max,
+      opciones:d.opciones, opciones_alerta:d.opciones_alerta
+    };
+    const {error}=await db.from('bitacora_campos').update(payload).eq('id',id);
+    if(error) fallo=d.etiqueta+': '+error.message;
   }
-  toast('✅ Límites actualizados');
+  toast(fallo?('⚠️ Algo no se guardó — '+fallo):'✅ Campos actualizados');
+}
+
+async function btQuitarCampoExistente(idx){
+  const c=btCtx.campos[idx]; if(!c) return;
+  await btBorrarCampo(c.id);
 }
 
 async function btAgregarCampo(){
   const etq=document.getElementById('bt-nc-etq').value.trim();
   if(!etq){ toast('Ponle etiqueta al campo'); return; }
   const tipo=document.getElementById('bt-nc-tipo').value;
-  const clave=etq.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,24)||('c'+Date.now());
+  const clave=btSlug(etq);
   const fila={
     bitacora_id:btCtx.bitacora.id,
     orden:(btCtx.campos.length?Math.max(...btCtx.campos.map(c=>c.orden||0)):0)+1,
