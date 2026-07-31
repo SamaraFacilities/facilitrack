@@ -46,6 +46,7 @@ document.head.appendChild(_mLink);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
@@ -727,6 +728,18 @@ tr:hover td { background: var(--bg3) !important; }
 .bt-campo-editor-top select{width:132px;flex:none}
 .bt-campo-editor-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin-top:8px}
 .bt-campo-editor-grid label{display:block;font-size:10px;color:var(--txt3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em}
+
+.est-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.est-card{border:1px solid var(--line);border-radius:6px;padding:14px;background:#fff;cursor:pointer;transition:border-color .15s}
+.est-card:hover{border-color:var(--line2)}
+.est-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.est-card-top strong{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.est-card canvas{width:100%;height:64px;display:block;margin-bottom:8px}
+.est-card-nodata{height:64px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--txt3);background:var(--bg2);border-radius:4px;margin-bottom:8px}
+.est-card-bottom{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--txt2)}
+.est-card-alerta{margin-top:8px;font-size:11px;color:var(--red-txt);background:var(--red-bg);border-radius:4px;padding:5px 8px}
+.est-det-chart-hd{font-size:12px;font-weight:500;margin-bottom:6px;color:var(--txt)}
+.est-det-chart canvas{width:100%;height:130px;display:block}
 .bt-slot.off{border-left-color:var(--line);background:var(--bg2);opacity:.75}
 .bt-firma-wrap{border:1px solid var(--line2);border-radius:3px;background:#fff;overflow:hidden}
 #bt-firma{display:block;width:100%;height:150px;touch-action:none;cursor:crosshair;background:repeating-linear-gradient(180deg,#fff 0,#fff 148px,var(--line) 149px,var(--line) 150px)}
@@ -1173,7 +1186,7 @@ tr:hover td { background: var(--bg3) !important; }
     <!-- TAB: ESTATUS DE MÁQUINAS -->
     <div id="tab-estatus" class="panel-hidden card">
       <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-heartbeat"></i> Estatus de máquinas</div></div>
-      <p style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Basado en las lecturas de bitácora de cada equipo — temperatura, amperaje, vibración y demás campos capturados. "Ver bitácoras" abre el historial completo del equipo.</p>
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Basado en las lecturas de bitácora de cada equipo — temperatura, amperaje, vibración y demás campos capturados en los últimos 30 días. Toca una tarjeta para ver todas sus gráficas.</p>
       <div class="kpi-grid" id="est-kpis" style="margin-bottom:16px;"></div>
       <div id="est-list-equipos"></div>
     </div><!-- /tab-estatus -->
@@ -1757,6 +1770,14 @@ tr:hover td { background: var(--bg3) !important; }
       <div class="form-group" style="grid-column:1/-1;"><label>Criticidad</label><select id="eq-cri"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></div>
     </div>
     <div class="form-actions"><button class="btn-sm" onclick="closeM('modal-equipo')">Cancelar</button><button class="btn-sm btn-primary" onclick="guardarEquipo()"><i class="ti ti-check"></i> Guardar</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-estatus-detalle">
+  <div class="modal" style="max-width:720px;max-height:85vh;overflow-y:auto;">
+    <div class="modal-title"><span id="est-det-nombre">Equipo</span><button class="close-btn" onclick="closeM('modal-estatus-detalle')"><i class="ti ti-x"></i></button></div>
+    <div id="est-det-charts" style="display:flex;flex-direction:column;gap:18px;"></div>
+    <button class="btn-sm" style="width:100%;margin-top:16px;justify-content:center;" onclick="abrirBitacoraDesdeDetalleEstatus()"><i class="ti ti-clipboard-list"></i> Abrir bitácora completa</button>
   </div>
 </div>
 
@@ -3639,6 +3660,7 @@ async function delUsr(id){
 
 // ── ESTATUS DE MÁQUINAS (a partir de las bitácoras de cada equipo) ──
 const EST_DIAS_SIN_LECTURA_ATENCION = 2;  // días sin ninguna captura -> se marca en ámbar
+const EST_DIAS_HISTORIAL = 30;            // ventana de historial para las gráficas
 const EST_ORDEN   = {alerta:0, atencion:1, normal:2, sin_datos:3};
 const EST_INFO    = {
   alerta:    {label:'Alerta',               cls:'badge-red'},
@@ -3646,14 +3668,24 @@ const EST_INFO    = {
   normal:    {label:'Normal',                cls:'badge-green'},
   sin_datos: {label:'Sin lecturas',          cls:''}
 };
+let ESTATUS_CHARTS={}, ESTATUS_DET_CHARTS={}, ESTATUS_LISTA=[];
+
+function destruirCharts(reg){
+  Object.values(reg).forEach(c=>{ try{c.destroy();}catch(e){} });
+  Object.keys(reg).forEach(k=>delete reg[k]);
+}
 
 async function calcularEstatusMaquinas(){
-  const [{data:bits,error:e1},{data:regs,error:e2}] = await Promise.all([
+  const desde=new Date(); desde.setDate(desde.getDate()-EST_DIAS_HISTORIAL); desde.setHours(0,0,0,0);
+  const desdeStr=desde.toISOString().slice(0,10);
+
+  const [{data:bits,error:e1},{data:campos,error:e2},{data:regs,error:e3}]=await Promise.all([
     db.from('bitacoras').select('id,equipo_id,nombre').eq('activa',true),
-    db.from('bitacora_registros').select('bitacora_id,estado,alertas,fecha,hora')
-      .order('fecha',{ascending:false}).order('hora',{ascending:false})
+    db.from('bitacora_campos').select('id,bitacora_id,clave,etiqueta,unidad,tipo,limite_min,limite_max,orden').order('orden'),
+    db.from('bitacora_registros').select('bitacora_id,estado,alertas,valores,fecha,hora')
+      .gte('fecha',desdeStr).order('fecha',{ascending:true}).order('hora',{ascending:true})
   ]);
-  if(e1) throw e1; if(e2) throw e2;
+  if(e1) throw e1; if(e2) throw e2; if(e3) throw e3;
   if(!bits||!bits.length) return [];
 
   const porEquipo={};
@@ -3668,8 +3700,9 @@ async function calcularEstatusMaquinas(){
 
   return Object.keys(porEquipo).map(eqId=>{
     const ids=porEquipo[eqId].bitacoraIds;
-    const propios=(regs||[]).filter(r=>ids.has(r.bitacora_id));   // ya vienen desc por fecha/hora
-    const ultima=propios[0]||null;
+    const camposEq=(campos||[]).filter(c=>ids.has(c.bitacora_id)&&c.tipo==='numero');
+    const propios=(regs||[]).filter(r=>ids.has(r.bitacora_id));   // ascendente por fecha/hora
+    const ultima=propios.length?propios[propios.length-1]:null;
     const alertas7d=propios.filter(r=>r.estado==='alerta'&&fechaLocalOT(r.fecha)>=hace7).length;
     const eq=(typeof allEqs!=='undefined'?allEqs:[]).find(e=>String(e.id)===String(eqId));
 
@@ -3680,10 +3713,53 @@ async function calcularEstatusMaquinas(){
       else if(diasSinLectura>EST_DIAS_SIN_LECTURA_ATENCION) estado='atencion';
       else estado='normal';
     }
+
+    // series de tiempo por campo numérico, para las gráficas
+    const series={};
+    camposEq.forEach(c=>{
+      series[c.clave]=propios
+        .filter(r=>r.valores&&r.valores[c.clave]!==undefined&&r.valores[c.clave]!=='')
+        .map(r=>({
+          xTxt:fechaLocalOT(r.fecha).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit'}),
+          y:Number(r.valores[c.clave]),
+          alerta:r.estado==='alerta'&&(r.alertas||[]).some(a=>a.indexOf(c.etiqueta)===0)
+        }));
+    });
+    // campo principal de la mini-gráfica: el primero con límite definido; si no, el primero numérico
+    const campoPrincipal=camposEq.find(c=>c.limite_max!=null||c.limite_min!=null)||camposEq[0]||null;
+
     return {
       equipoId:Number(eqId), equipoNombre:eq?eq.nombre:('Equipo '+eqId),
-      bitacoras:porEquipo[eqId].nombres, ultima, diasSinLectura, alertas7d, estado
+      bitacoras:porEquipo[eqId].nombres, ultima, diasSinLectura, alertas7d, estado,
+      campos:camposEq, campoPrincipal, series
     };
+  });
+}
+
+function datasetsChart(serie,campo,gruesa){
+  const datasets=[{
+    data:serie.map(p=>p.y), borderColor:'#111', borderWidth:gruesa?1.5:1.3,
+    pointRadius:serie.map(p=>p.alerta?(gruesa?4:3):0), pointBackgroundColor:'#c0453a',
+    tension:.25, fill:false, spanGaps:true
+  }];
+  if(campo&&campo.limite_max!=null) datasets.push({data:serie.map(()=>campo.limite_max),borderColor:'#c0453a',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false});
+  if(campo&&campo.limite_min!=null) datasets.push({data:serie.map(()=>campo.limite_min),borderColor:'#7a5000',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false});
+  return datasets;
+}
+
+function crearChart(reg,canvasId,serie,campo,opts){
+  const el=document.getElementById(canvasId);
+  if(!el||typeof Chart==='undefined') return;
+  reg[canvasId]=new Chart(el.getContext('2d'),{
+    type:'line',
+    data:{labels:serie.map(p=>p.xTxt),datasets:datasetsChart(serie,campo,opts&&opts.grande)},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:false,
+      plugins:{legend:{display:false},tooltip:{enabled:!!(opts&&opts.grande)}},
+      scales:opts&&opts.grande
+        ?{x:{ticks:{maxRotation:0,autoSkip:true,font:{size:9}}},y:{ticks:{font:{size:9}}}}
+        :{x:{display:false},y:{display:false}}
+    }
   });
 }
 
@@ -3695,6 +3771,7 @@ async function renderEstatusMaquinas(){
   catch(e){ cont.innerHTML='<div class="empty-state" style="color:var(--red-txt);">No se pudo cargar: '+e.message+'</div>'; return; }
 
   lista.sort((a,b)=>(EST_ORDEN[a.estado]-EST_ORDEN[b.estado])||a.equipoNombre.localeCompare(b.equipoNombre));
+  ESTATUS_LISTA=lista;
 
   const kpis=document.getElementById('est-kpis');
   if(kpis){
@@ -3706,22 +3783,65 @@ async function renderEstatusMaquinas(){
       <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--txt3)"></span>Con bitácora activa</div><div class="kpi-value">${lista.length}</div><div class="kpi-sub">de ${(typeof allEqs!=='undefined'?allEqs.length:'–')} equipos</div></div>`;
   }
 
-  cont.innerHTML=lista.length?`<table><thead><tr><th>Equipo</th><th>Estado</th><th>Última lectura</th><th>Alertas (7 días)</th><th>Bitácoras</th><th></th></tr></thead><tbody>${lista.map(e=>{
+  destruirCharts(ESTATUS_CHARTS);
+
+  if(!lista.length){
+    cont.innerHTML='<div class="empty-state">Ningún equipo tiene bitácora activa todavía. Agrégala desde la ficha del equipo.</div>';
+    return;
+  }
+
+  cont.innerHTML=`<div class="est-grid">${lista.map(e=>{
     const info=EST_INFO[e.estado];
-    const ultimaTxt=e.ultima?`${fechaLocalOT(e.ultima.fecha).toLocaleDateString('es-MX',{day:'numeric',month:'short'})} · ${e.ultima.hora}${e.diasSinLectura>0?` (hace ${e.diasSinLectura}d)`:''}`:'—';
-    const motivo=(e.ultima&&e.ultima.estado==='alerta'&&e.ultima.alertas&&e.ultima.alertas.length)?`<div style="font-size:11px;color:var(--red-txt);margin-top:2px;">${e.ultima.alertas[0]}</div>`:'';
-    return `<tr>
-      <td><strong>${e.equipoNombre}</strong>${motivo}</td>
-      <td><span class="badge ${info.cls}">${info.label}</span></td>
-      <td style="font-size:12px;color:var(--txt2);">${ultimaTxt}</td>
-      <td>${e.alertas7d?`<span class="badge badge-red">${e.alertas7d}</span>`:'<span style="color:var(--txt3);">0</span>'}</td>
-      <td style="font-size:11px;color:var(--txt2);">${e.bitacoras.join(', ')}</td>
-      <td><button class="btn-sm" onclick="window.abrirBitacorasEquipo&&abrirBitacorasEquipo(${e.equipoId})">Ver bitácoras</button></td>
-    </tr>`;
-  }).join('')}</tbody></table>`:'<div class="empty-state">Ningún equipo tiene bitácora activa todavía. Agrégala desde la ficha del equipo.</div>';
+    const cp=e.campoPrincipal;
+    const serie=cp?(e.series[cp.clave]||[]):[];
+    const ultimoValor=(cp&&serie.length)?`${serie[serie.length-1].y}${cp.unidad?' '+cp.unidad:''}`:'';
+    const motivo=(e.ultima&&e.ultima.estado==='alerta'&&e.ultima.alertas&&e.ultima.alertas.length)?e.ultima.alertas[0]:'';
+    const canvasId=`est-spark-${e.equipoId}`;
+    return `<div class="est-card" onclick="abrirDetalleEstatus(${e.equipoId})">
+      <div class="est-card-top"><strong>${e.equipoNombre}</strong><span class="badge ${info.cls}">${info.label}</span></div>
+      ${serie.length>=2?`<canvas id="${canvasId}"></canvas>`:`<div class="est-card-nodata">${serie.length?'Muy pocas lecturas para graficar':`Sin lecturas en ${EST_DIAS_HISTORIAL} días`}</div>`}
+      <div class="est-card-bottom">
+        <span>${cp?btEsc(cp.etiqueta)+(ultimoValor?': '+ultimoValor:''):''}</span>
+        <span style="color:var(--txt3);">${e.diasSinLectura!=null?(e.diasSinLectura===0?'hoy':'hace '+e.diasSinLectura+'d'):'—'}</span>
+      </div>
+      ${motivo?`<div class="est-card-alerta">${btEsc(motivo)}</div>`:''}
+    </div>`;
+  }).join('')}</div>`;
+
+  lista.forEach(e=>{
+    const cp=e.campoPrincipal; if(!cp) return;
+    const serie=e.series[cp.clave]||[];
+    if(serie.length>=2) crearChart(ESTATUS_CHARTS,`est-spark-${e.equipoId}`,serie,cp,{grande:false});
+  });
+}
+
+function abrirDetalleEstatus(equipoId){
+  const e=ESTATUS_LISTA.find(x=>x.equipoId===equipoId); if(!e) return;
+  const nomEl=document.getElementById('est-det-nombre');
+  nomEl.textContent=e.equipoNombre; nomEl.dataset.eq=equipoId;
+
+  const numericos=e.campos.filter(c=>(e.series[c.clave]||[]).length>=2);
+  const cont=document.getElementById('est-det-charts');
+  cont.innerHTML=numericos.length?numericos.map(c=>`
+    <div class="est-det-chart">
+      <div class="est-det-chart-hd">${btEsc(c.etiqueta)}${c.unidad?' ('+btEsc(c.unidad)+')':''}${(c.limite_min!=null||c.limite_max!=null)?` <span style="color:var(--txt3);font-weight:400;">· límites ${c.limite_min??'–'} a ${c.limite_max??'–'}</span>`:''}</div>
+      <canvas id="est-det-c-${btEsc(c.clave)}"></canvas>
+    </div>`).join('')
+    :'<div class="empty-state">No hay suficientes lecturas numéricas todavía para graficar este equipo.</div>';
+
+  openM('modal-estatus-detalle');
+  destruirCharts(ESTATUS_DET_CHARTS);
+  numericos.forEach(c=>crearChart(ESTATUS_DET_CHARTS,`est-det-c-${c.clave}`,e.series[c.clave],c,{grande:true}));
+}
+
+function abrirBitacoraDesdeDetalleEstatus(){
+  const eq=Number(document.getElementById('est-det-nombre').dataset.eq);
+  closeM('modal-estatus-detalle');
+  if(eq&&typeof abrirBitacorasEquipo==='function') abrirBitacorasEquipo(eq);
 }
 
 // ── CALENDARIO ──
+
 
 function renderCalendar(){
   if(!document.getElementById('cal-grid')) return;
