@@ -11487,6 +11487,60 @@ const BT_PLANTILLAS = {
       {clave:'limp_general',   etiqueta:'Limpieza — Mesa y área de trabajo', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
     ]
   },
+  cantek_mx340m: {
+    nombre:'Mantenimiento predictivo — Cantek MX340M', descripcion:'Canteadora automática — cola de pegamento, rodillos de presión, cadena, unidades de corte/fresado/pulido, neumático, eléctrico',
+    frecuencia:'diaria', dias:[], horarios:['Inicio de turno','Mitad de turno','Final de turno'],
+    campos:[
+      // Cola de pegamento — termorregulador de fábrica: 190°C, 185°C precalentado.
+      // Eje esparcidor: engrase manual cada 30 h con grasa Arexons GC300 (grasera incluida).
+      {clave:'pega_temp',      etiqueta:'Pegamento — Temperatura',      tipo:'numero',unidad:'°C',limite_min:180,limite_max:195,requerido:true},
+      {clave:'pega_estado',    etiqueta:'Pegamento — Estado (color / consistencia)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'pega_nivel',     etiqueta:'Pegamento — Nivel en la cuba', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'pega_lubricacion',etiqueta:'Pegamento — Lubricación del eje esparcidor', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Rodillos de presión
+      {clave:'rodillos_estado',etiqueta:'Rodillos de presión — Limpieza (residuo de pegamento)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'rodillos_ajuste',etiqueta:'Rodillos de presión — Ajuste / resorte', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico']},
+      // Alimentación por cadena — tensión completa se revisa mensual, esto es el vistazo diario
+      {clave:'cadena_tension', etiqueta:'Alimentación — Tensión de la cadena (sin holgura visible)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'cadena_ruido',   etiqueta:'Alimentación — Ruido del sistema de cadena', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Unidades de corte y fresado
+      {clave:'guillotina',     etiqueta:'Guillotina — Estado de cuchillas', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'trim_extremos',  etiqueta:'Recorte de extremos — Ruido / vibración (sierra dual)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'fresado_ruido',  etiqueta:'Fresado sup./inf. — Ruido / vibración', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'fresado_copiado',etiqueta:'Fresado sup./inf. — Ruedas de copiado (tracing)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico']},
+      {clave:'raspado_radio',  etiqueta:'Raspado de radio — Estado de cuchillas', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico']},
+      {clave:'pulido',         etiqueta:'Pulido — Estado / ruido de las unidades', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      // Neumático — el manual liga "canto astillado" a que la unidad de recorte corre muy rápido (ajuste neumático)
+      {clave:'neu_presion',    etiqueta:'Neumático — Presión de aire', tipo:'numero',unidad:'psi',limite_min:80,requerido:true},
+      {clave:'neu_fugas',      etiqueta:'Neumático — Fugas de aire', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'neu_velocidad',  etiqueta:'Neumático — Velocidad de avance de unidades de recorte', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico']},
+      // Eléctrico / seguridad — puertas e interruptores tipo AZD-1001T (la misma cadena de interlocks)
+      {clave:'elec_puertas',   etiqueta:'Eléctrico — Interruptores de seguridad de puertas', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'elec_paro',      etiqueta:'Eléctrico — Paros de emergencia', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'elec_caja',      etiqueta:'Eléctrico — Caja eléctrica / fusibles', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'elec_indicador', etiqueta:'Eléctrico — Indicador digital de espesor', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico']},
+      // Limpieza
+      {clave:'limp_rodillos',  etiqueta:'Limpieza — Rodillos y mesa (residuo de pegamento)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'limp_extraccion',etiqueta:'Limpieza — Extracción de polvo', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'limp_general',   etiqueta:'Limpieza — Área general', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
+    ]
+  },
+  cantek_mx340m_rapida: {
+    nombre:'Recorrido rápido — Cantek MX340M', descripcion:'Solo lo que se revisa a simple vista/oído sin detener la máquina ni abrir la caja eléctrica — 10 puntos, ~3-5 min',
+    frecuencia:'diaria', dias:[], horarios:['Inicio de turno','Mitad de turno','Final de turno'],
+    campos:[
+      {clave:'pega_temp',      etiqueta:'Pegamento — Temperatura (display del PLC)', tipo:'numero',unidad:'°C',limite_min:180,limite_max:195,requerido:true},
+      {clave:'pega_estado',    etiqueta:'Pegamento — Estado visual', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'rodillos_estado',etiqueta:'Rodillos de presión — Limpieza', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'cadena_tension', etiqueta:'Cadena — Sin holgura visible', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'corte_ruido',    etiqueta:'Corte / fresado — Ruido general', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'pulido_ruido',   etiqueta:'Pulido — Ruido', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'neu_presion',    etiqueta:'Neumático — Presión de aire', tipo:'numero',unidad:'psi',limite_min:80,requerido:true},
+      {clave:'neu_fugas',      etiqueta:'Neumático — Fugas audibles', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'elec_puertas',   etiqueta:'Puertas de seguridad cierran e interconectan bien', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'limp_general',   etiqueta:'Limpieza — Área general', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
+    ]
+  },
   vacia: { nombre:'Bitácora nueva', descripcion:'Sin campos: se definen después', frecuencia:'diaria', dias:[], horarios:['09:00'], campos:[] }
 };
 
