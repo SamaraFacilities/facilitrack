@@ -662,6 +662,34 @@ tr:hover td { background: var(--bg3) !important; }
 ::-webkit-scrollbar-thumb:hover { background: var(--txt3); }
 
 
+/* ── TÁCTIL (iPad y tablets) ──────────────────────────────
+   La app solo traía ajustes de toque en @media (max-width:700px),
+   que en un iPad (768-1366 px) nunca aplican. Este bloque va por
+   tipo de puntero, no por ancho, así que cubre tablet en las dos
+   orientaciones sin tocar nada en escritorio. */
+@media (hover:none) and (pointer:coarse){
+  button,.btn,.btn-sm,.nav-btn,.close-btn,select,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  body{font-size:14px}
+  .header{height:60px !important}
+  .nav-btn{padding:16px 18px !important;font-size:13px !important;min-height:52px !important}
+  .btn{min-height:52px !important;font-size:15px !important;padding:14px 20px !important}
+  .btn-sm{min-height:44px !important;font-size:13px !important;padding:10px 16px !important}
+  .close-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:22px}
+  .card{padding:18px}
+  .form-group label{font-size:11px !important;letter-spacing:0.5px}
+  .form-group input,.form-group select,.form-group textarea,
+  input:not([type=checkbox]):not([type=radio]),select,textarea{min-height:50px !important;font-size:16px !important;padding:12px 14px !important;border-radius:6px}
+  .form-group textarea,textarea{min-height:96px !important}
+  th{font-size:11px !important;padding:12px !important}
+  td{font-size:14px !important;padding:14px 12px !important}
+  .badge{font-size:11px;padding:4px 10px}
+  .stat-row{padding:14px 0;font-size:14px}
+  .modal{max-width:760px !important;padding:20px}
+  .modal-title{font-size:16px}
+  #toast{font-size:14px;padding:14px 22px;bottom:calc(24px + env(safe-area-inset-bottom))}
+  .nav-wrap,.table-wrap{-webkit-overflow-scrolling:touch}
+}
+
 /* ── BITÁCORAS POR EQUIPO ── */
 .bt-card{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:4px;padding:13px 14px;margin-bottom:9px;cursor:pointer;background:#fff;transition:all .15s}
 .bt-card:hover{border-color:var(--line2);background:var(--bg2)}
@@ -693,6 +721,44 @@ tr:hover td { background: var(--bg3) !important; }
 #bt-firma{display:block;width:100%;height:150px;touch-action:none;cursor:crosshair;background:repeating-linear-gradient(180deg,#fff 0,#fff 148px,var(--line) 149px,var(--line) 150px)}
 .bt-firma-pie{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;border-top:1px solid var(--line);font-size:11px;color:var(--txt2);background:var(--bg2)}
 .bt-firma-img{max-width:100%;border:1px solid var(--line);border-radius:3px}
+
+/* ── ajustes para iPad: blancos de toque grandes, sin hover, sin zoom accidental ── */
+#modal-bitacora .modal{max-width:880px;max-height:94vh;padding:0}
+#modal-bitacora .modal-title{position:sticky;top:0;z-index:5;background:#fff;margin:0;padding:14px 20px;border-bottom:1px solid var(--line);font-size:16px}
+#modal-bitacora #bt-title{font-size:16px}
+#modal-bitacora .close-btn,#modal-bitacora #bt-back{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:20px}
+#bt-body{padding:16px 20px 8px}
+#modal-bitacora .btn-sm{min-height:44px;padding:10px 16px;font-size:13px;touch-action:manipulation}
+#modal-bitacora .btn{min-height:56px;font-size:16px;touch-action:manipulation}
+#modal-bitacora .bt-card,#modal-bitacora .bt-slot,#modal-bitacora .bt-mini,#modal-bitacora .bt-chip{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#modal-bitacora .bt-card:active,#modal-bitacora .bt-slot:active,#modal-bitacora .bt-chip:active{transform:scale(.985)}
+.bt-card{min-height:76px;border-radius:6px;padding:16px}
+.bt-card-t{font-size:15px}
+.bt-slot{min-height:76px;border-radius:6px;border-left-width:5px;padding:14px 16px;gap:14px}
+.bt-slot-h{font-size:16px;width:74px}
+.bt-slot-b b{font-size:15px}
+.bt-slot-b small{font-size:12px;white-space:normal;overflow:visible;line-height:1.35}
+.bt-daynav button{min-height:46px;padding:10px 14px}
+.bt-mini{min-height:52px;padding:12px}
+#bt-form .form-group label{font-size:11px}
+#bt-form input,#bt-form select,#bt-form textarea{min-height:54px;font-size:17px;padding:12px 14px;border-radius:6px}
+#bt-form input[type=number]{text-align:center;font-weight:500;font-size:21px;font-variant-numeric:tabular-nums}
+#bt-form textarea{min-height:90px;font-size:16px}
+.bt-chips{display:flex;flex-wrap:wrap;gap:8px}
+.bt-chip{flex:1 1 auto;min-width:110px;min-height:56px;padding:10px 12px;border:1px solid var(--line2);border-radius:6px;background:#fff;color:var(--txt2);font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;touch-action:manipulation;transition:all .12s}
+.bt-chip.sel{background:var(--txt);border-color:var(--txt);color:#fff;font-weight:500}
+.bt-chips.bt-mal .bt-chip.sel{background:var(--red);border-color:var(--red)}
+.bt-actions{position:sticky;bottom:0;z-index:4;background:#fff;border-top:1px solid var(--line);margin:16px -20px 0;padding:12px 20px calc(12px + env(safe-area-inset-bottom))}
+#bt-firma{height:180px}
+@media (min-width:760px){
+  .bt-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;align-items:start}
+  .bt-grid .bt-span{grid-column:1/-1}
+}
+@media (max-width:759px){ .bt-chip{min-width:calc(50% - 4px)} }
+@media (hover:none){
+  .bt-card:hover,.bt-slot:hover,.bt-mini:hover{border-color:var(--line)}
+  .bt-slot.alerta:hover{border-left-color:var(--red)}
+}
 </style>
 </head>
 <body>
@@ -8003,6 +8069,99 @@ function _initFoundryLayout(){
   }
 
   // ── DASHBOARD RENDER ─────────────────────────────────────
+  
+
+/* ── Tarjetas de CAPEX y Bitácoras en el Panel de operación (fdy-dash) ──
+   Reutiliza las clases .fdy-card/.fdy-stock ya definidas para la tarjeta
+   de Stock crítico, así que no requieren CSS nuevo. Se insertan como una
+   fila más dentro de renderDashboard(), después de "Personal / Stock". */
+
+async function fdyProyectosOverBudget(){
+  try{
+    // 'allProyectos'/'allProyectoGastos' son variables globales reales (let, no
+    // colgadas de window) que ya carga loadProyectos() al visitar esa pestaña;
+    // si ya tienen datos los reusamos, si no, los traemos aquí directamente.
+    if(typeof allProyectos==='undefined' || !allProyectos.length){
+      const r=await db.from('proyectos').select('*');
+      if(typeof allProyectos!=='undefined') allProyectos=r.data||[]; else window._fdyProyectos=r.data||[];
+    }
+    if(typeof allProyectoGastos==='undefined' || !allProyectoGastos.length){
+      const r=await db.from('proyecto_gastos').select('proyecto_id,monto');
+      if(typeof allProyectoGastos!=='undefined') allProyectoGastos=r.data||[]; else window._fdyProyectoGastos=r.data||[];
+    }
+  }catch(e){ console.warn('fdyProyectosOverBudget:',e.message); return []; }
+  const _proys=(typeof allProyectos!=='undefined'?allProyectos:window._fdyProyectos)||[];
+  const _gastos=(typeof allProyectoGastos!=='undefined'?allProyectoGastos:window._fdyProyectoGastos)||[];
+  return _proys.map(p=>{
+    const gastado=_gastos.filter(g=>String(g.proyecto_id)===String(p.id))
+      .reduce((s,g)=>s+Number(g.monto||0),0);
+    const pct = p.presupuesto>0 ? gastado/p.presupuesto*100 : 0;
+    return {p, gastado, pct};
+  }).filter(x=>x.pct>=90).sort((a,b)=>b.pct-a.pct);
+}
+
+function renderCapexAlertas(){
+  const id='fdy-capex-'+Date.now();
+  setTimeout(async()=>{
+    const items=await fdyProyectosOverBudget();
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML = !items.length
+      ? `<div style="font-size:12px;color:var(--txt3);text-align:center;padding:14px 0;">Ningún proyecto cerca de su presupuesto</div>`
+      : items.slice(0,5).map(({p,gastado,pct})=>`
+          <div class="it" style="cursor:pointer;" onclick="window.setTab&&setTab('proyectos')">
+            <div>
+              <div class="nm">${(p.nombre||'—')}</div>
+              <div class="sub">${p.po?('PO '+p.po+' · '):''}${MXN(gastado)} de ${MXN(p.presupuesto||0)}</div>
+            </div>
+            <div class="qty ${pct>=100?'danger':''}">${Math.round(pct)}<span class="min">%</span></div>
+          </div>`).join('');
+  },0);
+  return `<div class="fdy-card">
+    <div class="hd"><div class="ttl">CAPEX / Proyectos</div>
+      <button class="btn-sm" onclick="window.setTab&&setTab('proyectos')">Ver todo</button></div>
+    <div class="bd"><div class="fdy-stock" id="${id}"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>`;
+}
+
+async function fdyBitacorasHoy(){
+  try{
+    const {data:bits}=await db.from('bitacoras').select('id,equipo_id,nombre,horarios,frecuencia,dias').eq('activa',true);
+    if(!bits||!bits.length) return [];
+    const hoy=(typeof btHoy==='function')?btHoy():new Date().toISOString().slice(0,10);
+    const {data:regs}=await db.from('bitacora_registros').select('bitacora_id,estado').eq('fecha',hoy);
+    return bits.map(b=>{
+      const aplica=(typeof btAplicaDia==='function')?btAplicaDia(b,hoy):true;
+      const propios=(regs||[]).filter(r=>r.bitacora_id===b.id);
+      const alertas=propios.filter(r=>r.estado==='alerta').length;
+      const eq=(S.eqs||[]).find(e=>String(e.id)===String(b.equipo_id));
+      return {b,eq,aplica,alertas,faltan:aplica?(b.horarios.length-propios.length):0};
+    }).filter(x=>x.aplica&&(x.alertas>0||x.faltan>0))
+      .sort((a,b)=>(b.alertas-a.alertas)||(b.faltan-a.faltan));
+  }catch(e){ console.warn('fdyBitacorasHoy:',e.message); return []; }
+}
+
+function renderBitacorasHoy(){
+  const id='fdy-bit-'+Date.now();
+  setTimeout(async()=>{
+    const items=await fdyBitacorasHoy();
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML = !items.length
+      ? `<div style="font-size:12px;color:var(--txt3);text-align:center;padding:14px 0;">Bitácoras al día</div>`
+      : items.slice(0,5).map(({b,eq,alertas,faltan})=>`
+          <div class="it" style="cursor:pointer;" onclick="window.abrirBitacorasEquipo&&abrirBitacorasEquipo(${b.equipo_id})">
+            <div>
+              <div class="nm">${(eq?eq.nombre:'Equipo '+b.equipo_id)}</div>
+              <div class="sub">${(b.nombre||'')}${eq&&eq.area?' · '+eq.area:''}</div>
+            </div>
+            <div class="qty ${alertas?'danger':''}">${alertas?alertas+' alerta'+(alertas>1?'s':''):faltan+' pend.'}</div>
+          </div>`).join('');
+  },0);
+  return `<div class="fdy-card">
+    <div class="hd"><div class="ttl">Bitácoras de hoy</div></div>
+    <div class="bd"><div class="fdy-stock" id="${id}"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>`;
+}
+
   function renderDashboard() {
     if (!isDashboardVisible()) return;
     const tab = $('#tab-dashboard');
@@ -8097,6 +8256,11 @@ function _initFoundryLayout(){
       <div class="fdy-row r-2-1">
         ${renderPersonal()}
         ${renderStockBajo()}
+      </div>
+
+      <div class="fdy-row r-2-1">
+        ${renderCapexAlertas()}
+        ${renderBitacorasHoy()}
       </div>
     `;
 
@@ -11203,13 +11367,19 @@ async function btVistaCaptura(hora){
       <button class="btn-sm" style="margin-left:8px;" onclick="btCopiarUltima()">Copiar valores</button></div>`;
   }
 
-  html+='<div id="bt-form">';
+  html+='<div id="bt-form"><div class="bt-grid">';
   btCtx.campos.forEach(c=>{
     const v=valores[c.clave]===undefined?'':valores[c.clave];
     const ref=ultimo&&ultimo.valores[c.clave]!==undefined?ultimo.valores[c.clave]:null;
-    html+=`<div class="form-group" style="margin-bottom:12px;"><label>${btEsc(c.etiqueta)}${c.unidad?` <span style="color:var(--txt3);font-weight:400;">(${btEsc(c.unidad)})</span>`:''}${c.requerido?' <span style="color:var(--red-txt);">*</span>':''}</label>`;
-    if(c.tipo==='lista'||c.tipo==='booleano'){
-      const ops=c.tipo==='booleano'?['Sí','No']:(c.opciones||[]);
+    const ops=c.tipo==='booleano'?['Sí','No']:(c.opciones||[]);
+    const chips=(c.tipo==='lista'||c.tipo==='booleano')&&ops.length&&ops.length<=4;
+    html+=`<div class="form-group${chips?' bt-span':''}" style="margin-bottom:14px;"><label>${btEsc(c.etiqueta)}${c.unidad?` <span style="color:var(--txt3);font-weight:400;">(${btEsc(c.unidad)})</span>`:''}${c.requerido?' <span style="color:var(--red-txt);">*</span>':''}</label>`;
+    if(chips){
+      // toque directo en vez de picker: mucho más rápido con guantes en el iPad
+      html+=`<div class="bt-chips" data-chips="${c.clave}"><input type="hidden" data-bt="${c.clave}" value="${btEsc(v)}">`+
+        ops.map(o=>`<button type="button" class="bt-chip${o===v?' sel':''}" data-val="${btEsc(o)}">${btEsc(o)}</button>`).join('')+
+        '</div>';
+    } else if(c.tipo==='lista'||c.tipo==='booleano'){
       html+=`<select data-bt="${c.clave}"><option value="">—</option>${ops.map(o=>`<option${o===v?' selected':''}>${btEsc(o)}</option>`).join('')}</select>`;
     } else if(c.tipo==='numero'){
       html+=`<input type="number" inputmode="decimal" step="0.1" data-bt="${c.clave}" value="${btEsc(v)}">`;
@@ -11223,10 +11393,11 @@ async function btVistaCaptura(hora){
     if(pie.length) html+=`<div class="bt-hint">${btEsc(pie.join(' · '))}</div>`;
     html+='</div>';
   });
-  html+=`<div class="form-group"><label>Observaciones</label><textarea id="bt-obs" rows="3">${btEsc(obs)}</textarea></div>`;
-  html+=`<div class="form-group"><label>Firma del técnico</label>
+  html+='</div>';
+  html+=`<div class="form-group bt-span" style="margin-bottom:14px;"><label>Observaciones</label><textarea id="bt-obs" rows="3">${btEsc(obs)}</textarea></div>`;
+  html+=`<div class="form-group bt-span"><label>Firma del técnico</label>
     <div class="bt-firma-wrap">
-      <canvas id="bt-firma" height="150"></canvas>
+      <canvas id="bt-firma" height="180"></canvas>
       <div class="bt-firma-pie">
         <span><b>${btEsc(curProf?curProf.nombre:'')}</b> · ${btFechaLarga(btCtx.fecha)} ${hora}</span>
         <button class="btn-sm" onclick="btLimpiarFirma()"><i class="ti ti-eraser"></i> Limpiar</button>
@@ -11235,7 +11406,7 @@ async function btVistaCaptura(hora){
     <div class="bt-hint">Firma con el dedo o el stylus. Queda guardada junto con tu usuario y la hora.</div>
   </div>`;
   html+='<div id="bt-alertas"></div>';
-  html+=`<button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="btGuardar()"><i class="ti ti-device-floppy"></i> ${existente?'Guardar cambios':'Guardar lectura'}</button></div>`;
+  html+=`<div class="bt-actions"><button class="btn btn-primary" style="width:100%;" onclick="btGuardar()"><i class="ti ti-device-floppy"></i> ${existente?'Guardar cambios':'Guardar lectura'}</button></div></div>`;
 
   setTimeout(btEngancharForm,0);
   return html;
@@ -11259,6 +11430,14 @@ function btPersistirBorrador(){
 function btEngancharForm(){
   const form=document.getElementById('bt-form'); if(!form) return;
   form.addEventListener('input',()=>btRevisar(btPersistirBorrador().valores));
+  form.addEventListener('click',e=>{
+    const chip=e.target.closest?e.target.closest('.bt-chip'):null;
+    if(!chip) return;
+    const wrap=chip.parentElement, inp=wrap.querySelector('[data-bt]');
+    inp.value = inp.value===chip.dataset.val ? '' : chip.dataset.val;
+    wrap.querySelectorAll('.bt-chip').forEach(b=>b.classList.toggle('sel',b.dataset.val===inp.value));
+    btRevisar(btPersistirBorrador().valores);
+  });
   btRevisar(btLeerForm().valores);
   try{ btInitFirma(btCtx.registro?btCtx.registro.firma:null); }catch(e){ console.warn('firma:',e); }
 }
@@ -11267,14 +11446,14 @@ function btEngancharForm(){
 function btInitFirma(dataURL){
   const c=document.getElementById('bt-firma'); if(!c) return;
   const w=Math.max(c.clientWidth||0,280);
-  c.width=w; c.height=150;
+  c.width=w; c.height=180;
   const cx=c.getContext&&c.getContext('2d');
   if(!cx) return;                       // navegador sin canvas: el resto del formulario sigue vivo
-  cx.lineWidth=1.8; cx.lineCap='round'; cx.lineJoin='round'; cx.strokeStyle='#0a0a0a';
+  cx.lineWidth=2.2; cx.lineCap='round'; cx.lineJoin='round'; cx.strokeStyle='#0a0a0a';
   btCtx.firmada=false;
   if(dataURL){
     const img=new Image();
-    img.onload=()=>{ cx.drawImage(img,0,0,w,150); btCtx.firmada=true; };
+    img.onload=()=>{ cx.drawImage(img,0,0,w,180); btCtx.firmada=true; };
     img.src=dataURL;
   }
   let dib=false,last=null;
@@ -11321,7 +11500,8 @@ function btRevisar(valores){
   cont.innerHTML=html;
   document.querySelectorAll('#bt-form [data-bt]').forEach(el=>{
     const c=btCtx.campos.find(x=>x.clave===el.dataset.bt); if(!c) return;
-    el.classList.toggle('bt-mal', btEvaluar([c],valores).length>0);
+    const mal=btEvaluar([c],valores).length>0;
+    (el.type==='hidden'?el.parentElement:el).classList.toggle('bt-mal',mal);
   });
 }
 
@@ -11329,7 +11509,9 @@ function btCopiarUltima(){
   if(!btCtx.ultimo) return;
   document.querySelectorAll('#bt-form [data-bt]').forEach(el=>{
     const v=btCtx.ultimo.valores[el.dataset.bt];
-    if(v!==undefined) el.value=v;
+    if(v===undefined) return;
+    el.value=v;
+    if(el.type==='hidden') el.parentElement.querySelectorAll('.bt-chip').forEach(b=>b.classList.toggle('sel',b.dataset.val===String(v)));
   });
   btRevisar(btPersistirBorrador().valores);
   toast('Valores copiados de la última lectura — verifícalos antes de guardar');
