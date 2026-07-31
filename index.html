@@ -734,12 +734,14 @@ tr:hover td { background: var(--bg3) !important; }
 .est-card:hover{border-color:var(--line2)}
 .est-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
 .est-card-top strong{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.est-card canvas{width:100%;height:64px;display:block;margin-bottom:8px}
+.est-card-chart-wrap{position:relative;height:64px;margin-bottom:8px}
+.est-card-chart-wrap canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important;display:block}
 .est-card-nodata{height:64px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--txt3);background:var(--bg2);border-radius:4px;margin-bottom:8px}
 .est-card-bottom{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--txt2)}
 .est-card-alerta{margin-top:8px;font-size:11px;color:var(--red-txt);background:var(--red-bg);border-radius:4px;padding:5px 8px}
 .est-det-chart-hd{font-size:12px;font-weight:500;margin-bottom:6px;color:var(--txt)}
-.est-det-chart canvas{width:100%;height:130px;display:block}
+.est-det-chart-wrap{position:relative;height:130px}
+.est-det-chart-wrap canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important;display:block}
 .bt-slot.off{border-left-color:var(--line);background:var(--bg2);opacity:.75}
 .bt-firma-wrap{border:1px solid var(--line2);border-radius:3px;background:#fff;overflow:hidden}
 #bt-firma{display:block;width:100%;height:150px;touch-action:none;cursor:crosshair;background:repeating-linear-gradient(180deg,#fff 0,#fff 148px,var(--line) 149px,var(--line) 150px)}
@@ -3750,7 +3752,7 @@ function datasetsChart(serie,campo,gruesa){
 function crearChart(reg,canvasId,serie,campo,opts){
   const el=document.getElementById(canvasId);
   if(!el||typeof Chart==='undefined') return;
-  reg[canvasId]=new Chart(el.getContext('2d'),{
+  const chart=new Chart(el.getContext('2d'),{
     type:'line',
     data:{labels:serie.map(p=>p.xTxt),datasets:datasetsChart(serie,campo,opts&&opts.grande)},
     options:{
@@ -3761,6 +3763,12 @@ function crearChart(reg,canvasId,serie,campo,opts){
         :{x:{display:false},y:{display:false}}
     }
   });
+  reg[canvasId]=chart;
+  // Insurance contra el clásico problema de tamaño de Chart.js: si el canvas
+  // se midió antes de que el navegador terminara de acomodar el layout
+  // (ej. justo después de un innerHTML masivo), se vuelve a medir un frame
+  // después, ya con el contenedor con su tamaño real.
+  requestAnimationFrame(()=>{ try{ if(!chart.destroyed) chart.resize(); }catch(e){} });
 }
 
 async function renderEstatusMaquinas(){
@@ -3799,7 +3807,7 @@ async function renderEstatusMaquinas(){
     const canvasId=`est-spark-${e.equipoId}`;
     return `<div class="est-card" onclick="abrirDetalleEstatus(${e.equipoId})">
       <div class="est-card-top"><strong>${e.equipoNombre}</strong><span class="badge ${info.cls}">${info.label}</span></div>
-      ${serie.length>=2?`<canvas id="${canvasId}"></canvas>`:`<div class="est-card-nodata">${serie.length?'Muy pocas lecturas para graficar':`Sin lecturas en ${EST_DIAS_HISTORIAL} días`}</div>`}
+      ${serie.length>=2?`<div class="est-card-chart-wrap"><canvas id="${canvasId}"></canvas></div>`:`<div class="est-card-nodata">${serie.length?'Muy pocas lecturas para graficar':`Sin lecturas en ${EST_DIAS_HISTORIAL} días`}</div>`}
       <div class="est-card-bottom">
         <span>${cp?btEsc(cp.etiqueta)+(ultimoValor?': '+ultimoValor:''):''}</span>
         <span style="color:var(--txt3);">${e.diasSinLectura!=null?(e.diasSinLectura===0?'hoy':'hace '+e.diasSinLectura+'d'):'—'}</span>
@@ -3825,7 +3833,7 @@ function abrirDetalleEstatus(equipoId){
   cont.innerHTML=numericos.length?numericos.map(c=>`
     <div class="est-det-chart">
       <div class="est-det-chart-hd">${btEsc(c.etiqueta)}${c.unidad?' ('+btEsc(c.unidad)+')':''}${(c.limite_min!=null||c.limite_max!=null)?` <span style="color:var(--txt3);font-weight:400;">· límites ${c.limite_min??'–'} a ${c.limite_max??'–'}</span>`:''}</div>
-      <canvas id="est-det-c-${btEsc(c.clave)}"></canvas>
+      <div class="est-det-chart-wrap"><canvas id="est-det-c-${btEsc(c.clave)}"></canvas></div>
     </div>`).join('')
     :'<div class="empty-state">No hay suficientes lecturas numéricas todavía para graficar este equipo.</div>';
 
