@@ -11629,6 +11629,45 @@ const BT_PLANTILLAS = {
       {clave:'limp_general',   etiqueta:'Limpieza — Área general', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
     ]
   },
+  medidor_agua: {
+    nombre:'Monitoreo de consumo de agua', descripcion:'Lectura diaria del medidor — pensada para detectar fugas por un salto raro en la gráfica de consumo, no un semáforo por lectura',
+    frecuencia:'diaria', dias:[], horarios:['Lectura diaria'],
+    campos:[
+      {clave:'agua_lectura',  etiqueta:'Lectura acumulada del medidor', tipo:'numero',unidad:'m³',requerido:true},
+      {clave:'agua_consumo',  etiqueta:'Consumo del día (lectura de hoy − lectura de ayer)', tipo:'numero',unidad:'m³'},
+      {clave:'agua_fugas',    etiqueta:'Fugas visibles (tuberías, llaves, WC)', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'agua_medidor',  etiqueta:'Estado físico del medidor', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico']}
+    ]
+  },
+  medidor_luz: {
+    nombre:'Monitoreo de consumo eléctrico', descripcion:'Lectura diaria del medidor de CFE — igual que agua, el valor real está en la tendencia, no en la lectura de un solo día',
+    frecuencia:'diaria', dias:[], horarios:['Lectura diaria'],
+    campos:[
+      {clave:'luz_lectura',   etiqueta:'Lectura acumulada del medidor', tipo:'numero',unidad:'kWh',requerido:true},
+      {clave:'luz_consumo',   etiqueta:'Consumo del día (lectura de hoy − lectura de ayer)', tipo:'numero',unidad:'kWh'},
+      {clave:'luz_demanda',   etiqueta:'Demanda máxima registrada (si el medidor la muestra)', tipo:'numero',unidad:'kW'},
+      {clave:'luz_desperdicio',etiqueta:'Luces o equipos encendidos sin necesidad', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'luz_tablero',   etiqueta:'Estado físico del medidor / tablero', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico']}
+    ]
+  },
+  agua_luz: {
+    nombre:'Monitoreo de consumo de agua y luz', descripcion:'Lectura de medidores — detecta fugas por consumo fuera de horario y vigila el factor de potencia que penaliza CFE',
+    frecuencia:'diaria', dias:[], horarios:['Llegada (inicio de turno)','Salida (fin de turno)'],
+    campos:[
+      // Agua — comparar Salida de ayer vs Llegada de hoy revela consumo nocturno,
+      // que casi siempre es una fuga (nada debería estar consumiendo de noche)
+      {clave:'agua_lectura', etiqueta:'Agua — Lectura del medidor', tipo:'numero',unidad:'m³',requerido:true},
+      {clave:'agua_fuga',    etiqueta:'Agua — Fuga visible',       tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
+      {clave:'agua_presion', etiqueta:'Agua — Presión de línea',   tipo:'numero',unidad:'psi'},
+      // Luz — CFE penaliza factor de potencia por debajo de 0.90 (0.95 si la
+      // demanda contratada pasa de 1 MW); demanda máxima es lo que más pesa
+      // en tarifas por demanda tipo GDMTH. Confirma tu tarifa y umbral exactos.
+      {clave:'luz_lectura',  etiqueta:'Luz — Lectura del medidor CFE', tipo:'numero',unidad:'kWh',requerido:true},
+      {clave:'luz_demanda',  etiqueta:'Luz — Demanda máxima registrada', tipo:'numero',unidad:'kW'},
+      {clave:'luz_fp',       etiqueta:'Luz — Factor de potencia',   tipo:'numero',unidad:'%',limite_min:90},
+      {clave:'luz_corte',    etiqueta:'Luz — Corte o falla de suministro', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
+    ]
+  },
   vacia: { nombre:'Bitácora nueva', descripcion:'Sin campos: se definen después', frecuencia:'diaria', dias:[], horarios:['09:00'], campos:[] }
 };
 
