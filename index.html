@@ -1232,6 +1232,13 @@ tr:hover td { background: var(--bg3) !important; }
       </div>
     </div><!-- /tab-tecnicos -->
 
+    <!-- TAB: BITÁCORAS (módulo directo, sin pasar por Equipos) -->
+    <div id="tab-bitacoras" class="panel-hidden card">
+      <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-notebook"></i> Bitácoras</div></div>
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Todos los equipos con bitácora activa, en un solo lugar — toca uno para capturar. No hace falta pasar por Equipos.</p>
+      <div id="bitmod-list"></div>
+    </div><!-- /tab-bitacoras -->
+
     <!-- TAB: ESTATUS DE MÁQUINAS -->
     <div id="tab-estatus" class="panel-hidden card">
       <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-heartbeat"></i> Estatus de máquinas</div></div>
@@ -2654,6 +2661,7 @@ async function bootApp(user){
       nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
       nav.innerHTML+=`<button class="nav-btn" id="nav-inventario" onclick="setTab('inventario')"><i class="ti ti-package"></i> Inventario</button>`;
     }
+    nav.innerHTML+=`<button class="nav-btn" id="nav-bitacoras" onclick="setTab('bitacoras')"><i class="ti ti-notebook"></i> Bitácoras</button>`;
     // Permitir ver/agregar equipos — solo técnico (supervisor de zona ya no lo necesita)
     if(curProf.rol === 'tecnico'){
       nav.innerHTML+=`<button class="nav-btn" id="nav-equipos" onclick="setTab('equipos')"><i class="ti ti-settings-2"></i> Equipos</button>`;
@@ -2667,6 +2675,7 @@ async function bootApp(user){
   if(curProf.rol === 'supervisor'){
     nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaZona();"><i class="ti ti-calendar"></i> Agenda</button>`;
+    nav.innerHTML+=`<button class="nav-btn" id="nav-bitacoras" onclick="setTab('bitacoras')"><i class="ti ti-notebook"></i> Bitácoras</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-inventario" onclick="setTab('inventario')"><i class="ti ti-package"></i> Inventario</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-pendientes" onclick="setTab('pendientes')"><i class="ti ti-checklist"></i> Pendientes</button>`;
   }
@@ -2697,6 +2706,7 @@ async function bootApp(user){
   }
   // Estatus de máquinas: solo admin
   if(curProf.rol==='admin'){
+    nav.innerHTML+=`<button class="nav-btn" id="nav-bitacoras" onclick="setTab('bitacoras')"><i class="ti ti-notebook"></i> Bitácoras</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-estatus" onclick="setTab('estatus')"><i class="ti ti-heartbeat"></i> Estatus</button>`;
   }
   if(curProf.rol==='admin'){
@@ -2831,7 +2841,7 @@ async function forceLoadAll(){ return loadAll(); }
 // setupRT redefined below with notifications
 
 // ── NAVEGACIÓN ──
-const TABS=['escaner','dashboard','programar','proyectos','pendientes','ordenes','checklist','equipos','tecnicos','estatus','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
+const TABS=['escaner','dashboard','programar','proyectos','pendientes','ordenes','checklist','equipos','tecnicos','estatus','bitacoras','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -2851,6 +2861,7 @@ function setTab(t){
   if(t==='tecnicos')renderUsuarios();
   if(t==='checklist')renderCLSel();
   if(t==='estatus')renderEstatusMaquinas();
+  if(t==='bitacoras')renderBitacorasModulo();
   if(t==='reportes')renderReportes();
   if(t==='cal-tecnico')renderCalTecnico();
   if(t==='inventario')renderInventario();
@@ -3746,7 +3757,72 @@ async function delUsr(id){
   toast('✅ Usuario eliminado');await forceLoadAll();
 }
 
-// ── ESTATUS DE MÁQUINAS (a partir de las bitácoras de cada equipo) ──
+// ── MÓDULO BITÁCORAS (lista directa, sin pasar por Equipos) ──
+const BITMOD_ORDEN = {alerta:0, pendiente:1, completa:2, no_aplica:3};
+const BITMOD_INFO = {
+  alerta:    {label:'Alerta',      cls:'badge-red'},
+  pendiente: {label:'Pendiente',   cls:'badge-amber'},
+  completa:  {label:'Completa',    cls:'badge-green'},
+  no_aplica: {label:'No programada hoy', cls:''}
+};
+
+async function calcularBitacorasHoy(){
+  const hoy=btHoy();
+  const {data:bits,error:e1}=await db.from('bitacoras').select('id,equipo_id,nombre,horarios,frecuencia,dias').eq('activa',true);
+  if(e1) throw e1;
+  if(!bits||!bits.length) return [];
+  const {data:regs,error:e2}=await db.from('bitacora_registros').select('bitacora_id,estado').eq('fecha',hoy);
+  if(e2) throw e2;
+
+  let lista=bits.map(b=>{
+    const aplica=btAplicaDia(b,hoy);
+    const propios=(regs||[]).filter(r=>r.bitacora_id===b.id);
+    const alertas=propios.filter(r=>r.estado==='alerta').length;
+    const faltan=aplica?(b.horarios.length-propios.length):0;
+    const eq=(typeof allEqs!=='undefined'?allEqs:[]).find(e=>String(e.id)===String(b.equipo_id));
+    let estado;
+    if(alertas>0) estado='alerta';
+    else if(!aplica) estado='no_aplica';
+    else if(faltan>0) estado='pendiente';
+    else estado='completa';
+    return {bitacora:b, equipoId:b.equipo_id, equipoNombre:eq?eq.nombre:('Equipo '+b.equipo_id),
+            equipoArea:eq?eq.area:null, alertas, faltan, hechos:propios.length, total:b.horarios.length, estado};
+  });
+
+  // Supervisor de zona: solo lo de su zona, igual que las alertas en tiempo real
+  if(curProf&&curProf.rol==='supervisor_zona'&&curProf.zona){
+    lista=lista.filter(x=>x.equipoArea===curProf.zona);
+  }
+  return lista;
+}
+
+async function renderBitacorasModulo(){
+  const cont=document.getElementById('bitmod-list'); if(!cont) return;
+  cont.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  let lista;
+  try{ lista=await calcularBitacorasHoy(); }
+  catch(e){ cont.innerHTML='<div class="empty-state" style="color:var(--red-txt);">No se pudo cargar: '+e.message+'</div>'; return; }
+
+  lista.sort((a,b)=>(BITMOD_ORDEN[a.estado]-BITMOD_ORDEN[b.estado])||a.equipoNombre.localeCompare(b.equipoNombre));
+
+  cont.innerHTML=lista.length?lista.map(x=>{
+    const info=BITMOD_INFO[x.estado];
+    const detalle = x.estado==='no_aplica' ? btProgramaTxt(x.bitacora) : `${x.hechos}/${x.total} hoy`;
+    return `<div class="bt-card" onclick="window.abrirBitacorasEquipo&&abrirBitacorasEquipo(${x.equipoId})">
+      <div style="flex:1;min-width:0;">
+        <div class="bt-card-t">${btEsc(x.equipoNombre)}</div>
+        <div class="bt-card-s">${btEsc(x.bitacora.nombre)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex:none;">
+        <span style="font-size:11px;color:var(--txt3);">${detalle}</span>
+        <span class="badge ${info.cls}">${info.label}</span>
+        <i class="ti ti-chevron-right" style="color:var(--txt3);"></i>
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty-state"><i class="ti ti-notebook"></i><br>Ningún equipo tiene bitácora activa todavía.</div>';
+}
+
+
 const EST_DIAS_SIN_LECTURA_ATENCION = 2;  // días sin ninguna captura -> se marca en ámbar
 const EST_DIAS_HISTORIAL = 30;            // ventana de historial para las gráficas
 const EST_ORDEN   = {alerta:0, atencion:1, normal:2, sin_datos:3};
@@ -7135,7 +7211,7 @@ const T = {
     // Nav
     escaner: 'Escáner QR', dashboard: 'Dashboard', calendario: 'Calendario PM',
     ordenes: 'Órdenes', checklist: 'Checklist', equipos: 'Equipos',
-    personal: 'Personal', estatus: 'Estatus', reportes: 'Reportes',
+    personal: 'Personal', estatus: 'Estatus', bitacoras: 'Bitácoras', reportes: 'Reportes',
     inventario: 'Inventario', compras: 'Compras', analisis: 'Análisis',
     configuracion: 'Configuración', mi_agenda: 'Mi Agenda',
     agenda_zona: 'Agenda de Zona', nueva_solicitud: 'Nueva Solicitud',
@@ -7194,7 +7270,7 @@ const T = {
     // Nav
     escaner: 'QR Scanner', dashboard: 'Dashboard', calendario: 'PM Calendar',
     ordenes: 'Work Orders', checklist: 'Checklist', equipos: 'Equipment',
-    personal: 'Personnel', estatus: 'Machine Status', reportes: 'Reports',
+    personal: 'Personnel', estatus: 'Machine Status', bitacoras: 'Logbooks', reportes: 'Reports',
     inventario: 'Inventory', compras: 'Purchases', analisis: 'Analysis',
     configuracion: 'Settings', mi_agenda: 'My Schedule',
     agenda_zona: 'Zone Schedule', nueva_solicitud: 'New Request',
@@ -7276,7 +7352,7 @@ function applyLang(){
     'nav-escaner': 'escaner', 'nav-dashboard': 'dashboard',
     'nav-ordenes': 'ordenes',
     'nav-checklist': 'checklist', 'nav-equipos': 'equipos',
-    'nav-tecnicos': 'personal', 'nav-estatus': 'estatus',
+    'nav-tecnicos': 'personal', 'nav-estatus': 'estatus', 'nav-bitacoras': 'bitacoras',
     'nav-reportes': 'reportes', 'nav-inventario': 'inventario',
     'nav-compras': 'compras', 'nav-analisis': 'analisis',
     'nav-configuracion': 'configuracion', 'nav-cal-tecnico': 'mi_agenda',
@@ -8342,7 +8418,7 @@ function _initFoundryLayout(){
     if (!navBtns.length) return;
 
     const groups = {
-      'Operación': ['escaner','dashboard','ordenes','checklist','ot-libre','cal-tecnico'],
+      'Operación': ['escaner','dashboard','ordenes','checklist','ot-libre','cal-tecnico','bitacoras'],
       'Activos':   ['equipos','tecnicos','inventario','compras'],
       'Analítica': ['estatus','reportes','analisis','configuracion'],
     };
@@ -8352,7 +8428,7 @@ function _initFoundryLayout(){
       tecnicos:'ti-users', estatus:'ti-heartbeat', reportes:'ti-report-analytics',
       'cal-tecnico':'ti-calendar-event', 'ot-libre':'ti-clipboard-plus',
       inventario:'ti-package', compras:'ti-shopping-cart', analisis:'ti-chart-dots',
-      configuracion:'ti-settings'
+      configuracion:'ti-settings', bitacoras:'ti-notebook'
     };
 
     const itemsByTab = {};
@@ -11645,7 +11721,9 @@ const BT_PLANTILLAS = {
     campos:[
       {clave:'luz_lectura',   etiqueta:'Lectura acumulada del medidor', tipo:'numero',unidad:'kWh',requerido:true},
       {clave:'luz_consumo',   etiqueta:'Consumo del día (lectura de hoy − lectura de ayer)', tipo:'numero',unidad:'kWh'},
-      {clave:'luz_demanda',   etiqueta:'Demanda máxima registrada (si el medidor la muestra)', tipo:'numero',unidad:'kW'},
+      {clave:'luz_kw',        etiqueta:'Potencia activa (kW instantáneo, PM800)', tipo:'numero',unidad:'kW'},
+      {clave:'luz_demanda',   etiqueta:'Demanda máxima registrada (PM800)', tipo:'numero',unidad:'kW'},
+      {clave:'luz_fp',        etiqueta:'Factor de potencia (PM800)', tipo:'numero',unidad:'%',limite_min:90},
       {clave:'luz_desperdicio',etiqueta:'Luces o equipos encendidos sin necesidad', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
       {clave:'luz_tablero',   etiqueta:'Estado físico del medidor / tablero', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico']}
     ]
@@ -11659,10 +11737,21 @@ const BT_PLANTILLAS = {
       {clave:'agua_lectura', etiqueta:'Agua — Lectura del medidor', tipo:'numero',unidad:'m³',requerido:true},
       {clave:'agua_fuga',    etiqueta:'Agua — Fuga visible',       tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true},
       {clave:'agua_presion', etiqueta:'Agua — Presión de línea',   tipo:'numero',unidad:'psi'},
-      // Luz — CFE penaliza factor de potencia por debajo de 0.90 (0.95 si la
+      // Luz — leído directo de la pantalla del PM800 (Schneider PowerLogic),
+      // sin necesidad de calcular nada: voltaje y corriente por fase,
+      // potencia activa, kWh acumulado, demanda y factor de potencia salen
+      // todos ahí con solo darle scroll al display del medidor.
+      {clave:'luz_lectura',  etiqueta:'Luz — Lectura del medidor (kWh acumulado)', tipo:'numero',unidad:'kWh',requerido:true},
+      {clave:'luz_kw',       etiqueta:'Luz — Potencia activa (kW instantáneo)', tipo:'numero',unidad:'kW'},
+      {clave:'luz_v_l1',     etiqueta:'Luz — Voltaje L1', tipo:'numero',unidad:'V'},
+      {clave:'luz_v_l2',     etiqueta:'Luz — Voltaje L2', tipo:'numero',unidad:'V'},
+      {clave:'luz_v_l3',     etiqueta:'Luz — Voltaje L3', tipo:'numero',unidad:'V'},
+      {clave:'luz_a_l1',     etiqueta:'Luz — Corriente L1', tipo:'numero',unidad:'A'},
+      {clave:'luz_a_l2',     etiqueta:'Luz — Corriente L2', tipo:'numero',unidad:'A'},
+      {clave:'luz_a_l3',     etiqueta:'Luz — Corriente L3', tipo:'numero',unidad:'A'},
+      // CFE penaliza factor de potencia por debajo de 0.90 (0.95 si la
       // demanda contratada pasa de 1 MW); demanda máxima es lo que más pesa
       // en tarifas por demanda tipo GDMTH. Confirma tu tarifa y umbral exactos.
-      {clave:'luz_lectura',  etiqueta:'Luz — Lectura del medidor CFE', tipo:'numero',unidad:'kWh',requerido:true},
       {clave:'luz_demanda',  etiqueta:'Luz — Demanda máxima registrada', tipo:'numero',unidad:'kW'},
       {clave:'luz_fp',       etiqueta:'Luz — Factor de potencia',   tipo:'numero',unidad:'%',limite_min:90},
       {clave:'luz_corte',    etiqueta:'Luz — Corte o falla de suministro', tipo:'lista',opciones:['✅ Normal','🟡 Atención','🔴 Crítico'],opciones_alerta:['🟡 Atención','🔴 Crítico'],requerido:true}
