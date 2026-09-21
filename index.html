@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -822,6 +823,34 @@ tr:hover td { background: var(--bg3) !important; }
   .bt-slot.alerta:hover{border-left-color:var(--red)}
 }
 </style>
+<style id="phase-one-redesign">
+:root{--sidebar-w:224px;--action:#111827;--surface:#fff;--canvas:#f3f4f6}
+body.role-admin #app,body.role-supervisor #app,body.role-gerencia #app{padding-left:var(--sidebar-w)}
+body.role-admin .header,body.role-supervisor .header,body.role-gerencia .header{left:var(--sidebar-w)}
+body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);z-index:60;background:#111827;border:0;overflow-y:auto;padding:76px 12px 20px}
+body.role-admin .nav,body.role-supervisor .nav,body.role-gerencia .nav{display:flex;flex-direction:column;padding:0;gap:4px}
+body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:7px;color:#cbd5e1;text-transform:none;font-size:13px;letter-spacing:0;justify-content:flex-start}
+body.role-admin .nav-btn:hover,body.role-supervisor .nav-btn:hover,body.role-gerencia .nav-btn:hover{background:#1f2937;color:#fff}
+body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{background:#fff;color:#111827;font-weight:600}
+body.role-admin .nav-btn i,body.role-supervisor .nav-btn i,body.role-gerencia .nav-btn i{font-size:17px;width:20px}
+.action-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin:0 0 18px}.action-eyebrow{font-size:12px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}.action-title{font-size:28px;font-weight:650;letter-spacing:-.035em;color:#111827;line-height:1.12}.action-sub{font-size:14px;color:var(--txt2);margin-top:7px}.action-buttons{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.action-buttons .btn-sm{min-height:40px;padding:9px 14px;font-size:13px}
+.priority-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.priority-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;cursor:pointer;text-align:left;transition:.18s ease;min-height:108px}.priority-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(17,24,39,.08);border-color:#cbd5e1}.priority-card.danger{border-top:4px solid var(--red)}.priority-card.warning{border-top:4px solid #d97706}.priority-card.info{border-top:4px solid #2563eb}.priority-card.good{border-top:4px solid var(--green)}.priority-label{font-size:12px;font-weight:600;color:var(--txt2);display:flex;gap:7px;align-items:center}.priority-value{font-size:30px;font-weight:700;letter-spacing:-.04em;margin:7px 0 2px;color:#111827}.priority-hint{font-size:11px;color:var(--txt3)}
+@media(max-width:900px){body.role-admin #app,body.role-supervisor #app,body.role-gerencia #app{padding-left:0}body.role-admin .header,body.role-supervisor .header,body.role-gerencia .header{left:0}body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{position:static;width:auto;padding:0;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto}body.role-admin .nav,body.role-supervisor .nav,body.role-gerencia .nav{flex-direction:row;padding:0 10px;gap:0}body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{width:auto;border-radius:0;color:var(--txt3);white-space:nowrap}body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{border-bottom:2px solid #111827;color:#111827}.priority-strip{grid-template-columns:repeat(2,1fr)}.action-head{align-items:flex-start;flex-direction:column}.action-buttons{justify-content:flex-start}}
+@media(max-width:700px){body.role-tecnico .nav-wrap,body.role-supervisor_zona .nav-wrap{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:80;border-top:1px solid var(--line);border-bottom:0;padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.96);backdrop-filter:blur(12px)}body.role-tecnico .nav,body.role-supervisor_zona .nav{padding:0;display:grid;grid-template-columns:repeat(4,1fr);overflow:visible}body.role-tecnico .nav-btn,body.role-supervisor_zona .nav-btn{padding:8px 4px;min-height:57px;justify-content:center;flex-direction:column;gap:3px;border:0;font-size:10px;letter-spacing:0;text-transform:none;overflow:hidden}body.role-tecnico .nav-btn i,body.role-supervisor_zona .nav-btn i{font-size:20px}body.role-tecnico .nav-btn.active,body.role-supervisor_zona .nav-btn.active{border:0;color:#111827;background:#f3f4f6}body.role-tecnico .nav-btn:nth-child(n+5),body.role-supervisor_zona .nav-btn:nth-child(n+5){display:none!important}body.role-tecnico .main,body.role-supervisor_zona .main{padding-bottom:92px}.main{padding:16px}.action-title{font-size:24px}.action-sub{font-size:13px}.action-buttons{width:100%}.action-buttons .btn-sm{flex:1;justify-content:center}.priority-strip{grid-template-columns:1fr 1fr;gap:8px}.priority-card{padding:13px;min-height:100px}.priority-value{font-size:27px}.kpi-grid{gap:8px;border:0;overflow:visible}.kpi-card{border:1px solid var(--line)!important;border-radius:7px;padding:15px}.kpi-value{font-size:30px}.card{border-radius:8px;padding:16px}.btn-sm{min-height:38px}.form-group input,.form-group select,.form-group textarea{font-size:16px;min-height:44px}}
+/* El técnico trabaja en iPad: su navegación permanece siempre al alcance del pulgar. */
+body.role-tecnico .nav-wrap{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:80;border-top:1px solid var(--line);border-bottom:0;padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.96);backdrop-filter:blur(14px);overflow-x:auto;box-shadow:0 -5px 20px rgba(17,24,39,.07)}
+body.role-tecnico .nav{display:flex!important;flex-direction:row!important;gap:0;padding:0 8px;min-width:max-content;justify-content:center}
+body.role-tecnico .nav-btn{display:flex!important;flex:0 0 108px;width:108px;min-height:64px;padding:8px 5px;justify-content:center;align-items:center;flex-direction:column;gap:4px;border:0;border-radius:0;color:var(--txt3);font-size:11px;letter-spacing:0;text-transform:none;white-space:nowrap}
+body.role-tecnico .nav-btn i{font-size:21px;width:auto}
+body.role-tecnico .nav-btn.active{border:0;color:#111827;background:#f3f4f6;font-weight:600}
+body.role-tecnico #nav-cal-tecnico{order:1}body.role-tecnico #nav-ordenes{order:2}body.role-tecnico #nav-checklist{order:3}body.role-tecnico #nav-escaner{order:4}body.role-tecnico #nav-inventario{order:5}body.role-tecnico #nav-bitacoras{order:6}body.role-tecnico #nav-equipos{order:7}
+body.role-tecnico #nav-escaner{position:relative;overflow:visible;color:#fff;background:transparent;min-width:112px}
+body.role-tecnico #nav-escaner i{width:54px;height:54px;margin-top:-25px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111827;color:#fff;font-size:29px;border:5px solid #fff;box-shadow:0 8px 22px rgba(17,24,39,.25)}
+body.role-tecnico #nav-escaner.active{background:transparent;color:#111827}
+body.role-tecnico #nav-escaner.active i{background:#2563eb}
+body.role-tecnico .main{padding-bottom:104px}
+@media(max-width:780px){body.role-tecnico .nav{justify-content:flex-start}body.role-tecnico .nav-btn{flex-basis:96px;width:96px;font-size:10px}}
+</style>
 </head>
 <body>
 
@@ -1124,7 +1153,11 @@ tr:hover td { background: var(--bg3) !important; }
 
     <!-- TAB: DASHBOARD -->
     <div id="tab-dashboard" class="panel-hidden">
-      <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--green-bg);border:1px solid rgba(42,122,69,0.15);border-radius:3px;font-size:11px;color:var(--green-txt);margin-bottom:16px;"><div class="rt-dot"></div>Datos en tiempo real</div>
+      <div class="action-head">
+        <div><div class="action-eyebrow" id="action-date">Operación de mantenimiento</div><h1 class="action-title" id="action-greeting">Prioridades de hoy</h1><div class="action-sub" id="action-summary">Revisa lo que requiere atención antes de continuar con la programación.</div></div>
+        <div class="action-buttons"><button class="btn-sm" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escanear equipo</button><button class="btn-sm btn-primary btn-admin-only" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button></div>
+      </div>
+      <div class="priority-strip" id="priority-strip"></div>
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--red)"></span>Urgentes</div><div class="kpi-value" id="k-urg">–</div><div class="kpi-sub">Atención inmediata</div></div>
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--amber)"></span>En progreso</div><div class="kpi-value" id="k-prog">–</div><div class="kpi-sub">Asignadas</div></div>
@@ -1151,6 +1184,9 @@ tr:hover td { background: var(--bg3) !important; }
           <div style="display:flex;gap:8px;">
             <select id="f-est-fil" style="border:1px solid #ddd;border-radius:3px;padding:5px 10px;font-size:12px;background:#fff;color:#111;outline:none;" onchange="renderOrdenes()">
               <option value="">Todos</option><option>Urgente</option><option>En progreso</option><option>Pendiente</option><option>Completada</option>
+            </select>
+            <select id="f-rango-fil" aria-label="Rango de programación" style="border:1px solid #ddd;border-radius:3px;padding:5px 10px;font-size:12px;background:#fff;color:#111;outline:none;" onchange="renderOrdenes()">
+              <option value="30">Próximos 30 días</option><option value="90" selected>Próximos 90 días</option><option value="180">Próximos 6 meses</option><option value="all">Todas las fechas</option>
             </select>
             <button class="btn-sm btn-primary btn-admin-only" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button>
           </div>
@@ -2647,13 +2683,14 @@ async function bootApp(user){
   const rb=document.getElementById('u-rol');rb.className='role-badge '+(rc[prof.rol]||'');rb.textContent=rl[prof.rol]||prof.rol;
   document.getElementById('am-name').textContent=prof.nombre;
   document.getElementById('am-rol').textContent=rl[prof.rol]||prof.rol;
+  document.body.classList.add('role-'+prof.rol);
 
   const nav=document.getElementById('main-nav');
   nav.innerHTML='';
   if(['tecnico','supervisor_zona'].includes(curProf.rol)){
     if(curProf.rol === 'supervisor_zona'){
       // Supervisor de zona: escaner primero, luego agenda de zona
-      nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escáner QR</button>`;
+      nav.innerHTML+=`<button class="nav-btn" id="nav-escaner" onclick="setTab('escaner');startScanner();"><i class="ti ti-qrcode"></i> Escanear</button>`;
       nav.innerHTML+=`<button class="nav-btn" id="nav-cal-tecnico" onclick="setTab('cal-tecnico');renderAgendaZona();"><i class="ti ti-calendar"></i> Agenda de Zona</button>`;
     } else {
       // Tecnico: agenda primero, luego escaner
@@ -3395,6 +3432,7 @@ function renderDash(){
   document.getElementById('k-prog').textContent=allOTs.filter(o=>o.estado==='En progreso').length;
   document.getElementById('k-hoy').textContent=allOTs.filter(o=>o.estado==='Completada'&&o.fecha_cierre&&new Date(o.fecha_cierre)>=hoy).length;
   document.getElementById('k-eq').textContent=allEqs.length;
+  renderActionCenter();
 
   const [semIni,semFin]=limitesSemana(new Date());
   const rangoTxt=`${semIni.toLocaleDateString('es-MX',{day:'numeric',month:'short'})} – ${semFin.toLocaleDateString('es-MX',{day:'numeric',month:'short'})}`;
@@ -3450,15 +3488,48 @@ function renderDash(){
     <div class="stat-row"><span style="color:var(--txt2);">Equipos registrados</span><strong>${allEqs.length}</strong></div>`;
 }
 
+function renderActionCenter(){
+  const strip=document.getElementById('priority-strip'); if(!strip)return;
+  const ahora=new Date(),nombre=(curProf?.nombre||'').split(' ')[0];
+  const saludo=ahora.getHours()<12?'Buenos días':ahora.getHours()<19?'Buenas tardes':'Buenas noches';
+  const fecha=document.getElementById('action-date'),titulo=document.getElementById('action-greeting');
+  if(fecha)fecha.textContent=ahora.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+  if(titulo)titulo.textContent=`${saludo}${nombre?', '+nombre:''}`;
+  const urgentes=allOTs.filter(o=>o.prioridad==='Urgente'&&o.estado!=='Completada');
+  const sinAsignar=allOTs.filter(o=>!o.tecnico_id&&!['Completada','Cancelada'].includes(o.estado));
+  const aprobar=allOTs.filter(o=>o.estado==='Por aprobar');
+  const fuera=allEqs.filter(e=>['Fuera de servicio','En mantenimiento'].includes(e.estado));
+  const resumen=document.getElementById('action-summary'),total=urgentes.length+sinAsignar.length+aprobar.length;
+  if(resumen)resumen.textContent=total?`${total} asunto${total===1?'':'s'} requiere${total===1?'':'n'} revisión.`:'La operación no tiene asuntos críticos pendientes.';
+  const cards=[{cls:'danger',icon:'ti-alert-triangle',label:'Urgentes',value:urgentes.length,hint:'Requieren atención inmediata',tab:'ordenes'},{cls:'warning',icon:'ti-user-question',label:'Sin asignar',value:sinAsignar.length,hint:'Esperan responsable',tab:'ordenes'},{cls:'info',icon:'ti-clipboard-check',label:'Por aprobar',value:aprobar.length,hint:'Esperan revisión',tab:'ordenes'},{cls:'good',icon:'ti-settings-check',label:'Equipos con atención',value:fuera.length,hint:'En mantenimiento o detenidos',tab:'equipos'}];
+  strip.innerHTML=cards.map(c=>`<button class="priority-card ${c.cls}" onclick="setTab('${c.tab}')"><div class="priority-label"><i class="ti ${c.icon}"></i>${c.label}</div><div class="priority-value">${c.value}</div><div class="priority-hint">${c.hint}</div></button>`).join('');
+}
+
 // ── ORDENES ──
 function renderOrdenes(){
   const filEl=document.getElementById('f-est-fil');
+  const rangoEl=document.getElementById('f-rango-fil');
   const wrapEl=document.getElementById('ots-wrap');
   if(!wrapEl) return;
   const f=filEl?filEl.value:'';
   let lista=f?allOTs.filter(o=>o.estado===f):allOTs;
   if(curProf.rol==='tecnico')lista=lista.filter(o=>
     o.tecnico_id===curUser.id||(!o.tecnico_id&&o.estado!=='Completada'));
+  const rango=rangoEl?rangoEl.value:'90';
+  if(rango!=='all'){
+    const limite=new Date(); limite.setHours(23,59,59,999); limite.setDate(limite.getDate()+Number(rango));
+    lista=lista.filter(o=>{
+      if(!o.fecha_programada)return true;
+      const programada=fechaLocalOT(o.fecha_programada);
+      return !programada||programada<=limite;
+    });
+  }
+  lista=[...lista].sort((a,b)=>{
+    const pesoA=PESO_ESTADO_SEM[a.estado]??3,pesoB=PESO_ESTADO_SEM[b.estado]??3;
+    if(pesoA!==pesoB)return pesoA-pesoB;
+    const fa=fechaLocalOT(a.fecha_programada||a.fecha_creacion),fb=fechaLocalOT(b.fecha_programada||b.fecha_creacion);
+    return (fa?.getTime()||0)-(fb?.getTime()||0);
+  });
   document.getElementById('ots-wrap').innerHTML=lista.length?`<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Equipo</th><th>Programado</th><th>Descripción</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th></th></tr></thead><tbody>${lista.map(o=>`<tr>
     <td style="font-size:11px;color:var(--txt3);">#${o.id}</td>
     <td><strong style="font-weight:500;">${o.equipo_nombre||'–'}</strong></td>
