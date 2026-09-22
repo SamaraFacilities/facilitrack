@@ -923,6 +923,9 @@ html.fdy-booting #app{visibility:hidden!important}
 .inv-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
 .inv-kpi{border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
 .inv-mobile-view{display:none}
+body.fdym #tab-inventario>.card{margin:18px;border-radius:15px!important;padding:18px!important}
+body.fdym #tab-inventario .inv-table-view{display:none}
+body.fdym #tab-inventario .inv-mobile-view{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
 
 @media(max-width:900px){body[class*="role-"] .main{padding:20px}body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{padding-top:0;background:#fff!important}body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{color:#64748b!important;margin:0;border-radius:0!important}body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{color:var(--role-accent)!important;background:var(--role-soft)!important;box-shadow:none}}
 @media(max-width:700px){body[class*="role-"] .main{padding:14px 12px 102px}body[class*="role-"] .action-head{padding:20px;border-radius:13px}body[class*="role-"] .priority-strip{grid-template-columns:1fr 1fr}body[class*="role-"] .kpi-grid{grid-template-columns:1fr 1fr}body[class*="role-"] .card{padding:16px;border-radius:12px!important}}
@@ -946,8 +949,7 @@ body.fdym .eq-card-view{display:grid;grid-template-columns:repeat(auto-fit,minma
   #tab-inventario .inv-kpis{grid-template-columns:1fr 1fr;gap:8px}
   #tab-inventario .inv-kpi{padding:12px;min-height:94px}
   #tab-inventario .inv-kpi-value{grid-column:1/-1;min-height:auto}
-  #tab-inventario .inv-table-view{display:none}
-  #tab-inventario .inv-mobile-view{display:grid;grid-template-columns:1fr;gap:11px}
+  #tab-inventario .inv-mobile-view{grid-template-columns:1fr;gap:11px}
   .inv-mobile-card{border:1px solid var(--fsm-line,var(--line));border-left:4px solid var(--role-accent,var(--accent));border-radius:12px;padding:14px;background:#fff;box-shadow:0 4px 14px rgba(16,42,67,.05);min-width:0}
   .inv-mobile-card.is-critical{border-left-color:var(--red)}
   .inv-mobile-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -9607,6 +9609,32 @@ function _initFoundryMobile(){
       min-height: 44px;
       padding: 12px 14px !important;
     }
+    @media (min-width: 769px) {
+      body.fdym .fdym-top {
+        padding-left: max(28px, calc((100vw - 1280px) / 2 + 24px));
+        padding-right: max(28px, calc((100vw - 1280px) / 2 + 24px));
+      }
+      body.fdym #fdym-inicio {
+        width: min(100%, 1280px);
+        margin: 0 auto;
+      }
+      body.fdym .main {
+        width: min(100%, 1280px) !important;
+        max-width: 1280px !important;
+        margin: 0 auto !important;
+        padding: 24px 24px 120px !important;
+        box-sizing: border-box !important;
+      }
+      body.fdym .fdym-bottombar {
+        left: 50%; right: auto; width: min(900px, calc(100% - 32px));
+        transform: translateX(-50%);
+        border: 1px solid var(--line); border-bottom: 0;
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -8px 28px rgba(16,42,67,.10);
+      }
+      body.fdym .fdym-cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+      body.fdym .fdym-more-sheet { max-width: 760px; margin: 0 auto; border-radius:20px 20px 0 0; }
+    }
   `;
   const styleEl = document.createElement('style');
   styleEl.id = 'fdym-style';
@@ -9930,12 +9958,7 @@ const _devPoller = setInterval(function(){
   if(window.curProf && !_devInitDone){
     _devInitDone = true;
     clearInterval(_devPoller);
-    const isMobRole = ['tecnico','supervisor_zona'].includes(window.curProf.rol);
-    if(isMobRole || isMobileDevice()){
-      if(typeof _initFoundryMobile==='function') _initFoundryMobile();
-    } else {
-      if(typeof _initFoundryLayout==='function') _initFoundryLayout();
-    }
+    if(typeof _initFoundryMobile==='function') _initFoundryMobile();
   }
 }, 400);
 
