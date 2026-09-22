@@ -915,6 +915,15 @@ body.role-tecnico #nav-escaner i{background:var(--role-accent)}
 
 @media(max-width:900px){body[class*="role-"] .main{padding:20px}body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{padding-top:0;background:#fff!important}body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{color:#64748b!important;margin:0;border-radius:0!important}body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{color:var(--role-accent)!important;background:var(--role-soft)!important;box-shadow:none}}
 @media(max-width:700px){body[class*="role-"] .main{padding:14px 12px 102px}body[class*="role-"] .action-head{padding:20px;border-radius:13px}body[class*="role-"] .priority-strip{grid-template-columns:1fr 1fr}body[class*="role-"] .kpi-grid{grid-template-columns:1fr 1fr}body[class*="role-"] .card{padding:16px;border-radius:12px!important}}
+.eq-card-view{display:none}
+body.fdym #tab-equipos>.card{margin:18px;border-radius:15px!important;padding:18px!important}
+body.fdym .eq-table-view{display:none}
+body.fdym .eq-card-view{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px}
+.eq-ipad-card{background:#fff;border:1px solid var(--fsm-line,var(--line));border-left:4px solid var(--role-accent,var(--accent));border-radius:13px;padding:16px;box-shadow:0 5px 16px rgba(16,42,67,.05)}
+.eq-ipad-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.eq-ipad-code{font:700 12px/1 'Inter',sans-serif;color:var(--role-accent,var(--accent));background:var(--role-soft,#eff6ff);padding:7px 9px;border-radius:8px}.eq-ipad-card h3{font:700 18px/1.25 'Inter Tight','Inter',sans-serif;color:var(--fsm-navy,#102a43);margin:14px 0}
+.eq-ipad-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.eq-ipad-meta div{background:#f6f8fb;border-radius:9px;padding:10px;min-width:0}.eq-ipad-meta span{display:block;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}.eq-ipad-meta strong{display:block;font-size:13px;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eq-ipad-primary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.eq-ipad-primary .btn-sm{justify-content:center;width:100%}.eq-ipad-more{margin-top:9px;border-top:1px solid #e8eef5;padding-top:9px}.eq-ipad-more summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;color:#475569;font-size:12px;font-weight:600}.eq-ipad-more summary::-webkit-details-marker{display:none}.eq-ipad-more-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:8px}.eq-ipad-more-grid .btn-sm{justify-content:center}.eq-ipad-more-grid .btn-danger{color:#fff!important}
+@media(max-width:620px){body.fdym #tab-equipos>.card{margin:12px;padding:14px!important}body.fdym .eq-card-view{grid-template-columns:1fr}.eq-ipad-meta{grid-template-columns:1fr 1fr}.eq-ipad-meta div:last-child{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -3731,8 +3740,8 @@ function renderEquipos(){
   const _eqWrap=document.getElementById('eq-wrap');
   if(!_eqWrap) return;
   if(!allEqs.length){_eqWrap.innerHTML='<div class="empty-state"><i class="ti ti-settings-2"></i><br>Sin equipos registrados</div>';return;}
-  let html=`<table><thead><tr><th>Código</th><th>Nombre</th><th>Zona Asignada</th><th>Uso (Hrs)</th><th>Frec. PM</th><th>Estado</th><th></th></tr></thead><tbody>`;
-  html+=allEqs.map(e=>{
+  let table=`<div class="eq-table-view"><table><thead><tr><th>Código</th><th>Nombre</th><th>Zona Asignada</th><th>Uso (Hrs)</th><th>Frec. PM</th><th>Estado</th><th></th></tr></thead><tbody>`;
+  table+=allEqs.map(e=>{
     const reqPM=(e.horas_actuales||0)>=(e.frec_pm_horas||999999)&&(e.horas_actuales||0)>0;
     return`<tr>
       <td style="font-size:11px;color:var(--txt2);font-family:monospace;">${e.codigo}</td>
@@ -3753,7 +3762,35 @@ function renderEquipos(){
       </td>
     </tr>`;
   }).join('');
-  _eqWrap.innerHTML=html+`</tbody></table>`;
+  table+=`</tbody></table></div>`;
+
+  const cards=`<div class="eq-card-view">${allEqs.map(e=>{
+    const reqPM=(e.horas_actuales||0)>=(e.frec_pm_horas||999999)&&(e.horas_actuales||0)>0;
+    const admin=curProf.rol==='admin';
+    return `<article class="eq-ipad-card">
+      <div class="eq-ipad-top">
+        <span class="eq-ipad-code">${e.codigo||'Sin código'}</span>
+        <div>${badge(e.estado)}${reqPM?'<span class="badge badge-red" style="margin-left:5px;">PM requerido</span>':''}</div>
+      </div>
+      <h3>${e.nombre||'Equipo sin nombre'}</h3>
+      <div class="eq-ipad-meta">
+        <div><span>Zona</span><strong>${e.area||'Sin asignar'}</strong></div>
+        <div><span>Uso</span><strong>${e.horas_actuales||0} h</strong></div>
+        <div><span>Frecuencia PM</span><strong>Cada ${e.frec_pm_horas||0} h</strong></div>
+      </div>
+      <div class="eq-ipad-primary">
+        <button class="btn-sm" onclick="verQRById(${e.id})"><i class="ti ti-qrcode"></i> Ver QR</button>
+        <button class="btn-sm" onclick="abrirBitacorasEquipo(${e.id})"><i class="ti ti-notebook"></i> Bitácora</button>
+      </div>
+      ${admin?`<details class="eq-ipad-more"><summary><i class="ti ti-dots"></i> Más acciones</summary><div class="eq-ipad-more-grid">
+        <button class="btn-sm" onclick="openRefaccionesEquipo(${e.id})"><i class="ti ti-package"></i> Refacciones</button>
+        <button class="btn-sm" onclick="openClBuilder(${e.id})"><i class="ti ti-list-check"></i> Checklist</button>
+        <button class="btn-sm" onclick="openModalEq(${e.id})"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn-sm btn-danger" onclick="eliminarEquipo(${e.id})"><i class="ti ti-trash"></i> Eliminar</button>
+      </div></details>`:''}
+    </article>`;
+  }).join('')}</div>`;
+  _eqWrap.innerHTML=table+cards;
 }
 
 function openModalEq(id=null){
