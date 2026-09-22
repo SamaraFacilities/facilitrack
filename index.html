@@ -838,19 +838,83 @@ body.role-admin .nav-btn i,body.role-supervisor .nav-btn i,body.role-gerencia .n
 @media(max-width:900px){body.role-admin #app,body.role-supervisor #app,body.role-gerencia #app{padding-left:0}body.role-admin .header,body.role-supervisor .header,body.role-gerencia .header{left:0}body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{position:static;width:auto;padding:0;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto}body.role-admin .nav,body.role-supervisor .nav,body.role-gerencia .nav{flex-direction:row;padding:0 10px;gap:0}body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{width:auto;border-radius:0;color:var(--txt3);white-space:nowrap}body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{border-bottom:2px solid #111827;color:#111827}.priority-strip{grid-template-columns:repeat(2,1fr)}.action-head{align-items:flex-start;flex-direction:column}.action-buttons{justify-content:flex-start}}
 @media(max-width:700px){body.role-tecnico .nav-wrap,body.role-supervisor_zona .nav-wrap{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:80;border-top:1px solid var(--line);border-bottom:0;padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.96);backdrop-filter:blur(12px)}body.role-tecnico .nav,body.role-supervisor_zona .nav{padding:0;display:grid;grid-template-columns:repeat(4,1fr);overflow:visible}body.role-tecnico .nav-btn,body.role-supervisor_zona .nav-btn{padding:8px 4px;min-height:57px;justify-content:center;flex-direction:column;gap:3px;border:0;font-size:10px;letter-spacing:0;text-transform:none;overflow:hidden}body.role-tecnico .nav-btn i,body.role-supervisor_zona .nav-btn i{font-size:20px}body.role-tecnico .nav-btn.active,body.role-supervisor_zona .nav-btn.active{border:0;color:#111827;background:#f3f4f6}body.role-tecnico .nav-btn:nth-child(n+5),body.role-supervisor_zona .nav-btn:nth-child(n+5){display:none!important}body.role-tecnico .main,body.role-supervisor_zona .main{padding-bottom:92px}.main{padding:16px}.action-title{font-size:24px}.action-sub{font-size:13px}.action-buttons{width:100%}.action-buttons .btn-sm{flex:1;justify-content:center}.priority-strip{grid-template-columns:1fr 1fr;gap:8px}.priority-card{padding:13px;min-height:100px}.priority-value{font-size:27px}.kpi-grid{gap:8px;border:0;overflow:visible}.kpi-card{border:1px solid var(--line)!important;border-radius:7px;padding:15px}.kpi-value{font-size:30px}.card{border-radius:8px;padding:16px}.btn-sm{min-height:38px}.form-group input,.form-group select,.form-group textarea{font-size:16px;min-height:44px}}
 /* El técnico trabaja en iPad: su navegación permanece siempre al alcance del pulgar. */
-body.role-tecnico .nav-wrap{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:80;border-top:1px solid var(--line);border-bottom:0;padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.96);backdrop-filter:blur(14px);overflow-x:auto;box-shadow:0 -5px 20px rgba(17,24,39,.07)}
-body.role-tecnico .nav{display:flex!important;flex-direction:row!important;gap:0;padding:0 8px;min-width:max-content;justify-content:center}
-body.role-tecnico .nav-btn{display:flex!important;flex:0 0 108px;width:108px;min-height:64px;padding:8px 5px;justify-content:center;align-items:center;flex-direction:column;gap:4px;border:0;border-radius:0;color:var(--txt3);font-size:11px;letter-spacing:0;text-transform:none;white-space:nowrap}
+body.role-tecnico .nav-wrap{position:fixed!important;inset:auto 0 0 0!important;width:100vw!important;max-width:none!important;box-sizing:border-box;z-index:80;border-top:1px solid var(--line)!important;border-bottom:0!important;padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.96)!important;backdrop-filter:blur(14px);overflow:visible!important;box-shadow:0 -5px 20px rgba(17,24,39,.07);margin:0!important}
+body.role-tecnico .nav{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;width:100%;min-width:0;padding:0 max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left));box-sizing:border-box;justify-content:stretch!important;overflow:visible!important}
+body.role-tecnico .nav-btn{display:flex!important;width:100%!important;min-width:0!important;max-width:none;min-height:68px;padding:9px 3px!important;justify-content:center;align-items:center;flex-direction:column;gap:4px;border:0!important;border-radius:0;color:var(--txt3);font-size:11px!important;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:visible}
 body.role-tecnico .nav-btn i{font-size:21px;width:auto}
 body.role-tecnico .nav-btn.active{border:0;color:#111827;background:#f3f4f6;font-weight:600}
 body.role-tecnico #nav-cal-tecnico{order:1}body.role-tecnico #nav-ordenes{order:2}body.role-tecnico #nav-checklist{order:3}body.role-tecnico #nav-escaner{order:4}body.role-tecnico #nav-inventario{order:5}body.role-tecnico #nav-bitacoras{order:6}body.role-tecnico #nav-equipos{order:7}
-body.role-tecnico #nav-escaner{position:relative;overflow:visible;color:#fff;background:transparent;min-width:112px}
-body.role-tecnico #nav-escaner i{width:54px;height:54px;margin-top:-25px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111827;color:#fff;font-size:29px;border:5px solid #fff;box-shadow:0 8px 22px rgba(17,24,39,.25)}
+body.role-tecnico #nav-escaner{position:relative;overflow:visible;color:#111827!important;background:transparent!important;min-width:0!important}
+body.role-tecnico #nav-escaner i{width:58px;height:58px;margin-top:-29px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111827;color:#fff;font-size:31px;border:5px solid #fff;box-shadow:0 8px 22px rgba(17,24,39,.25)}
 body.role-tecnico #nav-escaner.active{background:transparent;color:#111827}
 body.role-tecnico #nav-escaner.active i{background:#2563eb}
 body.role-tecnico .main{padding-bottom:104px}
-@media(max-width:780px){body.role-tecnico .nav{justify-content:flex-start}body.role-tecnico .nav-btn{flex-basis:96px;width:96px;font-size:10px}}
+@media(max-width:780px){body.role-tecnico .nav{padding-left:max(4px,env(safe-area-inset-left));padding-right:max(4px,env(safe-area-inset-right))}body.role-tecnico .nav-btn{font-size:10px!important}}
+@media(max-width:560px){body.role-tecnico .nav-wrap{overflow-x:auto!important}body.role-tecnico .nav{display:flex!important;width:max-content;min-width:100%;justify-content:flex-start!important;padding-left:4px;padding-right:4px}body.role-tecnico .nav-btn{flex:0 0 82px;width:82px!important}}
 @media(max-width:620px){.scan-choice{grid-template-columns:1fr}.scan-choice-btn{min-height:78px}}
+
+/* Field Service UI — lenguaje visual unificado para todos los roles. */
+:root{--fsm-navy:#102a43;--fsm-blue:#2563eb;--fsm-blue-soft:#eff6ff;--fsm-canvas:#f3f6fa;--fsm-line:#dbe4ee;--fsm-shadow:0 8px 24px rgba(16,42,67,.07);--role-accent:#2563eb;--role-soft:#eff6ff}
+body.role-tecnico{--role-accent:#2563eb;--role-soft:#eff6ff}
+body.role-supervisor_zona{--role-accent:#0f766e;--role-soft:#ecfdf5}
+body.role-supervisor{--role-accent:#d97706;--role-soft:#fffbeb}
+body.role-admin{--role-accent:#102a43;--role-soft:#eef3f8}
+body.role-gerencia{--role-accent:#7c3aed;--role-soft:#f5f3ff}
+body[class*="role-"]{background:var(--fsm-canvas)!important}
+body[class*="role-"] .main{max-width:1320px;padding:28px}
+body[class*="role-"] .header{height:64px!important;border-bottom:1px solid var(--fsm-line)!important;box-shadow:0 3px 14px rgba(16,42,67,.05)}
+body[class*="role-"] .role-badge{background:var(--role-soft)!important;color:var(--role-accent)!important;border:1px solid color-mix(in srgb,var(--role-accent) 22%,transparent)}
+body[class*="role-"] .card{border-color:var(--fsm-line)!important;border-radius:14px!important;box-shadow:var(--fsm-shadow)!important;padding:22px}
+body[class*="role-"] .card-header{padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid #e8eef5}
+body[class*="role-"] .card-title{font-size:15px!important;color:var(--fsm-navy)!important}
+body[class*="role-"] .card-title i{color:var(--role-accent);font-size:18px}
+body[class*="role-"] .btn-sm{min-height:40px;padding:9px 14px!important;border-radius:9px!important;border-color:#d3dde8!important;background:#fff!important}
+body[class*="role-"] .btn-sm:hover{border-color:var(--role-accent)!important;color:var(--role-accent)!important;background:var(--role-soft)!important}
+body[class*="role-"] .btn-primary{background:var(--role-accent)!important;border-color:var(--role-accent)!important;color:#fff!important;box-shadow:0 5px 13px color-mix(in srgb,var(--role-accent) 20%,transparent)}
+body[class*="role-"] .btn-primary:hover{color:#fff!important;filter:brightness(.94)}
+body[class*="role-"] .badge{border-radius:999px!important;padding:5px 10px!important;font-weight:600!important}
+body[class*="role-"] input:not([type=checkbox]):not([type=radio]),body[class*="role-"] select,body[class*="role-"] textarea{border-color:#d3dde8!important;border-radius:9px!important;background:#fff!important}
+body[class*="role-"] input:focus,body[class*="role-"] select:focus,body[class*="role-"] textarea:focus{border-color:var(--role-accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--role-accent) 14%,transparent)!important}
+
+body[class*="role-"] .action-head{position:relative;overflow:hidden;background:linear-gradient(120deg,var(--fsm-navy),color-mix(in srgb,var(--role-accent) 76%,#102a43));border-radius:16px;padding:24px 26px;margin-bottom:18px;box-shadow:0 12px 28px rgba(16,42,67,.16)}
+body[class*="role-"] .action-head::after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-85px;top:-135px;background:rgba(255,255,255,.08);pointer-events:none}
+body[class*="role-"] .action-eyebrow,body[class*="role-"] .action-sub{color:rgba(255,255,255,.72)}
+body[class*="role-"] .action-title{color:#fff}
+body[class*="role-"] .action-head .btn-sm{position:relative;z-index:1;border-color:rgba(255,255,255,.38)!important;background:rgba(255,255,255,.1)!important;color:#fff!important}
+body[class*="role-"] .action-head .btn-primary{background:#fff!important;border-color:#fff!important;color:var(--fsm-navy)!important}
+
+body[class*="role-"] .priority-strip{gap:12px}
+body[class*="role-"] .priority-card{border-color:var(--fsm-line);border-top:0;border-left:5px solid #94a3b8;border-radius:13px;padding:17px 18px;box-shadow:0 5px 16px rgba(16,42,67,.05)}
+body[class*="role-"] .priority-card.danger{border-left-color:var(--red)}body[class*="role-"] .priority-card.warning{border-left-color:#d97706}body[class*="role-"] .priority-card.info{border-left-color:#2563eb}body[class*="role-"] .priority-card.good{border-left-color:var(--green)}
+body[class*="role-"] .priority-value{color:var(--fsm-navy)}
+body[class*="role-"] .kpi-grid{gap:12px;background:transparent!important;border:0!important;overflow:visible}
+body[class*="role-"] .kpi-card{border:1px solid var(--fsm-line)!important;border-radius:13px!important;box-shadow:0 5px 16px rgba(16,42,67,.05);overflow:hidden}
+body[class*="role-"] .kpi-card::before{left:0;top:0;width:100%;height:5px;background:var(--red)}
+body[class*="role-"] .kpi-card:nth-child(2)::before{background:#d97706}body[class*="role-"] .kpi-card:nth-child(3)::before{background:#169c5b}body[class*="role-"] .kpi-card:nth-child(4)::before{background:#2563eb}
+body[class*="role-"] .kpi-label{margin-top:6px!important;color:#64748b!important;letter-spacing:.06em!important}
+body[class*="role-"] .kpi-value{color:var(--fsm-navy)!important}
+
+body[class*="role-"] table{border-collapse:separate;border-spacing:0}
+body[class*="role-"] th{background:#f5f8fc!important;color:#64748b!important;border-top:1px solid var(--fsm-line)}
+body[class*="role-"] th:first-child{border-top-left-radius:9px}body[class*="role-"] th:last-child{border-top-right-radius:9px}
+body[class*="role-"] td{background:#fff;border-bottom-color:#e8eef5!important}
+body[class*="role-"] tr:hover td{background:var(--role-soft)!important}
+body[class*="role-"] .ot-card,body[class*="role-"] .bt-card,body[class*="role-"] .bt-slot,body[class*="role-"] .bt-mini{border-color:var(--fsm-line);border-radius:11px;box-shadow:0 3px 10px rgba(16,42,67,.04)}
+body[class*="role-"] .scan-choice-btn{border-color:var(--fsm-line);border-radius:13px;box-shadow:0 5px 16px rgba(16,42,67,.05)}
+body[class*="role-"] .scan-choice-icon{background:var(--role-accent)}
+body[class*="role-"] .modal{border-radius:16px!important;border-color:var(--fsm-line)!important}
+
+body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{background:var(--fsm-navy)!important;padding-top:82px}
+body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{border-radius:9px!important;margin:2px 0;color:#b9c8d8!important}
+body.role-admin .nav-btn i,body.role-supervisor .nav-btn i,body.role-gerencia .nav-btn i{color:#89a2bb}
+body.role-admin .nav-btn:hover,body.role-supervisor .nav-btn:hover,body.role-gerencia .nav-btn:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
+body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{background:#fff!important;color:var(--fsm-navy)!important;box-shadow:0 6px 16px rgba(0,0,0,.16)}
+body.role-admin .nav-btn.active i,body.role-supervisor .nav-btn.active i,body.role-gerencia .nav-btn.active i{color:var(--role-accent)}
+body.role-tecnico .nav-btn.active{color:var(--role-accent)!important;background:var(--role-soft)!important}
+body.role-tecnico #nav-escaner i{background:var(--role-accent)}
+
+@media(max-width:900px){body[class*="role-"] .main{padding:20px}body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{padding-top:0;background:#fff!important}body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{color:#64748b!important;margin:0;border-radius:0!important}body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{color:var(--role-accent)!important;background:var(--role-soft)!important;box-shadow:none}}
+@media(max-width:700px){body[class*="role-"] .main{padding:14px 12px 102px}body[class*="role-"] .action-head{padding:20px;border-radius:13px}body[class*="role-"] .priority-strip{grid-template-columns:1fr 1fr}body[class*="role-"] .kpi-grid{grid-template-columns:1fr 1fr}body[class*="role-"] .card{padding:16px;border-radius:12px!important}}
 </style>
 </head>
 <body>
@@ -2684,6 +2748,7 @@ async function bootApp(user){
   const{data:prof, error:pe}=await db.from('profiles').select('*').eq('id',user.id).single();
   console.log('👤 bootApp perfil:', JSON.stringify({nombre: prof?.nombre, rol: prof?.rol, error: pe?.message}));
   curProf=prof;
+  window.curUser=curUser;window.curProf=curProf;
   if(!prof){
     const msg = pe ? 'Error RLS/perfil: '+pe.message+' ['+pe.code+']' : 'Tu perfil no está configurado. Contacta al administrador.';
     document.getElementById('login-err').textContent=msg;
@@ -2836,6 +2901,7 @@ async function loadAll(){
       safeQ(()=>db.from('checklist_plantillas').select('*')),
     ]);
     allOTs=_ots; allEqs=_eqs; allProfs=_prfs;
+    window.allOTs=allOTs;window.allEqs=allEqs;window.allProfs=allProfs;
     allRefacciones=_refs; allOrdenesCompra=_ocs; allPlantillas=_pls;
     // Load equipo_refacciones silently (table may not exist yet)
     try{
@@ -8140,8 +8206,8 @@ function _initFoundryLayout(){
     }
     .fdy-side .nv i { font-size: 16px; color: var(--txt3); width: 18px; }
     .fdy-side .nv:hover { background: var(--bg3); color: var(--txt); }
-    .fdy-side .nv.act { background: var(--bg3); color: var(--txt); border-left-color: var(--accent); font-weight: 500; }
-    .fdy-side .nv.act i { color: var(--accent); }
+    .fdy-side .nv.act { background: var(--role-soft,#eff6ff); color: var(--role-accent,var(--accent)); border-left-color: var(--role-accent,var(--accent)); font-weight: 600; }
+    .fdy-side .nv.act i { color: var(--role-accent,var(--accent)); }
     .fdy-side .nv .badge {
       margin-left: auto; background: var(--red); color: #fff;
       font-size: 10px; padding: 1px 7px; border-radius: 999px; font-weight: 500;
@@ -8158,10 +8224,15 @@ function _initFoundryLayout(){
      
     .fdy-page-head {
       display: flex; align-items: flex-end; justify-content: space-between;
-      margin-bottom: 22px; gap: 20px; flex-wrap: wrap;
+      margin-bottom: 18px; gap: 20px; flex-wrap: wrap;
+      position: relative; overflow: hidden; padding: 24px 26px;
+      border-radius: 16px; color: #fff;
+      background: linear-gradient(120deg,#102a43,color-mix(in srgb,var(--role-accent,#2563eb) 76%,#102a43));
+      box-shadow: 0 12px 28px rgba(16,42,67,.16);
     }
+    .fdy-page-head::after { content:''; position:absolute; width:220px; height:220px; border-radius:50%; right:-85px; top:-135px; background:rgba(255,255,255,.08); pointer-events:none; }
     .fdy-page-head .eyebrow {
-      font-size: 10px; color: var(--txt3);
+      font-size: 10px; color: rgba(255,255,255,.7);
       text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 4px; font-weight: 500;
     }
     .fdy-page-head h1 {
@@ -8169,15 +8240,18 @@ function _initFoundryLayout(){
       font-size: 30px; letter-spacing: -0.03em; line-height: 1.05;
       margin: 0;
     }
-    .fdy-page-head .desc { font-size: 13px; color: var(--txt2); margin-top: 4px; max-width: 520px; }
-    .fdy-page-head .actions { display: flex; gap: 8px; align-items: center; }
+    .fdy-page-head .desc { font-size: 13px; color: rgba(255,255,255,.72); margin-top: 4px; max-width: 520px; }
+    .fdy-page-head .actions { display: flex; gap: 8px; align-items: center; position:relative; z-index:1; }
+    .fdy-page-head .actions .btn-sm { background:rgba(255,255,255,.1)!important; border-color:rgba(255,255,255,.38)!important; color:#fff!important; }
+    .fdy-page-head .actions .btn-primary { background:#fff!important; border-color:#fff!important; color:#102a43!important; }
 
      
     .fdy-kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
     @media (max-width: 1000px) { .fdy-kpis { grid-template-columns: repeat(2,1fr); } }
     .fdy-kpi {
-      background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+      background: var(--bg); border: 1px solid var(--fsm-line,var(--line)); border-radius: 13px;
       padding: 18px 20px; min-height: 160px; display: flex; flex-direction: column;
+      box-shadow: 0 5px 16px rgba(16,42,67,.05); overflow:hidden;
     }
     .fdy-kpi .top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .fdy-kpi .accent { width: 28px; height: 4px; background: currentColor; }
@@ -8208,7 +8282,7 @@ function _initFoundryLayout(){
     }
 
      
-    .fdy-card { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
+    .fdy-card { background: var(--bg); border: 1px solid var(--fsm-line,var(--line)); border-radius: 13px; box-shadow:0 5px 16px rgba(16,42,67,.05); overflow:hidden; }
     .fdy-card .hd { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
     .fdy-card .hd .ttl { font-family: 'Inter Tight', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
     .fdy-card .hd .ttl .sub { font-weight: 400; color: var(--txt3); font-size: 12px; font-family: 'Inter', sans-serif; letter-spacing: 0; margin-left: 4px; }
@@ -9159,7 +9233,7 @@ function _initFoundryMobile(){
       display: flex; align-items: center; gap: 12px;
     }
     .fdym-top .mark {
-      width: 40px; height: 40px; background: var(--accent); color: #fff;
+      width: 40px; height: 40px; background: var(--role-accent,var(--accent)); color: #fff;
       display: grid; place-items: center; border-radius: 50%;
       font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 14px;
       letter-spacing: -0.02em;
@@ -9224,13 +9298,13 @@ function _initFoundryMobile(){
      
     .fdym-cta {
       margin: 0 18px 18px; padding: 16px 18px;
-      background: var(--txt); color: var(--bg); border-radius: 12px;
+      background: linear-gradient(120deg,#102a43,color-mix(in srgb,var(--role-accent,#2563eb) 74%,#102a43)); color: #fff; border-radius: 14px;
       display: flex; align-items: center; gap: 14px;
-      cursor: pointer; box-shadow: 0 4px 14px rgba(20,19,15,0.10);
+      cursor: pointer; box-shadow: 0 10px 24px rgba(16,42,67,.16);
     }
     .fdym-cta .ic {
       width: 44px; height: 44px; border-radius: 50%;
-      background: var(--accent); display: grid; place-items: center;
+      background: rgba(255,255,255,.16); display: grid; place-items: center;
       flex-shrink: 0;
     }
     .fdym-cta .ic i { font-size: 22px; color: #fff; }
@@ -9273,15 +9347,15 @@ function _initFoundryMobile(){
       font-size: 18px; letter-spacing: -0.02em; margin: 0;
     }
     .fdym-secthead .link {
-      font-size: 13px; color: var(--accent); font-weight: 500; cursor: pointer;
+      font-size: 13px; color: var(--role-accent,var(--accent)); font-weight: 500; cursor: pointer;
     }
 
      
     .fdym-cards { padding: 0 18px 24px; display: flex; flex-direction: column; gap: 10px; }
     .fdym-card {
-      background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+      background: var(--bg); border: 1px solid var(--fsm-line,var(--line)); border-left:4px solid var(--role-accent,var(--accent)); border-radius: 12px;
       padding: 16px; cursor: pointer;
-      transition: transform 0.12s, border-color 0.12s;
+      transition: transform 0.12s, border-color 0.12s; box-shadow:0 5px 16px rgba(16,42,67,.05);
     }
     .fdym-card:active { transform: scale(0.99); border-color: var(--line2); }
     .fdym-card .top {
@@ -9341,17 +9415,25 @@ function _initFoundryMobile(){
       padding: 6px 4px;
     }
     .fdym-bottombar .it i { font-size: 22px; }
-    .fdym-bottombar .it.act { color: var(--accent); }
+    .fdym-bottombar .it.act { color: var(--role-accent,var(--accent)); }
     .fdym-bottombar .it.scan { position: relative; }
     .fdym-bottombar .it.scan .fab {
       width: 60px; height: 60px; border-radius: 50%;
-      background: var(--accent); color: #fff;
+      background: var(--role-accent,var(--accent)); color: #fff;
       display: grid; place-items: center;
       margin-top: -30px; margin-bottom: 2px;
       box-shadow: 0 6px 18px rgba(10,10,10,0.36);
     }
     .fdym-bottombar .it.scan .fab i { font-size: 28px; }
     .fdym-bottombar .it.scan span { color: var(--txt2); margin-top: -2px; }
+
+    .fdym-more-backdrop { position:fixed; inset:0; z-index:108; background:rgba(15,23,42,.38); display:flex; align-items:flex-end; }
+    .fdym-more-sheet { width:100%; max-height:72vh; overflow:auto; background:#fff; border-radius:20px 20px 0 0; padding:18px 18px max(22px,env(safe-area-inset-bottom)); box-shadow:0 -14px 34px rgba(16,42,67,.18); }
+    .fdym-more-sheet .head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .fdym-more-sheet .head strong { font-family:'Inter Tight',sans-serif; font-size:20px; color:#102a43; }
+    .fdym-more-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .fdym-more-item { border:1px solid var(--fsm-line,var(--line)); border-radius:12px; background:#fff; min-height:82px; padding:12px 8px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; color:#475569; font:600 11px 'Inter',sans-serif; text-align:center; }
+    .fdym-more-item i { color:var(--role-accent,var(--accent)); font-size:23px; }
 
      
     body.fdym button:not(.fdym-bottombar .it) { min-height: 44px; }
@@ -9382,16 +9464,17 @@ function _initFoundryMobile(){
   // ── STATE ─────────────────────────────────────────────────
   const S = { filter: 'todas' };
 
-  function isMobileRole(){ const r = window.curProf?.rol; return r==='tecnico'||r==='supervisor_zona'; }
+  function isMobileRole(){ return !!window.curProf?.rol; }
 
   function myScope(){
     const ots = window.allOTs || [];
-    const isSup = window.curProf?.rol === 'supervisor_zona';
-    if (isSup) {
+    const role = window.curProf?.rol;
+    if (role === 'supervisor_zona') {
       const zona = window.curProf?.zona;
       if (!zona) return ots;
       return ots.filter(o => String(o.area||o.zona) === String(zona));
     }
+    if (role !== 'tecnico') return ots;
     const meId = window.curUser?.id;
     if (!meId) return [];
     return ots.filter(o => String(o.asignado_a) === String(meId));
@@ -9407,7 +9490,8 @@ function _initFoundryMobile(){
       document.body.insertBefore(wrap, document.body.firstChild);
     }
     const nm = window.curProf?.nombre || '—';
-    const rol = window.curProf?.rol === 'supervisor_zona' ? 'Supervisor de zona' : 'Técnico';
+    const roleNames={tecnico:'Técnico',supervisor_zona:'Supervisor de zona',supervisor:'Supervisor',admin:'Administración',gerencia:'Gerencia',ingeniero:'Ingeniería',ehs:'EHS'};
+    const rol = roleNames[window.curProf?.rol] || window.curProf?.rol || 'Usuario';
     wrap.innerHTML = `
       <div class="mark">${initials(nm).toUpperCase()}</div>
       <div class="who">
@@ -9445,7 +9529,11 @@ function _initFoundryMobile(){
       target.parentNode.insertBefore(wrap, target);
     }
 
-    const isSup = window.curProf?.rol === 'supervisor_zona';
+    const role=window.curProf?.rol;
+    const isSup = role === 'supervisor_zona';
+    const canCreate = ['admin','supervisor','supervisor_zona'].includes(role);
+    const scopeLabel = role==='tecnico'?'Mi día':role==='supervisor_zona'?'Supervisión de zona':'Operación';
+    const listLabel = role==='tecnico'?'Mis órdenes':role==='supervisor_zona'?'Órdenes de la zona':'Órdenes activas';
     const my = myScope();
     const active = my.filter(isAbierta);
     const stats = statsCard();
@@ -9470,7 +9558,7 @@ function _initFoundryMobile(){
 
     wrap.innerHTML = `
       <div class="fdym-greet">
-        <div class="eyebrow">${fecha} · ${isSup?'Supervisión zona':'Mi día'}</div>
+        <div class="eyebrow">${fecha} · ${scopeLabel}</div>
         <h1>Hola, ${nombre}<br/><span class="big">${stats.active}</span> ${stats.active===1?'orden activa':'órdenes activas'}</h1>
       </div>
       <div class="fdym-stats">
@@ -9478,12 +9566,12 @@ function _initFoundryMobile(){
         <div class="s"><div class="lab">En curso</div><div class="val ${stats.enProg>0?'amb':''}">${stats.enProg}</div></div>
         <div class="s"><div class="lab">Cerradas hoy</div><div class="val grn">${stats.compHoy}</div></div>
       </div>
-      ${isSup ? `
+      ${canCreate ? `
         <div class="fdym-cta" onclick="window.openNuevaOT&&openNuevaOT()">
           <div class="ic"><i class="ti ti-clipboard-plus"></i></div>
           <div class="tx">
-            <div class="h">Crear OT urgente</div>
-            <div class="s">Reporta paro o falla en tu zona</div>
+            <div class="h">Crear orden de trabajo</div>
+            <div class="s">Registra un paro, una falla o una tarea prioritaria</div>
           </div>
           <i class="ti ti-chevron-right"></i>
         </div>
@@ -9492,7 +9580,7 @@ function _initFoundryMobile(){
         ${filters.map(f => `<button class="chip ${S.filter===f.k?'act':''}" data-filter="${f.k}">${f.l}<span class="n">${f.n}</span></button>`).join('')}
       </div>
       <div class="fdym-secthead">
-        <h2>${isSup?'Órdenes de la zona':'Mis órdenes'}</h2>
+        <h2>${listLabel}</h2>
         <span class="link" onclick="window.setTab&&setTab('ordenes')">Ver todas →</span>
       </div>
       <div class="fdym-cards">
@@ -9550,30 +9638,28 @@ function _initFoundryMobile(){
       document.body.appendChild(bar);
     }
     const cur = window._fdymTab || 'inicio';
-    bar.innerHTML = `
-      <div class="it ${cur==='inicio'?'act':''}" data-go="inicio">
-        <i class="ti ti-home"></i><span>Inicio</span>
-      </div>
-      <div class="it ${cur==='ordenes'?'act':''}" data-go="ordenes">
-        <i class="ti ti-clipboard-list"></i><span>Órdenes</span>
-      </div>
-      <div class="it scan" data-go="escaner">
-        <div class="fab"><i class="ti ti-scan"></i></div>
-        <span>Escanear</span>
-      </div>
-      <div class="it ${cur==='checklist'?'act':''}" data-go="checklist">
-        <i class="ti ti-checklist"></i><span>Checklist</span>
-      </div>
-      <div class="it ${cur==='agenda'?'act':''}" data-go="agenda">
-        <i class="ti ti-calendar"></i><span>Agenda</span>
-      </div>
-    `;
+    const role=window.curProf?.rol;
+    const configs={
+      tecnico:[['inicio','ti-home','Inicio'],['ordenes','ti-clipboard-list','Órdenes'],['escaner','ti-qrcode','Escanear'],['checklist','ti-checklist','Checklist'],['agenda','ti-calendar','Agenda']],
+      supervisor_zona:[['inicio','ti-home','Inicio'],['agenda','ti-calendar','Agenda'],['escaner','ti-qrcode','Escanear'],['bitacoras','ti-notebook','Bitácoras'],['more','ti-grid-dots','Más']],
+      supervisor:[['inicio','ti-home','Inicio'],['ordenes','ti-clipboard-list','Órdenes'],['escaner','ti-qrcode','Escanear'],['inventario','ti-package','Inventario'],['more','ti-grid-dots','Más']],
+      admin:[['inicio','ti-home','Inicio'],['ordenes','ti-clipboard-list','Órdenes'],['escaner','ti-qrcode','Escanear'],['inventario','ti-package','Inventario'],['more','ti-grid-dots','Más']],
+      gerencia:[['inicio','ti-home','Inicio'],['ordenes','ti-clipboard-list','Órdenes'],['equipos','ti-settings-2','Equipos'],['reportes','ti-report-analytics','Reportes'],['more','ti-grid-dots','Más']],
+      ingeniero:[['inicio','ti-home','Inicio'],['ot-libre','ti-clipboard-plus','Solicitud'],['ordenes','ti-clipboard-list','Órdenes'],['equipos','ti-settings-2','Equipos'],['more','ti-grid-dots','Más']],
+      ehs:[['inicio','ti-home','Inicio'],['ot-libre','ti-clipboard-plus','Solicitud'],['ordenes','ti-clipboard-list','Órdenes'],['equipos','ti-settings-2','Equipos'],['more','ti-grid-dots','Más']]
+    };
+    const items=configs[role]||configs.admin;
+    bar.style.gridTemplateColumns=`repeat(${items.length},1fr)`;
+    bar.innerHTML=items.map(([go,icon,label])=>go==='escaner'
+      ? `<div class="it scan" data-go="${go}"><div class="fab"><i class="ti ${icon}"></i></div><span>${label}</span></div>`
+      : `<div class="it ${cur===go?'act':''}" data-go="${go}"><i class="ti ${icon}"></i><span>${label}</span></div>`).join('');
     $$('.it', bar).forEach(it => {
       it.addEventListener('click', () => goTab(it.dataset.go));
     });
   }
 
   function goTab(t){
+    if(t==='more'){openMoreSheet();return;}
     window._fdymTab = t;
     const inicio = $('#fdym-inicio');
     if (t === 'inicio') {
@@ -9593,10 +9679,22 @@ function _initFoundryMobile(){
       if (typeof window.setTab === 'function') window.setTab('checklist');
     } else if (t === 'agenda') {
       if (inicio) inicio.style.display = 'none';
-      const role = window.curProf?.rol;
       if (typeof window.setTab === 'function') window.setTab('cal-tecnico');
+    } else {
+      if (inicio) inicio.style.display = 'none';
+      if (typeof window.setTab === 'function') window.setTab(t);
     }
     renderBottombar();
+  }
+
+  function openMoreSheet(){
+    $('#fdym-more')?.remove();
+    const used=new Set(['inicio','ordenes','escaner','inventario','agenda','checklist']);
+    const buttons=$$('.nav .nav-btn').filter(b=>!used.has(b.id.replace('nav-','')));
+    const wrap=document.createElement('div');wrap.id='fdym-more';wrap.className='fdym-more-backdrop';
+    wrap.innerHTML=`<div class="fdym-more-sheet"><div class="head"><strong>Más herramientas</strong><button class="iconbtn" data-close aria-label="Cerrar"><i class="ti ti-x"></i></button></div><div class="fdym-more-grid">${buttons.map(b=>{const id=b.id.replace('nav-','');const ic=b.querySelector('i')?.className||'ti ti-circle';const tx=b.textContent.trim().replace(/\s+\d+$/,'');return `<button class="fdym-more-item" data-target="${id}"><i class="${ic}"></i><span>${tx}</span></button>`}).join('')}</div></div>`;
+    document.body.appendChild(wrap);
+    wrap.addEventListener('click',e=>{if(e.target===wrap||e.target.closest('[data-close]')){wrap.remove();return;}const it=e.target.closest('[data-target]');if(it){wrap.remove();goTab(it.dataset.target);}});
   }
 
   function activate(){
