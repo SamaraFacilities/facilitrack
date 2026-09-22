@@ -8222,6 +8222,24 @@ function _initFoundryLayout(){
 
      
     #app { display: block !important; }
+    /* Foundry already renders its own sidebar. Remove the legacy shell offset
+       so the complete application starts at the left edge on desktop/iPad. */
+    body.role-admin #app,
+    body.role-supervisor #app,
+    body.role-gerencia #app {
+      padding-left: 0 !important;
+      margin-left: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
+      box-sizing: border-box !important;
+    }
+    body.role-admin .header,
+    body.role-supervisor .header,
+    body.role-gerencia .header {
+      left: 0 !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
     .fdy-shell { display: flex; min-height: calc(100vh - 56px); }
     .fdy-side {
       width: 200px; background: var(--bg); border-right: 1px solid var(--line);
