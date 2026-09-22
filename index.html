@@ -913,6 +913,17 @@ body.role-admin .nav-btn.active i,body.role-supervisor .nav-btn.active i,body.ro
 body.role-tecnico .nav-btn.active{color:var(--role-accent)!important;background:var(--role-soft)!important}
 body.role-tecnico #nav-escaner i{background:var(--role-accent)}
 
+/* Keep the legacy shell from flashing before the role-specific design is ready. */
+html.fdy-booting #app{visibility:hidden!important}
+
+.inv-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.inv-controls input,.inv-controls select{min-height:40px;border:1px solid var(--fsm-line,var(--line));border-radius:8px;padding:8px 11px;font:500 13px/1.2 'DM Sans',sans-serif;outline:none;background:#fff;color:#111}
+.inv-controls input{min-width:210px}.inv-controls select{max-width:210px}
+.inv-controls input:focus,.inv-controls select:focus{border-color:var(--role-accent,var(--accent));box-shadow:0 0 0 3px var(--role-soft,#eff6ff)}
+.inv-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.inv-kpi{border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
+.inv-mobile-view{display:none}
+
 @media(max-width:900px){body[class*="role-"] .main{padding:20px}body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{padding-top:0;background:#fff!important}body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{color:#64748b!important;margin:0;border-radius:0!important}body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{color:var(--role-accent)!important;background:var(--role-soft)!important;box-shadow:none}}
 @media(max-width:700px){body[class*="role-"] .main{padding:14px 12px 102px}body[class*="role-"] .action-head{padding:20px;border-radius:13px}body[class*="role-"] .priority-strip{grid-template-columns:1fr 1fr}body[class*="role-"] .kpi-grid{grid-template-columns:1fr 1fr}body[class*="role-"] .card{padding:16px;border-radius:12px!important}}
 .eq-card-view{display:none}
@@ -924,6 +935,34 @@ body.fdym .eq-card-view{display:grid;grid-template-columns:repeat(auto-fit,minma
 .eq-ipad-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.eq-ipad-meta div{background:#f6f8fb;border-radius:9px;padding:10px;min-width:0}.eq-ipad-meta span{display:block;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}.eq-ipad-meta strong{display:block;font-size:13px;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .eq-ipad-primary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.eq-ipad-primary .btn-sm{justify-content:center;width:100%}.eq-ipad-more{margin-top:9px;border-top:1px solid #e8eef5;padding-top:9px}.eq-ipad-more summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;color:#475569;font-size:12px;font-weight:600}.eq-ipad-more summary::-webkit-details-marker{display:none}.eq-ipad-more-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:8px}.eq-ipad-more-grid .btn-sm{justify-content:center}.eq-ipad-more-grid .btn-danger{color:#fff!important}
 @media(max-width:620px){body.fdym #tab-equipos>.card{margin:12px;padding:14px!important}body.fdym .eq-card-view{grid-template-columns:1fr}.eq-ipad-meta{grid-template-columns:1fr 1fr}.eq-ipad-meta div:last-child{grid-column:1/-1}}
+@media(max-width:620px){
+  body.fdym #tab-inventario>.card{margin:12px;padding:14px!important;overflow:hidden}
+  #tab-inventario .inv-toolbar{display:block;margin-bottom:16px}
+  #tab-inventario .inv-toolbar .card-title{font-size:18px;line-height:1.25;margin-bottom:14px}
+  #tab-inventario .inv-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-content:stretch}
+  #tab-inventario .inv-controls input,#tab-inventario .inv-controls select{width:100%;max-width:none;min-width:0;min-height:46px;font-size:15px}
+  #tab-inventario .inv-controls input,#tab-inventario .inv-controls select{grid-column:1/-1}
+  #tab-inventario .inv-controls .btn-sm{width:100%;min-height:46px;justify-content:center;font-size:14px;padding:10px 8px}
+  #tab-inventario .inv-kpis{grid-template-columns:1fr 1fr;gap:8px}
+  #tab-inventario .inv-kpi{padding:12px;min-height:94px}
+  #tab-inventario .inv-kpi-value{grid-column:1/-1;min-height:auto}
+  #tab-inventario .inv-table-view{display:none}
+  #tab-inventario .inv-mobile-view{display:grid;grid-template-columns:1fr;gap:11px}
+  .inv-mobile-card{border:1px solid var(--fsm-line,var(--line));border-left:4px solid var(--role-accent,var(--accent));border-radius:12px;padding:14px;background:#fff;box-shadow:0 4px 14px rgba(16,42,67,.05);min-width:0}
+  .inv-mobile-card.is-critical{border-left-color:var(--red)}
+  .inv-mobile-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .inv-mobile-code{font:700 12px/1 monospace;color:var(--role-accent,var(--accent));background:var(--role-soft,#eff6ff);padding:7px 9px;border-radius:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+  .inv-mobile-card h3{font:700 17px/1.3 'Inter Tight','DM Sans',sans-serif;color:var(--fsm-navy,#102a43);margin:13px 0 12px;overflow-wrap:anywhere}
+  .inv-stock-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+  .inv-stock-row>div span,.inv-mobile-meta span{display:block;font-size:11px;color:#64748b;margin-bottom:3px}
+  .inv-stock-row strong{font-size:15px;color:#1e293b}.inv-stock-row strong.critical{color:var(--red-txt)}
+  .inv-stock-bar{height:6px;background:#edf1f5;border-radius:99px;overflow:hidden;margin:9px 0 13px}.inv-stock-bar span{display:block;height:100%;border-radius:99px}
+  .inv-mobile-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .inv-mobile-meta>div{background:#f6f8fb;border-radius:8px;padding:9px;min-width:0}.inv-mobile-meta>div:last-child{grid-column:1/-1}
+  .inv-mobile-meta strong{display:block;font-size:13px;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inv-mobile-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid #e8eef5;padding-top:11px}
+  .inv-mobile-actions .btn-sm{min-height:44px;width:100%;justify-content:center;font-size:13px}.inv-mobile-actions .btn-danger{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
@@ -1529,10 +1568,13 @@ body.fdym .eq-card-view{display:grid;grid-template-columns:repeat(auto-fit,minma
     <!-- TAB: INVENTARIO -->
     <div id="tab-inventario" class="panel-hidden">
       <div class="card" style="margin-bottom:14px;">
-        <div class="card-header">
+        <div class="card-header inv-toolbar">
           <div class="card-title"><i class="ti ti-package"></i> Inventario de Refacciones</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <input type="text" id="inv-search" placeholder="Buscar refacción..." style="border:1px solid #ddd;border-radius:3px;padding:5px 10px;font-size:12px;outline:none;background:#fff;color:#111;" oninput="renderInventario()">
+          <div class="inv-controls">
+            <input type="search" id="inv-search" placeholder="Buscar refacción..." aria-label="Buscar refacción" oninput="renderInventario()">
+            <select id="inv-category" aria-label="Filtrar por categoría" onchange="renderInventario()">
+              <option value="">Todas las categorías</option>
+            </select>
             <button class="btn-sm" onclick="verListadoStockBajo()" style="color:var(--red-txt);border-color:rgba(192,53,42,.25);" title="Ver y compartir listado de bajo stock">
               <i class="ti ti-alert-triangle"></i> Bajo stock
             </button>
@@ -2859,6 +2901,8 @@ async function bootApp(user){
     const hintEl=document.getElementById('scan-hint-txt');
     if(hintEl)hintEl.textContent='Apunta la cámara al código QR del equipo para ver su estado actual y levantar una orden de trabajo.';
   }
+  document.documentElement.classList.add('fdy-booting');
+  setTimeout(()=>document.documentElement.classList.remove('fdy-booting'),2500);
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   setupRT();
@@ -5567,7 +5611,25 @@ function renderInventario(){
   const wrap = document.getElementById('inv-wrap');
   if(!wrap) return;
   const search = (document.getElementById('inv-search')?.value||'').toLowerCase();
-  let lista = allRefacciones.filter(r => !search || r.nombre.toLowerCase().includes(search) || (r.codigo||'').toLowerCase().includes(search));
+  const categorySelect = document.getElementById('inv-category');
+  const selectedCategory = categorySelect?.value || '';
+  const categories = [...new Set(allRefacciones.map(r => (r.categoria||'Sin categoría').trim()).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+  if(categorySelect){
+    const signature = categories.join('|');
+    if(categorySelect.dataset.categories !== signature){
+      categorySelect.replaceChildren(new Option('Todas las categorías',''), ...categories.map(c=>new Option(c,c)));
+      categorySelect.dataset.categories = signature;
+      categorySelect.value = categories.includes(selectedCategory) ? selectedCategory : '';
+    }
+  }
+  const category = categorySelect?.value || '';
+  let lista = allRefacciones.filter(r => {
+    const nombre = (r.nombre||'').toLowerCase();
+    const codigo = (r.codigo||'').toLowerCase();
+    const categoria = (r.categoria||'Sin categoría').trim();
+    return (!search || nombre.includes(search) || codigo.includes(search)) && (!category || categoria === category);
+  });
 
   // KPI strip
   const total = allRefacciones.length;
@@ -5575,21 +5637,21 @@ function renderInventario(){
   const valorTotal = allRefacciones.reduce((s,r)=>(s+(r.stock_actual||0)*(r.costo_unitario||0)),0);
 
   wrap.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
-      <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
+    <div class="inv-kpis">
+      <div class="inv-kpi" style="background:#f5f5f5;">
         <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Total refacciones</div>
         <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:400;">${total}</div>
       </div>
-      <div style="background:${criticos>0?'var(--red-bg)':'#f5f5f5'};border:1px solid ${criticos>0?'rgba(192,53,42,.2)':'var(--line)'};border-radius:3px;padding:12px;">
+      <div class="inv-kpi" style="background:${criticos>0?'var(--red-bg)':'#f5f5f5'};border-color:${criticos>0?'rgba(192,53,42,.2)':'var(--line)'};">
         <div style="font-size:10px;color:${criticos>0?'var(--red-txt)':'var(--txt3)'};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Stock crítico</div>
         <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:400;color:${criticos>0?'var(--red-txt)':'var(--txt)'};">${criticos}</div>
       </div>
-      <div style="background:#f5f5f5;border:1px solid var(--line);border-radius:3px;padding:12px;">
+      <div class="inv-kpi inv-kpi-value" style="background:#f5f5f5;">
         <div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Valor en almacén</div>
         <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:400;">$${valorTotal.toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
       </div>
     </div>
-    ${lista.length ? `<div style="overflow-x:auto;">
+    ${lista.length ? `<div class="inv-table-view" style="overflow-x:auto;">
     <table>
       <thead><tr>
         <th>Código</th><th>Nombre</th><th>Categoría</th>
@@ -5624,7 +5686,35 @@ function renderInventario(){
           </td>
         </tr>`;
       }).join('')}</tbody>
-    </table></div>` : '<div class="empty-state"><i class="ti ti-package"></i><br>Sin refacciones registradas</div>'}
+    </table></div>
+    <div class="inv-mobile-view">${lista.map(r=>{
+      const critico = r.stock_actual <= r.stock_minimo;
+      const pct = r.stock_maximo>0 ? Math.min(100,Math.round((r.stock_actual/r.stock_maximo)*100)) : 0;
+      const barColor = critico ? 'var(--red)' : pct>60 ? 'var(--green)' : 'var(--amber)';
+      return `<article class="inv-mobile-card ${critico?'is-critical':''}">
+        <div class="inv-mobile-top">
+          <span class="inv-mobile-code">${r.codigo||'Sin código'}</span>
+          <span class="badge badge-gray">${r.categoria||'Sin categoría'}</span>
+        </div>
+        <h3>${r.nombre}</h3>
+        <div class="inv-stock-row">
+          <div><span>Existencia</span><strong class="${critico?'critical':''}">${r.stock_actual} ${r.unidad||'pza'}</strong></div>
+          <div><span>Mínimo</span><strong>${r.stock_minimo} ${r.unidad||'pza'}</strong></div>
+          ${critico?'<span class="badge badge-red">CRÍTICO</span>':''}
+        </div>
+        <div class="inv-stock-bar"><span style="width:${pct}%;background:${barColor};"></span></div>
+        <div class="inv-mobile-meta">
+          <div><span>Costo unitario</span><strong>$${(r.costo_unitario||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</strong></div>
+          <div><span>Ubicación</span><strong>${r.ubicacion||'Sin asignar'}</strong></div>
+          <div><span>Proveedor</span><strong>${r.proveedor||'Sin proveedor'}</strong></div>
+        </div>
+        <div class="inv-mobile-actions">
+          <button class="btn-sm" onclick="openAjusteStock(${r.id},'${r.nombre.replace(/'/g,"\\'")}',${r.stock_actual})"><i class="ti ti-adjustments"></i> Ajustar</button>
+          <button class="btn-sm" onclick="openModalRefaccion(${r.id})"><i class="ti ti-edit"></i> Editar</button>
+          <button class="btn-sm btn-danger" onclick="eliminarRefaccion(${r.id})"><i class="ti ti-trash"></i> Eliminar</button>
+        </div>
+      </article>`;
+    }).join('')}</div>` : `<div class="empty-state"><i class="ti ti-package"></i><br>${search||category?'Sin resultados para estos filtros':'Sin refacciones registradas'}</div>`}
   `;
 }
 
@@ -9240,6 +9330,7 @@ function renderBitacorasHoy(){
       window.loadAll.__fdyPatched = true;
     }
 
+    document.documentElement.classList.remove('fdy-booting');
     console.log('[Foundry layout] inicializado \u2713');
   }
 
@@ -9773,6 +9864,7 @@ function _initFoundryMobile(){
   function activate(){
     if (document.body.classList.contains('fdym')) {
       renderTop(); renderInicio(); renderBottombar();
+      document.documentElement.classList.remove('fdy-booting');
       return;
     }
     document.body.classList.add('fdym');
@@ -9780,6 +9872,7 @@ function _initFoundryMobile(){
     renderInicio();
     renderBottombar();
     goTab('inicio');
+    document.documentElement.classList.remove('fdy-booting');
   }
 
   function deactivate(){
