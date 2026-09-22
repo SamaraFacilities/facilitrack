@@ -2679,6 +2679,7 @@ let curUser=null,curProf=null,allOTs=[],allEqs=[],allProfs=[],rtCh=null;
 let allRefacciones=[],allOrdenesCompra=[],allPlantillas=[];
 let allZonas=['Zona 1','Zona 2','Zona 3','Zona 4','Zona 5','Zona 6','Zona 7'];
 let html5Scanner=null;
+let scannerSuspended=false;
 
 // Estado del flujo técnico
 let eqActual=null;   // equipo detectado por QR
@@ -2921,7 +2922,8 @@ async function bootApp(user){
     await loadAll();
     if(curProf.rol === 'supervisor_zona'){
       setTab('escaner');
-      startScanner();
+      const deepParams=new URLSearchParams(location.search);
+      if(!(deepParams.get('equipo')||deepParams.get('eq'))) startScanner();
     } else {
       setTab('cal-tecnico');
       renderAgendaTecnico();
@@ -2930,6 +2932,7 @@ async function bootApp(user){
     setTab('dashboard');
     await loadAll();
   }
+  abrirEquipoDesdeEnlace();
 }
 
 async function doLogout(){
@@ -3051,7 +3054,7 @@ function setTab(t){
   if(t==='pendientes'&&typeof renderPendientes==='function'){ loadPendientes().then(()=>renderPendientes()).catch(()=>renderPendientes()); }
   if(t==='pendientes'&&typeof renderPendientes==='function'){ loadPendientes().then(()=>renderPendientes()).catch(()=>renderPendientes()); }
   if(t==='ot-libre')renderOTLibre();
-  if(t!=='escaner')stopScanner();
+  if(t!=='escaner')suspendScanner();
 }
 
 // ══════════════════════════════════════════
@@ -3059,12 +3062,18 @@ function setTab(t){
 // ══════════════════════════════════════════
 
 function startScanner(){
-  if(html5Scanner) return;
+  scannerSuspended=false;
+  if(html5Scanner){
+    setScannerTracksEnabled(true);
+    return;
+  }
   html5Scanner=new Html5QrcodeScanner("reader",{fps:10,qrbox:{width:250,height:250}},false);
   html5Scanner.render(decodedText=>{
-    const eq=allEqs.find(e=>e.codigo===decodedText);
+    if(scannerSuspended) return;
+    const codigo=codigoDesdeQR(decodedText);
+    const eq=allEqs.find(e=>String(e.codigo).toLowerCase()===String(codigo).toLowerCase());
     if(eq){
-      stopScanner();
+      suspendScanner();
       mostrarEquipoEscaneado(eq);
       toast('✅ Equipo detectado: '+eq.nombre);
     } else {
@@ -3073,8 +3082,54 @@ function startScanner(){
   },()=>{});
 }
 
+function setScannerTracksEnabled(enabled){
+  document.querySelectorAll('#reader video').forEach(video=>{
+    const stream=video.srcObject;
+    if(stream?.getVideoTracks) stream.getVideoTracks().forEach(track=>{ track.enabled=enabled; });
+  });
+}
+
+function suspendScanner(){
+  if(!html5Scanner) return;
+  scannerSuspended=true;
+  setScannerTracksEnabled(false);
+}
+
 function stopScanner(){
+  scannerSuspended=false;
   if(html5Scanner){html5Scanner.clear().catch(()=>{});html5Scanner=null;}
+}
+
+function codigoDesdeQR(value){
+  const raw=String(value||'').trim();
+  try{
+    const url=new URL(raw,location.href);
+    return url.searchParams.get('equipo')||url.searchParams.get('eq')||raw;
+  }catch(e){ return raw; }
+}
+
+function enlaceEquipo(codigo){
+  const url=new URL(location.href);
+  url.search='';
+  url.hash='';
+  url.searchParams.set('equipo',codigo);
+  return url.toString();
+}
+
+function abrirEquipoDesdeEnlace(){
+  const params=new URLSearchParams(location.search);
+  const codigo=params.get('equipo')||params.get('eq');
+  if(!codigo) return false;
+  const eq=allEqs.find(e=>String(e.codigo).toLowerCase()===String(codigo).toLowerCase());
+  if(!eq){ toast('❌ El equipo del enlace no fue encontrado'); return false; }
+  window._fdymTab='escaner';
+  setTab('escaner');
+  suspendScanner();
+  mostrarEquipoEscaneado(eq);
+  params.delete('equipo');params.delete('eq');
+  const clean=location.pathname+(params.toString()?'?'+params.toString():'')+location.hash;
+  history.replaceState({},'',clean);
+  return true;
 }
 
 function resetEscaner(){
@@ -3891,10 +3946,10 @@ function verQRById(eqId){
 }
 function verQR(codigo,nombre){
   document.getElementById('qr-eq-nom').textContent=nombre;
-  document.getElementById('qr-eq-cod').textContent=codigo;
+  document.getElementById('qr-eq-cod').textContent=codigo+' · Abre la ficha del equipo';
   const container=document.getElementById('qr-code-canvas');
   container.innerHTML='';
-  new QRCode(container,{text:codigo,width:140,height:140,colorDark:"#1a2b4a",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
+  new QRCode(container,{text:enlaceEquipo(codigo),width:140,height:140,colorDark:"#1a2b4a",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
   openM('modal-qr');
 }
 
