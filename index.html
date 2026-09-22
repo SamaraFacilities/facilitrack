@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -835,6 +834,7 @@ body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-g
 body.role-admin .nav-btn i,body.role-supervisor .nav-btn i,body.role-gerencia .nav-btn i{font-size:17px;width:20px}
 .action-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin:0 0 18px}.action-eyebrow{font-size:12px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}.action-title{font-size:28px;font-weight:650;letter-spacing:-.035em;color:#111827;line-height:1.12}.action-sub{font-size:14px;color:var(--txt2);margin-top:7px}.action-buttons{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.action-buttons .btn-sm{min-height:40px;padding:9px 14px;font-size:13px}
 .priority-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.priority-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;cursor:pointer;text-align:left;transition:.18s ease;min-height:108px}.priority-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(17,24,39,.08);border-color:#cbd5e1}.priority-card.danger{border-top:4px solid var(--red)}.priority-card.warning{border-top:4px solid #d97706}.priority-card.info{border-top:4px solid #2563eb}.priority-card.good{border-top:4px solid var(--green)}.priority-label{font-size:12px;font-weight:600;color:var(--txt2);display:flex;gap:7px;align-items:center}.priority-value{font-size:30px;font-weight:700;letter-spacing:-.04em;margin:7px 0 2px;color:#111827}.priority-hint{font-size:11px;color:var(--txt3)}
+.scan-choice{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.scan-choice-btn{min-height:92px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:16px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;box-shadow:0 2px 8px rgba(17,24,39,.05);transition:.18s ease}.scan-choice-btn:hover{transform:translateY(-1px);border-color:#94a3b8;box-shadow:0 7px 20px rgba(17,24,39,.09)}.scan-choice-icon{width:46px;height:46px;border-radius:50%;background:#111827;color:#fff;display:flex;align-items:center;justify-content:center;font-size:23px;flex:none}.scan-choice-btn.secondary .scan-choice-icon{background:#2563eb}.scan-choice-title{font-size:15px;font-weight:650;color:#111827}.scan-choice-sub{font-size:12px;color:var(--txt3);margin-top:3px}.scan-choice-arrow{margin-left:auto;color:var(--txt3);font-size:18px}
 @media(max-width:900px){body.role-admin #app,body.role-supervisor #app,body.role-gerencia #app{padding-left:0}body.role-admin .header,body.role-supervisor .header,body.role-gerencia .header{left:0}body.role-admin .nav-wrap,body.role-supervisor .nav-wrap,body.role-gerencia .nav-wrap{position:static;width:auto;padding:0;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto}body.role-admin .nav,body.role-supervisor .nav,body.role-gerencia .nav{flex-direction:row;padding:0 10px;gap:0}body.role-admin .nav-btn,body.role-supervisor .nav-btn,body.role-gerencia .nav-btn{width:auto;border-radius:0;color:var(--txt3);white-space:nowrap}body.role-admin .nav-btn.active,body.role-supervisor .nav-btn.active,body.role-gerencia .nav-btn.active{border-bottom:2px solid #111827;color:#111827}.priority-strip{grid-template-columns:repeat(2,1fr)}.action-head{align-items:flex-start;flex-direction:column}.action-buttons{justify-content:flex-start}}
 @media(max-width:700px){body.role-tecnico .nav-wrap,body.role-supervisor_zona .nav-wrap{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:80;border-top:1px solid var(--line);border-bottom:0;padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.96);backdrop-filter:blur(12px)}body.role-tecnico .nav,body.role-supervisor_zona .nav{padding:0;display:grid;grid-template-columns:repeat(4,1fr);overflow:visible}body.role-tecnico .nav-btn,body.role-supervisor_zona .nav-btn{padding:8px 4px;min-height:57px;justify-content:center;flex-direction:column;gap:3px;border:0;font-size:10px;letter-spacing:0;text-transform:none;overflow:hidden}body.role-tecnico .nav-btn i,body.role-supervisor_zona .nav-btn i{font-size:20px}body.role-tecnico .nav-btn.active,body.role-supervisor_zona .nav-btn.active{border:0;color:#111827;background:#f3f4f6}body.role-tecnico .nav-btn:nth-child(n+5),body.role-supervisor_zona .nav-btn:nth-child(n+5){display:none!important}body.role-tecnico .main,body.role-supervisor_zona .main{padding-bottom:92px}.main{padding:16px}.action-title{font-size:24px}.action-sub{font-size:13px}.action-buttons{width:100%}.action-buttons .btn-sm{flex:1;justify-content:center}.priority-strip{grid-template-columns:1fr 1fr;gap:8px}.priority-card{padding:13px;min-height:100px}.priority-value{font-size:27px}.kpi-grid{gap:8px;border:0;overflow:visible}.kpi-card{border:1px solid var(--line)!important;border-radius:7px;padding:15px}.kpi-value{font-size:30px}.card{border-radius:8px;padding:16px}.btn-sm{min-height:38px}.form-group input,.form-group select,.form-group textarea{font-size:16px;min-height:44px}}
 /* El técnico trabaja en iPad: su navegación permanece siempre al alcance del pulgar. */
@@ -850,6 +850,7 @@ body.role-tecnico #nav-escaner.active{background:transparent;color:#111827}
 body.role-tecnico #nav-escaner.active i{background:#2563eb}
 body.role-tecnico .main{padding-bottom:104px}
 @media(max-width:780px){body.role-tecnico .nav{justify-content:flex-start}body.role-tecnico .nav-btn{flex-basis:96px;width:96px;font-size:10px}}
+@media(max-width:620px){.scan-choice{grid-template-columns:1fr}.scan-choice-btn{min-height:78px}}
 </style>
 </head>
 <body>
@@ -965,7 +966,20 @@ body.role-tecnico .main{padding-bottom:104px}
           <button onclick="resetEscaner()" style="background:var(--bg3);border:1px solid var(--line2);color:var(--txt2);border-radius:3px;padding:6px 12px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;"><i class="ti ti-scan"></i> Nuevo scan</button>
         </div>
 
-        <div class="card" style="margin-bottom:14px;">
+        <div class="scan-choice" id="scan-tech-choice">
+          <button class="scan-choice-btn" onclick="abrirOTsEscaneadas()">
+            <span class="scan-choice-icon"><i class="ti ti-clipboard-list"></i></span>
+            <span><span class="scan-choice-title">Órdenes pendientes</span><span class="scan-choice-sub" id="scan-choice-ots">Ver trabajos de este equipo</span></span>
+            <i class="ti ti-chevron-right scan-choice-arrow"></i>
+          </button>
+          <button class="scan-choice-btn secondary" onclick="abrirBitacoraEscaneada()">
+            <span class="scan-choice-icon"><i class="ti ti-notebook"></i></span>
+            <span><span class="scan-choice-title">Abrir bitácora</span><span class="scan-choice-sub">Registrar lecturas e inspección</span></span>
+            <i class="ti ti-chevron-right scan-choice-arrow"></i>
+          </button>
+        </div>
+
+        <div class="card" id="scan-ots-section" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:12px;">
             <div class="card-title"><i class="ti ti-activity"></i> Estado actual del equipo</div>
             <span id="sz-eq-est-badge"></span>
@@ -1054,7 +1068,7 @@ body.role-tecnico .main{padding-bottom:104px}
           <button onclick="resetEscaner()" style="background:var(--bg3);border:1px solid var(--line2);color:var(--txt2);border-radius:3px;padding:6px 12px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;"><i class="ti ti-scan"></i> Nuevo scan</button>
         </div>
 
-        <div class="card" style="margin-bottom:14px;">
+        <div class="card" id="scan-bitacora-section" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:10px;">
             <div class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes activas</div>
             <span id="ots-count-badge" style="font-size:11px;background:var(--bg3);padding:3px 10px;border-radius:20px;color:var(--txt2);">0 OTs</span>
@@ -3020,6 +3034,8 @@ function mostrarEquipoEscaneado(eq){
 
     document.getElementById('nueva-ot-btn-wrap').style.display=curProf.rol==='admin'?'block':'none';
     document.getElementById('auto-assign-info').style.display=curProf.rol==='tecnico'?'flex':'none';
+    const choice=document.getElementById('scan-tech-choice');
+    if(choice)choice.style.display=curProf.rol==='tecnico'?'grid':'none';
 
     setPasos(2);
     renderOTsEquipo(eq);
@@ -3139,6 +3155,8 @@ function renderOTsEquipo(eq){
 
   const badge2=document.getElementById('ots-count-badge');
   if(badge2) badge2.textContent=ots.length+' OT'+(ots.length!==1?'s':'');
+  const choiceCount=document.getElementById('scan-choice-ots');
+  if(choiceCount)choiceCount.textContent=ots.length?`${ots.length} trabajo${ots.length===1?'':'s'} disponible${ots.length===1?'':'s'}`:'Sin órdenes pendientes';
 
   if(!ots.length){
     lista.innerHTML=`
@@ -3190,6 +3208,17 @@ function renderOTsEquipo(eq){
       </div>
     </div>`;
   }).join('');
+}
+
+function abrirOTsEscaneadas(){
+  const section=document.getElementById('scan-ots-section');
+  if(section)section.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function abrirBitacoraEscaneada(){
+  const equipoId=document.getElementById('eq-id-actual')?.value||eqActual?.id;
+  if(!equipoId){toast('Escanea un equipo primero');return;}
+  abrirBitacorasEquipo(equipoId,eqActual?.nombre);
 }
 
 // Tomar la OT y asignarse automáticamente
