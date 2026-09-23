@@ -966,6 +966,53 @@ body.fdym .eq-card-view{display:grid;grid-template-columns:repeat(auto-fit,minma
   .inv-mobile-actions .btn-sm{min-height:44px;width:100%;justify-content:center;font-size:13px}.inv-mobile-actions .btn-danger{grid-column:1/-1}
 }
 </style>
+<style>
+/* Control de Aguas Grises — extensión visual de Samara Facilities */
+.ag-shell{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ag-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 24px;border-radius:16px;background:linear-gradient(120deg,#102a43,#174b63);color:#fff;box-shadow:0 12px 28px rgba(16,42,67,.16)}
+.ag-head h1{margin:3px 0 5px;font:700 28px/1.08 'Inter Tight','Inter',sans-serif;letter-spacing:-.02em}
+.ag-head p{margin:0;color:rgba(255,255,255,.72);font-size:13px}
+.ag-head .ag-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.ag-head .btn-sm{border-color:rgba(255,255,255,.35)!important;background:rgba(255,255,255,.1)!important;color:#fff!important}
+.ag-head .btn-primary{background:#fff!important;border-color:#fff!important;color:#102a43!important}
+.ag-nav{display:flex;gap:7px;overflow:auto;padding:1px 0 3px;scrollbar-width:none}
+.ag-nav::-webkit-scrollbar{display:none}
+.ag-nav button{white-space:nowrap;min-height:42px;padding:9px 14px;border:1px solid var(--fsm-line,var(--line));background:#fff;color:#64748b;border-radius:10px;font:600 13px 'Inter',sans-serif;cursor:pointer}
+.ag-nav button.active{background:var(--role-accent,#102a43);border-color:var(--role-accent,#102a43);color:#fff}
+.ag-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.ag-kpi{background:#fff;border:1px solid var(--fsm-line,var(--line));border-radius:12px;padding:14px;min-width:0;box-shadow:0 4px 14px rgba(16,42,67,.04)}
+.ag-kpi span{display:block;color:#64748b;font-size:11px;line-height:1.25;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.ag-kpi strong{display:block;color:#102a43;font:700 24px/1.1 'Inter Tight','Inter',sans-serif;overflow-wrap:anywhere}
+.ag-kpi small{display:block;color:#94a3b8;font-size:11px;margin-top:5px}
+.ag-alerts{display:flex;flex-direction:column;gap:8px}
+.ag-alert{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:11px;border:1px solid #f1d28f;background:#fff8e8;color:#7a5000}
+.ag-alert.critical{border-color:#efb4ab;background:#fff1ef;color:#a03224}
+.ag-alert i{font-size:20px;margin-top:1px}.ag-alert .tx{flex:1;min-width:0}.ag-alert b{display:block;font-size:13px}.ag-alert small{display:block;font-size:12px;margin-top:2px;color:inherit;opacity:.8}
+.ag-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ag-tote{background:#fff;border:1px solid var(--fsm-line,var(--line));border-radius:14px;padding:16px;box-shadow:0 5px 16px rgba(16,42,67,.05);min-width:0}
+.ag-tote-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.ag-code{font:700 12px/1 monospace;color:var(--role-accent,#102a43);background:var(--role-soft,#edf4f8);padding:7px 9px;border-radius:8px}
+.ag-state{font-size:11px;font-weight:700;padding:5px 8px;border-radius:999px;background:#eef2f6;color:#64748b;text-align:right}.ag-state.good{background:#eaf5ee;color:#1f6130}.ag-state.warn{background:#fff4d9;color:#8b6200}.ag-state.bad{background:#fdebea;color:#aa3828}
+.ag-percent{display:flex;align-items:end;justify-content:space-between;gap:8px;margin:16px 0 8px}.ag-percent strong{font:700 34px/1 'Inter Tight','Inter',sans-serif;color:#102a43}.ag-percent span{font-size:12px;color:#64748b}
+.ag-progress{height:10px;border-radius:99px;background:#edf1f5;overflow:hidden}.ag-progress>i{display:block;height:100%;border-radius:99px;background:#27925d}.ag-progress>i.warn{background:#d39a14}.ag-progress>i.bad{background:#cf4a36}.ag-progress>i.critical{background:#a52218}
+.ag-meta{display:grid;gap:6px;margin:12px 0;color:#64748b;font-size:12px}.ag-meta div{display:flex;justify-content:space-between;gap:8px}.ag-meta b{color:#334155;font-weight:600;text-align:right}
+.ag-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.ag-card-actions button{justify-content:center}
+.ag-panel{background:#fff;border:1px solid var(--fsm-line,var(--line));border-radius:14px;padding:18px;box-shadow:0 5px 16px rgba(16,42,67,.04);min-width:0}
+.ag-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.ag-panel-head h2{margin:0;font:700 19px/1.2 'Inter Tight','Inter',sans-serif;color:#102a43}.ag-muted{font-size:12px;color:#64748b}.ag-empty{padding:28px 16px;text-align:center;color:#64748b;border:1px dashed var(--fsm-line,var(--line));border-radius:12px;background:#fafcff}.ag-empty i{display:block;font-size:34px;margin-bottom:8px;opacity:.55}
+.ag-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.ag-form-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.ag-field{display:flex;flex-direction:column;gap:6px;min-width:0}.ag-field.full{grid-column:1/-1}.ag-field label{font-size:12px;font-weight:700;color:#475569}.ag-field input,.ag-field select,.ag-field textarea{width:100%;min-height:44px;border:1px solid #d3dde8;border-radius:9px;padding:9px 11px;background:#fff;color:#111;font:500 14px/1.35 'Inter',sans-serif;box-sizing:border-box}.ag-field textarea{min-height:78px;resize:vertical}.ag-help{font-size:11px;color:#94a3b8}
+.ag-readings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.ag-reading{border:1px solid var(--fsm-line,var(--line));border-radius:12px;padding:14px;background:#fbfdff}.ag-reading-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.ag-reading-head strong{font-size:14px;color:#102a43}.ag-reading-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ag-reading .ag-volume{font-size:12px;color:#64748b;margin-top:8px}.ag-reading .ag-volume b{color:#102a43}
+.ag-radio{display:flex;align-items:center;gap:6px;font-size:12px;color:#475569}.ag-radio input{width:18px;height:18px;accent-color:var(--role-accent,#102a43)}
+.ag-submit{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.ag-list{display:flex;flex-direction:column;gap:8px}.ag-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #e8eef5}.ag-row:last-child{border-bottom:0}.ag-row-main{flex:1;min-width:0}.ag-row-title{font-size:14px;font-weight:700;color:#102a43}.ag-row-sub{font-size:12px;color:#64748b;margin-top:3px}.ag-row-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ag-status{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:5px 8px;border-radius:999px;background:#eef2f6;color:#64748b}.ag-status.ok{background:#eaf5ee;color:#1f6130}.ag-status.pending{background:#fff4d9;color:#8b6200}.ag-status.bad{background:#fdebea;color:#aa3828}
+.ag-schedule{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.ag-slot{padding:12px;border:1px solid var(--fsm-line,var(--line));border-radius:11px;background:#fff}.ag-slot b{display:block;font-size:14px;color:#102a43}.ag-slot span{display:block;font-size:11px;color:#64748b;margin:4px 0 10px}.ag-slot.done{border-color:#a8d3b7;background:#f3fbf6}.ag-slot.overdue{border-color:#efb4ab;background:#fff5f3}
+.ag-config-tote{display:grid;grid-template-columns:1.1fr 1fr 1fr auto;gap:8px;align-items:end;padding:11px 0;border-bottom:1px solid #e8eef5}.ag-config-tote:last-child{border-bottom:0}.ag-config-tote .ag-field{margin:0}
+.ag-widget{margin:0 0 14px;background:#fff;border:1px solid var(--fsm-line,var(--line));border-left:5px solid #2a7187;border-radius:13px;padding:15px 17px;box-shadow:0 5px 16px rgba(16,42,67,.05);cursor:pointer}.ag-widget-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.ag-widget h3{margin:0;font:700 16px 'Inter Tight','Inter',sans-serif;color:#102a43}.ag-widget-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.ag-widget-grid span{font-size:11px;color:#64748b}.ag-widget-grid b{display:block;color:#102a43;font-size:17px;margin-top:3px}
+.ag-detail-hero{display:grid;grid-template-columns:160px 1fr;gap:18px;align-items:center}.ag-tank{height:190px;border:3px solid #102a43;border-radius:18px 18px 24px 24px;position:relative;overflow:hidden;background:#edf4f8}.ag-tank-fill{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(#4ba1b8,#256b83);transition:height .35s}.ag-tank-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 27px 'Inter Tight',sans-serif;color:#102a43;text-shadow:0 1px #fff;z-index:2}
+.ag-qr{display:flex;justify-content:center;padding:14px;background:#fff;border:1px dashed #cbd5e1;border-radius:12px}.ag-photo{max-width:160px;max-height:110px;border-radius:8px;border:1px solid #dbe3eb;object-fit:cover}
+@media(max-width:1100px){.ag-kpis{grid-template-columns:repeat(3,1fr)}.ag-grid{grid-template-columns:repeat(2,1fr)}.ag-form-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.ag-shell{gap:11px}.ag-head{padding:18px;border-radius:13px;flex-direction:column}.ag-head h1{font-size:24px}.ag-head .ag-actions{width:100%;justify-content:stretch}.ag-head .ag-actions button{flex:1}.ag-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ag-kpi{padding:12px}.ag-kpi strong{font-size:21px}.ag-grid,.ag-readings,.ag-form-grid,.ag-form-grid.two{grid-template-columns:1fr}.ag-card-actions{grid-template-columns:1fr 1fr}.ag-panel{padding:14px}.ag-reading-fields{grid-template-columns:1fr}.ag-schedule{grid-template-columns:1fr}.ag-config-tote{grid-template-columns:1fr 1fr}.ag-config-tote .ag-field:first-child{grid-column:1/-1}.ag-widget-grid{grid-template-columns:1fr 1fr}.ag-detail-hero{grid-template-columns:1fr}.ag-tank{height:150px;max-width:190px;width:100%;margin:auto}.ag-row{flex-direction:column}.ag-row-actions{width:100%;justify-content:stretch}.ag-row-actions button{flex:1}.ag-submit{display:grid;grid-template-columns:1fr}.ag-submit button{width:100%;justify-content:center}}
+
+</style>
 </head>
 <body>
 
@@ -1286,6 +1333,7 @@ body.fdym .eq-card-view{display:grid;grid-template-columns:repeat(auto-fit,minma
         <div class="action-buttons"><button class="btn-sm" onclick="setTab('escaner');startScanner();"><i class="ti ti-scan"></i> Escanear equipo</button><button class="btn-sm btn-primary btn-admin-only" onclick="openNuevaOT()"><i class="ti ti-plus"></i> Nueva OT</button></div>
       </div>
       <div class="priority-strip" id="priority-strip"></div>
+      <div id="ag-dashboard-widget"></div>
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--red)"></span>Urgentes</div><div class="kpi-value" id="k-urg">–</div><div class="kpi-sub">Atención inmediata</div></div>
         <div class="kpi-card"><div class="kpi-label"><span class="kpi-dot" style="background:var(--amber)"></span>En progreso</div><div class="kpi-value" id="k-prog">–</div><div class="kpi-sub">Asignadas</div></div>
@@ -1400,6 +1448,10 @@ body.fdym .eq-card-view{display:grid;grid-template-columns:repeat(auto-fit,minma
     <div id="tab-bitacoras" class="panel-hidden card">
       <div class="card-header" style="margin-bottom:8px;"><div class="card-title"><i class="ti ti-notebook"></i> Bitácoras</div></div>
       <p style="font-size:12px;color:var(--txt2);margin-bottom:16px;">Todos los equipos con bitácora activa, en un solo lugar — toca uno para capturar. No hace falta pasar por Equipos.</p>
+      <button class="ag-widget" style="width:100%;text-align:left;margin-bottom:14px" onclick="setTab('aguas-grises')">
+        <div class="ag-widget-top"><h3><i class="ti ti-droplet"></i> Control de Aguas Grises</h3><i class="ti ti-chevron-right"></i></div>
+        <div class="ag-muted" style="margin-top:6px">Niveles, inspecciones, alertas y recolecciones de totes.</div>
+      </button>
       <div id="bitmod-list"></div>
     </div><!-- /tab-bitacoras -->
 
@@ -1906,6 +1958,11 @@ body.fdym .eq-card-view{display:grid;grid-template-columns:repeat(auto-fit,minma
 
       </div>
     </div>
+
+    <!-- TAB: CONTROL DE AGUAS GRISES -->
+    <div id="tab-aguas-grises" class="panel-hidden">
+      <div id="ag-root"><div class="loading"><div class="spinner"></div></div></div>
+    </div><!-- /tab-aguas-grises -->
 
   </div><!-- /main -->
 </div><!-- /app -->
@@ -2668,6 +2725,7 @@ try {
       detectSessionInUrl: false,
     }
   });
+  window.db=db;
   console.log('✅ Supabase inicializado con storage personalizado');
 } catch(e) {
   console.error('Error al inicializar Supabase:', e);
@@ -2886,6 +2944,8 @@ async function bootApp(user){
     nav.innerHTML+=`<button class="nav-btn" id="nav-analisis" onclick="setTab('analisis')"><i class="ti ti-chart-dots"></i> Análisis</button>`;
     nav.innerHTML+=`<button class="nav-btn" id="nav-configuracion" onclick="setTab('configuracion')"><i class="ti ti-settings-2"></i> Configuración</button>`;
   }
+  // Acceso transversal: Facilities → Bitácoras → Control de Aguas Grises
+  nav.innerHTML+=`<button class="nav-btn" id="nav-aguas-grises" onclick="setTab('aguas-grises')"><i class="ti ti-droplet"></i> Aguas Grises</button>`;
 
   document.querySelectorAll('.btn-admin-only').forEach(b=>b.style.display=curProf.rol==='admin'?'':'none');
   document.querySelectorAll('.btn-crear-equipo').forEach(b=>b.style.display=canDo('crear_equipo')?'':'none');
@@ -3016,7 +3076,7 @@ async function forceLoadAll(){ return loadAll(); }
 // setupRT redefined below with notifications
 
 // ── NAVEGACIÓN ──
-const TABS=['escaner','dashboard','programar','proyectos','pendientes','ordenes','checklist','equipos','tecnicos','estatus','bitacoras','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
+const TABS=['escaner','dashboard','programar','proyectos','pendientes','ordenes','checklist','equipos','tecnicos','estatus','bitacoras','aguas-grises','reportes','cal-tecnico','inventario','compras','analisis','configuracion','ot-libre'];
 function setTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -3037,6 +3097,7 @@ function setTab(t){
   if(t==='checklist')renderCLSel();
   if(t==='estatus')renderEstatusMaquinas();
   if(t==='bitacoras')renderBitacorasModulo();
+  if(t==='aguas-grises'&&typeof renderAguasGrises==='function')renderAguasGrises();
   if(t==='reportes')renderReportes();
   if(t==='cal-tecnico')renderCalTecnico();
   if(t==='inventario')renderInventario();
@@ -3071,6 +3132,12 @@ function startScanner(){
   html5Scanner.render(decodedText=>{
     if(scannerSuspended) return;
     const codigo=codigoDesdeQR(decodedText);
+    if(/^TOTE-AG-/i.test(String(codigo))&&typeof abrirToteDesdeEnlace==='function'){
+      suspendScanner();
+      if(typeof agOpenTote==='function')agOpenTote(String(codigo).toUpperCase());
+      toast('✅ Tote detectado: '+String(codigo).toUpperCase());
+      return;
+    }
     const eq=allEqs.find(e=>String(e.codigo).toLowerCase()===String(codigo).toLowerCase());
     if(eq){
       suspendScanner();
@@ -3104,7 +3171,7 @@ function codigoDesdeQR(value){
   const raw=String(value||'').trim();
   try{
     const url=new URL(raw,location.href);
-    return url.searchParams.get('equipo')||url.searchParams.get('eq')||raw;
+    return url.searchParams.get('equipo')||url.searchParams.get('eq')||url.searchParams.get('tote')||raw;
   }catch(e){ return raw; }
 }
 
@@ -3122,6 +3189,7 @@ function abrirEquipoDesdeEnlace(){
   if(!codigo) return false;
   const eq=allEqs.find(e=>String(e.codigo).toLowerCase()===String(codigo).toLowerCase());
   if(!eq){ toast('❌ El equipo del enlace no fue encontrado'); return false; }
+  window._equipmentDeepLinkActive=true;
   window._fdymTab='escaner';
   setTab('escaner');
   suspendScanner();
@@ -3632,6 +3700,10 @@ function limitesSemana(ref){
 const PESO_ESTADO_SEM={Urgente:0,Bloqueada:1,'Por aprobar':2,Pendiente:2,Recibida:2,Aprobada:3,'En progreso':3,Completada:4};
 function renderDash(){
   if(!document.getElementById('k-urg')) return;
+  if(typeof renderAGDashboardWidget==='function'){
+    if(window.AG_STATE?.ready) renderAGDashboardWidget();
+    else if(typeof renderAguasGrises==='function') renderAguasGrises();
+  }
   const hoy=new Date();hoy.setHours(0,0,0,0);
   document.getElementById('k-urg').textContent=allOTs.filter(o=>o.estado==='Urgente').length;
   document.getElementById('k-prog').textContent=allOTs.filter(o=>o.estado==='En progreso').length;
@@ -9887,7 +9959,7 @@ function _initFoundryMobile(){
     const cur = window._fdymTab || 'inicio';
     const role=window.curProf?.rol;
     const configs={
-      tecnico:[['inicio','ti-home','Inicio'],['ordenes','ti-clipboard-list','Órdenes'],['escaner','ti-qrcode','Escanear'],['checklist','ti-checklist','Checklist'],['agenda','ti-calendar','Agenda']],
+      tecnico:[['inicio','ti-home','Inicio'],['ordenes','ti-clipboard-list','Órdenes'],['escaner','ti-qrcode','Escanear'],['bitacoras','ti-notebook','Bitácoras'],['more','ti-grid-dots','Más']],
       supervisor_zona:[['inicio','ti-home','Inicio'],['agenda','ti-calendar','Agenda'],['escaner','ti-qrcode','Escanear'],['bitacoras','ti-notebook','Bitácoras'],['more','ti-grid-dots','Más']],
       supervisor:[['inicio','ti-home','Inicio'],['ordenes','ti-clipboard-list','Órdenes'],['escaner','ti-qrcode','Escanear'],['inventario','ti-package','Inventario'],['more','ti-grid-dots','Más']],
       admin:[['inicio','ti-home','Inicio'],['ordenes','ti-clipboard-list','Órdenes'],['escaner','ti-qrcode','Escanear'],['inventario','ti-package','Inventario'],['more','ti-grid-dots','Más']],
@@ -9907,6 +9979,8 @@ function _initFoundryMobile(){
 
   function goTab(t){
     if(t==='more'){openMoreSheet();return;}
+    if(t!=='escaner') window._equipmentDeepLinkActive=false;
+    if(t!=='aguas-grises') window._agDeepLinkActive=false;
     window._fdymTab = t;
     const inicio = $('#fdym-inicio');
     if (t === 'inicio') {
@@ -9936,7 +10010,7 @@ function _initFoundryMobile(){
 
   function openMoreSheet(){
     $('#fdym-more')?.remove();
-    const used=new Set(['inicio','ordenes','escaner','inventario','agenda','checklist']);
+    const used=new Set($$('.fdym-bottombar .it').map(x=>x.dataset.go).filter(x=>x&&x!=='more'));
     const buttons=$$('.nav .nav-btn').filter(b=>!used.has(b.id.replace('nav-','')));
     const wrap=document.createElement('div');wrap.id='fdym-more';wrap.className='fdym-more-backdrop';
     wrap.innerHTML=`<div class="fdym-more-sheet"><div class="head"><strong>Más herramientas</strong><button class="iconbtn" data-close aria-label="Cerrar"><i class="ti ti-x"></i></button></div><div class="fdym-more-grid">${buttons.map(b=>{const id=b.id.replace('nav-','');const ic=b.querySelector('i')?.className||'ti ti-circle';const tx=b.textContent.trim().replace(/\s+\d+$/,'');return `<button class="fdym-more-item" data-target="${id}"><i class="${ic}"></i><span>${tx}</span></button>`}).join('')}</div></div>`;
@@ -9954,7 +10028,20 @@ function _initFoundryMobile(){
     renderTop();
     renderInicio();
     renderBottombar();
-    goTab('inicio');
+    if(window._agDeepLinkActive){
+      window._fdymTab='aguas-grises';
+      const inicio=$('#fdym-inicio');
+      if(inicio) inicio.style.display='none';
+      if(typeof window.setTab==='function')window.setTab('aguas-grises');
+      renderBottombar();
+    }else if(window._equipmentDeepLinkActive){
+      window._fdymTab='escaner';
+      const inicio=$('#fdym-inicio');
+      if(inicio) inicio.style.display='none';
+      renderBottombar();
+    }else{
+      goTab('inicio');
+    }
     document.documentElement.classList.remove('fdy-booting');
   }
 
@@ -13078,6 +13165,159 @@ function btInitRealtime(){
     })
     .subscribe();
 }
+
+</script>
+<script>
+(function(global){
+'use strict';
+
+const AG_NAME='Control de Aguas Grises';
+const AG_CODES=['TOTE-AG-01','TOTE-AG-02','TOTE-AG-03','TOTE-AG-04'];
+const AG={bitacora:null,config:null,records:[],snapshot:{},alerts:[],view:'dashboard',detail:null,photoInspection:null,photoCollection:null,loading:false,ready:false};
+
+function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function pad(n){return String(n).padStart(2,'0');}
+function localDate(d=new Date()){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function localTime(d=new Date()){return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}
+function stamp(r){const raw=r?.valores?.fechaReal||r?.valores?.creadoEn||r?.created_at||r?.fecha_modificacion; if(raw)return new Date(raw).getTime()||0;return new Date(`${r?.fecha||'2000-01-01'}T${/^\d\d:\d\d/.test(r?.hora||'')?r.hora.slice(0,8):'00:00:00'}`).getTime()||0;}
+function cfgDefault(){return {version:1,thresholds:{preventive:50,request:70,critical:90},contact:'Vianey',operationMode:'single',plant:'Planta 1',schedules:[{time:'07:00',label:'Inspección inicial'},{time:'11:30',label:'Inspección intermedia'},{time:'15:30',label:'Inspección final'}],totes:AG_CODES.map((code,i)=>({code,capacity:1000,location:'Área de aguas grises',active:true,order:i+1}))};}
+function mergeConfig(raw){const d=cfgDefault(),r=raw||{};return {...d,...r,thresholds:{...d.thresholds,...(r.thresholds||{})},schedules:Array.isArray(r.schedules)&&r.schedules.length?r.schedules:d.schedules,totes:Array.isArray(r.totes)&&r.totes.length?r.totes:d.totes};}
+function can(action){const role=global.curProf?.rol;if(role==='admin')return true;const m={capture:['tecnico','supervisor','supervisor_zona'],request:['supervisor'],collect:['tecnico','supervisor'],resolve:['supervisor'],view:['tecnico','supervisor','supervisor_zona','gerencia','ingeniero','ehs']};return (m[action]||[]).includes(role);}
+function levelClass(p,cfg=AG.config){if(p===null||p===undefined)return'unknown';const t=cfg?.thresholds||cfgDefault().thresholds;if(p>=t.critical)return'critical';if(p>=t.request)return'bad';if(p>=t.preventive)return'warn';return'good';}
+function volume(capacity,percent){const p=Number(percent);return Number.isFinite(p)?Math.round(Number(capacity||0)*p/100):null;}
+function eventRecords(type){return AG.records.filter(r=>r.valores?.tipo===type);}
+function latestSnapshot(config=AG.config,records=AG.records){
+  const out={};(config?.totes||[]).forEach(t=>{out[t.code]={code:t.code,capacity:Number(t.capacity)||0,location:t.location||'',active:t.active!==false,percent:null,volume:null,status:'Pendiente de inspección',lastAt:null,lastUser:null};});
+  records.slice().sort((a,b)=>stamp(a)-stamp(b)).forEach(r=>{
+    const v=r.valores||{};
+    if(v.tipo==='inspeccion') (v.lecturas||[]).forEach(x=>{if(!out[x.codigo])return;out[x.codigo]={...out[x.codigo],percent:Number(x.porcentaje),volume:Number(x.volumen),status:x.estado||'Pendiente de inspección',lastAt:v.creadoEn||r.fecha_modificacion||`${r.fecha}T${r.hora}`,lastUser:r.tecnico_nombre||v.responsable||null,lastRecord:r};});
+    if(v.tipo==='recoleccion') (v.totes||[]).forEach(x=>{if(!out[x.codigo])return;const p=Number(x.nivelPosterior);out[x.codigo]={...out[x.codigo],percent:p,volume:volume(out[x.codigo].capacity,p),status:x.estadoPosterior||(p<=10?'Disponible':'Pendiente de inspección'),lastAt:v.fechaReal||v.creadoEn||r.fecha_modificacion,lastUser:r.tecnico_nombre||v.verificadoPor||null,lastRecord:r};});
+  });
+  return out;
+}
+function computeConditions(snapshot=AG.snapshot,config=AG.config){
+  const list=[];const valid=Object.values(snapshot).filter(x=>x.active&&x.percent!==null);const t=config.thresholds;
+  valid.forEach(x=>{let sev=null,title='',message='';if(x.percent>=t.critical){sev='critical';title='Nivel crítico';message=`${x.code} está al ${x.percent}%. Cambiar a un tote disponible.`;}else if(x.percent>=t.request){sev='critical';title='Solicitar recolección';message=`${x.code} alcanzó ${x.percent}% (${x.volume.toLocaleString('es-MX')} L).`;}else if(x.percent>=t.preventive){sev='warning';title='Aviso preventivo';message=`${x.code} alcanzó ${x.percent}% de capacidad.`;}if(sev)list.push({key:`level:${x.code}`,severity:sev,title,message});});
+  if(valid.length){const available=valid.filter(x=>x.status==='Disponible'||(x.percent===0&&!['En operación','Fuera de servicio'].includes(x.status))).length;if(available<=1)list.push({key:'reserve:low',severity:'critical',title:'Reserva insuficiente',message:`Queda${available===1?' solamente un tote disponible':' sin totes disponibles'}.`});}
+  return list;
+}
+function scheduleState(config=AG.config,records=AG.records,now=new Date()){
+  const today=localDate(now),ins=records.filter(r=>r.valores?.tipo==='inspeccion'&&r.fecha===today);return config.schedules.map(s=>{const done=ins.some(r=>r.valores?.slot===s.time);const [h,m]=s.time.split(':').map(Number);const due=new Date(now);due.setHours(h,m,0,0);return {...s,done,overdue:!done&&now>due};});
+}
+function analysis(config=AG.config,records=AG.records,snapshot=AG.snapshot){
+  const ins=records.filter(r=>r.valores?.tipo==='inspeccion').sort((a,b)=>stamp(a)-stamp(b));const first=ins.length?stamp(ins[0]):0;const operationalDays=first?Math.max(1,(Date.now()-first)/86400000):0;const samples=[];
+  config.totes.filter(t=>t.active!==false).forEach(t=>{let prev=null;ins.forEach(r=>{const x=(r.valores.lecturas||[]).find(z=>z.codigo===t.code);if(!x)return;const cur={v:Number(x.volumen),ts:stamp(r)};if(prev&&cur.v>=prev.v){const days=(cur.ts-prev.ts)/86400000;if(days>0)samples.push({liters:cur.v-prev.v,days,code:t.code});}prev=cur;});});
+  const liters=samples.reduce((a,x)=>a+x.liters,0),days=samples.reduce((a,x)=>a+x.days,0),perDay=days>0?liters/days:null;const enough=operationalDays>=14&&samples.length>=4&&perDay>0;const totalRemaining=Object.values(snapshot).filter(x=>x.active).reduce((a,x)=>a+(x.percent===null?0:x.capacity-x.volume),0);
+  let next=null;if(enough){const candidates=Object.values(snapshot).filter(x=>x.active&&x.percent!==null&&x.percent<config.thresholds.request).map(x=>({code:x.code,days:Math.max(0,(volume(x.capacity,config.thresholds.request)-x.volume)/perDay)})).sort((a,b)=>a.days-b.days);if(candidates.length){const d=new Date();d.setDate(d.getDate()+Math.ceil(candidates[0].days));next={...candidates[0],date:d};}}
+  return {enough,operationalDays,samples:samples.length,perDay,totalRemaining,next};
+}
+
+async function ensureSetup(){
+  if(!global.db||!global.curProf)return false;
+  let eqs=(global.allEqs||[]).filter(e=>AG_CODES.includes(e.codigo));
+  const existing=await global.db.from('equipos').select('*').in('codigo',AG_CODES);
+  if(!existing.error&&existing.data?.length)eqs=existing.data;
+  if(eqs.length<AG_CODES.length&&global.curProf.rol==='admin'){
+    for(const code of AG_CODES.filter(c=>!eqs.some(e=>e.codigo===c))){const n=Number(code.slice(-2));const {error}=await global.db.from('equipos').insert({codigo:code,nombre:`Tote de aguas grises ${n}`,area:'Área de aguas grises',modelo:'IBC · 1,000 L',serie:'',estado:'Operativo',criticidad:'media',horas_actuales:0,frec_pm_horas:0});if(error&&!String(error.message).toLowerCase().includes('duplicate'))throw error;}
+    const q=await global.db.from('equipos').select('*').order('codigo');if(!q.error){global.allEqs=q.data||[];global.window&&(global.window.allEqs=global.allEqs);eqs=global.allEqs.filter(e=>AG_CODES.includes(e.codigo));}
+  }
+  if(!eqs.length)return false;
+  let q=await global.db.from('bitacoras').select('*').eq('nombre',AG_NAME).maybeSingle();
+  if(q.error)throw q.error;
+  if(!q.data&&global.curProf.rol==='admin'){
+    q=await global.db.from('bitacoras').insert({equipo_id:eqs[0].id,nombre:AG_NAME,descripcion:'Inspecciones, alertas, solicitudes y recolecciones de los totes de aguas grises',horarios:['07:00','11:30','15:30'],frecuencia:'diaria',dias:[],activa:false,creado_por:global.curUser?.id||null}).select().single();if(q.error)throw q.error;
+  }
+  AG.bitacora=q.data||null;if(!AG.bitacora)return false;
+  const cfgQ=await global.db.from('bitacora_registros').select('*').eq('bitacora_id',AG.bitacora.id).eq('fecha','2000-01-01').eq('hora','CONFIG').maybeSingle();if(cfgQ.error)throw cfgQ.error;
+  if(!cfgQ.data&&global.curProf.rol==='admin'){
+    const d=cfgDefault();const r=await global.db.from('bitacora_registros').insert({bitacora_id:AG.bitacora.id,equipo_id:AG.bitacora.equipo_id,fecha:'2000-01-01',hora:'CONFIG',valores:{tipo:'config',config:d,creadoEn:new Date().toISOString()},observaciones:'Configuración del módulo',estado:'ok',alertas:[],tecnico_id:global.curUser?.id||null,tecnico_nombre:global.curProf?.nombre||null}).select().single();if(r.error)throw r.error;AG.config=d;
+  }else AG.config=mergeConfig(cfgQ.data?.valores?.config);
+  return !!AG.config;
+}
+async function load(options={}){
+  if(AG.loading)return;AG.loading=true;
+  try{
+    const ok=await ensureSetup();if(!ok){AG.ready=false;renderSetupRequired();return;}
+    const q=await global.db.from('bitacora_registros').select('*').eq('bitacora_id',AG.bitacora.id).neq('hora','CONFIG').order('fecha',{ascending:true}).order('hora',{ascending:true}).limit(1000);if(q.error)throw q.error;
+    AG.records=q.data||[];AG.snapshot=latestSnapshot();AG.alerts=eventRecords('alerta').filter(r=>r.valores?.activa!==false);AG.ready=true;
+    if(options.sync!==false&&can('capture'))await syncAlerts();
+    if(document.getElementById('tab-aguas-grises')?.classList.contains('panel-visible'))render();
+    renderWidget();
+  }catch(e){console.error('[Aguas grises]',e);const root=document.getElementById('ag-root');if(root)root.innerHTML=`<div class="ag-empty"><i class="ti ti-alert-triangle"></i>No se pudo cargar el módulo.<br><small>${esc(e.message)}</small></div>`;}finally{AG.loading=false;}
+}
+async function syncAlerts(){
+  const conditions=computeConditions();const byKey=new Map(AG.alerts.map(r=>[r.valores.key,r]));
+  for(const c of conditions){const ex=byKey.get(c.key);if(ex){if(ex.valores.condicionActiva!==true){const valores={...ex.valores,condicionActiva:true,ultimaEvaluacion:new Date().toISOString(),message:c.message,severity:c.severity};await global.db.from('bitacora_registros').update({valores,estado:'alerta',alertas:[c.message]}).eq('id',ex.id);ex.valores=valores;}}else{const d=new Date();const row={bitacora_id:AG.bitacora.id,equipo_id:AG.bitacora.equipo_id,fecha:localDate(d),hora:'A'+localTime(d)+'-'+Math.random().toString(36).slice(2,6),valores:{tipo:'alerta',...c,activa:true,condicionActiva:true,abiertaEn:d.toISOString(),creadoEn:d.toISOString()},observaciones:c.message,estado:'alerta',alertas:[c.message],tecnico_id:global.curUser?.id||null,tecnico_nombre:global.curProf?.nombre||null};const r=await global.db.from('bitacora_registros').insert(row).select().single();if(!r.error){AG.records.push(r.data);AG.alerts.push(r.data);byKey.set(c.key,r.data);}}}
+  const activeKeys=new Set(conditions.map(c=>c.key));for(const ex of AG.alerts){if(!activeKeys.has(ex.valores.key)&&ex.valores.condicionActiva!==false){const valores={...ex.valores,condicionActiva:false,condicionResueltaEn:new Date().toISOString()};await global.db.from('bitacora_registros').update({valores}).eq('id',ex.id);ex.valores=valores;}}
+}
+
+function summary(){const vals=Object.values(AG.snapshot).filter(x=>x.active);const known=vals.filter(x=>x.percent!==null);const installed=vals.reduce((a,x)=>a+x.capacity,0),stored=known.reduce((a,x)=>a+x.volume,0);const available=known.filter(x=>x.status==='Disponible'||(x.percent===0&&!['En operación','Fuera de servicio'].includes(x.status))).length;const operating=known.find(x=>x.status==='En operación');const requests=eventRecords('solicitud').filter(r=>!['Completada','Cancelada'].includes(r.valores.estado));return{vals,known,installed,stored,remaining:known.length?installed-stored:null,available,operating,requests};}
+function setupCard(){return `<div class="ag-empty"><i class="ti ti-database-off"></i><b>Configuración inicial pendiente</b><br>${global.curProf?.rol==='admin'?'Abre nuevamente el módulo para crear los cuatro totes y su bitácora.':'Un administrador debe abrir este módulo una vez para completar la configuración inicial.'}</div>`;}
+function renderSetupRequired(){const root=document.getElementById('ag-root');if(root)root.innerHTML=setupCard();}
+function nav(){const items=[['dashboard','ti-gauge','Resumen'],['inspection','ti-clipboard-check','Inspección'],['collections','ti-truck','Recolecciones'],['history','ti-history','Historial'],['analysis','ti-chart-line','Análisis']];if(global.curProf?.rol==='admin')items.push(['config','ti-adjustments','Configuración']);return `<div class="ag-nav">${items.map(([k,i,l])=>`<button class="${AG.view===k?'active':''}" onclick="agView('${k}')"><i class="ti ${i}"></i> ${l}</button>`).join('')}</div>`;}
+function head(){return `<div class="ag-head"><div><div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65)">Facilities · Bitácoras</div><h1>Control de Aguas Grises</h1><p>Monitoreo, reserva y programación de recolección de totes.</p></div><div class="ag-actions">${can('capture')?'<button class="btn-sm btn-primary" onclick="agNewInspection()"><i class="ti ti-plus"></i> Registrar inspección</button>':''}${can('request')?'<button class="btn-sm" onclick="agNewRequest()"><i class="ti ti-truck-delivery"></i> Solicitar recolección</button>':''}</div></div>`;}
+function render(){const root=document.getElementById('ag-root');if(!root)return;if(!AG.ready){root.innerHTML=setupCard();return;}let body='';if(AG.detail)body=renderDetail();else if(AG.view==='dashboard')body=renderDashboard();else if(AG.view==='inspection')body=renderInspection();else if(AG.view==='collections')body=renderCollections();else if(AG.view==='history')body=renderHistory();else if(AG.view==='analysis')body=renderAnalysis();else if(AG.view==='config')body=renderConfig();root.innerHTML=`<div class="ag-shell">${head()}${AG.detail?'':nav()}${body}</div>`;afterRender();}
+function afterRender(){document.querySelectorAll('[data-ag-percent]').forEach(el=>el.addEventListener('input',updateVolumePreview));}
+
+function alertsHTML(){if(!AG.alerts.length)return'';return `<div class="ag-alerts">${AG.alerts.map(r=>`<div class="ag-alert ${r.valores.severity==='critical'?'critical':''}"><i class="ti ${r.valores.severity==='critical'?'ti-alert-triangle':'ti-bell'}"></i><div class="tx"><b>${esc(r.valores.title)}</b><small>${esc(r.valores.message)}${r.valores.condicionActiva===false?' · Condición normalizada, pendiente de cierre':''}</small></div>${can('resolve')&&r.valores.condicionActiva===false?`<button class="btn-sm" onclick="agResolveAlert(${r.id})">Cerrar</button>`:''}</div>`).join('')}</div>`;}
+function toteCard(x){const cls=levelClass(x.percent);const pct=x.percent===null?0:Math.max(0,Math.min(100,x.percent));return `<article class="ag-tote"><div class="ag-tote-top"><span class="ag-code">${esc(x.code)}</span><span class="ag-state ${cls==='good'?'good':cls==='warn'?'warn':['bad','critical'].includes(cls)?'bad':''}">${esc(x.status)}</span></div><div class="ag-percent"><strong>${x.percent===null?'—':x.percent+'%'}</strong><span>${x.volume===null?'Sin lectura':x.volume.toLocaleString('es-MX')+' / '+x.capacity.toLocaleString('es-MX')+' L'}</span></div><div class="ag-progress"><i class="${cls}" style="width:${pct}%"></i></div><div class="ag-meta"><div><span>Ubicación</span><b>${esc(x.location||'Sin definir')}</b></div><div><span>Última inspección</span><b>${x.lastAt?new Date(x.lastAt).toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Pendiente'}</b></div></div><div class="ag-card-actions">${can('capture')?`<button class="btn-sm btn-primary" onclick="agNewInspection(null,'${x.code}')"><i class="ti ti-pencil"></i> Lectura</button>`:''}<button class="btn-sm" onclick="agOpenTote('${x.code}')"><i class="ti ti-history"></i> Expediente</button></div></article>`;}
+function renderDashboard(){const s=summary(),slots=scheduleState();return `${alertsHTML()}<div class="ag-kpis"><div class="ag-kpi"><span>Capacidad instalada</span><strong>${s.installed.toLocaleString('es-MX')} L</strong><small>${s.vals.length} totes activos</small></div><div class="ag-kpi"><span>Volumen almacenado</span><strong>${s.known.length?s.stored.toLocaleString('es-MX')+' L':'—'}</strong><small>${s.known.length?'Estimado por lecturas':'Pendiente de inspección'}</small></div><div class="ag-kpi"><span>Capacidad restante</span><strong>${s.remaining===null?'—':s.remaining.toLocaleString('es-MX')+' L'}</strong><small>${s.remaining===null?'Datos insuficientes':'Estimación'}</small></div><div class="ag-kpi"><span>Totes disponibles</span><strong>${s.known.length?s.available:'—'}</strong><small>Listos para cambio</small></div><div class="ag-kpi"><span>En operación</span><strong>${s.operating?esc(s.operating.code):'—'}</strong><small>${s.operating?'Activo':'Sin confirmar'}</small></div><div class="ag-kpi"><span>Solicitudes pendientes</span><strong>${s.requests.length}</strong><small>Sin completar</small></div></div><div class="ag-grid">${s.vals.map(toteCard).join('')}</div><div class="ag-panel"><div class="ag-panel-head"><h2>Inspecciones de hoy</h2><span class="ag-muted">Una captura incluye todos los totes</span></div><div class="ag-schedule">${slots.map(s=>`<div class="ag-slot ${s.done?'done':s.overdue?'overdue':''}"><b>${esc(s.time)} · ${esc(s.label)}</b><span>${s.done?'Inspección registrada':s.overdue?'Vencida':'Pendiente'}</span>${can('capture')&&!s.done?`<button class="btn-sm ${s.overdue?'btn-primary':''}" onclick="agNewInspection('${s.time}')">Capturar</button>`:''}</div>`).join('')}</div></div>`;}
+
+function suggestedSlot(){const slots=scheduleState();return (slots.find(x=>x.overdue&&!x.done)||slots.find(x=>!x.done)||slots[slots.length-1])?.time||'Registro libre';}
+function renderInspection(){const slot=AG.pendingSlot||suggestedSlot(),now=new Date(),admin=global.curProf?.rol==='admin',multi=AG.config.operationMode==='multiple';return `<div class="ag-panel"><div class="ag-panel-head"><div><h2>Nueva inspección</h2><div class="ag-muted">Captura los cuatro recipientes en un solo registro.</div></div><span class="ag-status pending">${esc(slot)}</span></div><input type="hidden" id="ag-ins-slot" value="${esc(slot)}"><div class="ag-form-grid"><div class="ag-field"><label>Fecha</label><input id="ag-ins-date" type="date" value="${localDate(now)}" ${admin?'':'disabled'}></div><div class="ag-field"><label>Hora</label><input id="ag-ins-time" type="time" step="1" value="${localTime(now)}" ${admin?'':'disabled'}></div><div class="ag-field"><label>Responsable</label><input value="${esc(global.curProf?.nombre||'')}" disabled></div><div class="ag-field"><label>Turno</label><select id="ag-ins-shift"><option>Mañana</option><option>Tarde</option><option>Nocturno</option></select></div><div class="ag-field full"><label>Planta o ubicación</label><input id="ag-ins-plant" value="${esc(AG.config.plant||'Planta 1')}"></div></div><div class="ag-readings">${AG.config.totes.filter(t=>t.active!==false).map(t=>{const x=AG.snapshot[t.code]||{};return `<div class="ag-reading" data-code="${t.code}" data-capacity="${t.capacity}"><div class="ag-reading-head"><strong>${t.code}</strong><label class="ag-radio"><input type="${multi?'checkbox':'radio'}" name="ag-active" value="${t.code}" ${x.status==='En operación'?'checked':''}> En operación</label></div><div class="ag-reading-fields"><div class="ag-field"><label>Nivel (%)</label><input type="number" inputmode="decimal" min="0" max="100" step="1" data-ag-percent value="${x.percent??''}" placeholder="0–100"></div><div class="ag-field"><label>Estado</label><select data-ag-state>${['Disponible','Pendiente de recolección','Fuera de servicio','Pendiente de inspección'].map(v=>`<option ${x.status===v?'selected':''}>${v}</option>`).join('')}</select></div><div class="ag-field full"><label>Observaciones</label><input data-ag-note placeholder="Sin novedad"></div></div><div class="ag-volume">Volumen estimado: <b data-ag-volume>${x.volume===null||x.volume===undefined?'—':x.volume.toLocaleString('es-MX')+' L'}</b></div></div>`;}).join('')}</div><div class="ag-form-grid two" style="margin-top:14px"><div class="ag-field full"><label>Observaciones generales</label><textarea id="ag-ins-notes" placeholder="Condición del área, válvulas, conexiones o cualquier anomalía"></textarea></div><div class="ag-field full"><label>Evidencia fotográfica opcional</label><input id="ag-ins-photo" type="file" accept="image/*" capture="environment" onchange="agPhoto(this,'inspection')"><span class="ag-help" id="ag-ins-photo-status">Sin fotografía</span></div></div><div class="ag-submit"><button class="btn-sm" onclick="agView('dashboard')">Cancelar</button><button class="btn-sm btn-primary" onclick="agSaveInspection()"><i class="ti ti-device-floppy"></i> Guardar inspección</button></div></div>`;}
+function updateVolumePreview(e){const card=e.target.closest('.ag-reading'),cap=Number(card.dataset.capacity),pct=Number(e.target.value),out=card.querySelector('[data-ag-volume]');out.textContent=Number.isFinite(pct)?volume(cap,pct).toLocaleString('es-MX')+' L':'—';}
+async function compressFile(file){if(!file)return null;return new Promise((resolve,reject)=>{const img=new Image(),reader=new FileReader();reader.onerror=reject;reader.onload=()=>img.src=reader.result;img.onerror=reject;img.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.72));};reader.readAsDataURL(file);});}
+async function photo(input,type){try{const data=await compressFile(input.files?.[0]);if(type==='inspection'){AG.photoInspection=data;document.getElementById('ag-ins-photo-status').textContent=data?'Fotografía lista para guardar':'Sin fotografía';}else{AG.photoCollection=data;document.getElementById('ag-col-photo-status').textContent=data?'Fotografía lista para guardar':'Sin fotografía';}}catch(e){global.toast?.('No se pudo preparar la fotografía');}}
+async function saveInspection(){
+  const cards=[...document.querySelectorAll('.ag-reading')],actives=[...document.querySelectorAll('input[name="ag-active"]:checked')].map(x=>x.value);if(AG.config.operationMode==='single'&&actives.length!==1){global.toast?.('Selecciona exactamente un tote en operación');return;}
+  const lecturas=[];for(const card of cards){const code=card.dataset.code,pct=Number(card.querySelector('[data-ag-percent]').value);if(!Number.isFinite(pct)||pct<0||pct>100){global.toast?.(`Captura un porcentaje válido para ${code}`);return;}let estado=card.querySelector('[data-ag-state]').value;if(actives.includes(code))estado='En operación';if(pct>=AG.config.thresholds.request&&estado!=='En operación')estado='Pendiente de recolección';lecturas.push({codigo:code,porcentaje:pct,volumen:volume(Number(card.dataset.capacity),pct),activo:actives.includes(code),estado,observaciones:card.querySelector('[data-ag-note]').value.trim()});}
+  const date=document.getElementById('ag-ins-date').value,time=document.getElementById('ag-ins-time').value||localTime(),slot=document.getElementById('ag-ins-slot').value;const alerts=lecturas.filter(x=>x.porcentaje>=AG.config.thresholds.preventive).map(x=>`${x.codigo}: ${x.porcentaje}%`);const valores={tipo:'inspeccion',slot,planta:document.getElementById('ag-ins-plant').value.trim(),turno:document.getElementById('ag-ins-shift').value,responsable:global.curProf?.nombre||'',lecturas,evidencia:AG.photoInspection,creadoEn:new Date(`${date}T${time}`).toISOString()};
+  const row={bitacora_id:AG.bitacora.id,equipo_id:AG.bitacora.equipo_id,fecha:date,hora:time,valores,observaciones:document.getElementById('ag-ins-notes').value.trim(),estado:alerts.length?'alerta':'ok',alertas:alerts,tecnico_id:global.curUser?.id||null,tecnico_nombre:global.curProf?.nombre||null};const r=await global.db.from('bitacora_registros').insert(row);if(r.error){global.toast?.('No se guardó: '+r.error.message);return;}AG.photoInspection=null;global.toast?.('✅ Inspección guardada');AG.view='dashboard';await load();
+}
+
+function requestRows(){return eventRecords('solicitud').slice().sort((a,b)=>stamp(b)-stamp(a));}
+function renderCollections(){const reqs=requestRows();return `<div class="ag-panel"><div class="ag-panel-head"><div><h2>Solicitudes de recolección</h2><div class="ag-muted">Seguimiento desde la solicitud hasta el cierre del servicio.</div></div>${can('request')?'<button class="btn-sm btn-primary" onclick="agNewRequest()"><i class="ti ti-plus"></i> Nueva solicitud</button>':''}</div><div class="ag-list">${reqs.length?reqs.map(r=>{const v=r.valores;return `<div class="ag-row"><div class="ag-row-main"><div class="ag-row-title">${esc(v.numero)} · ${esc(v.estado)}</div><div class="ag-row-sub">${(v.totes||[]).map(x=>esc(x.codigo)).join(', ')} · ${(v.volumenTotal||0).toLocaleString('es-MX')} L estimados · ${esc(v.contacto||'Vianey')}</div><div class="ag-row-sub">Creada ${new Date(v.creadoEn).toLocaleString('es-MX')}</div></div><div class="ag-row-actions"><button class="btn-sm" onclick="agWhatsApp(${r.id})"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>${can('request')?`<select aria-label="Estado de solicitud" onchange="agSetRequestStatus(${r.id},this.value)" style="min-height:44px;border:1px solid #d3dde8;border-radius:9px;padding:8px">${['Pendiente de envío','Solicitada','Confirmada','En proceso','Completada','Cancelada'].map(s=>`<option ${v.estado===s?'selected':''}>${s}</option>`).join('')}</select>`:''}${can('collect')&&!['Completada','Cancelada'].includes(v.estado)?`<button class="btn-sm btn-primary" onclick="agNewCollection(${r.id})"><i class="ti ti-check"></i> Registrar servicio</button>`:''}</div></div>`;}).join(''):'<div class="ag-empty"><i class="ti ti-truck"></i>No hay solicitudes registradas.</div>'}</div></div>`;}
+function renderRequestForm(){const eligible=Object.values(AG.snapshot).filter(x=>x.active&&x.percent!==null&&(x.percent>=AG.config.thresholds.request||x.status==='Pendiente de recolección'));const n=(requestRows().length+1),num=`AG-${new Date().getFullYear()}-${String(n).padStart(4,'0')}`;return `<div class="ag-panel"><div class="ag-panel-head"><h2>Nueva solicitud de recolección</h2><span class="ag-status pending">${num}</span></div><div class="ag-form-grid two"><div class="ag-field"><label>Contacto de coordinación</label><input id="ag-req-contact" value="${esc(AG.config.contact||'Vianey')}"></div><div class="ag-field"><label>Fecha solicitada</label><input id="ag-req-date" type="date" value="${localDate()}"></div><div class="ag-field"><label>Hora estimada de atención</label><input id="ag-req-time" type="time"></div><div class="ag-field"><label>Estado inicial</label><select id="ag-req-status"><option>Pendiente de envío</option><option>Solicitada</option></select></div><div class="ag-field full"><label>Totes incluidos</label><div class="ag-list">${eligible.length?eligible.map(x=>`<label class="ag-row" style="cursor:pointer"><input type="checkbox" data-ag-req-tote value="${x.code}" checked style="width:20px;height:20px"><div class="ag-row-main"><div class="ag-row-title">${x.code} · ${x.percent}%</div><div class="ag-row-sub">${x.volume.toLocaleString('es-MX')} L estimados</div></div></label>`).join(''):'<div class="ag-empty">Ningún tote ha alcanzado el umbral de solicitud. Puedes seleccionar manualmente desde el historial después de registrar una inspección.</div>'}</div></div><div class="ag-field full"><label>Observaciones</label><textarea id="ag-req-notes"></textarea></div></div><input type="hidden" id="ag-req-number" value="${num}"><div class="ag-submit"><button class="btn-sm" onclick="agView('collections')">Cancelar</button><button class="btn-sm btn-primary" onclick="agSaveRequest()">Guardar solicitud</button></div></div>`;}
+async function saveRequest(){const codes=[...document.querySelectorAll('[data-ag-req-tote]:checked')].map(x=>x.value);if(!codes.length){global.toast?.('Selecciona al menos un tote');return;}const totes=codes.map(c=>{const x=AG.snapshot[c];return{codigo:c,nivel:x.percent,volumen:x.volume};}),d=new Date();const valores={tipo:'solicitud',numero:document.getElementById('ag-req-number').value,estado:document.getElementById('ag-req-status').value,totes,volumenTotal:totes.reduce((a,x)=>a+(x.volumen||0),0),contacto:document.getElementById('ag-req-contact').value.trim(),fechaSolicitada:document.getElementById('ag-req-date').value,horaEstimada:document.getElementById('ag-req-time').value,observaciones:document.getElementById('ag-req-notes').value.trim(),creadoEn:d.toISOString(),solicitante:global.curProf?.nombre||''};const r=await global.db.from('bitacora_registros').insert({bitacora_id:AG.bitacora.id,equipo_id:AG.bitacora.equipo_id,fecha:localDate(d),hora:'R'+localTime(d)+'-'+Math.random().toString(36).slice(2,5),valores,observaciones:valores.observaciones,estado:'ok',alertas:[],tecnico_id:global.curUser?.id||null,tecnico_nombre:global.curProf?.nombre||null});if(r.error){global.toast?.('No se guardó: '+r.error.message);return;}global.toast?.('✅ Solicitud registrada');AG.view='collections';await load({sync:false});}
+function newRequest(){AG.view='request-form';AG.detail=null;const root=document.getElementById('ag-root');root.innerHTML=`<div class="ag-shell">${head()}${nav()}${renderRequestForm()}</div>`;}
+async function setRequestStatus(id,status){const r=AG.records.find(x=>Number(x.id)===Number(id));if(!r)return;const valores={...r.valores,estado:status};if(status==='Confirmada')valores.confirmadaEn=new Date().toISOString();const q=await global.db.from('bitacora_registros').update({valores}).eq('id',id);if(q.error){global.toast?.('No se actualizó: '+q.error.message);return;}global.toast?.('Estado actualizado');await load({sync:false});}
+function whatsApp(id){const r=AG.records.find(x=>Number(x.id)===Number(id)),v=r?.valores;if(!v)return;const msg=`Buen día, ${v.contacto||'Vianey'}. ¿Me podrías apoyar programando la recolección de los totes de aguas grises? Actualmente tenemos ${(v.totes||[]).length} totes pendientes, con un volumen estimado de ${(v.volumenTotal||0).toLocaleString('es-MX')} litros. Gracias.`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');}
+
+function renderCollectionForm(id){const req=AG.records.find(x=>Number(x.id)===Number(id)),v=req?.valores;if(!v)return'<div class="ag-empty">Solicitud no encontrada.</div>';return `<div class="ag-panel"><div class="ag-panel-head"><div><h2>Registrar recolección</h2><div class="ag-muted">Vinculada a ${esc(v.numero)}</div></div></div><input id="ag-col-request" type="hidden" value="${id}"><div class="ag-form-grid two"><div class="ag-field"><label>Fecha y hora real</label><input id="ag-col-datetime" type="datetime-local" value="${localDate()}T${pad(new Date().getHours())}:${pad(new Date().getMinutes())}"></div><div class="ag-field"><label>Proveedor</label><input id="ag-col-provider" value="${esc(v.contacto||AG.config.contact)}"></div><div class="ag-field full"><label>Niveles posteriores confirmados</label><div class="ag-readings">${(v.totes||[]).map(t=>{const x=AG.snapshot[t.codigo]||{};return `<div class="ag-reading" data-col-code="${t.codigo}" data-capacity="${x.capacity||1000}" data-before="${x.percent??t.nivel??0}"><div class="ag-reading-head"><strong>${t.codigo}</strong><span class="ag-status">Antes: ${x.percent??t.nivel??'—'}%</span></div><div class="ag-field"><label>Nivel posterior (%)</label><input type="number" min="0" max="100" step="1" inputmode="decimal" data-col-after required></div></div>`;}).join('')}</div></div><div class="ag-field full"><label>Evidencia fotográfica opcional</label><input type="file" accept="image/*" capture="environment" onchange="agPhoto(this,'collection')"><span class="ag-help" id="ag-col-photo-status">Sin fotografía</span></div><div class="ag-field full"><label>Observaciones</label><textarea id="ag-col-notes"></textarea></div></div><div class="ag-submit"><button class="btn-sm" onclick="agView('collections')">Cancelar</button><button class="btn-sm btn-primary" onclick="agSaveCollection()">Confirmar recolección</button></div></div>`;}
+function newCollection(id){AG.view='collection-form';const root=document.getElementById('ag-root');root.innerHTML=`<div class="ag-shell">${head()}${nav()}${renderCollectionForm(id)}</div>`;}
+async function saveCollection(){const reqId=Number(document.getElementById('ag-col-request').value),req=AG.records.find(x=>Number(x.id)===reqId),dt=document.getElementById('ag-col-datetime').value;if(!dt){global.toast?.('Captura fecha y hora');return;}const totes=[];for(const card of document.querySelectorAll('[data-col-code]')){const after=Number(card.querySelector('[data-col-after]').value),before=Number(card.dataset.before),cap=Number(card.dataset.capacity);if(!Number.isFinite(after)||after<0||after>100){global.toast?.(`Confirma el nivel posterior de ${card.dataset.colCode}`);return;}totes.push({codigo:card.dataset.colCode,nivelAnterior:before,nivelPosterior:after,volumenRetirado:Math.max(0,volume(cap,before)-volume(cap,after)),estadoPosterior:after<=10?'Disponible':'Pendiente de inspección'});}const d=new Date(dt),valores={tipo:'recoleccion',solicitudId:reqId,solicitudNumero:req?.valores?.numero,fechaReal:d.toISOString(),totes,volumenRetirado:totes.reduce((a,x)=>a+x.volumenRetirado,0),proveedor:document.getElementById('ag-col-provider').value.trim(),verificadoPor:global.curProf?.nombre||'',evidencia:AG.photoCollection,observaciones:document.getElementById('ag-col-notes').value.trim(),creadoEn:new Date().toISOString()};const q=await global.db.from('bitacora_registros').insert({bitacora_id:AG.bitacora.id,equipo_id:AG.bitacora.equipo_id,fecha:localDate(d),hora:'C'+localTime(d)+'-'+Math.random().toString(36).slice(2,5),valores,observaciones:valores.observaciones,estado:'ok',alertas:[],tecnico_id:global.curUser?.id||null,tecnico_nombre:global.curProf?.nombre||null});if(q.error){global.toast?.('No se guardó: '+q.error.message);return;}if(req){await global.db.from('bitacora_registros').update({valores:{...req.valores,estado:'Completada',completadaEn:new Date().toISOString()}}).eq('id',reqId);}AG.photoCollection=null;global.toast?.('✅ Recolección registrada');AG.view='collections';await load();}
+
+function filteredHistory(){const from=document.getElementById('ag-h-from')?.value,to=document.getElementById('ag-h-to')?.value,code=document.getElementById('ag-h-code')?.value,type=document.getElementById('ag-h-type')?.value;return AG.records.filter(r=>['inspeccion','recoleccion','solicitud','alerta'].includes(r.valores?.tipo)).filter(r=>!from||r.fecha>=from).filter(r=>!to||r.fecha<=to).filter(r=>!type||r.valores.tipo===type).filter(r=>!code||JSON.stringify(r.valores).includes(code)).sort((a,b)=>stamp(b)-stamp(a));}
+function historyRows(rows){return rows.map(r=>{const v=r.valores||{},type={inspeccion:'Inspección',recoleccion:'Recolección',solicitud:'Solicitud',alerta:'Alerta'}[v.tipo]||v.tipo;let detail='';if(v.tipo==='inspeccion')detail=(v.lecturas||[]).map(x=>`${x.codigo} ${x.porcentaje}%`).join(' · ');if(v.tipo==='recoleccion')detail=`${(v.totes||[]).map(x=>x.codigo).join(', ')} · ${(v.volumenRetirado||0).toLocaleString('es-MX')} L retirados`;if(v.tipo==='solicitud')detail=`${v.numero} · ${v.estado}`;if(v.tipo==='alerta')detail=v.message;return `<div class="ag-row"><div class="ag-row-main"><div class="ag-row-title">${type} · ${r.fecha}</div><div class="ag-row-sub">${esc(detail)}</div><div class="ag-row-sub">${esc(r.tecnico_nombre||v.responsable||'Sistema')} ${v.evidencia?'· Con evidencia':''}</div></div><span class="ag-status ${r.estado==='alerta'?'bad':'ok'}">${r.estado==='alerta'?'Alerta':'Registrado'}</span></div>`;}).join('')||'<div class="ag-empty"><i class="ti ti-history"></i>Sin registros para estos filtros.</div>';}
+function renderHistory(){const start=new Date();start.setDate(start.getDate()-30);const rows=AG.records.filter(r=>['inspeccion','recoleccion','solicitud','alerta'].includes(r.valores?.tipo)).sort((a,b)=>stamp(b)-stamp(a));return `<div class="ag-panel"><div class="ag-panel-head"><h2>Historial</h2><button class="btn-sm" onclick="agExportCSV()"><i class="ti ti-download"></i> Exportar CSV</button></div><div class="ag-form-grid"><div class="ag-field"><label>Desde</label><input id="ag-h-from" type="date" value="${localDate(start)}" onchange="agFilterHistory()"></div><div class="ag-field"><label>Hasta</label><input id="ag-h-to" type="date" value="${localDate()}" onchange="agFilterHistory()"></div><div class="ag-field"><label>Tote</label><select id="ag-h-code" onchange="agFilterHistory()"><option value="">Todos</option>${AG.config.totes.map(t=>`<option>${t.code}</option>`).join('')}</select></div><div class="ag-field"><label>Tipo</label><select id="ag-h-type" onchange="agFilterHistory()"><option value="">Todos</option><option value="inspeccion">Inspecciones</option><option value="recoleccion">Recolecciones</option><option value="solicitud">Solicitudes</option><option value="alerta">Alertas</option></select></div></div><div class="ag-list" id="ag-history-list" style="margin-top:14px">${historyRows(rows.filter(r=>r.fecha>=localDate(start)&&r.fecha<=localDate()))}</div></div>`;}
+function filterHistory(){const el=document.getElementById('ag-history-list');if(el)el.innerHTML=historyRows(filteredHistory());}
+function exportCSV(){const rows=filteredHistory(),lines=[['Fecha','Hora','Tipo','Responsable','Detalle','Medición'].join(',')];rows.forEach(r=>{const v=r.valores||{};let detail=v.message||v.numero||v.observaciones||'';let measured=v.tipo==='inspeccion'?'Estimado por porcentaje':v.tipo==='recoleccion'?'Estimado por nivel anterior y posterior':'N/A';lines.push([r.fecha,r.hora,v.tipo,r.tecnico_nombre||v.responsable||'',`"${String(detail).replace(/"/g,'""')}"`,measured].join(','));});const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`aguas_grises_${localDate()}.csv`;a.click();URL.revokeObjectURL(a.href);}
+
+function weekly(){const now=new Date(),dow=now.getDay(),monday=new Date(now);monday.setDate(now.getDate()+(dow===0?-6:1-dow));monday.setHours(0,0,0,0);const rows=AG.records.filter(r=>stamp(r)>=monday.getTime()),ins=rows.filter(r=>r.valores?.tipo==='inspeccion'),cols=rows.filter(r=>r.valores?.tipo==='recoleccion'),alerts=rows.filter(r=>r.valores?.tipo==='alerta'),generated=analysis(AG.config,ins,latestSnapshot(AG.config,ins));let missed=0;for(let d=new Date(monday);d<=now;d.setDate(d.getDate()+1)){if(d.getDay()===0||d.getDay()===6)continue;const date=localDate(d);AG.config.schedules.forEach(s=>{const due=new Date(d);const [h,m]=s.time.split(':').map(Number);due.setHours(h,m,0,0);if(due<=now&&!ins.some(r=>r.fecha===date&&r.valores.slot===s.time))missed++;});}return{inspections:ins.length,generated:generated.perDay?Math.round(generated.perDay*Math.max(1,(now-monday)/86400000)):null,collections:cols.length,removed:cols.reduce((a,r)=>a+(r.valores.volumenRetirado||0),0),alerts:alerts.length,missed,remaining:summary().remaining};}
+function renderAnalysis(){const a=analysis(),w=weekly();return `<div class="ag-kpis"><div class="ag-kpi"><span>Generación diaria</span><strong>${a.enough?Math.round(a.perDay).toLocaleString('es-MX')+' L':'—'}</strong><small>${a.enough?'Promedio estimado':'Datos insuficientes'}</small></div><div class="ag-kpi"><span>Días para llenar 1 tote</span><strong>${a.enough?(1000/a.perDay).toFixed(1):'—'}</strong><small>${a.enough?'Estimación':'Se requieren 2 semanas'}</small></div><div class="ag-kpi"><span>Próxima solicitud</span><strong>${a.next?a.next.date.toLocaleDateString('es-MX',{day:'2-digit',month:'short'}):'—'}</strong><small>${a.next?`${a.next.code} · estimación`:'Datos insuficientes'}</small></div><div class="ag-kpi"><span>Capacidad disponible</span><strong>${a.totalRemaining.toLocaleString('es-MX')} L</strong><small>Según últimas lecturas</small></div><div class="ag-kpi"><span>Muestras útiles</span><strong>${a.samples}</strong><small>Incrementos medidos</small></div><div class="ag-kpi"><span>Días observados</span><strong>${Math.floor(a.operationalDays)}</strong><small>Desde primera lectura</small></div></div><div class="ag-panel"><div class="ag-panel-head"><div><h2>Reporte semanal</h2><div class="ag-muted">Los volúmenes son estimados por porcentaje; los faltantes se muestran como no disponibles.</div></div></div><div class="ag-kpis"><div class="ag-kpi"><span>Inspecciones</span><strong>${w.inspections}</strong></div><div class="ag-kpi"><span>Volumen generado</span><strong>${w.generated===null?'—':w.generated.toLocaleString('es-MX')+' L'}</strong><small>${w.generated===null?'No disponible':'Estimado'}</small></div><div class="ag-kpi"><span>Recolecciones</span><strong>${w.collections}</strong><small>${w.removed.toLocaleString('es-MX')} L estimados</small></div><div class="ag-kpi"><span>Alertas</span><strong>${w.alerts}</strong></div><div class="ag-kpi"><span>Inspecciones omitidas</span><strong>${w.missed}</strong></div><div class="ag-kpi"><span>Capacidad al cierre</span><strong>${w.remaining===null?'—':w.remaining.toLocaleString('es-MX')+' L'}</strong><small>${w.remaining===null?'No disponible':'Estimada'}</small></div></div></div>`;}
+
+function renderConfig(){if(global.curProf?.rol!=='admin')return'<div class="ag-empty">Sin permiso para configurar el módulo.</div>';return `<div class="ag-panel"><div class="ag-panel-head"><div><h2>Configuración operativa</h2><div class="ag-muted">Los cambios aplican a nuevas evaluaciones; el historial se conserva.</div></div><button class="btn-sm" onclick="agAddTote()"><i class="ti ti-plus"></i> Agregar tote</button></div><div class="ag-form-grid"><div class="ag-field"><label>Alerta preventiva (%)</label><input id="ag-cfg-pre" type="number" min="1" max="99" value="${AG.config.thresholds.preventive}"></div><div class="ag-field"><label>Solicitar recolección (%)</label><input id="ag-cfg-req" type="number" min="1" max="99" value="${AG.config.thresholds.request}"></div><div class="ag-field"><label>Nivel crítico (%)</label><input id="ag-cfg-crit" type="number" min="1" max="100" value="${AG.config.thresholds.critical}"></div><div class="ag-field"><label>Contacto</label><input id="ag-cfg-contact" value="${esc(AG.config.contact)}"></div><div class="ag-field"><label>Modo de operación</label><select id="ag-cfg-mode"><option value="single" ${AG.config.operationMode==='single'?'selected':''}>Un tote a la vez</option><option value="multiple" ${AG.config.operationMode==='multiple'?'selected':''}>Múltiples totes</option></select></div><div class="ag-field"><label>Planta</label><input id="ag-cfg-plant" value="${esc(AG.config.plant)}"></div><div class="ag-field full"><label>Horarios (HH:MM separados por coma)</label><input id="ag-cfg-schedules" value="${esc(AG.config.schedules.map(s=>s.time).join(', '))}"></div></div><div style="margin-top:18px"><div class="ag-panel-head"><h2 style="font-size:16px">Totes</h2></div>${AG.config.totes.map((t,i)=>`<div class="ag-config-tote" data-cfg-tote="${i}"><div class="ag-field"><label>Identificador</label><input data-cfg-code value="${esc(t.code)}" disabled></div><div class="ag-field"><label>Capacidad (L)</label><input data-cfg-cap type="number" min="1" value="${t.capacity}"></div><div class="ag-field"><label>Ubicación</label><input data-cfg-location value="${esc(t.location||'')}"></div><label class="ag-radio" style="min-height:44px"><input data-cfg-active type="checkbox" ${t.active!==false?'checked':''}> Activo</label></div>`).join('')}</div><div class="ag-submit"><button class="btn-sm btn-primary" onclick="agSaveConfig()"><i class="ti ti-device-floppy"></i> Guardar configuración</button></div></div>`;}
+async function saveConfig(){const pre=Number(document.getElementById('ag-cfg-pre').value),req=Number(document.getElementById('ag-cfg-req').value),crit=Number(document.getElementById('ag-cfg-crit').value);if(!(pre<req&&req<crit&&crit<=100)){global.toast?.('Los umbrales deben cumplir: preventivo < solicitud < crítico ≤ 100');return;}const schedules=document.getElementById('ag-cfg-schedules').value.split(',').map(x=>x.trim()).filter(x=>/^\d{2}:\d{2}$/.test(x)).map((time,i)=>({time,label:['Inspección inicial','Inspección intermedia','Inspección final'][i]||`Inspección ${i+1}`}));if(!schedules.length){global.toast?.('Captura al menos un horario válido');return;}const totes=[...document.querySelectorAll('[data-cfg-tote]')].map(row=>({code:row.querySelector('[data-cfg-code]').value,capacity:Number(row.querySelector('[data-cfg-cap]').value),location:row.querySelector('[data-cfg-location]').value.trim(),active:row.querySelector('[data-cfg-active]').checked}));const config={...AG.config,thresholds:{preventive:pre,request:req,critical:crit},contact:document.getElementById('ag-cfg-contact').value.trim(),operationMode:document.getElementById('ag-cfg-mode').value,plant:document.getElementById('ag-cfg-plant').value.trim(),schedules,totes};const q=await global.db.from('bitacora_registros').upsert({bitacora_id:AG.bitacora.id,equipo_id:AG.bitacora.equipo_id,fecha:'2000-01-01',hora:'CONFIG',valores:{tipo:'config',config,creadoEn:new Date().toISOString()},observaciones:'Configuración del módulo',estado:'ok',alertas:[],tecnico_id:global.curUser?.id||null,tecnico_nombre:global.curProf?.nombre||null},{onConflict:'bitacora_id,fecha,hora'});if(q.error){global.toast?.('No se guardó: '+q.error.message);return;}AG.config=config;global.toast?.('✅ Configuración guardada');await load();}
+async function addTote(){const code=prompt('Identificador del nuevo tote (ej. TOTE-AG-05):','TOTE-AG-'+String(AG.config.totes.length+1).padStart(2,'0'));if(!code)return;const clean=code.trim().toUpperCase();if(AG.config.totes.some(t=>t.code===clean)){global.toast?.('Ese identificador ya existe');return;}const cap=Number(prompt('Capacidad nominal en litros:','1000'));if(!cap||cap<1)return;const q=await global.db.from('equipos').insert({codigo:clean,nombre:`Tote de aguas grises ${AG.config.totes.length+1}`,area:'Área de aguas grises',modelo:`IBC · ${cap.toLocaleString('es-MX')} L`,serie:'',estado:'Operativo',criticidad:'media',horas_actuales:0,frec_pm_horas:0});if(q.error){global.toast?.('No se agregó: '+q.error.message);return;}AG.config.totes.push({code:clean,capacity:cap,location:'Área de aguas grises',active:true,order:AG.config.totes.length+1});render();global.toast?.('Tote agregado; guarda la configuración');}
+
+function renderDetail(){const x=AG.snapshot[AG.detail];if(!x)return'<div class="ag-empty">Tote no encontrado.</div>';const hist=AG.records.filter(r=>JSON.stringify(r.valores||{}).includes(x.code)&&['inspeccion','recoleccion','alerta'].includes(r.valores?.tipo)).sort((a,b)=>stamp(b)-stamp(a)).slice(0,15);return `<div class="ag-panel"><div class="ag-panel-head"><button class="btn-sm" onclick="agCloseTote()"><i class="ti ti-arrow-left"></i> Volver</button><button class="btn-sm" onclick="agShowQR('${x.code}')"><i class="ti ti-qrcode"></i> Ver QR</button></div><div class="ag-detail-hero"><div class="ag-tank"><div class="ag-tank-fill" style="height:${x.percent??0}%"></div><div class="ag-tank-label">${x.percent===null?'—':x.percent+'%'}</div></div><div><span class="ag-code">${x.code}</span><h2 style="font:700 26px 'Inter Tight',sans-serif;color:#102a43;margin:12px 0 5px">Expediente del tote</h2><div class="ag-muted">${esc(x.location)} · Capacidad ${x.capacity.toLocaleString('es-MX')} L</div><div class="ag-kpis" style="margin-top:14px"><div class="ag-kpi"><span>Nivel actual</span><strong>${x.percent===null?'—':x.percent+'%'}</strong></div><div class="ag-kpi"><span>Volumen</span><strong>${x.volume===null?'—':x.volume.toLocaleString('es-MX')+' L'}</strong></div><div class="ag-kpi"><span>Estado</span><strong style="font-size:17px">${esc(x.status)}</strong></div></div>${can('capture')?`<button class="btn-sm btn-primary" style="margin-top:12px" onclick="agNewInspection(null,'${x.code}')"><i class="ti ti-pencil"></i> Registrar nueva lectura</button>`:''}</div></div></div><div class="ag-panel"><div class="ag-panel-head"><h2>Historial del tote</h2></div><div class="ag-list">${historyRows(hist)}</div></div>`;}
+function openTote(code){AG.detail=code;AG.view='dashboard';global._agDeepLinkActive=true;global._fdymTab='aguas-grises';global.setTab?.('aguas-grises');render();}
+function closeTote(){AG.detail=null;global._agDeepLinkActive=false;render();}
+function showQR(code){const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('tote',code);const modal=document.getElementById('modal-qr'),container=document.getElementById('qr-code-canvas');document.getElementById('qr-eq-nom').textContent='Tote de aguas grises';document.getElementById('qr-eq-cod').textContent=code;container.innerHTML='';new QRCode(container,{text:url.toString(),width:180,height:180,colorDark:'#102a43',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});global.openM?.('modal-qr');}
+function openFromLink(){const p=new URLSearchParams(location.search),code=p.get('tote');if(!code)return false;global._agDeepLinkActive=true;global._fdymTab='aguas-grises';AG.detail=code;global.setTab?.('aguas-grises');load({sync:false}).then(()=>{AG.detail=code;render();});p.delete('tote');history.replaceState({},'',location.pathname+(p.toString()?'?'+p:'')+location.hash);return true;}
+async function resolveAlert(id){const r=AG.alerts.find(x=>Number(x.id)===Number(id));if(!r||r.valores.condicionActiva!==false){global.toast?.('La condición todavía sigue activa');return;}const valores={...r.valores,activa:false,cerradaEn:new Date().toISOString(),cerradaPor:global.curProf?.nombre||''};const q=await global.db.from('bitacora_registros').update({valores,estado:'ok',alertas:[]}).eq('id',id);if(q.error){global.toast?.('No se pudo cerrar');return;}global.toast?.('Alerta cerrada');await load({sync:false});}
+
+function renderWidget(){const el=document.getElementById('ag-dashboard-widget');if(!el)return;if(!AG.ready){el.innerHTML='<div class="ag-widget"><div class="ag-widget-top"><h3>Control de Aguas Grises</h3><span class="ag-status">Pendiente</span></div><div class="ag-muted" style="margin-top:8px">Abre el módulo para completar la configuración inicial.</div></div>';return;}const s=summary();el.innerHTML=`<div class="ag-widget" onclick="setTab('aguas-grises')"><div class="ag-widget-top"><h3><i class="ti ti-droplet"></i> Control de Aguas Grises</h3><span class="ag-status ${AG.alerts.length?'bad':'ok'}">${AG.alerts.length?AG.alerts.length+' alerta'+(AG.alerts.length>1?'s':''):'Sin alertas'}</span></div><div class="ag-widget-grid"><div><span>Almacenado</span><b>${s.known.length?s.stored.toLocaleString('es-MX')+' L':'Pendiente'}</b></div><div><span>Restante</span><b>${s.remaining===null?'—':s.remaining.toLocaleString('es-MX')+' L'}</b></div><div><span>Disponibles</span><b>${s.known.length?s.available:'—'}</b></div><div><span>En operación</span><b>${s.operating?s.operating.code:'—'}</b></div></div></div>`;}
+
+function view(v){AG.view=v;AG.detail=null;if(v==='request-form'){newRequest();return;}render();}
+function newInspection(slot,code){if(!can('capture'))return;AG.pendingSlot=slot||suggestedSlot();AG.view='inspection';AG.detail=null;render();if(code)setTimeout(()=>document.querySelector(`[data-code="${CSS.escape(code)}"]`)?.scrollIntoView({behavior:'smooth',block:'center'}),50);}
+
+global.agView=view;global.agNewInspection=newInspection;global.agSaveInspection=saveInspection;global.agPhoto=photo;global.agNewRequest=newRequest;global.agSaveRequest=saveRequest;global.agSetRequestStatus=setRequestStatus;global.agWhatsApp=whatsApp;global.agNewCollection=newCollection;global.agSaveCollection=saveCollection;global.agFilterHistory=filterHistory;global.agExportCSV=exportCSV;global.agSaveConfig=saveConfig;global.agAddTote=addTote;global.agOpenTote=openTote;global.agCloseTote=closeTote;global.agShowQR=showQR;global.agResolveAlert=resolveAlert;global.renderAguasGrises=()=>load();global.renderAGDashboardWidget=renderWidget;global.abrirToteDesdeEnlace=openFromLink;global.AG_STATE=AG;
+
+if(typeof document!=='undefined'){const original=global.abrirEquipoDesdeEnlace;if(typeof original==='function'&&!original.__agWrapped){const wrapped=function(){if(new URLSearchParams(location.search).get('tote'))return openFromLink();return original.apply(this,arguments);};wrapped.__agWrapped=true;global.abrirEquipoDesdeEnlace=wrapped;}}
+
+if(typeof module!=='undefined'&&module.exports)module.exports={cfgDefault,mergeConfig,volume,levelClass,latestSnapshot,computeConditions,scheduleState,analysis,can};
+})(typeof window!=='undefined'?window:globalThis);
 
 </script>
 </body>
