@@ -30,3 +30,8 @@
 - Reintentar generación de OT sin duplicados.
 - Confirmar que permisos de supervisor/técnico permitan únicamente acciones autorizadas.
 - Asegurar compatibilidad con órdenes y reportes antiguos.
+
+## Integración HTML preparada (21/oct/2026)
+Se generó una vista previa de la aplicación a partir del HTML facilitado por el usuario (archivo `Samara_Facilities_HH_preview.html` guardado en Library). Incluye formularios de dos técnicos en ambas rutas de cierre: `cerrarOTDirecto` y `cerrarOT`; valida los dos integrantes, evita IDs repetidos, calcula HH y trata de guardar participantes en Supabase antes de completar la OT. **No desplegada ni subida como index.html al repositorio**, porque el blob `index.html` de main no coincide con el archivo recibido y el conector no devuelve su contenido al leerlo; sobreescribirlo a ciegas podría perder trabajo.
+
+No ejecutar hasta aplicar y validar la migración `ot_participantes`, políticas RLS por rol, y pruebas de cierre con Supabase de pruebas. La vista previa pasa `node --check` para el script principal, pero no hay prueba E2E. **No fusionar este PR** hasta completar esa revisión.
