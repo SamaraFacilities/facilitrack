@@ -4,6 +4,7 @@
 (function(root){
   'use strict';
   function minutosValidos(v){
+    if(v===null || v===undefined || (typeof v==='string' && !v.trim())) throw new Error('Minutos efectivos vacíos');
     const n=Number(v);
     if(!Number.isInteger(n) || n<0 || !Number.isSafeInteger(n))
       throw new Error('Minutos efectivos inválidos');
