@@ -1,0 +1,5 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');
+const {calendarioMes,candidatas}=require('../hvac-calendario.js');
+test('28 equipos, cuatro semanas y dos técnicos',()=>{let a=calendarioMes(2026,11);assert.equal(a.length,28);assert.equal(new Set(a.map(x=>x.codigo)).size,28);assert.deepEqual([1,2,3,4].map(n=>a.filter(x=>x.semana===n).length),[7,7,7,7]);assert.ok(a.every(x=>x.cuadrilla===2));});
+test('genera solo 7 días antes y omite periodo ya existente',()=>{let a=calendarioMes(2026,11);let first=a[0];let prior=new Date(first.fecha_programada+'T00:00:00Z');prior.setUTCDate(prior.getUTCDate()-8);assert.equal(candidatas([first],prior.toISOString().slice(0,10)).length,0);let at=new Date(first.fecha_programada+'T00:00:00Z');at.setUTCDate(at.getUTCDate()-7);let day=at.toISOString().slice(0,10);assert.equal(candidatas([first],day).length,1);assert.equal(candidatas([first],day,[first]).length,0);});
+test('febrero corto no incluye fechas inexistentes',()=>assert.equal(calendarioMes(2027,2).length,28));
