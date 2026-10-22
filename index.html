@@ -683,7 +683,7 @@ tr:hover td { background: var(--bg3) !important; }
 ::-webkit-scrollbar-thumb:hover { background: var(--txt3); }
 
 </style>
-</head>
+<script src="pm-scheduler.js"></script>\n</head>
 <body>
 
 <!-- LOGIN -->
@@ -985,7 +985,7 @@ tr:hover td { background: var(--bg3) !important; }
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:4px;"><i class="ti ti-info-circle"></i> Clic en un día para programar. Arrastra para reprogramar.</div>
-        <button class="btn-sm btn-primary" onclick="autoProgramarPMs()" title="Calcular y programar automáticamente los próximos PMs basado en horas de uso"><i class="ti ti-calendar-plus"></i> Auto-programar PMs</button>
+        <button class="btn-sm btn-primary" onclick="autoProgramarPMs()" title="Revisar preventivos próximos, vencidos y duplicados sin crear órdenes"><i class="ti ti-calendar-plus"></i> Revisar PMs (prueba)</button>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
     </div><!-- /tab-calendario -->
@@ -5548,136 +5548,47 @@ async function generarYVerPDF(otId){
 // Calcula la fecha del próximo PM basado en horas de uso
 // ══════════════════════════════════════════════════════════
 
+// Vista preliminar no destructiva: utiliza OTs existentes y el planificador aislado.
 async function autoProgramarPMs(){
-  if(!allEqs.length){ toast('No hay equipos registrados'); return; }
-  
-  let programados = 0;
-  let omitidos = 0;
-  const resultados = [];
-
-  for(const eq of allEqs){
-    if(!eq.frec_pm_horas || eq.frec_pm_horas <= 0) continue;
-
-    // Buscar el último PM completado de este equipo
-    const pmsCompletados = allOTs.filter(o =>
-      o.equipo_id === eq.id &&
-      o.tipo === 'Preventivo' &&
-      o.estado === 'Completada' &&
-      o.fecha_cierre
-    ).sort((a,b) => new Date(b.fecha_cierre) - new Date(a.fecha_cierre));
-
-    // Verificar si ya hay un PM futuro programado para este equipo
-    const pmFuturo = allOTs.find(o =>
-      o.equipo_id === eq.id &&
-      o.tipo === 'Preventivo' &&
-      o.estado !== 'Completada' &&
-      o.fecha_programada &&
-      new Date(o.fecha_programada) > new Date()
-    );
-
-    if(pmFuturo){
-      omitidos++;
-      resultados.push({eq: eq.nombre, status: 'Ya tiene PM programado', fecha: pmFuturo.fecha_programada, color: 'var(--amber-txt)'});
-      continue;
-    }
-
-    // Calcular fecha del próximo PM
-    let fechaBase = null;
-    let horasBase = 0;
-
-    if(pmsCompletados.length > 0){
-      // Partir desde el último PM realizado
-      fechaBase = new Date(pmsCompletados[0].fecha_cierre);
-      horasBase = eq.horas_actuales || 0;
-    } else {
-      // Sin historial — partir desde hoy con las horas actuales
-      fechaBase = new Date();
-      horasBase = eq.horas_actuales || 0;
-    }
-
-    // Calcular horas restantes hasta el próximo PM
-    const horasRestantes = Math.max(0, eq.frec_pm_horas - (horasBase % eq.frec_pm_horas));
-
-    // Estimar uso diario basado en OTs completadas (tiempo_minutos)
-    const otsConTiempo = allOTs.filter(o => o.equipo_id === eq.id && o.tiempo_minutos > 0);
-    let horasDiariasEstimadas = 8; // default 8h/día
-    if(otsConTiempo.length >= 2){
-      const totalHoras = otsConTiempo.reduce((s,o)=>s+(o.tiempo_minutos||0),0) / 60;
-      const fechaPrimera = new Date(otsConTiempo[otsConTiempo.length-1].fecha_creacion);
-      const diasTranscurridos = Math.max(1, (new Date()-fechaPrimera)/(1000*60*60*24));
-      horasDiariasEstimadas = Math.max(1, totalHoras/diasTranscurridos);
-    }
-
-    // Calcular días hasta el próximo PM
-    const diasHastaProximoPM = Math.ceil(horasRestantes / horasDiariasEstimadas);
-    const fechaProximoPM = new Date(fechaBase);
-    fechaProximoPM.setDate(fechaProximoPM.getDate() + diasHastaProximoPM);
-
-    // No programar en el pasado
-    if(fechaProximoPM < new Date()){
-      fechaProximoPM.setDate(new Date().getDate() + 7); // Urgente: en 1 semana
-    }
-
-    const fechaStr = fechaProximoPM.toISOString().slice(0,10);
-
-    // Crear la OT de PM en Supabase
-    const{error} = await db.from('ordenes_trabajo').insert({
-      equipo_id: eq.id,
-      equipo_nombre: `${eq.codigo} – ${eq.nombre}`,
-      tipo: 'Preventivo',
-      prioridad: diasHastaProximoPM <= 7 ? 'Urgente' : diasHastaProximoPM <= 30 ? 'Alta' : 'Media',
-      estado: 'Pendiente',
-      descripcion: `PM programado automáticamente. Frecuencia: cada ${eq.frec_pm_horas}h. Horas actuales: ${eq.horas_actuales||0}h.`,
-      fecha_programada: fechaStr,
-      tecnico_id: null,
-      tecnico_nombre: null,
-      creado_por: curUser?.id,
-    });
-
-    if(!error){
-      programados++;
-      resultados.push({
-        eq: eq.nombre,
-        status: 'PM programado',
-        fecha: fechaStr,
-        dias: diasHastaProximoPM,
-        color: 'var(--green-txt)'
-      });
-    } else {
-      resultados.push({eq: eq.nombre, status: 'Error: '+error.message, fecha: '–', color: 'var(--red-txt)'});
-    }
+  if(!window.SamaraPMScheduler){ toast('Planificador PM no disponible'); return; }
+  const hoy=window.SamaraPMScheduler.isoLocal(new Date());
+  const existentes=allOTs.filter(o=>o.tipo==='Preventivo' && o.fecha_programada);
+  const pendientes=existentes.filter(o=>o.estado!=='Completada');
+  const ready=pendientes.filter(o=>{
+    const dias=window.SamaraPMScheduler.daysBetween(hoy,o.fecha_programada);
+    return dias>=0 && dias<=7;
+  });
+  const vencidas=pendientes.filter(o=>window.SamaraPMScheduler.daysBetween(hoy,o.fecha_programada)<0);
+  const futuras=pendientes.filter(o=>window.SamaraPMScheduler.daysBetween(hoy,o.fecha_programada)>7);
+  const grupos=new Map();
+  for(const o of pendientes){
+    const k=window.SamaraPMScheduler.key(o);
+    if(!grupos.has(k)) grupos.set(k,[]);
+    grupos.get(k).push(o);
   }
-
-  await forceLoadAll();
-
-  // Mostrar resultados en un modal/toast
-  if(programados === 0 && omitidos === allEqs.filter(e=>e.frec_pm_horas>0).length){
-    toast('ℹ️ Todos los equipos ya tienen PM programado');
-  } else {
-    toast(`✅ ${programados} PM(s) programados automáticamente`);
-  }
-
-  // Mostrar detalle en el calendario
-  const det = document.createElement('div');
-  det.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid var(--line);border-radius:4px;padding:24px;max-width:500px;width:90%;z-index:300;box-shadow:0 8px 40px rgba(0,0,0,.15);max-height:80vh;overflow-y:auto;';
-  det.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="font-family:'Playfair Display',serif;font-size:18px;">PMs Auto-programados</div>
-      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--txt3);">×</button>
-    </div>
-    ${resultados.length ? resultados.map(r=>`
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:500;">${r.eq}</div>
-          <div style="font-size:11px;color:var(--txt3);">Fecha: ${r.fecha}${r.dias?' · en '+r.dias+' días':''}</div>
-        </div>
-        <span style="font-size:11px;color:${r.color};font-weight:500;">${r.status}</span>
-      </div>`).join('') : '<div style="color:var(--txt3);text-align:center;padding:20px;">Sin equipos con frecuencia PM configurada</div>'}
-  `;
-  document.body.appendChild(det);
+  const duplicados=[...grupos.values()].filter(x=>x.length>1);
+  // Ninguna escritura sobre Supabase: primero validar planes, fechas y unicidad en BD.
+  const text=[
+    'VISTA PRELIMINAR — No se han generado órdenes',
+    'Preventivos existentes: '+pendientes.length,
+    'Próximos 7 días: '+ready.length,
+    'Futuros (>7 días): '+futuras.length,
+    'Vencidos: '+vencidas.length,
+    'Grupos duplicados detectados: '+duplicados.length,
+    '',
+    'Ejemplo de próximos trabajos:',
+    ...ready.slice(0,12).map(o=>'- '+(o.equipo_nombre||'Equipo '+o.equipo_id)+' · '+o.fecha_programada),
+    '',
+    'La generación automática está deshabilitada hasta validar periodicidad y protección de duplicados en BD.'
+  ].join('\n');
+  const det=document.createElement('div');
+  det.style.cssText='position:fixed;inset:8% 5%;margin:auto;max-width:560px;max-height:80vh;overflow:auto;background:#fff;z-index:9999;box-shadow:0 8px 40px #0005;border:1px solid #ddd;border-radius:8px;padding:20px';
+  const close=document.createElement('button');
+  close.className='btn-sm';close.textContent='Cerrar';close.onclick=()=>det.remove();
+  const pre=document.createElement('pre');
+  pre.style.cssText='white-space:pre-wrap;font:13px/1.6 sans-serif;word-break:break-word';
+  pre.textContent=text;det.append(close,pre);document.body.append(det);
 }
-
-
 
 
 // ══════════════════════════════════════════════════════════
