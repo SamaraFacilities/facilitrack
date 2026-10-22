@@ -5,7 +5,12 @@
 (function(root){
   'use strict';
   function isoLocal(d){
-    if(typeof d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(d)){\n      const [y,m,day]=d.split('-').map(Number);\n      const t=new Date(Date.UTC(y,m-1,day));\n      if(t.getUTCFullYear()!==y || t.getUTCMonth()!==m-1 || t.getUTCDate()!==day) throw Error('Fecha inválida');\n      return d;\n    }
+    if(typeof d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(d)){
+      const [y,m,day]=d.split('-').map(Number);
+      const t=new Date(Date.UTC(y,m-1,day));
+      if(t.getUTCFullYear()!==y || t.getUTCMonth()!==m-1 || t.getUTCDate()!==day) throw Error('Fecha inválida');
+      return d;
+    }
     const x=new Date(d);
     if(!Number.isFinite(x.getTime())) throw Error('Fecha inválida');
     return [x.getFullYear(),String(x.getMonth()+1).padStart(2,'0'),String(x.getDate()).padStart(2,'0')].join('-');
