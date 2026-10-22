@@ -1,0 +1,28 @@
+name: Validate PM scheduler (development only)
+on:
+  push:
+    branches:
+      - fix/pm-ventana-7-dias-2026
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify PM scheduler
+        run: node pm-scheduler.test.cjs
+      - name: Verify preview is read-only
+        run: |
+          node - <<'JS'
+          const fs=require('fs');
+          const html=fs.readFileSync('index.html','utf8');
+          if(!html.includes('Revisar PMs (prueba)')) throw Error('Preview button missing');
+          if(!html.includes('pm-scheduler.js')) throw Error('Planner missing');
+          if(!html.includes('Ninguna escritura sobre Supabase')) throw Error('Read-only protection missing');
+          console.log('Preview checks passed');
+          JS
