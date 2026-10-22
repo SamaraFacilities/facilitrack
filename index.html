@@ -5560,13 +5560,8 @@ async function autoProgramarPMs(){
   });
   const vencidas=pendientes.filter(o=>window.SamaraPMScheduler.daysBetween(hoy,o.fecha_programada)<0);
   const futuras=pendientes.filter(o=>window.SamaraPMScheduler.daysBetween(hoy,o.fecha_programada)>7);
-  const grupos=new Map();
-  for(const o of pendientes){
-    const k=window.SamaraPMScheduler.key(o);
-    if(!grupos.has(k)) grupos.set(k,[]);
-    grupos.get(k).push(o);
-  }
-  const duplicados=[...grupos.values()].filter(x=>x.length>1);
+  const audit=window.SamaraPMScheduler.auditOrders({orders:allOTs.filter(o=>o.tipo==='Preventivo'),today:hoy});
+  const duplicados=audit.duplicates;
   // Ninguna escritura sobre Supabase: primero validar planes, fechas y unicidad en BD.
   const text=[
     'VISTA PRELIMINAR — No se han generado órdenes',
