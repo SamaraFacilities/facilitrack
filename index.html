@@ -5562,6 +5562,8 @@ async function autoProgramarPMs(){
   const futuras=pendientes.filter(o=>window.SamaraPMScheduler.daysBetween(hoy,o.fecha_programada)>7);
   const audit=window.SamaraPMScheduler.auditOrders({orders:allOTs.filter(o=>o.tipo==='Preventivo'),today:hoy});
   const duplicados=audit.duplicates;
+  const reporteDuplicados=window.SamaraPMScheduler.duplicateReport(allOTs.filter(o=>o.tipo==='Preventivo'));
+
   // Ninguna escritura sobre Supabase: primero validar planes, fechas y unicidad en BD.
   const text=[
     'VISTA PRELIMINAR — No se han generado órdenes',
@@ -5570,6 +5572,7 @@ async function autoProgramarPMs(){
     'Futuros (>7 días): '+futuras.length,
     'Vencidos: '+vencidas.length,
     'Grupos duplicados detectados: '+duplicados.length,
+    ...reporteDuplicados.slice(0,8).map(g=>'Duplicado: '+g.equipment+' · '+g.date+' · OT '+g.ids.join(', ')),
     '',
     'Ejemplo de próximos trabajos:',
     ...ready.slice(0,12).map(o=>'- '+(o.equipo_nombre||'Equipo '+o.equipo_id)+' · '+o.fecha_programada),
