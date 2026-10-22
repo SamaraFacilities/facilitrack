@@ -27,7 +27,7 @@
   }
   function planNext({plan=[],existing=[],today=new Date(),daysBefore=7}={}){
     const dia=isoLocal(today);
-    const known=new Set(existing.filter(o=>o.fecha_programada).map(key));
+    const known=new Set(existing.filter(o=>o.fecha_programada && o.estado!=='Cancelada').map(key));
     const selected=[],future=[],duplicates=[],overdue=[];
     for(const o of plan){
       if(!o.equipo_id || !o.fecha_programada || !(o.actividad_id||o.plantilla_id||o.actividad||o.descripcion)) throw Error('Plan incompleto');
@@ -44,6 +44,7 @@
     const dia=isoLocal(today), groups=new Map();
     const counts={due:0,future:0,overdue:0,completed:0,undated:0};
     for(const o of orders){
+      if(o.estado==='Cancelada') continue;
       if(o.estado==='Completada'){counts.completed++;continue;}
       if(!o.fecha_programada){counts.undated++;continue;}
       const days=daysBetween(dia,isoLocal(o.fecha_programada));
@@ -56,7 +57,21 @@
     }
     return {counts,duplicates:[...groups.values()].filter(g=>g.length>1),asOf:dia};
   }
-  const api={isoLocal,daysBetween,key,planNext,auditOrders};
+  // Agrupa fechas repetidas de una misma actividad; conserva identificadores para revisión manual.
+  function duplicateReport(orders=[]){
+    const groups=new Map();
+    for(const o of orders){
+      if(!o.fecha_programada || o.estado==='Cancelada') continue;
+      const k=key(o);
+      if(!groups.has(k)) groups.set(k,[]);
+      groups.get(k).push(o);
+    }
+    return [...groups.entries()].filter(([,os])=>os.length>1).map(([identity,os])=>({
+      identity,ids:os.map(o=>o.id).filter(x=>x!=null),date:isoLocal(os[0].fecha_programada),
+      equipment:os[0].equipo_nombre||String(os[0].equipo_id),count:os.length
+    }));
+  }
+  const api={isoLocal,daysBetween,key,planNext,auditOrders,duplicateReport};
   if(typeof module!=='undefined'&&module.exports) module.exports=api;
   else root.SamaraPMScheduler=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
