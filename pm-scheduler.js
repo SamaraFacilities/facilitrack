@@ -5,7 +5,7 @@
 (function(root){
   'use strict';
   function isoLocal(d){
-    if(typeof d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+    if(typeof d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(d)){\n      const [y,m,day]=d.split('-').map(Number);\n      const t=new Date(Date.UTC(y,m-1,day));\n      if(t.getUTCFullYear()!==y || t.getUTCMonth()!==m-1 || t.getUTCDate()!==day) throw Error('Fecha inválida');\n      return d;\n    }
     const x=new Date(d);
     if(!Number.isFinite(x.getTime())) throw Error('Fecha inválida');
     return [x.getFullYear(),String(x.getMonth()+1).padStart(2,'0'),String(x.getDate()).padStart(2,'0')].join('-');
@@ -35,7 +35,23 @@
     }
     return {ready:selected,scheduled:future,existing:duplicates,overdue,asOf:dia};
   }
-  const api={isoLocal,daysBetween,key,planNext};
+  function auditOrders({orders=[],today=new Date(),daysBefore=7}={}){
+    const dia=isoLocal(today), groups=new Map();
+    const counts={due:0,future:0,overdue:0,completed:0,undated:0};
+    for(const o of orders){
+      if(o.estado==='Completada'){counts.completed++;continue;}
+      if(!o.fecha_programada){counts.undated++;continue;}
+      const days=daysBetween(dia,isoLocal(o.fecha_programada));
+      if(days<0) counts.overdue++;
+      else if(days<=daysBefore) counts.due++;
+      else counts.future++;
+      const k=key(o);
+      if(!groups.has(k))groups.set(k,[]);
+      groups.get(k).push(o);
+    }
+    return {counts,duplicates:[...groups.values()].filter(g=>g.length>1),asOf:dia};
+  }
+  const api={isoLocal,daysBetween,key,planNext,auditOrders};
   if(typeof module!=='undefined'&&module.exports) module.exports=api;
   else root.SamaraPMScheduler=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
