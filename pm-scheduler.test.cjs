@@ -25,3 +25,14 @@ const audit=auditOrders({today:'2026-10-22',orders:[
 assert.deepEqual(audit.counts,{due:2,future:1,overdue:1,completed:1,undated:0});
 assert.equal(audit.duplicates.length,1);
 console.log('PM audit: 4 verificaciones adicionales aprobadas');
+
+const {duplicateReport}=require('./pm-scheduler.js');
+const report=duplicateReport([
+ {id:424,equipo_id:61,equipo_nombre:'AC-09',tipo:'Inspección',descripcion:'Limpieza de Filtros, revision de niveles de Gas',fecha_programada:'2027-05-03',estado:'Por aprobar'},
+ {id:428,equipo_id:61,equipo_nombre:'AC-09',tipo:'Inspección',descripcion:'Limpieza de Filtros, revision de niveles de Gas',fecha_programada:'2027-05-03',estado:'Por aprobar'},
+ {id:999,equipo_id:61,equipo_nombre:'AC-09',tipo:'Inspección',descripcion:'Limpieza de Filtros, revision de niveles de Gas',fecha_programada:'2027-05-03',estado:'Cancelada'}
+]);
+assert.equal(report.length,1);
+assert.equal(report[0].ids.join(','),'424,428');
+assert.equal(planNext({today:'2026-10-22',plan:[p('2026-10-29')],existing:[{...p('2026-10-29'),estado:'Cancelada'}]}).ready.length,1);
+console.log('Reporte de duplicados y cancelaciones: 3 verificaciones aprobadas');
